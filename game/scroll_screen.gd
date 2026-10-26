@@ -26,9 +26,9 @@ const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const MONSTER_SCALE := 0.625
-const CHEST_SCALE := 0.8
-const TRAY := Rect2(300, 12, 360, 120)
-const DICE_Y := 72.0
+const CHEST_SCALE := 0.7
+const TRAY := Rect2(300, 8, 360, 150)
+const DICE_Y := 66.0
 const BUBBLE := Rect2(124, 20, 150, 52)
 const GEMS_AT := Vector2(752, 26)
 const BAR := Rect2(140, 516, 680, 10)
@@ -38,6 +38,12 @@ const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
 const MONSTER_ART := {"blorp": "blorp-idle", "craggy": "blorp-idle-alt"}
+## Event rocks wear a marker (yellow treasure, red enemy) from the start; what
+## is on them stays hidden until the slime lands there. false hides the
+## markers too, so every rock looks the same until it is reached.
+const MARKERS_AHEAD := true
+const MARKER_Y := WATER_Y - 60.0
+const MARKER_SCALE := 1.5
 
 var run: ScrollRun
 var save: Dictionary
@@ -59,6 +65,9 @@ var hero_sink := 0.0
 var sink_space := -1
 var rock_sink := 0.0
 var beaten := {}       # monster spaces beaten this attempt
+var revealed := -1     # the event space the slime is on, its contents shown
+var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
+var lid_open := false
 var opening := -1      # chest space whose gems are flying
 var gem_fly := 0.0
 var gem_count := 0
@@ -84,7 +93,7 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 
 func _ready() -> void:
-	for f in ["strip", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
+	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
 			"blorp-idle", "blorp-idle-alt", "slime-idle-0", "slime-idle-1", "slime-blink", "slime-hop-squash",
 			"slime-hop-stretch", "slime-hop-air"]:
 		tex[f] = load(ART + f + ".png")
@@ -111,6 +120,9 @@ func _ready() -> void:
 	add_child(overlay)
 	overlay.draw.connect(_draw_overlay)
 	_place_hero(run.pos)
+	if run.phase == ScrollRun.AWAIT_FIGHT:
+		revealed = run.pos
+		reveal = 1.0
 	_loop()
 
 
@@ -145,8 +157,10 @@ func _loop() -> void:
 				await _sink(out["to"])
 				await _restart()
 			"chest":
+				await _reveal(out["to"])
 				await _open_chest(out["to"], out["gems"])
 			"monster":
+				await _reveal(out["to"])
 				_say("Fight!")
 				await _wait(0.5)
 				await _fight()
@@ -245,6 +259,7 @@ func _cleared() -> void:
 ## The slime hops rock by rock, each hop counted, with a squash before the
 ## jump, a stretch on the way up and a small bounce on landing.
 func _hop_along(from: int, to: int) -> void:
+	revealed = -1
 	for i in range(from + 1, to + 1):
 		await _hop(_space_x(i - 1), _space_x(i))
 		Beeper.count(i - from)
@@ -298,6 +313,7 @@ func _restart() -> void:
 	await _fade_to(1.0)
 	_hide_dice()
 	beaten.clear()
+	revealed = -1
 	sink_space = -1
 	rock_sink = 0.0
 	hero_sink = 0.0
@@ -307,7 +323,19 @@ func _restart() -> void:
 	await _wait(0.5)
 
 
+## Landing on an event rock: its marker gives way to what was hidden there.
+func _reveal(space: int) -> void:
+	revealed = space
+	reveal = 0.0
+	lid_open = false
+	Beeper.tone(330.0, 0.08)
+	Beeper.tone(495.0, 0.12)
+	await _tween_prop("reveal", 1.0, 0.35)
+	await _wait(0.25)
+
+
 func _open_chest(space: int, n: int) -> void:
+	lid_open = true
 	opening = space
 	gem_count = n
 	gem_fly = 0.0
@@ -456,32 +484,56 @@ func _draw_world() -> void:
 			_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
 		else:
 			world.draw_texture(rock, p)
-	# chests and monsters on their spaces
+	# markers on event rocks not reached yet
 	for i in range(1, run.length()):
-		var s := run.space_at(i)
-		if s.is_empty():
+		var kind := _event_at(i)
+		if kind == "" or i == revealed or not MARKERS_AHEAD or i == sink_space:
 			continue
-		if s["type"] == "chest":
-			var t: Texture2D = tex["chest-open" if run.looted.has(i) else "chest-closed"]
-			var size := t.get_size() * CHEST_SCALE
-			var c := Vector2(_space_x(i) + 18, FEET_Y + 4)
-			world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y), size), false)
-		elif not beaten.has(i):
-			var t: Texture2D = tex[MONSTER_ART.get(s["monster"], "blorp-idle")]
-			var size := t.get_size() * MONSTER_SCALE
-			var breathe := sin(_t * 2.0 + i) * 2.0
-			var c := Vector2(_space_x(i), FEET_Y + 6)
-			world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y + breathe), Vector2(size.x, size.y + breathe)), false)
+		var m: Texture2D = tex["marker-treasure" if kind == "chest" else "marker-enemy"]
+		var bob := sin(_t * 2.5 + i * 0.7) * 3.0
+		var ms := m.get_size() * MARKER_SCALE
+		world.draw_texture_rect(m, Rect2(Vector2(_space_x(i), MARKER_Y + bob) - ms / 2.0, ms), false)
 	# the slime
 	_draw_hero()
+	# the monster on the rock just reached, beside the slime and facing it
+	if revealed >= 0 and _event_at(revealed) == "monster":
+		var s := run.space_at(revealed)
+		var t: Texture2D = tex[MONSTER_ART.get(s["monster"], "blorp-idle")]
+		var size := t.get_size() * MONSTER_SCALE * _pop()
+		var breathe := sin(_t * 2.0) * 2.0
+		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
+		world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y + breathe), Vector2(size.x, size.y + breathe)), false)
+	# the chest on the rock just reached, in front of the slime so it stays in view
+	if revealed >= 0 and run.space_at(revealed).get("type") == "chest":
+		var t: Texture2D = tex["chest-open" if lid_open else "chest-closed"]
+		var size := t.get_size() * CHEST_SCALE * _pop()
+		var c := Vector2(_space_x(revealed) + 46, FEET_Y + 6)
+		world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y), size), false)
 	# gems flying out of an opened chest
 	if opening >= 0:
 		var gem: Texture2D = tex["gem"]
 		for k in gem_count:
 			var spread := (k - (gem_count - 1) / 2.0) * 34.0
 			var e := gem_fly
-			var p := Vector2(_space_x(opening) + 18 + spread * e, FEET_Y - 60 - 120 * sin(minf(1.0, e * 1.4) * PI * 0.5))
+			var p := Vector2(_space_x(opening) + 46 + spread * minf(1.0, e * 2.0), FEET_Y - 60 - 120 * sin(minf(1.0, e * 1.4) * PI * 0.5))
 			world.draw_texture(gem, p - gem.get_size() / 2.0, Color(1, 1, 1, 1.0 - maxf(0.0, e - 0.7) / 0.3))
+
+
+## "chest" or "monster" while that space still holds something, else "".
+## An opened chest is empty for good; a beaten monster is gone this attempt.
+func _event_at(i: int) -> String:
+	var s := run.space_at(i)
+	match s.get("type", ""):
+		"chest":
+			return "" if run.looted.has(i) and i != revealed else "chest"
+		"monster":
+			return "" if beaten.has(i) else "monster"
+	return ""
+
+
+## The pop-in scale of a revealed chest or monster, with a little overshoot.
+func _pop() -> float:
+	return lerpf(0.3, 1.0, reveal) + 0.15 * sin(reveal * PI)
 
 
 func _draw_hero() -> void:
@@ -526,10 +578,14 @@ func _draw_hud() -> void:
 	if tray_waiting:
 		var a := 0.5 + 0.5 * sin(_t * 5.0)
 		hud.draw_rect(TRAY.grow(3), Color(1.0, 0.92, 0.3, a), false, 4.0)
-		hud.draw_string(font, TRAY.position + Vector2(0, 74), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
+		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
-		hud.draw_string(font, Vector2(TRAY.get_center().x - 30, DICE_Y + 22), op_sign, HORIZONTAL_ALIGNMENT_CENTER,
-				60, 64, Color(1, 1, 1, op_alpha))
+		# plus or minus between the dice, drawn as bars so every font shows it
+		var c := Vector2(TRAY.get_center().x, DICE_Y)
+		var col := Color(1, 1, 1, op_alpha)
+		hud.draw_rect(Rect2(c - Vector2(16, 4), Vector2(32, 8)), col)
+		if op_sign == "+":
+			hud.draw_rect(Rect2(c - Vector2(4, 16), Vector2(8, 32)), col)
 	# speech bubble (tap it to hear the question again)
 	if bubble != "":
 		hud.draw_rect(BUBBLE, INK)

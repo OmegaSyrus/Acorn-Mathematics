@@ -83,3 +83,35 @@ with attempt/task as they were when the task was answered.
 
 Resume = new run from `seed`, then set attempt, task_index and rng_state. The current
 task starts over and regenerates the same problem. Stickers and marks only ever grow.
+
+## 6. Scroll areas and move problems (spec v1.1, added 2026-10-26)
+
+A scroll area (`"type": "scroll"` in content/areas) is a row of `length` spaces crossed
+left to right, with `spaces` entries `{at, type: "chest" | "monster", monster?}`. It lists
+the grades it is built for (`grades`); each needs a `move` config in grades.json.
+Acorn: `{"ops": ["add", "sub"], "max_answer": 5, "die_max": 6}`.
+
+`generate_move(grade, rng, room)`, room = spaces left before the goal:
+
+1. `m = min(max_answer, room)`. `ops` = the config's ops, without `add` when `m < 2`.
+2. `op = ops[0]` if there is one op, else `ops[randi_range(0, len - 1)]`.
+3. add: `answer = randi_range(2, m)`, `a = randi_range(1, answer - 1)`, `b = answer - a`.
+   sub: `answer = randi_range(1, m)`, `a = randi_range(answer + 1, die_max)`, `b = a - answer`.
+   The answer is drawn first so every distance is equally likely.
+4. `choices = [1 .. m]` (the next m spaces), `answer_index = answer - 1`.
+5. Return `{kind: "move", grade, op, dice: [a, b], answer, choices, answer_index}`.
+
+Run (`logic/path/scroll_run.gd`, reference `tools/ref/scroll_run.py`), phases
+`await_roll`, `await_choice`, `await_fight`, `cleared`:
+
+| input | outcome |
+|---|---|
+| roll() | `generate_move(grade, rng, length - pos)` |
+| choose(i) wrong | `sink`: **restart** (attempt + 1, pos 0) |
+| choose(i) right | move to `pos + answer`, then: the last space `goal` (cleared); a monster `monster` (await_fight); an unopened chest `chest` with `gems = randi_range(chest_gems[0], chest_gems[1])`; anything else `hop` |
+| resolve_fight(won) | `fight_won` (await_roll) or `fight_lost` (restart) |
+
+Opened chests stay empty after a restart (`looted`), so gems can't be farmed; monsters come
+back. Events: `{attempt, pos, result, op?, dice?, pick?, gems?}`. Save:
+`{area, grade, seed, attempt, pos, looted, gems, phase, rng_state}`; a run saved in
+`await_choice` resumes at the roll. Vectors: `tests/vectors/scroll.json`.
