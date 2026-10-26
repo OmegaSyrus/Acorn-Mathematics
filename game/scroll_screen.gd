@@ -26,9 +26,9 @@ const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const MONSTER_SCALE := 0.625
-const CHEST_SCALE := 0.8
-const TRAY := Rect2(300, 12, 360, 120)
-const DICE_Y := 72.0
+const CHEST_SCALE := 0.7
+const TRAY := Rect2(300, 8, 360, 150)
+const DICE_Y := 66.0
 const BUBBLE := Rect2(124, 20, 150, 52)
 const GEMS_AT := Vector2(752, 26)
 const BAR := Rect2(140, 516, 680, 10)
@@ -456,17 +456,12 @@ func _draw_world() -> void:
 			_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
 		else:
 			world.draw_texture(rock, p)
-	# chests and monsters on their spaces
+	# monsters on their spaces
 	for i in range(1, run.length()):
 		var s := run.space_at(i)
 		if s.is_empty():
 			continue
-		if s["type"] == "chest":
-			var t: Texture2D = tex["chest-open" if run.looted.has(i) else "chest-closed"]
-			var size := t.get_size() * CHEST_SCALE
-			var c := Vector2(_space_x(i) + 18, FEET_Y + 4)
-			world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y), size), false)
-		elif not beaten.has(i):
+		if s["type"] == "monster" and not beaten.has(i):
 			var t: Texture2D = tex[MONSTER_ART.get(s["monster"], "blorp-idle")]
 			var size := t.get_size() * MONSTER_SCALE
 			var breathe := sin(_t * 2.0 + i) * 2.0
@@ -474,13 +469,21 @@ func _draw_world() -> void:
 			world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y + breathe), Vector2(size.x, size.y + breathe)), false)
 	# the slime
 	_draw_hero()
+	# chests, in front of the slime so one it lands on stays in view
+	for i in range(1, run.length()):
+		if run.space_at(i).get("type") != "chest":
+			continue
+		var t: Texture2D = tex["chest-open" if run.looted.has(i) else "chest-closed"]
+		var size := t.get_size() * CHEST_SCALE
+		var c := Vector2(_space_x(i) + 46, FEET_Y + 6)
+		world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y), size), false)
 	# gems flying out of an opened chest
 	if opening >= 0:
 		var gem: Texture2D = tex["gem"]
 		for k in gem_count:
 			var spread := (k - (gem_count - 1) / 2.0) * 34.0
 			var e := gem_fly
-			var p := Vector2(_space_x(opening) + 18 + spread * e, FEET_Y - 60 - 120 * sin(minf(1.0, e * 1.4) * PI * 0.5))
+			var p := Vector2(_space_x(opening) + 46 + spread * minf(1.0, e * 2.0), FEET_Y - 60 - 120 * sin(minf(1.0, e * 1.4) * PI * 0.5))
 			world.draw_texture(gem, p - gem.get_size() / 2.0, Color(1, 1, 1, 1.0 - maxf(0.0, e - 0.7) / 0.3))
 
 
@@ -526,10 +529,14 @@ func _draw_hud() -> void:
 	if tray_waiting:
 		var a := 0.5 + 0.5 * sin(_t * 5.0)
 		hud.draw_rect(TRAY.grow(3), Color(1.0, 0.92, 0.3, a), false, 4.0)
-		hud.draw_string(font, TRAY.position + Vector2(0, 74), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
+		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
-		hud.draw_string(font, Vector2(TRAY.get_center().x - 30, DICE_Y + 22), op_sign, HORIZONTAL_ALIGNMENT_CENTER,
-				60, 64, Color(1, 1, 1, op_alpha))
+		# plus or minus between the dice, drawn as bars so every font shows it
+		var c := Vector2(TRAY.get_center().x, DICE_Y)
+		var col := Color(1, 1, 1, op_alpha)
+		hud.draw_rect(Rect2(c - Vector2(16, 4), Vector2(32, 8)), col)
+		if op_sign == "+":
+			hud.draw_rect(Rect2(c - Vector2(4, 16), Vector2(8, 32)), col)
 	# speech bubble (tap it to hear the question again)
 	if bubble != "":
 		hud.draw_rect(BUBBLE, INK)
