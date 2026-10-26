@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "lava_1",
+  "world": "lava_caves",
+  "name": "Lava Caves 1",
+  "tasks": [
+    { "type": "path" },
+    { "type": "path" },
+    { "type": "door" },
+    { "type": "path" },
+    { "type": "chest" },
+    { "type": "path" },
+    { "type": "path" },
+    { "type": "door" },
+    { "type": "chest" },
+    { "type": "path" }
+  ]
+}

@@ -1,0 +1,5165 @@
+{
+ "version": 1,
+ "cases": [
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 1,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2657092299
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 2,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1228348618
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 3,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 4283800655
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 4,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1629412512
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 5,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1175100977
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 6,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 697888650
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 7,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3849138941
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 8,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3247499250
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 9,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     3,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2206986603
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 10,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1423765354
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 11,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2413985194
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 12,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 802283356
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 13,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     3,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2981223831
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 14,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1726399382
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 15,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     3,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 4169580893
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 16,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 330010483
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 17,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2378927544
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 18,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1732793370
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 19,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3304886642
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 20,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 563192719
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 21,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3220283716
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 22,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 106334394
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 23,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2460345134
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 24,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3999170754
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 25,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2418048536
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 26,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1199005721
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 27,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 164151182
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 28,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1014648879
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 29,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2719634148
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 30,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1968000229
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 31,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3945614894
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 32,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3874760368
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 33,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1198202478
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 34,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1328207826
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 35,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 832780465
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 36,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3570272844
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 37,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 645251790
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 38,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2650347142
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 39,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1861480932
+  },
+  {
+   "grade": 1,
+   "kind": "path",
+   "seed": 40,
+   "problem": {
+    "kind": "path",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4213167376
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 1,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     8,
+     7,
+     5,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 82049198
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 2,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     3,
+     2,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3157281828
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 3,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     4,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2843875459
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 4,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     4,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2199352046
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 5,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     4,
+     3,
+     1,
+     2
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1889683105
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 6,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     2,
+     1,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2088257747
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 7,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     8,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2324260350
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 8,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     2,
+     4,
+     1,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 275222415
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 9,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     5,
+     6,
+     4,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3706100732
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 10,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     4,
+     3,
+     1
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1681207158
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 11,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     4,
+     2,
+     3,
+     1
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2060971847
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 12,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     3,
+     1,
+     4,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3932140070
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 13,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     4,
+     5,
+     3,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4005317256
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 14,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1450180098
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 15,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     5,
+     6,
+     3,
+     4
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1384908460
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 16,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     5,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 100058787
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 17,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     5,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 2
+   },
+   "state_after": 18169357
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 18,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     3,
+     2,
+     4,
+     1
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3583061580
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 19,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     7,
+     4,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3173347881
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 20,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     4,
+     5,
+     3
+    ],
+    "answer_index": 3
+   },
+   "state_after": 934025175
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 21,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     4,
+     7,
+     5
+    ],
+    "answer_index": 0
+   },
+   "state_after": 860876665
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 22,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     3,
+     2,
+     1,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1451646114
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 23,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     3,
+     1,
+     2,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2346736833
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 24,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     4,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 983145470
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 25,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     4,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3641728351
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 26,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     6,
+     4,
+     7,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1640229333
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 27,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2628757038
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 28,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     7,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4020860037
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 29,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     7,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3947531307
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 30,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     4,
+     7,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1402550433
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 31,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     6,
+     7,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1467662351
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 32,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     4,
+     5,
+     7
+    ],
+    "answer_index": 0
+   },
+   "state_after": 641354134
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 33,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     4,
+     2,
+     1,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2138862774
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 34,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1697733792
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 35,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     5,
+     4,
+     3
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2666134812
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 36,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     7,
+     5,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 341874914
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 37,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     4,
+     1,
+     3,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 4234872408
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 38,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     4,
+     3,
+     5,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2823869638
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 39,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     2,
+     4,
+     3,
+     1
+    ],
+    "answer_index": 3
+   },
+   "state_after": 50609253
+  },
+  {
+   "grade": 1,
+   "kind": "door",
+   "seed": 40,
+   "problem": {
+    "kind": "door",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     7,
+     5,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4265552580
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 1,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     8,
+     7,
+     5,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 82049198
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 2,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     3,
+     2,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3157281828
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 3,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     4,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2843875459
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 4,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     4,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2199352046
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 5,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     4,
+     3,
+     1,
+     2
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1889683105
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 6,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     2,
+     1,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2088257747
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 7,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     8,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2324260350
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 8,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     2,
+     4,
+     1,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 275222415
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 9,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     5,
+     6,
+     4,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3706100732
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 10,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     4,
+     3,
+     1
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1681207158
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 11,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     4,
+     2,
+     3,
+     1
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2060971847
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 12,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     3,
+     1,
+     4,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3932140070
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 13,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     4,
+     5,
+     3,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4005317256
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 14,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1450180098
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 15,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     5,
+     6,
+     3,
+     4
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1384908460
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 16,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     5,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 100058787
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 17,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     5,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 2
+   },
+   "state_after": 18169357
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 18,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     3,
+     2,
+     4,
+     1
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3583061580
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 19,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     7,
+     4,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3173347881
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 20,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     4,
+     5,
+     3
+    ],
+    "answer_index": 3
+   },
+   "state_after": 934025175
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 21,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     4,
+     7,
+     5
+    ],
+    "answer_index": 0
+   },
+   "state_after": 860876665
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 22,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     3,
+     2,
+     1,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1451646114
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 23,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     3,
+     1,
+     2,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2346736833
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 24,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     4,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 983145470
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 25,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     4,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3641728351
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 26,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     6,
+     4,
+     7,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1640229333
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 27,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2628757038
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 28,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     7,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4020860037
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 29,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     7,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3947531307
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 30,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     5
+    ],
+    "answer": 5,
+    "choices": [
+     4,
+     7,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1402550433
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 31,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     5,
+     6,
+     7,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1467662351
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 32,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     4,
+     5,
+     7
+    ],
+    "answer_index": 0
+   },
+   "state_after": 641354134
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 33,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     4,
+     2,
+     1,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2138862774
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 34,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1697733792
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 35,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     5,
+     4,
+     3
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2666134812
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 36,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     4,
+     7,
+     5,
+     6
+    ],
+    "answer_index": 3
+   },
+   "state_after": 341874914
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 37,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     4,
+     1,
+     3,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 4234872408
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 38,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     4
+    ],
+    "answer": 4,
+    "choices": [
+     4,
+     3,
+     5,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2823869638
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 39,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     2,
+     4,
+     3,
+     1
+    ],
+    "answer_index": 3
+   },
+   "state_after": 50609253
+  },
+  {
+   "grade": 1,
+   "kind": "chest",
+   "seed": 40,
+   "problem": {
+    "kind": "chest",
+    "grade": 1,
+    "dice": [
+     6
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     7,
+     5,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4265552580
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 1,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     6,
+     10,
+     11
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3031976842
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 2,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     4
+    ],
+    "answer": 7,
+    "choices": [
+     3,
+     4,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 490361609
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 3,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     2,
+     6
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     7,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2843875459
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 4,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     4
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2199352046
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 5,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     2,
+     6
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1889683105
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 6,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2064461878
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 7,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 9,
+    "choices": [
+     6,
+     8,
+     9,
+     10
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1838683560
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 8,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     6
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 275222415
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 9,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     4,
+     4
+    ],
+    "answer": 8,
+    "choices": [
+     4,
+     7,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1232804024
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 10,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     3,
+     5,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3463423181
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 11,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     2,
+     5
+    ],
+    "answer": 7,
+    "choices": [
+     2,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2060971847
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 12,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2473655649
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 13,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3396102742
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 14,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     6
+    ],
+    "answer": 9,
+    "choices": [
+     3,
+     6,
+     9,
+     10
+    ],
+    "answer_index": 2
+   },
+   "state_after": 175483366
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 15,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     4,
+     6
+    ],
+    "answer": 10,
+    "choices": [
+     4,
+     9,
+     10,
+     11
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3201163884
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 16,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     3,
+     5,
+     7,
+     8
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3866642793
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 17,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     4,
+     5
+    ],
+    "answer": 9,
+    "choices": [
+     5,
+     8,
+     9,
+     10
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1388315363
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 18,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     4
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     4,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3583061580
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 19,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     6
+    ],
+    "answer": 12,
+    "choices": [
+     6,
+     11,
+     12,
+     13
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2358098299
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 20,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     4
+    ],
+    "answer": 7,
+    "choices": [
+     3,
+     4,
+     6,
+     7
+    ],
+    "answer_index": 3
+   },
+   "state_after": 576865346
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 21,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     7,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2530873288
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 22,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1755758405
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 23,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     2,
+     3,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2346736833
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 24,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 983145470
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 25,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     7,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2174088487
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 26,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 6,
+    "choices": [
+     1,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3321274819
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 27,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     2,
+     3,
+     5,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2628757038
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 28,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 6,
+    "choices": [
+     1,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3113150736
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 29,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3767696935
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 30,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     5,
+     6
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     10,
+     11,
+     12
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3960332431
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 31,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     6
+    ],
+    "answer": 12,
+    "choices": [
+     6,
+     11,
+     12,
+     13
+    ],
+    "answer_index": 2
+   },
+   "state_after": 536691738
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 32,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     7,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2013990825
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 33,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2138862774
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 34,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3641694652
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 35,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     3,
+     7,
+     8,
+     9
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3515422506
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 36,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     10,
+     11,
+     12
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3155231362
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 37,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     5
+    ],
+    "answer": 6,
+    "choices": [
+     1,
+     5,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4234872408
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 38,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 6,
+    "choices": [
+     2,
+     4,
+     6,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2703970699
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 39,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     1,
+     6
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 50609253
+  },
+  {
+   "grade": 2,
+   "kind": "path",
+   "seed": 40,
+   "problem": {
+    "kind": "path",
+    "grade": 2,
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 906456078
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 1,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     6,
+     11,
+     10
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3385103793
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 2,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     4
+    ],
+    "answer": 7,
+    "choices": [
+     4,
+     7,
+     8,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2319215614
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 3,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     2,
+     6
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     9,
+     8,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1140391503
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 4,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     4
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     6,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1727581326
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 5,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     2,
+     6
+    ],
+    "answer": 8,
+    "choices": [
+     7,
+     6,
+     8,
+     2
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1535885771
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 6,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2389351760
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 7,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 9,
+    "choices": [
+     10,
+     9,
+     8,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3518474805
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 8,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     6
+    ],
+    "answer": 7,
+    "choices": [
+     6,
+     8,
+     7,
+     1
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4186715589
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 9,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     4,
+     4
+    ],
+    "answer": 8,
+    "choices": [
+     9,
+     7,
+     8,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4240087600
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 10,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     8,
+     5,
+     9,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 329091649
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 11,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     2,
+     5
+    ],
+    "answer": 7,
+    "choices": [
+     8,
+     2,
+     7,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3663273968
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 12,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     3,
+     5,
+     1,
+     4
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2675243339
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 13,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     5,
+     4,
+     1,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2588038846
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 14,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     6
+    ],
+    "answer": 9,
+    "choices": [
+     9,
+     3,
+     10,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2178080315
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 15,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     4,
+     6
+    ],
+    "answer": 10,
+    "choices": [
+     4,
+     10,
+     9,
+     11
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1209420682
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 16,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     5,
+     3,
+     7,
+     8
+    ],
+    "answer_index": 3
+   },
+   "state_after": 369380136
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 17,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     4,
+     5
+    ],
+    "answer": 9,
+    "choices": [
+     10,
+     8,
+     9,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3753959065
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 18,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     4
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     5,
+     6,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2052949836
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 19,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     6
+    ],
+    "answer": 12,
+    "choices": [
+     12,
+     11,
+     6,
+     13
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2137729209
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 20,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     4
+    ],
+    "answer": 7,
+    "choices": [
+     6,
+     4,
+     3,
+     7
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2219515730
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 21,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     8,
+     9,
+     7
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1301252835
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 22,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2342280179
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 23,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     2,
+     5,
+     6,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3350454557
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 24,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     4,
+     3,
+     2,
+     1
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2163735479
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 25,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     7,
+     9,
+     2,
+     8
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1180778278
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 26,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 6,
+    "choices": [
+     7,
+     1,
+     6,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2211558025
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 27,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     2,
+     6,
+     3,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3428668632
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 28,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     7,
+     1,
+     5
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3859756857
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 29,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3812202700
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 30,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     5,
+     6
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     10,
+     11,
+     12
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2547422483
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 31,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     6
+    ],
+    "answer": 12,
+    "choices": [
+     12,
+     11,
+     13,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3760181746
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 32,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     8,
+     9,
+     7,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1395957656
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 33,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     4,
+     2,
+     1,
+     3
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2334774183
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 34,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2369336684
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 35,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     8,
+     3,
+     9,
+     7
+    ],
+    "answer_index": 0
+   },
+   "state_after": 281829847
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 36,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 11,
+    "choices": [
+     11,
+     5,
+     10,
+     12
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3246115810
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 37,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     5
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     5,
+     1,
+     7
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3989905193
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 38,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 6,
+    "choices": [
+     7,
+     6,
+     4,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1262985244
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 39,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     1,
+     6
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4009186839
+  },
+  {
+   "grade": 2,
+   "kind": "door",
+   "seed": 40,
+   "problem": {
+    "kind": "door",
+    "grade": 2,
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     7,
+     8,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2006141335
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 1,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     6,
+     11,
+     10
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3385103793
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 2,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     4
+    ],
+    "answer": 7,
+    "choices": [
+     4,
+     7,
+     8,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2319215614
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 3,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     2,
+     6
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     9,
+     8,
+     7
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1140391503
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 4,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     4
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     6,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1727581326
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 5,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     2,
+     6
+    ],
+    "answer": 8,
+    "choices": [
+     7,
+     6,
+     8,
+     2
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1535885771
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 6,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     3,
+     4,
+     2
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2389351760
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 7,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 9,
+    "choices": [
+     10,
+     9,
+     8,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3518474805
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 8,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     6
+    ],
+    "answer": 7,
+    "choices": [
+     6,
+     8,
+     7,
+     1
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4186715589
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 9,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     4,
+     4
+    ],
+    "answer": 8,
+    "choices": [
+     9,
+     7,
+     8,
+     4
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4240087600
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 10,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     8,
+     5,
+     9,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 329091649
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 11,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     2,
+     5
+    ],
+    "answer": 7,
+    "choices": [
+     8,
+     2,
+     7,
+     6
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3663273968
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 12,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     3,
+     5,
+     1,
+     4
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2675243339
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 13,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     5,
+     4,
+     1,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2588038846
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 14,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     6
+    ],
+    "answer": 9,
+    "choices": [
+     9,
+     3,
+     10,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2178080315
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 15,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     4,
+     6
+    ],
+    "answer": 10,
+    "choices": [
+     4,
+     10,
+     9,
+     11
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1209420682
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 16,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     5,
+     3,
+     7,
+     8
+    ],
+    "answer_index": 3
+   },
+   "state_after": 369380136
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 17,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     4,
+     5
+    ],
+    "answer": 9,
+    "choices": [
+     10,
+     8,
+     9,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3753959065
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 18,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     4
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     5,
+     6,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2052949836
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 19,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     6
+    ],
+    "answer": 12,
+    "choices": [
+     12,
+     11,
+     6,
+     13
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2137729209
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 20,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     4
+    ],
+    "answer": 7,
+    "choices": [
+     6,
+     4,
+     3,
+     7
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2219515730
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 21,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     2,
+     8,
+     9,
+     7
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1301252835
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 22,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2342280179
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 23,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     2,
+     5,
+     6,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3350454557
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 24,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     4,
+     3,
+     2,
+     1
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2163735479
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 25,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     7,
+     9,
+     2,
+     8
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1180778278
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 26,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 6,
+    "choices": [
+     7,
+     1,
+     6,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2211558025
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 27,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     2,
+     6,
+     3,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 3428668632
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 28,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     7,
+     1,
+     5
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3859756857
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 29,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3812202700
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 30,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     5,
+     6
+    ],
+    "answer": 11,
+    "choices": [
+     5,
+     10,
+     11,
+     12
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2547422483
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 31,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     6
+    ],
+    "answer": 12,
+    "choices": [
+     12,
+     11,
+     13,
+     6
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3760181746
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 32,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 8,
+    "choices": [
+     8,
+     9,
+     7,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1395957656
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 33,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     4,
+     2,
+     1,
+     3
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2334774183
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 34,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     2,
+     3,
+     1,
+     4
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2369336684
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 35,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     3,
+     5
+    ],
+    "answer": 8,
+    "choices": [
+     8,
+     3,
+     9,
+     7
+    ],
+    "answer_index": 0
+   },
+   "state_after": 281829847
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 36,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 11,
+    "choices": [
+     11,
+     5,
+     10,
+     12
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3246115810
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 37,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     5
+    ],
+    "answer": 6,
+    "choices": [
+     6,
+     5,
+     1,
+     7
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3989905193
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 38,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 6,
+    "choices": [
+     7,
+     6,
+     4,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1262985244
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 39,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     1,
+     6
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     6,
+     7,
+     8
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4009186839
+  },
+  {
+   "grade": 2,
+   "kind": "chest",
+   "seed": 40,
+   "problem": {
+    "kind": "chest",
+    "grade": 2,
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 7,
+    "choices": [
+     1,
+     7,
+     8,
+     6
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2006141335
+  }
+ ]
+}

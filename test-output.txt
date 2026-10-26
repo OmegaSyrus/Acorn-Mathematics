@@ -1,0 +1,56 @@
+=== 2. run_tests
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+
+ok    test_attack_fuzz.gd test_every_attack_follows_the_rules (45033 ms)
+      note: Acorn: answer position smallest..largest ["25%", "25%", "25%", "25%"]; wrong choices from first picks 50%, next 33%, filler 17%
+      note: Sprout: answer position smallest..largest ["25%", "25%", "25%", "25%"]; wrong choices from first picks 72%, next 20%, filler 9%
+      note: Sapling: answer position smallest..largest ["25%", "25%", "25%", "25%"]; wrong choices from first picks 74%, next 18%, filler 8%
+      note: Oak: answer position smallest..largest ["25%", "25%", "25%", "25%"]; wrong choices from first picks 75%, next 19%, filler 6%
+ok    test_fight_bots.gd test_gate_random_and_perfect_vs_3_heart_monster (32835 ms)
+ok    test_fight_bots.gd test_bots_vs_4_heart_monster (36354 ms)
+ok    test_fight_bots.gd test_bots_vs_miniboss_duel (35460 ms)
+      note: 3-heart monster, Acorn: random 10.3% perfect 100.0% biggest 10.2% smallest 10.8% middle_of_run 10.2% not_middle 10.5%
+      note: 3-heart monster, Sprout: random 10.3% perfect 100.0% biggest 10.1% smallest 10.5% middle_of_run 12.2% not_middle 12.1%
+      note: 3-heart monster, Sapling: random 10.6% perfect 100.0% biggest 10.3% smallest 11.3% middle_of_run 13.2% not_middle 13.9%
+      note: 3-heart monster, Oak: random 11.0% perfect 100.0% biggest 11.0% smallest 10.2% middle_of_run 11.9% not_middle 11.0%
+      note: 4-heart monster, Acorn: random 3.7% perfect 100.0% biggest 3.6% smallest 4.1% middle_of_run 3.6% not_middle 3.7%
+      note: 4-heart monster, Sprout: random 3.5% perfect 100.0% biggest 3.1% smallest 3.6% middle_of_run 5.4% not_middle 4.5%
+      note: 4-heart monster, Sapling: random 3.7% perfect 100.0% biggest 3.9% smallest 4.0% middle_of_run 5.0% not_middle 5.9%
+      note: 4-heart monster, Oak: random 4.1% perfect 100.0% biggest 3.7% smallest 3.7% middle_of_run 4.9% not_middle 4.2%
+      note: miniboss duel, Acorn: random 10.3% perfect 100.0% biggest 10.2% smallest 10.8% middle_of_run 10.2% not_middle 10.5%
+      note: miniboss duel, Sprout: random 10.3% perfect 100.0% biggest 10.1% smallest 10.5% middle_of_run 12.2% not_middle 12.1%
+      note: miniboss duel, Sapling: random 10.6% perfect 100.0% biggest 10.3% smallest 11.3% middle_of_run 13.2% not_middle 13.9%
+      note: miniboss duel, Oak: random 11.0% perfect 100.0% biggest 11.0% smallest 10.2% middle_of_run 11.9% not_middle 11.0%
+ok    test_fight_rules.gd test_right_answer_parries_and_monster_loses_a_heart (1 ms)
+ok    test_fight_rules.gd test_wrong_answer_lands_the_hit (0 ms)
+ok    test_fight_rules.gd test_three_wrong_answers_lose_the_fight_and_restart_the_area (0 ms)
+ok    test_fight_rules.gd test_beating_the_monster_wins (1 ms)
+ok    test_fight_rules.gd test_every_fight_starts_with_fresh_hearts (0 ms)
+ok    test_fight_rules.gd test_normal_chest (0 ms)
+ok    test_fight_rules.gd test_mimic_is_a_fight_either_way (0 ms)
+ok    test_fight_rules.gd test_duel_uses_numerals_and_restarts_itself (1 ms)
+ok    test_fight_rules.gd test_same_seed_same_taps_same_fight (3 ms)
+ok    test_area_run.gd test_replay_vectors (69 ms)
+      bots grade 1: perfect 1000/1000, random 0/1000
+      bots grade 2: perfect 1000/1000, random 0/1000
+ok    test_area_run.gd test_bots_thousand_runs (2643 ms)
+ok    test_area_run.gd test_fall_restarts_area (1 ms)
+ok    test_area_run.gd test_wrong_chest_only_stays_shut (1 ms)
+ok    test_area_run.gd test_resume_at_every_task (32 ms)
+ok    test_area_run.gd test_save_keeps_what_was_earned (0 ms)
+ok    test_content.gd test_every_content_json_parses (1 ms)
+ok    test_content.gd test_grades (0 ms)
+ok    test_content.gd test_areas_have_6_to_10_tasks (1 ms)
+ok    test_content.gd test_stickers (0 ms)
+ok    test_input_gate.gd test_lockout_300ms (0 ms)
+ok    test_input_gate.gd test_twenty_lingering_presses (0 ms)
+ok    test_problem_gen.gd test_problem_vectors (45 ms)
+ok    test_problem_gen.gd test_fuzz_every_implemented_grade (994 ms)
+ok    test_rng.gd test_rng_vectors (3 ms)
+ok    test_rng.gd test_state_restore_continues_stream (0 ms)
+29 tests, 0 failed
+exit 0
+=== 3. main scene
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+
+exit 0

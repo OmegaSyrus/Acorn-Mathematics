@@ -1,0 +1,5742 @@
+{
+ "version": 1,
+ "cases": [
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 1,
+   "inputs": [
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      4,
+      2,
+      1,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      8,
+      7
+     ],
+     "pick": 1,
+     "sticker": "skull_key"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      5,
+      4,
+      3
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      5,
+      2,
+      4,
+      3
+     ],
+     "pick": 3,
+     "sticker": "lava_drop"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 1,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 1572275124
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 2,
+   "inputs": [
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      3,
+      5,
+      4,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      8,
+      5,
+      6,
+      7
+     ],
+     "pick": 2,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      5,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      6,
+      5,
+      4,
+      7
+     ],
+     "pick": 0,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 2,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 993987168
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 3,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      4,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      5,
+      2,
+      4
+     ],
+     "pick": 3,
+     "sticker": "lava_drop"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      4,
+      2,
+      3
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      3,
+      1,
+      2,
+      4
+     ],
+     "pick": 2,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 3,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 1790927299
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 4,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      4,
+      5,
+      3,
+      2
+     ],
+     "pick": 2,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      5,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      4,
+      1,
+      3,
+      2
+     ],
+     "pick": 1,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 4,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 4044578112
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 5,
+   "inputs": [
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 2,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      4,
+      5,
+      2,
+      3
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5
+     ],
+     "choices": [
+      4,
+      5,
+      3,
+      6
+     ],
+     "pick": 1,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      2,
+      1,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      4,
+      2,
+      1,
+      3
+     ],
+     "pick": 3,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 5,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 3300346758
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 6,
+   "inputs": [
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      4,
+      3,
+      1,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5
+     ],
+     "choices": [
+      7,
+      4,
+      5,
+      6
+     ],
+     "pick": 2,
+     "sticker": "lava_drop"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      4,
+      1,
+      3,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      4,
+      2,
+      3
+     ],
+     "pick": 2,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 6,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 2917772780
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 7,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      5,
+      2,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      5,
+      4,
+      2,
+      3
+     ],
+     "pick": 3,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      3,
+      4,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      4
+     ],
+     "choices": [
+      2,
+      5,
+      4,
+      3
+     ],
+     "pick": 2,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 7,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 2329129674
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 8,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      5
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      2,
+      1,
+      4,
+      3
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      8,
+      7
+     ],
+     "pick": 1,
+     "sticker": "fire_gem"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      3
+     ],
+     "choices": [
+      4,
+      2,
+      5,
+      3
+     ],
+     "pick": 3,
+     "sticker": "lava_drop"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 8,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 520028477
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 9,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      7,
+      8,
+      6,
+      5
+     ],
+     "pick": 2,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      3,
+      1,
+      4,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      4,
+      1,
+      3,
+      2
+     ],
+     "pick": 1,
+     "sticker": "skull_key"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 9,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 453342953
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 1,
+   "seed": 10,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2
+     ],
+     "choices": [
+      2,
+      4,
+      3,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      7,
+      6,
+      4
+     ],
+     "pick": 2,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5
+     ],
+     "choices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1
+     ],
+     "choices": [
+      4,
+      2,
+      3,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      7,
+      4
+     ],
+     "pick": 1,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 1,
+    "seed": 10,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 2853114887
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 1,
+   "inputs": [
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      5,
+      6,
+      10,
+      11
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      6
+     ],
+     "choices": [
+      3,
+      8,
+      9,
+      10
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4,
+      2
+     ],
+     "choices": [
+      2,
+      4,
+      5,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      1
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      5,
+      2
+     ],
+     "choices": [
+      2,
+      5,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      5,
+      10,
+      11,
+      12
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      3
+     ],
+     "choices": [
+      1,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      4,
+      5,
+      3,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      4
+     ],
+     "choices": [
+      2,
+      4,
+      5,
+      6
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      1,
+      5
+     ],
+     "choices": [
+      5,
+      1,
+      7,
+      6
+     ],
+     "pick": 3,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      3
+     ],
+     "choices": [
+      5,
+      7,
+      8,
+      9
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      4,
+      5
+     ],
+     "choices": [
+      9,
+      8,
+      10,
+      5
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5,
+      6
+     ],
+     "choices": [
+      11,
+      12,
+      10,
+      6
+     ],
+     "pick": 0,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      6
+     ],
+     "choices": [
+      6,
+      11,
+      12,
+      13
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 1,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 518928221
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 2,
+   "inputs": [
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3,
+      4
+     ],
+     "choices": [
+      3,
+      4,
+      7,
+      8
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1,
+      3
+     ],
+     "choices": [
+      1,
+      3,
+      4,
+      5
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      4
+     ],
+     "choices": [
+      2,
+      4,
+      5,
+      6
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "task": 2,
+     "type": "door",
+     "result": "trap",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      6,
+      11,
+      12,
+      10
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      3
+     ],
+     "choices": [
+      3,
+      5,
+      7,
+      8
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      4
+     ],
+     "choices": [
+      3,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      9,
+      10,
+      3,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6,
+      4
+     ],
+     "choices": [
+      6,
+      11,
+      10,
+      9
+     ],
+     "pick": 2,
+     "sticker": "fire_gem"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      4
+     ],
+     "choices": [
+      5,
+      8,
+      9,
+      10
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      5
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      6,
+      9,
+      8,
+      10
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      2,
+      2
+     ],
+     "choices": [
+      3,
+      5,
+      2,
+      4
+     ],
+     "pick": 3,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      1
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 2,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 2050423618
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 3,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      2,
+      7,
+      8,
+      9
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3,
+      6
+     ],
+     "choices": [
+      3,
+      6,
+      8,
+      9
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4,
+      6
+     ],
+     "choices": [
+      4,
+      6,
+      10,
+      11
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      2
+     ],
+     "choices": [
+      2,
+      4,
+      5,
+      6
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5,
+      6
+     ],
+     "choices": [
+      10,
+      6,
+      5,
+      11
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      1
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      8,
+      6,
+      10,
+      9
+     ],
+     "pick": 3,
+     "sticker": "skull_key"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      3
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      4
+     ],
+     "choices": [
+      4,
+      5,
+      9,
+      10
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5,
+      3
+     ],
+     "choices": [
+      8,
+      9,
+      5,
+      7
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5,
+      2
+     ],
+     "choices": [
+      2,
+      6,
+      7,
+      5
+     ],
+     "pick": 2,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      2
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 3,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 4088655134
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 4,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1,
+      4
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      1
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      4
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 2,
+     "type": "door",
+     "result": "trap",
+     "dice": [
+      6,
+      4
+     ],
+     "choices": [
+      4,
+      10,
+      11,
+      6
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      5,
+      1
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      2
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      2
+     ],
+     "choices": [
+      2,
+      4,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2,
+      3
+     ],
+     "choices": [
+      2,
+      6,
+      5,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      2
+     ],
+     "choices": [
+      2,
+      5,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      4,
+      5
+     ],
+     "choices": [
+      5,
+      8,
+      9,
+      4
+     ],
+     "pick": 2,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      6
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      5
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      10,
+      5,
+      12,
+      11
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5,
+      1
+     ],
+     "choices": [
+      6,
+      5,
+      1,
+      7
+     ],
+     "pick": 0,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      2,
+      6,
+      8,
+      9
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 4,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 3988185666
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 5,
+   "inputs": [
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      2,
+      6,
+      7,
+      8
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1,
+      6
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4,
+      4
+     ],
+     "choices": [
+      4,
+      7,
+      8,
+      9
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      3,
+      4
+     ],
+     "choices": [
+      3,
+      6,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      1
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      1,
+      3,
+      4,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      5
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      3,
+      6
+     ],
+     "choices": [
+      9,
+      3,
+      10,
+      6
+     ],
+     "pick": 0,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      4
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      3
+     ],
+     "choices": [
+      3,
+      5,
+      8,
+      9
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      4,
+      5,
+      3,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      1,
+      4
+     ],
+     "choices": [
+      6,
+      4,
+      5,
+      1
+     ],
+     "pick": 2,
+     "sticker": "skull_key"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      1
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 5,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 2362883634
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 6,
+   "inputs": [
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      3,
+      8,
+      9,
+      10
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2,
+      5
+     ],
+     "choices": [
+      2,
+      6,
+      7,
+      8
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      10,
+      11
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5,
+      4
+     ],
+     "choices": [
+      4,
+      5,
+      10,
+      9
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      3
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6,
+      4
+     ],
+     "choices": [
+      10,
+      6,
+      4,
+      11
+     ],
+     "pick": 0,
+     "sticker": "fire_gem"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      3
+     ],
+     "choices": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      1
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3,
+      5
+     ],
+     "choices": [
+      8,
+      5,
+      3,
+      9
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5,
+      5
+     ],
+     "choices": [
+      11,
+      5,
+      10,
+      9
+     ],
+     "pick": 2,
+     "sticker": "ember"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      5,
+      6,
+      10,
+      11
+     ],
+     "pick": 3
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 6,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 3223873210
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 7,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      6,
+      8,
+      9,
+      10
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      2
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      5,
+      3
+     ],
+     "choices": [
+      3,
+      5,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      3
+     ],
+     "choices": [
+      3,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      6,
+      8,
+      9,
+      10
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      6
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      2,
+      4,
+      1,
+      3
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      5,
+      10,
+      11,
+      12
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      4,
+      1
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      6
+     ],
+     "choices": [
+      3,
+      6,
+      8,
+      9
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      6,
+      3
+     ],
+     "choices": [
+      9,
+      10,
+      8,
+      3
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      2,
+      4
+     ],
+     "choices": [
+      4,
+      5,
+      7,
+      6
+     ],
+     "pick": 3,
+     "sticker": "lava_drop"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      5
+     ],
+     "choices": [
+      4,
+      8,
+      9,
+      10
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 7,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 1450361958
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 8,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      6
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      1
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "task": 2,
+     "type": "door",
+     "result": "trap",
+     "dice": [
+      1,
+      6
+     ],
+     "choices": [
+      8,
+      6,
+      1,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      6,
+      1
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      2,
+      7,
+      8,
+      9
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      2,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      3
+     ],
+     "choices": [
+      3,
+      4,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      2,
+      1
+     ],
+     "choices": [
+      3,
+      1,
+      4,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      6
+     ],
+     "choices": [
+      6,
+      11,
+      12,
+      13
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      2,
+      2
+     ],
+     "choices": [
+      5,
+      2,
+      3,
+      4
+     ],
+     "pick": 3,
+     "sticker": "fire_gem"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      10,
+      11
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      5
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      5,
+      4
+     ],
+     "choices": [
+      10,
+      5,
+      9,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6,
+      6
+     ],
+     "choices": [
+      12,
+      6,
+      13,
+      11
+     ],
+     "pick": 0,
+     "sticker": "dragon_scale"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      2
+     ],
+     "choices": [
+      2,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 8,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 3181725675
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 9,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      4,
+      4
+     ],
+     "choices": [
+      4,
+      7,
+      8,
+      9
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1,
+      3
+     ],
+     "choices": [
+      1,
+      3,
+      4,
+      5
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      6
+     ],
+     "choices": [
+      6,
+      8,
+      9,
+      10
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      1,
+      5
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      4
+     ],
+     "choices": [
+      5,
+      8,
+      9,
+      10
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      6
+     ],
+     "choices": [
+      1,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1,
+      4
+     ],
+     "choices": [
+      1,
+      5,
+      4,
+      6
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      3
+     ],
+     "choices": [
+      3,
+      5,
+      6,
+      7
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      5,
+      6
+     ],
+     "choices": [
+      12,
+      11,
+      5,
+      6
+     ],
+     "pick": 1,
+     "sticker": "fire_gem"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      6
+     ],
+     "choices": [
+      6,
+      11,
+      12,
+      13
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      2
+     ],
+     "choices": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      3,
+      3
+     ],
+     "choices": [
+      7,
+      3,
+      6,
+      5
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      2,
+      1,
+      4,
+      3
+     ],
+     "pick": 0,
+     "sticker": "lava_drop"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      6,
+      10,
+      11,
+      12
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 9,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 155257350
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_1",
+   "grade": 2,
+   "seed": 10,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "open",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "open",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      5
+     ],
+     "choices": [
+      3,
+      5,
+      8,
+      9
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      1,
+      4
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "task": 2,
+     "type": "door",
+     "result": "trap",
+     "dice": [
+      5,
+      3
+     ],
+     "choices": [
+      3,
+      7,
+      9,
+      8
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      1
+     ],
+     "choices": [
+      1,
+      4,
+      5,
+      6
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      5,
+      1
+     ],
+     "choices": [
+      1,
+      5,
+      6,
+      7
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      6
+     ],
+     "choices": [
+      3,
+      8,
+      9,
+      10
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "task": 1,
+     "type": "path",
+     "result": "fall",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      2,
+      6,
+      8,
+      9
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 0,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      5,
+      6
+     ],
+     "choices": [
+      5,
+      6,
+      11,
+      12
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 1,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      3
+     ],
+     "choices": [
+      4,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 2,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      6,
+      1
+     ],
+     "choices": [
+      6,
+      8,
+      7,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 3,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      6,
+      4
+     ],
+     "choices": [
+      6,
+      9,
+      10,
+      11
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 4,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      6,
+      5
+     ],
+     "choices": [
+      5,
+      6,
+      12,
+      11
+     ],
+     "pick": 3,
+     "sticker": "cave_bat"
+    },
+    {
+     "attempt": 4,
+     "task": 5,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      3,
+      5
+     ],
+     "choices": [
+      5,
+      7,
+      8,
+      9
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 6,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      4,
+      3
+     ],
+     "choices": [
+      3,
+      6,
+      7,
+      8
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "task": 7,
+     "type": "door",
+     "result": "door_open",
+     "dice": [
+      1,
+      1
+     ],
+     "choices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "task": 8,
+     "type": "chest",
+     "result": "chest_open",
+     "dice": [
+      4,
+      5
+     ],
+     "choices": [
+      9,
+      5,
+      10,
+      8
+     ],
+     "pick": 0,
+     "sticker": "skull_key"
+    },
+    {
+     "attempt": 4,
+     "task": 9,
+     "type": "path",
+     "result": "hop",
+     "dice": [
+      2,
+      6
+     ],
+     "choices": [
+      2,
+      6,
+      7,
+      8
+     ],
+     "pick": 3
+    }
+   ],
+   "final": {
+    "area": "lava_1",
+    "grade": 2,
+    "seed": 10,
+    "attempt": 4,
+    "task_index": 10,
+    "rng_state": 3207301492
+   },
+   "phase": "cleared"
+  }
+ ]
+}

@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "grades": [
+    {
+      "id": 1,
+      "key": "acorn",
+      "name": "Acorn",
+      "available": true,
+      "rule": "single",
+      "dice": [
+        {
+          "role": "move",
+          "min": 1,
+          "max": 6
+        }
+      ],
+      "choices": 4,
+      "min_choice": 1,
+      "max_choice": 8,
+      "move": {
+        "ops": [
+          "add",
+          "sub"
+        ],
+        "max_answer": 5,
+        "die_max": 6
+      }
+    },
+    {
+      "id": 2,
+      "key": "sprout",
+      "name": "Sprout",
+      "available": true,
+      "rule": "sum",
+      "dice": [
+        {
+          "role": "move",
+          "min": 1,
+          "max": 6
+        },
+        {
+          "role": "move",
+          "min": 1,
+          "max": 6
+        }
+      ],
+      "choices": 4,
+      "min_choice": 1,
+      "max_choice": 14
+    },
+    {
+      "id": 3,
+      "key": "sapling",
+      "name": "Sapling",
+      "available": false,
+      "rule": "missing",
+      "dice": [
+        {
+          "role": "move",
+          "min": 1,
+          "max": 6
+        }
+      ],
+      "choices": 4,
+      "min_choice": 1,
+      "max_choice": 8
+    },
+    {
+      "id": 4,
+      "key": "oak",
+      "name": "Oak",
+      "available": false,
+      "rule": "difference",
+      "dice": [
+        {
+          "role": "move",
+          "min": 2,
+          "max": 6
+        },
+        {
+          "role": "slip",
+          "min": 1,
+          "max": 5
+        }
+      ],
+      "choices": 4,
+      "min_choice": 1,
+      "max_choice": 8
+    }
+  ]
+}

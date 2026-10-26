@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "id": "lava_1_fights",
+  "world": "lava_caves",
+  "name": "Lava Caves 1 (fights)",
+  "tasks": [
+    { "type": "path" },
+    { "type": "fight", "monster": "blorp" },
+    { "type": "path" },
+    { "type": "chest", "mimic": true },
+    { "type": "door" },
+    { "type": "path" },
+    { "type": "chest" },
+    { "type": "fight", "monster": "craggy" },
+    { "type": "path" }
+  ]
+}

@@ -1,0 +1,5871 @@
+{
+ "version": 1,
+ "moves": [
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 1,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2916098932
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 2,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1384496955
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 3,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4283800655
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 4,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3956981061
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 5,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1175100977
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 6,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3110011518
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 7,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 344924426
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 8,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1891099109
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 9,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3714564753
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 10,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 573726430
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 11,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2413985194
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 12,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2607635616
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 13,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 918388692
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 14,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3387483035
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 15,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1681441007
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 16,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2250949156
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 17,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 737861968
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 18,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3568270623
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 19,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2038390379
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 20,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1844477793
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 21,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3223346197
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 22,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1064681562
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 23,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2460345134
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 24,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4137493441
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 25,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1531773109
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 26,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2753076474
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 27,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 164151182
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 28,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 491232900
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 29,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2962734576
+  },
+  {
+   "grade": 1,
+   "room": 1,
+   "seed": 30,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     3
+    ],
+    "answer": 1,
+    "choices": [
+     1
+    ],
+    "answer_index": 0
+   },
+   "state_after": 1338122687
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 1,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2657092299
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 2,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1228348618
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 3,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3612810753
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 4,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 842673404
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 5,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     4
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2891591223
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 6,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2064461878
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 7,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3849138941
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 8,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 502002592
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 9,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     4
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2206986603
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 10,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1423765354
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 11,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3401379233
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 12,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 802283356
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 13,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2981223831
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 14,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1726399382
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 15,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 4169580893
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 16,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 330010483
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 17,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     5
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2378927544
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 18,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1520210873
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 19,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     3
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3304886642
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 20,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 563192719
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 21,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3220283716
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 22,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1755758405
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 23,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 4140219790
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 24,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 239107283
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 25,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2418048536
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 26,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1199005721
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 27,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3642188498
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 28,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1014648879
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 29,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2719634148
+  },
+  {
+   "grade": 1,
+   "room": 2,
+   "seed": 30,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1968000229
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 1,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     4
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2657092299
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 2,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1228348618
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 3,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3612810753
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 4,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 842673404
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 5,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2891591223
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 6,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2064461878
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 7,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3849138941
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 8,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 502002592
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 9,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2206986603
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 10,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1423765354
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 11,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3401379233
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 12,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 802283356
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 13,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2981223831
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 14,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1726399382
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 15,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4169580893
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 16,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 330010483
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 17,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2378927544
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 18,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1520210873
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 19,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3304886642
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 20,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 563192719
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 21,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3220283716
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 22,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1755758405
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 23,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4140219790
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 24,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 239107283
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 25,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2418048536
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 26,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1199005721
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 27,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3642188498
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 28,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1014648879
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 29,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 0
+   },
+   "state_after": 2719634148
+  },
+  {
+   "grade": 1,
+   "room": 3,
+   "seed": 30,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3
+    ],
+    "answer_index": 2
+   },
+   "state_after": 1968000229
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 1,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2657092299
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 2,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1228348618
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 3,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3612810753
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 4,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 842673404
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 5,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2891591223
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 6,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     2
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2064461878
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 7,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3849138941
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 8,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 502002592
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 9,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2206986603
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 10,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     2
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1423765354
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 11,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 3401379233
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 12,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 802283356
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 13,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2981223831
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 14,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1726399382
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 15,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4169580893
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 16,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 330010483
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 17,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2378927544
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 18,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1520210873
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 19,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 3304886642
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 20,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 563192719
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 21,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3220283716
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 22,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1755758405
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 23,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 4140219790
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 24,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 239107283
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 25,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 2418048536
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 26,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1199005721
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 27,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3642188498
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 28,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1014648879
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 29,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2719634148
+  },
+  {
+   "grade": 1,
+   "room": 5,
+   "seed": 30,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1968000229
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 1,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2657092299
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 2,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1228348618
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 3,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     4
+    ],
+    "answer": 1,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 0
+   },
+   "state_after": 3612810753
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 4,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 842673404
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 5,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2891591223
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 6,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     2
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2064461878
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 7,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     2
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 3849138941
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 8,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 502002592
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 9,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     2
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2206986603
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 10,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     2
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1423765354
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 11,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 3401379233
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 12,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 802283356
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 13,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     4,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 2981223831
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 14,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     2
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1726399382
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 15,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 4169580893
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 16,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 330010483
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 17,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 2378927544
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 18,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1520210873
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 19,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 3304886642
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 20,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 563192719
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 21,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     5,
+     2
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3220283716
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 22,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1755758405
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 23,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 4140219790
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 24,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     1
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 239107283
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 25,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     1
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 2418048536
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 26,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 4,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 3
+   },
+   "state_after": 1199005721
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 27,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     6,
+     3
+    ],
+    "answer": 3,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 2
+   },
+   "state_after": 3642188498
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 28,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     1,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 1014648879
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 29,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "sub",
+    "dice": [
+     3,
+     1
+    ],
+    "answer": 2,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 1
+   },
+   "state_after": 2719634148
+  },
+  {
+   "grade": 1,
+   "room": 40,
+   "seed": 30,
+   "problem": {
+    "kind": "move",
+    "grade": 1,
+    "op": "add",
+    "dice": [
+     2,
+     3
+    ],
+    "answer": 5,
+    "choices": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "answer_index": 4
+   },
+   "state_after": 1968000229
+  }
+ ],
+ "cases": [
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 1,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:4",
+    "win",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "win",
+    "roll",
+    "pick:4"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "pos": 3,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "pos": 3,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      5,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "pos": 3,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "pos": 3,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 4,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 12,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 14,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 21,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 25,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 26,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 0,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "add",
+     "dice": [
+      1,
+      4
+     ],
+     "pick": 4
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 1,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     4,
+     18,
+     27
+    ],
+    "gems": 8,
+    "phase": "cleared",
+    "rng_state": 244103520
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 2,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 4,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 8,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 10,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 14,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 20,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 23,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 26,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 30,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 38,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      6,
+      5
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 2,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     4,
+     18
+    ],
+    "gems": 6,
+    "phase": "cleared",
+    "rng_state": 1823984889
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 3,
+   "inputs": [
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "win",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      5,
+      4
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 4,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      5,
+      1
+     ],
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 8,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 11,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 16,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      4
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 21,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 24,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 36,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      5,
+      4
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 3,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     4,
+     27
+    ],
+    "gems": 7,
+    "phase": "cleared",
+    "rng_state": 869686143
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 4,
+   "inputs": [
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "win",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "win",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      1,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      1,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 3,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 5,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 8,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 12,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 16,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 19,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 24,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 29,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 4,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [],
+    "gems": 0,
+    "phase": "cleared",
+    "rng_state": 4044578112
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 5,
+   "inputs": [
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      5,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 5,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 7,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 11,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 15,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 19,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      3
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 24,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 29,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 33,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 36,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 5,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [],
+    "gems": 0,
+    "phase": "cleared",
+    "rng_state": 1221277132
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 6,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "pos": 3,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "pos": 3,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "pos": 3,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "pos": 3,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 2,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 7,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 8,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      4
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 10,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 15,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 2,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 21,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 25,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 29,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 33,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      3
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 36,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 37,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 6,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     18
+    ],
+    "gems": 2,
+    "phase": "cleared",
+    "rng_state": 2878451679
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 7,
+   "inputs": [
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "win",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "win",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 2,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 4,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 7,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 11,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 14,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      2,
+      3
+     ],
+     "pick": 4,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 29,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 7,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     4,
+     18,
+     27
+    ],
+    "gems": 11,
+    "phase": "cleared",
+    "rng_state": 487092077
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 8,
+   "inputs": [
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 3,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 1,
+     "pos": 3,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 3,
+     "pos": 1,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 3,
+     "pos": 1,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      5,
+      4
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 1,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 4,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 5,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 7,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 10,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 14,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 16,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 19,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 23,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 26,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 29,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      3
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 36,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 37,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      5
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      6,
+      5
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 8,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     4
+    ],
+    "gems": 4,
+    "phase": "cleared",
+    "rng_state": 2893898524
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 9,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1",
+    "win",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "win",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:0"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 3,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 7,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 13,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      5,
+      1
+     ],
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 16,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 19,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 24,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 29,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 31,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 0
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 9,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     13,
+     18,
+     27,
+     31
+    ],
+    "gems": 15,
+    "phase": "cleared",
+    "rng_state": 818370916
+   },
+   "phase": "cleared"
+  },
+  {
+   "area": "lava_scroll",
+   "grade": 1,
+   "seed": 10,
+   "inputs": [
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:2",
+    "win",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
+    "win",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:0",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:1"
+   ],
+   "log": [
+    {
+     "attempt": 1,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 2,
+     "pos": 0,
+     "result": "sink",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 3,
+     "pos": 0,
+     "result": "sink",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 2,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 4,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 6,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 13,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 20,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      5,
+      3
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 28,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 30,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      3,
+      1
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 38,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 1
+    }
+   ],
+   "final": {
+    "area": "lava_scroll",
+    "grade": 1,
+    "seed": 10,
+    "attempt": 4,
+    "pos": 40,
+    "looted": [
+     4,
+     13,
+     18,
+     27
+    ],
+    "gems": 11,
+    "phase": "cleared",
+    "rng_state": 557909453
+   },
+   "phase": "cleared"
+  }
+ ]
+}
