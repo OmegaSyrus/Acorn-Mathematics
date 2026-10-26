@@ -46,6 +46,7 @@ rules, 300 ms lockout, content checks.
 | `tools/ref/` | Python reference + vector generator | the C++ tests use the same vectors |
 | `game/` | Godot scenes, drawing, input, sound, file IO | no, rewritten on SDL3 |
 | `logic/fight`, `tests/fight` | owned by the fights thread | |
+| `logic/bounce`, `content/bounce`, `tests/bounce` | Match Bounce boss fight; see `logic/bounce/README.md` | yes, physics included |
 
 ## Screen
 
@@ -62,6 +63,7 @@ for crisp shapes; switch to `viewport` with integer scaling when pixel art arriv
 
 ## Not in this phase
 
-Fights, mimics, the miniboss duel and Match Bounce (other threads), real art and voice,
+Match Bounce is started (`godot --path . res://scenes/bounce.tscn -- --grade=1`) but not
+linked from the map. Real art and voice,
 Sapling and Oak generators, the parent area. The die is a real 3D cube projected in 2D
 (`game/ui/die_view.gd`); pre-rendered tumble frames can replace its `_draw` later.

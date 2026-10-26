@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "physics": {
+    "dt": 0.008333333333333333,
+    "gravity": 400.0,
+    "launch_speed": 400.0,
+    "max_speed": 900.0,
+    "ball_radius": 12.0,
+    "wall_bounce": 0.8,
+    "bumper_bounce": 1.0,
+    "peg_bounce": 0.75,
+    "max_shot_seconds": 15.0,
+    "max_aim_decideg": 650
+  },
+  "grades": {
+    "1": { "rule": "match", "board": "acorn_1", "balls": 8, "boss_hearts": 10, "min_live": 3, "choices": 3 },
+    "2": { "rule": "sum", "board": "sprout_1", "balls": 6, "boss_hearts": 12, "min_live": 2, "choices": 4 },
+    "3": { "rule": "sum", "board": "sprout_1", "balls": 6, "boss_hearts": 12, "min_live": 2, "choices": 4 },
+    "4": { "rule": "difference", "board": "sprout_1", "balls": 6, "boss_hearts": 12, "min_live": 2, "choices": 4 }
+  }
+}
