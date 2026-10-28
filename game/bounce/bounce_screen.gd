@@ -3,7 +3,9 @@
 ## it returns. Drawn in the 960x540 design space; everything the child
 ## touches sits inside the 4:3 safe area, x 120..840.
 ##
-## One shot: tap the peg face that matches the boss's number (left column),
+## Each shot starts with the boss's turn: it spits its number out as rolled
+## dice (the same tumble as the crossing dice), and the choices open when they
+## land. Then: tap the peg face that matches the boss's number (left column),
 ## then touch the board and drag to aim; let go to fire. A short stub shows
 ## the direction only. The flight steps the logic at a fixed 120 Hz.
 ## Controller: d-pad names, left/right aims, A fires.
@@ -16,6 +18,8 @@ const BounceSim := preload("res://logic/bounce/bounce_sim.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
+const DieView := preload("res://game/ui/die_view.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
 
 ## Peg colours by face. Acorn uses 1 to 3; the colour helps the eye, the
 ## count is the answer.
@@ -40,7 +44,10 @@ const CHOICE_GAP := 96.0
 const BOSS_POS := Vector2(840, 150)
 const STUB_LENGTH := 70.0
 const AIM_KEY_SPEED := 600.0   # tenths of a degree per second
-const SLOW_MO := 0.25
+const BOSS_DIE_SCALE := 0.67   # 96 px dice drawn at about 64 px
+const BOSS_DIE_AT := Vector2(790, 214)
+const BOSS_JAW := Vector2(840, 160)
+const FLOAT_S := 1.1
 const FIRST_FACE_Y := 150.0
 
 var fight
@@ -60,14 +67,26 @@ var wobble := {}        # peg index -> seconds left
 var pop_rings := []     # [pos, color, age]
 var pop_count := 0
 var fail_buttons: Array[Rect2] = []
+var boss_dice: Array = []
+var floaters := []      # damage numbers: [text, pos, age]
+var slow_t := 0.0       # seconds since the last-heart slow-down began
+var ball_pop := 0.0     # 1 when the ball has just taken the boss's roll
+var slow_mo := 0.3      # time scale on the last heart, from tuning.json "screen"
 
 
 func setup(rng, grade: int, show_debug := false) -> void:
 	fight = BounceFight.new(rng, grade)
+	slow_mo = float(BounceFight.load_tuning()["screen"]["last_heart_time_scale"])
 	debug_on = show_debug
 
 
 func _ready() -> void:
+	for i in 2:
+		var d := DieView.new()
+		d.scale = Vector2.ONE * BOSS_DIE_SCALE
+		d.visible = false
+		add_child(d)
+		boss_dice.append(d)
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	choice.picked.connect(_on_named)
@@ -80,7 +99,48 @@ func _start_naming() -> void:
 	pop_count = 0
 	if fight.refills > 0 and fight.shot_count > 0 and _all_pegs_back():
 		_say("New pegs!")
-	choice.present(_choice_rects())
+	await _boss_rolls()
+	if phase != "naming":
+		return
+	if fight.auto_name():
+		await _ball_takes_roll()
+	else:
+		choice.present(_choice_rects())
+
+
+## Acorn: no naming step. The boss's dots jump onto the ball, which swells
+## for a moment, and the child goes straight to aiming.
+func _ball_takes_roll() -> void:
+	fight.name_for_child()
+	Beeper.count(fight.target)
+	ball_pop = 1.0
+	create_tween().tween_property(self, "ball_pop", 0.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	await get_tree().create_timer(0.3).timeout
+	phase = "aiming"
+
+
+## The boss's turn: its number tumbles out of the jaw as one die (1 to 6) or
+## two dice side by side (7 to 12, like DiceDraw.draw_value). Bigger numbers
+## stay a numeral.
+func _boss_rolls() -> void:
+	var faces := DiceDraw.split_value(fight.target)
+	for d in boss_dice:
+		d.visible = false
+	if faces.is_empty():
+		return
+	Beeper.roll()
+	for i in faces.size():
+		var d: DieView = boss_dice[i]
+		d.position = BOSS_DIE_AT + Vector2((i - (faces.size() - 1) / 2.0) * 70.0, 0)
+		d.roll_to(faces[i], 0.12 * i, (BOSS_JAW - d.position) / BOSS_DIE_SCALE)
+	while true:
+		await get_tree().process_frame
+		var all_on := true
+		for i in faces.size():
+			all_on = all_on and boss_dice[i].face_on
+		if all_on:
+			return
+
 
 
 func _all_pegs_back() -> bool:
@@ -99,6 +159,7 @@ func _fire() -> void:
 	fight.fire(aim)
 	_acc = 0.0
 	slow = false
+	slow_t = 0.0
 	if not fight.named_right:
 		_say("Ha ha!")
 
@@ -115,6 +176,8 @@ func _on_shot_over() -> void:
 		return
 	if out["state"] == BounceFight.State.LOST:
 		phase = "lost"
+		for d in boss_dice:
+			d.visible = false
 		Beeper.bad()
 		return
 	if out["damage"] == 0 and fight.named_right:
@@ -166,6 +229,11 @@ func _process(delta: float) -> void:
 	for r in pop_rings:
 		r[2] += delta
 	pop_rings = pop_rings.filter(func(r): return r[2] < 0.5)
+	for f in floaters:
+		f[2] += delta
+	floaters = floaters.filter(func(f): return f[2] < FLOAT_S)
+	if slow:
+		slow_t += delta
 	if phase == "aiming":
 		var dir := Input.get_axis("move_left", "move_right")
 		if absf(dir) > 0.0:
@@ -181,7 +249,7 @@ func _process(delta: float) -> void:
 ## run this frame, so the flight is the same at any frame rate.
 func _fly(delta: float) -> void:
 	var dt: float = fight.phys["dt"]
-	_acc += delta * (SLOW_MO if slow else 1.0)
+	_acc += delta * (slow_mo if slow else 1.0)
 	while _acc >= dt and fight.sim.ended == BounceSim.End.NONE:
 		_acc -= dt
 		for e in fight.sim.step():
@@ -200,11 +268,14 @@ func _on_event(e: Dictionary) -> void:
 			pop_count += 1
 			Beeper.count(pop_count + 2)
 			boss_flash = 1.0
+			_float_damage(int(e["damage"]))
 			if e["damage"] > 1:
 				_say("Combo!")
 			if not slow and fight.is_lethal():
-				# The last heart: time slows and the pop lands with a fanfare.
+				# The last heart: time slows, the ball and pegs warble, and the
+				# pop lands with a fanfare.
 				slow = true
+				Beeper.warble()
 		"whiff":
 			wobble[e["peg"]] = 0.35
 			Beeper.tone(150.0, 0.04, -20.0)
@@ -217,6 +288,13 @@ func _on_event(e: Dictionary) -> void:
 func _say(text: String) -> void:
 	bubble = text
 	bubble_t = 1.4
+
+
+## A damage number that pops out of the boss and floats up. Hits close
+## together fan out a little so each one can be read.
+func _float_damage(n: int) -> void:
+	var k := floaters.size() % 3
+	floaters.append(["-%d" % n, BOSS_POS + Vector2((k - 1) * 58.0, -24.0 + k * 14.0), 0.0])
 
 
 # --- layout ----------------------------------------------------------------
@@ -239,7 +317,7 @@ func _board_rect() -> Rect2:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.1, 0.06, 0.05))
-	draw_rect(_board_rect(), Color(0.16, 0.09, 0.07))
+	RoundBox.fill(self, _board_rect(), Color(0.16, 0.09, 0.07), 22.0)
 	var b: Dictionary = fight.board
 	for w in b["walls"]:
 		draw_line(Vector2(w[0], w[1]), Vector2(w[2], w[3]), WALL, 6.0)
@@ -254,11 +332,13 @@ func _draw() -> void:
 	_draw_ball()
 	_draw_boss(font)
 	_draw_balls_left()
-	_draw_choices(font)
+	if not fight.auto_name():
+		_draw_choices(font)
 	if bubble_t > 0.0:
 		var br := Rect2(BOSS_POS + Vector2(-150, 150), Vector2(140, 40))
-		draw_rect(br, INK)
+		RoundBox.fill(self, br, INK, 16.0)
 		draw_string(font, br.position + Vector2(0, 29), bubble, HORIZONTAL_ALIGNMENT_CENTER, br.size.x, 24, Color(0.1, 0.1, 0.1))
+	_draw_floaters(font)
 	if phase == "lost":
 		_draw_fail(font)
 	if debug_on:
@@ -285,13 +365,20 @@ func _draw_pegs(font: Font) -> void:
 		var c := Vector2(p["x"], p["y"])
 		if wobble.has(i):
 			c.x += sin(wobble[i] * 60.0) * 4.0
+		if slow:
+			c += _warble(c) * 3.0
 		var face := int(p["face"])
 		var col: Color = FACE_COLORS.get(face, INK)
 		if wobble.has(i):
 			col = col.darkened(0.4)
 		draw_circle(c, r, col)
 		draw_arc(c, r, 0, TAU, 24, Color(0, 0, 0, 0.5), 2.0)
-		DiceDraw.draw_face(self, c, r * 1.4, face)
+		if fight.peg_labels() == "numerals":
+			draw_circle(c, r * 0.72, INK)
+			draw_string(font, c + Vector2(-r, r * 0.42), str(face), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0, int(r * 1.3),
+					Color(0.08, 0.06, 0.06))
+		else:
+			DiceDraw.draw_face(self, c, r * 1.4, face)
 		if debug_on and phase == "naming" and face == fight.answer_face:
 			draw_arc(c, r + 5, 0, TAU, 24, Color(0.6, 1, 0.6), 2.0)
 	for i in b["mods"].size():
@@ -315,34 +402,79 @@ func _draw_launcher(font: Font) -> void:
 func _draw_ball() -> void:
 	var r: float = fight.phys["ball_radius"]
 	var at := BounceSim.launcher(fight.board)
-	var value: int = fight.ball_value
+	var value: int = fight.ball_shows() if fight.named_face > 0 or not fight.auto_name() else 0
 	if phase in ["flying", "settling"] and fight.sim != null:
 		at = fight.sim.pos
-		value = fight.sim.ball_value
+		value = fight.ball_shows() if fight.auto_name() else fight.sim.ball_value
+	r *= 1.0 + 0.6 * ball_pop
 	if phase in ["naming", "aiming", "flying", "settling"]:
 		var col := INK
 		if fight.named_face > 0:
 			col = FACE_COLORS.get(fight.named_face, INK).lightened(0.3)
-		if value > 0:
-			# The ball's own die, big enough to read while it flies.
-			draw_circle(at, r + 3, col)
-			DiceDraw.draw_face(self, at, r * 1.5, value)
+		if slow and phase in ["flying", "settling"]:
+			_draw_warble_ball(at, r + 3.0, col)
+		elif value > 0:
+			draw_circle(at, r + 7, col)
 		else:
 			draw_circle(at, r, col)
+		if value > 0:
+			# The ball's die, drawn a little bigger than the ball so the dots
+			# read while it flies.
+			DiceDraw.draw_face(self, at, r * 2.0, value)
+
+
+## The slowed ball: its rim ripples and rings ripple off it, so the child
+## sees that the bounce itself is changed, not just slower.
+func _draw_warble_ball(at: Vector2, r: float, col: Color) -> void:
+	var k := minf(1.0, slow_t * 4.0)
+	for ring in 3:
+		var ph := fmod(slow_t * 1.6 + ring / 3.0, 1.0)
+		var rr := r + 6.0 + ph * 34.0
+		var pts := PackedVector2Array()
+		for s in 33:
+			var a := TAU * s / 32.0
+			pts.append(at + Vector2(cos(a), sin(a)) * (rr + sin(a * 5.0 + slow_t * 9.0) * 3.0 * k))
+		draw_polyline(pts, Color(1.0, 0.9, 0.5, (1.0 - ph) * 0.7 * k), 3.0)
+	var body := PackedVector2Array()
+	for s in 32:
+		var a := TAU * s / 32.0
+		body.append(at + Vector2(cos(a), sin(a)) * r * (1.0 + 0.16 * k * sin(a * 6.0 + slow_t * 18.0)))
+	draw_colored_polygon(body, col)
+
+
+## A slow wave across the board while time is slowed.
+func _warble(c: Vector2) -> Vector2:
+	var k := minf(1.0, slow_t * 4.0)
+	return Vector2(sin(slow_t * 11.0 + c.y * 0.05), cos(slow_t * 9.0 + c.x * 0.05)) * k
 
 
 func _draw_boss(font: Font) -> void:
 	var col := Color(0.55, 0.5, 0.45).lerp(Color.WHITE, boss_flash * 0.7)
-	var body := Rect2(BOSS_POS - Vector2(90, 100), Vector2(180, 120))
-	draw_rect(body, col)
-	draw_rect(body, Color(0.1, 0.05, 0.05), false, 3.0)
+	var shake := Vector2(sin(_t * 70.0), cos(_t * 53.0)) * 5.0 * boss_flash
+	var body := Rect2(BOSS_POS - Vector2(90, 100) + shake, Vector2(180, 120))
+	RoundBox.fill(self, body, col, 20.0)
+	RoundBox.frame(self, body, Color(0.1, 0.05, 0.05), 3.0, 20.0)
 	draw_string(font, body.position + Vector2(0, -8), "Skeleton Dragon", HORIZONTAL_ALIGNMENT_CENTER, body.size.x, 16, INK)
-	# The target die, spat out of the jaw.
-	DiceDraw.draw_value(self, BOSS_POS + Vector2(-50, 64), 64.0, fight.target)
+	# The target, spat out of the jaw as rolled dice (above 12 a numeral).
+	if DiceDraw.split_value(fight.target).is_empty():
+		DiceDraw.draw_value(self, BOSS_DIE_AT, 64.0, fight.target)
 	# Hearts in rows of five, inside the safe area.
 	for i in fight.boss_max_hearts:
 		var c := Vector2(770 + (i % 5) * 14, 300 + (i / 5) * 16)
 		draw_circle(c, 6.0, HEART if i < fight.boss_hearts else HEART_EMPTY)
+
+
+## Damage numbers: they pop in big, settle, float up and fade.
+func _draw_floaters(font: Font) -> void:
+	for f in floaters:
+		var k: float = f[2] / FLOAT_S
+		var pop := 1.0 + 0.6 * maxf(0.0, 1.0 - k * 6.0)
+		var size := int(40.0 * pop)
+		var at: Vector2 = f[1] + Vector2(0, -56.0 * k)
+		var a := 1.0 - maxf(0.0, k - 0.6) / 0.4
+		var pos := at + Vector2(-60, size * 0.35)
+		draw_string_outline(font, pos, f[0], HORIZONTAL_ALIGNMENT_CENTER, 120, size, 8, Color(0.15, 0.02, 0.02, a))
+		draw_string(font, pos, f[0], HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(1.0, 0.85, 0.2, a))
 
 
 func _draw_balls_left() -> void:
@@ -372,5 +504,5 @@ func _draw_fail(font: Font) -> void:
 	fail_buttons = [Rect2(300, 280, 160, 90), Rect2(500, 280, 160, 90)]
 	var labels := ["Try", "Map"]
 	for i in 2:
-		draw_rect(fail_buttons[i], Color(0.3, 0.6, 0.3) if i == 0 else Color(0.4, 0.4, 0.5))
+		RoundBox.fill(self, fail_buttons[i], Color(0.3, 0.6, 0.3) if i == 0 else Color(0.4, 0.4, 0.5), 18.0)
 		draw_string(font, fail_buttons[i].position + Vector2(0, 58), labels[i], HORIZONTAL_ALIGNMENT_CENTER, 160, 36, INK)

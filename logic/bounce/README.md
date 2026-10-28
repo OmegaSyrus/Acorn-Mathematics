@@ -9,9 +9,14 @@ by line, physics included (plain circles and line segments, fixed 120 Hz step).
 
 | Grade | Rule | Ball | The boss shows | Pops |
 |---|---|---|---|---|
-| Acorn | `match` | no die | a die, 1 to 3 | pegs with that count (faces 1 to 3 in three colours) |
+| Acorn | `match` | takes the boss's roll | a die, 1 to 3 | pegs showing that numeral (1 to 3 in three colours) |
 | Sprout, Sapling | `sum` | a die | the target | pegs where ball + peg = target |
 | Oak | `difference` | a die, bigger than the peg | the target | pegs where ball - peg = target |
+
+At Acorn (`auto_name` and `peg_labels: "numerals"` in tuning.json, from the children's
+mother, 2026-10-28) there is no naming step: the boss rolls its die, the ball becomes that
+many dots, and the pegs show numerals, so the child aims the dots at the matching number.
+The choices are still drawn so the random draw order is the same.
 
 One shot: **name the peg** (tap the face that completes the target; Acorn offers 1, 2
 and 3, other grades four faces from 1 to 6), **aim** (drag from the board, a fixed 70 px
@@ -26,7 +31,7 @@ is a ghost: nothing pops and the boss laughs. The ball is spent either way.
 - The needed face is drawn only from faces with at least `min_live` pegs left; when no
   face has enough, the board fills up again ("New pegs!").
 - Balls: 8 at Acorn, 6 above. Out of balls with hearts left is the fail screen (Try, Map).
-- The last heart: `fight.is_lethal()` turns true mid-flight; the screen slows to 25%.
+- The last heart: `fight.is_lethal()` turns true mid-flight; the screen slows to 30% (`screen.last_heart_time_scale` in tuning.json) and the ball and pegs warble.
 
 Draw order per shot (the C++ port must match): refill check, needed face
 (`randi_range` over eligible faces), the ball die if the rule has one, then the

@@ -3,8 +3,9 @@
 ## what it returns. Covers the area screen while it runs; drawn in the
 ## 960x540 design space with everything that matters inside x 120..840.
 ##
-## The monster is a labelled box that shows which reaction it is playing
-## (Monsters.STATES), so each state can be checked before art exists.
+## The monster is its sprite where one exists (mirrored to face the hero),
+## else a labelled box; either way the label shows which reaction it is
+## playing (Monsters.STATES), so each state can be checked before art exists.
 extends Node2D
 
 signal done(won: bool)
@@ -16,6 +17,7 @@ const Monsters := preload("res://logic/fight/monsters.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
 
 const HERO_POS := Vector2(250, 372)
 const MONSTER_POS := Vector2(690, 372)
@@ -30,6 +32,7 @@ const SHIELD := Color(0.62, 0.6, 0.58)
 const SHIELD_RIM := Color(0.3, 0.28, 0.27)
 const HEART := Color(0.9, 0.15, 0.2)
 const HEART_EMPTY := Color(0.35, 0.25, 0.25)
+const MONSTER_ART := {"blorp": "res://art/lava/blorp-idle.png", "craggy": "res://art/lava/blorp-idle-alt.png"}
 const MONSTER_COLORS := {
 	"blorp": Color(0.85, 0.35, 0.12),
 	"craggy": Color(0.5, 0.48, 0.45),
@@ -55,6 +58,7 @@ var hero_flash := 0.0
 var hero_sink := 0.0
 var clang := 0.0
 var bubble := ""
+var monster_tex: Texture2D
 var _t := 0.0
 
 
@@ -79,6 +83,8 @@ func _ready() -> void:
 		dice.append(d)
 	choice = ChoiceWidget.new()
 	add_child(choice)
+	if MONSTER_ART.has(fight.monster_id):
+		monster_tex = load(MONSTER_ART[fight.monster_id])
 	_loop()
 
 
@@ -267,7 +273,7 @@ func _draw() -> void:
 		_draw_shields(font)
 	if bubble != "":
 		var b := Rect2(380, 12, 200, 44)
-		draw_rect(b, INK)
+		RoundBox.fill(self, b, INK, 16.0)
 		draw_string(font, b.position + Vector2(0, 32), bubble, HORIZONTAL_ALIGNMENT_CENTER, b.size.x, 28, Color(0.1, 0.1, 0.1))
 	if debug_on:
 		var atk = fight.attack
@@ -277,15 +283,21 @@ func _draw() -> void:
 		draw_string(font, Vector2(128, 201), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.6, 1, 0.6))
 
 
-## Sapling: the die, then "+ ? =", then the target as dots.
+## Sprout and Oak: the coloured sign between the two dice. Sapling: the die,
+## then "+ ? =", then the target as dots.
 func _draw_target(font: Font) -> void:
 	var atk = fight.attack
-	if atk.kind != Attack.Kind.DIE_AND_TARGET or not dice[0].visible:
+	if not dice[0].visible or not dice[0].face_on:
 		return
-	draw_string(font, Vector2(262, DICE_Y + 16), "+", HORIZONTAL_ALIGNMENT_CENTER, 40, 40, INK)
+	if atk.dice.size() == 2 and dice[1].face_on:
+		var op := "-" if atk.kind == Attack.Kind.MOVE_AND_SLIP else "+"
+		DiceDraw.draw_op(self, Vector2(480, DICE_Y), op, 40.0, _t)
+	if atk.kind != Attack.Kind.DIE_AND_TARGET:
+		return
+	DiceDraw.draw_op(self, Vector2(282, DICE_Y), "+", 32.0, _t)
 	var q := Rect2(312, DICE_Y - 34, 68, 68)
-	draw_rect(q, Color(0.25, 0.2, 0.18))
-	draw_rect(q, INK, false, 2.0)
+	RoundBox.fill(self, q, Color(0.25, 0.2, 0.18))
+	RoundBox.frame(self, q, INK, 2.0)
 	draw_string(font, q.position + Vector2(0, 50), "?", HORIZONTAL_ALIGNMENT_CENTER, q.size.x, 44, INK)
 	draw_string(font, Vector2(388, DICE_Y + 16), "=", HORIZONTAL_ALIGNMENT_CENTER, 40, 40, INK)
 	DiceDraw.draw_value(self, Vector2(492, DICE_Y), 56.0, atk.target)
@@ -362,8 +374,16 @@ func _draw_monster(font: Font) -> void:
 	var size := MONSTER_SIZE * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
 	var c := MONSTER_POS + Vector2(monster_dx, monster_sink * 60.0 - breathe)
 	var r := Rect2(c - Vector2(size.x / 2.0, size.y), size)
-	draw_rect(r, col)
-	draw_rect(r, Color(0.1, 0.05, 0.05, col.a), false, 3.0)
+	if monster_tex != null:
+		# the art faces right; a negative width mirrors it to face the hero
+		var ts := monster_tex.get_size() * 0.95 * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
+		var tr := Rect2(c + Vector2(ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
+		var glow := 1.0 + monster_flash * 2.0
+		draw_texture_rect(monster_tex, tr, false, Color(glow, glow, glow, col.a))
+		draw_string(font, Vector2(c.x - 100, c.y - ts.y + 44), monster_state, HORIZONTAL_ALIGNMENT_CENTER, 200, 18, Color(INK, col.a))
+		return
+	RoundBox.fill(self, r, col, 18.0)
+	RoundBox.frame(self, r, Color(0.1, 0.05, 0.05, col.a), 3.0, 18.0)
 	if fight.monster_id == "mimic":
 		# a chest with teeth: the lid line and a row of fangs
 		draw_line(r.position + Vector2(0, size.y * 0.35), r.position + Vector2(size.x, size.y * 0.35), Color(0.2, 0.1, 0.05, col.a), 4.0)

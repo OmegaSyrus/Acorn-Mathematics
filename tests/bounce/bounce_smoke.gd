@@ -26,13 +26,20 @@ func _ready() -> void:
 	s.setup(SeededRng.new(4242), grade)
 	stage.add_child(s)
 	await _frames(10)
-	_shot("1-naming")
+	_shot("0-boss-rolls")
 	for i in 3:
+		# the boss rolls its number first; then the choices open, or at Acorn
+		# the ball takes the roll and aiming starts
+		while not (s.choice.active or s.phase == "aiming"):
+			await _frames(1)
+		if i == 0:
+			_shot("1-naming")
 		var f = s.fight
-		var idx: int = f.choices.find(f.answer_face)
-		if i == 2:
-			idx = (idx + 1) % f.choices.size()
-		s._on_named(idx)
+		if s.choice.active:
+			var idx: int = f.choices.find(f.answer_face)
+			if i == 2:
+				idx = (idx + 1) % f.choices.size()
+			s.choice._pick(idx)
 		s.aim = [-150, 200, 0][i]
 		await _frames(5)
 		if i == 0:
