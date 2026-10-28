@@ -148,8 +148,9 @@ func _draw() -> void:
 			if lit[i]:
 				draw_circle(pts[i], 9.0, Color(1.0, 0.8, 0.1))
 		if numeral_alpha > 0.0:
-			draw_string(ThemeDB.fallback_font, Vector2(HALF * 1.5, HALF * 0.45), str(value),
-					HORIZONTAL_ALIGNMENT_LEFT, -1, 44, Color(1, 1, 1, numeral_alpha))
+			# under the die, so it never runs into a sign between two dice
+			draw_string(ThemeDB.fallback_font, Vector2(-40, 78), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 36,
+					Color(1, 1, 1, numeral_alpha))
 		return
 	var dot_col: Color = DiceDraw.SLIP_DOT if slip else DiceDraw.DOT
 	var face_col: Color = DiceDraw.SLIP_FACE if slip else DiceDraw.FACE

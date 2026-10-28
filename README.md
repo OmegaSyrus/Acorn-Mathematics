@@ -4,11 +4,21 @@ Prototype only, never shipped (plan 0.18, section 15). Placeholder shapes, no ar
 One area, Lava Caves 1: 10 tasks (6 path steps, 2 doors, 2 chests) at Acorn or Sprout,
 with the real fail rule.
 
+## The lava crossing (default area)
+
+`lava_scroll` is the first round at Acorn: 40 rocks in the lava, crossed left to right.
+Tap the dice tray to roll two dice (add, or subtract with a red die), then tap the rock
+that many spaces ahead (always 1 to 5). A right rock resolves its space: a chest gives 2
+to 4 gems, a monster starts a fight. A wrong rock sinks the slime with a blorp and the
+crossing starts again. Art is in `art/lava/` (PixelLab, see the project's art folders).
+The old ten-task path is still there: `godot --path . -- --area=lava_1`.
+
 ## Run it
 
 Godot 4.4 (standard build, not .NET). Open `project.godot`, press Play.
 Window is 1280x720; F11 toggles fullscreen.
-Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_1`).
+Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_scroll`).
+A repeatable run: add `--seed=123` after the `--`.
 
 | | Tablet / mouse | Controller | Keyboard |
 |---|---|---|---|
@@ -16,10 +26,25 @@ Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_1`).
 | Move highlight | | d-pad or left stick | arrows / WASD |
 | Pick | tap the rock, key or button | A | Space / Enter |
 | Count dots | tap each dot on a landed die | | |
-| Hear the question again | tap Elfwynn | Y | R |
+| Hear the question again | tap Ellwynn | Y | R |
 | Debug overlay (seed, dice, answer) | hold the top-left corner 1.5 s | Back / Select | F1 |
 
 Choices ignore input for 300 ms after they appear, and only a fresh press picks.
+
+## Record a demo video
+
+`tools/demo/` plays the game by itself with real touch events and a finger dot,
+and Godot's Movie Maker writes the video (works headless in the cloud with xvfb):
+
+```
+xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+    --write-movie crossing.avi --fixed-fps 30 res://tools/demo/demo.tscn -- --demo=crossing --seed=2
+... --write-movie bounce.avi ... -- --demo=bounce --seed=11
+```
+
+The crossing demo picks a wrong rock on turn 2 and one wrong shield in the first
+fight; the bounce demo names one wrong face. `tools/demo/find_seed.gd` lists seeds
+whose crossing meets two or more fights. Delete the profile save first for a clean map.
 
 ## Tests
 
@@ -46,6 +71,7 @@ rules, 300 ms lockout, content checks.
 | `tools/ref/` | Python reference + vector generator | the C++ tests use the same vectors |
 | `game/` | Godot scenes, drawing, input, sound, file IO | no, rewritten on SDL3 |
 | `logic/fight`, `tests/fight` | owned by the fights thread | |
+| `logic/bounce`, `content/bounce`, `tests/bounce` | Match Bounce boss fight; see `logic/bounce/README.md` | yes, physics included |
 
 ## Screen
 
@@ -62,6 +88,7 @@ for crisp shapes; switch to `viewport` with integer scaling when pixel art arriv
 
 ## Not in this phase
 
-Fights, mimics, the miniboss duel and Match Bounce (other threads), real art and voice,
+Match Bounce is started (`godot --path . res://scenes/bounce.tscn -- --grade=1`) but not
+linked from the map. Real art and voice,
 Sapling and Oak generators, the parent area. The die is a real 3D cube projected in 2D
 (`game/ui/die_view.gd`); pre-rendered tumble frames can replace its `_draw` later.
