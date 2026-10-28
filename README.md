@@ -4,11 +4,20 @@ Prototype only, never shipped (plan 0.18, section 15). Placeholder shapes, no ar
 One area, Lava Caves 1: 10 tasks (6 path steps, 2 doors, 2 chests) at Acorn or Sprout,
 with the real fail rule.
 
+## The lava crossing (default area)
+
+`lava_scroll` is the first round at Acorn: 40 rocks in the lava, crossed left to right.
+Tap the dice tray to roll two dice (add, or subtract with a red die), then tap the rock
+that many spaces ahead (always 1 to 5). A right rock resolves its space: a chest gives 2
+to 4 gems, a monster starts a fight. A wrong rock sinks the slime with a blorp and the
+crossing starts again. Art is in `art/lava/` (PixelLab, see the project's art folders).
+The old ten-task path is still there: `godot --path . -- --area=lava_1`.
+
 ## Run it
 
 Godot 4.4 (standard build, not .NET). Open `project.godot`, press Play.
 Window is 1280x720; F11 toggles fullscreen.
-Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_1`).
+Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_scroll`).
 
 | | Tablet / mouse | Controller | Keyboard |
 |---|---|---|---|
