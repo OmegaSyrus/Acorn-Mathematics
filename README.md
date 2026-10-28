@@ -18,6 +18,7 @@ The old ten-task path is still there: `godot --path . -- --area=lava_1`.
 Godot 4.4 (standard build, not .NET). Open `project.godot`, press Play.
 Window is 1280x720; F11 toggles fullscreen.
 Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_scroll`).
+A repeatable run: add `--seed=123` after the `--`.
 
 | | Tablet / mouse | Controller | Keyboard |
 |---|---|---|---|
@@ -25,10 +26,25 @@ Another area file: `godot --path . -- --area=lava_1_fights` (default `lava_scrol
 | Move highlight | | d-pad or left stick | arrows / WASD |
 | Pick | tap the rock, key or button | A | Space / Enter |
 | Count dots | tap each dot on a landed die | | |
-| Hear the question again | tap Elfwynn | Y | R |
+| Hear the question again | tap Ellwynn | Y | R |
 | Debug overlay (seed, dice, answer) | hold the top-left corner 1.5 s | Back / Select | F1 |
 
 Choices ignore input for 300 ms after they appear, and only a fresh press picks.
+
+## Record a demo video
+
+`tools/demo/` plays the game by itself with real touch events and a finger dot,
+and Godot's Movie Maker writes the video (works headless in the cloud with xvfb):
+
+```
+xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3 \
+    --write-movie crossing.avi --fixed-fps 30 res://tools/demo/demo.tscn -- --demo=crossing --seed=2
+... --write-movie bounce.avi ... -- --demo=bounce --seed=11
+```
+
+The crossing demo picks a wrong rock on turn 2 and one wrong shield in the first
+fight; the bounce demo names one wrong face. `tools/demo/find_seed.gd` lists seeds
+whose crossing meets two or more fights. Delete the profile save first for a clean map.
 
 ## Tests
 

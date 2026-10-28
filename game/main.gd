@@ -101,7 +101,11 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	_swap.call_deferred(a)
 
 
+## `-- --seed=123` makes new runs repeatable (demos, bug reports).
 func _new_seed() -> int:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--seed="):
+			return arg.substr(7).to_int() & 0xFFFFFFFF
 	return (int(Time.get_unix_time_from_system() * 1000.0) ^ Time.get_ticks_usec()) & 0xFFFFFFFF
 
 
