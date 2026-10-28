@@ -8,6 +8,7 @@ signal picked(index: int)
 
 const InputGate := preload("res://logic/core/input_gate.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
 
 const PAD := 6.0
 
@@ -105,7 +106,7 @@ func _draw() -> void:
 		return
 	var r: Rect2 = _rect(highlight).grow(8.0 + 2.0 * sin(_pulse * 5.0))
 	var open := gate.is_open(Time.get_ticks_msec())
-	draw_rect(r, Color(1.0, 0.92, 0.3, 1.0 if open else 0.35), false, 5.0)
+	RoundBox.frame(self, r, Color(1.0, 0.92, 0.3, 1.0 if open else 0.35), 5.0, 16.0)
 
 
 func _rect(i: int) -> Rect2:

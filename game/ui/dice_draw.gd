@@ -2,6 +2,8 @@
 ## Dots always use this layout and stay black on white, whatever the style.
 extends RefCounted
 
+const RoundBox := preload("res://game/ui/round_box.gd")
+
 ## Pip centers in face units (-1..1), y up. Same layout on every die.
 const PIPS := {
 	1: [Vector2(0, 0)],
@@ -24,8 +26,8 @@ const EDGE := Color(0.25, 0.22, 0.2)
 static func draw_face(ci: CanvasItem, c: Vector2, size: float, value: int, slip := false) -> void:
 	var h := size / 2.0
 	var r := Rect2(c - Vector2(h, h), Vector2(size, size))
-	ci.draw_rect(r, SLIP_FACE if slip else FACE)
-	ci.draw_rect(r, EDGE, false, 2.0)
+	RoundBox.fill(ci, r, SLIP_FACE if slip else FACE, size * 0.18)
+	RoundBox.frame(ci, r, EDGE, 2.0, size * 0.18)
 	for p in PIPS.get(value, []):
 		ci.draw_circle(c + Vector2(p.x, -p.y) * h, PIP_R * h * 1.15, SLIP_DOT if slip else DOT)
 
@@ -78,6 +80,6 @@ static func draw_op(ci: CanvasItem, c: Vector2, op: String, size: float, t: floa
 	if op == "+":
 		bars.append(Rect2(c - Vector2(thick, long) / 2.0, Vector2(thick, long)))
 	for r in bars:
-		ci.draw_rect(r.grow(rim), Color(SIGN_RIM, alpha))
+		RoundBox.fill(ci, r.grow(rim), Color(SIGN_RIM, alpha), thick / 2.0 + rim)
 	for r in bars:
-		ci.draw_rect(r, Color(col.lightened(0.15 * beat), alpha))
+		RoundBox.fill(ci, r, Color(col.lightened(0.15 * beat), alpha), thick / 2.0)

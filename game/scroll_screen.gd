@@ -14,6 +14,7 @@ const InputGate := preload("res://logic/core/input_gate.gd")
 const SaveStore := preload("res://game/save_store.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
@@ -66,6 +67,7 @@ var hero_sink := 0.0
 var sink_space := -1
 var rock_sink := 0.0
 var beaten := {}       # monster spaces beaten this attempt
+var dropped := {}      # event spaces hopped past: 0..1 as their marker falls into the lava
 var revealed := -1     # the event space the slime is on, its contents shown
 var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
 var lid_open := false
@@ -121,6 +123,8 @@ func _ready() -> void:
 	add_child(overlay)
 	overlay.draw.connect(_draw_overlay)
 	_place_hero(run.pos)
+	for i in range(1, run.pos):
+		dropped[i] = 1.0
 	if run.phase == ScrollRun.AWAIT_FIGHT:
 		revealed = run.pos
 		reveal = 1.0
@@ -153,6 +157,8 @@ func _loop() -> void:
 		for d in dice:
 			d.show_numeral()
 		await _hop_along(out["from"], out["to"])
+		if out["result"] != "sink":
+			await _drop_passed(out["from"], out["to"])
 		match out["result"]:
 			"sink":
 				await _sink(out["to"])
@@ -294,6 +300,22 @@ func _bounce() -> void:
 	hero_frame = "idle-0"
 
 
+## Treasures and enemies the slime hopped over are gone: their markers tip
+## and fall into the lava once the slime has passed them.
+func _drop_passed(from: int, to: int) -> void:
+	var passed := []
+	for i in range(from + 1, to):
+		if _event_at(i) != "" and not dropped.has(i):
+			passed.append(i)
+	if passed.is_empty():
+		return
+	Beeper.tone(200.0, 0.25, -12.0)
+	var fall := func(t: float) -> void:
+		for i in passed:
+			dropped[i] = t
+	await create_tween().tween_method(fall, 0.0, 1.0, 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD).finished
+
+
 ## A wrong rock: it tips into the lava and the slime sinks with a blorp.
 func _sink(space: int) -> void:
 	sink_space = space
@@ -311,6 +333,7 @@ func _restart() -> void:
 	await _fade_to(1.0)
 	_hide_dice()
 	beaten.clear()
+	dropped.clear()
 	revealed = -1
 	sink_space = -1
 	rock_sink = 0.0
@@ -490,7 +513,13 @@ func _draw_world() -> void:
 		var m: Texture2D = tex["marker-treasure" if kind == "chest" else "marker-enemy"]
 		var bob := sin(_t * 2.5 + i * 0.7) * 3.0
 		var ms := m.get_size() * MARKER_SCALE
-		world.draw_texture_rect(m, Rect2(Vector2(_space_x(i), MARKER_Y + bob) - ms / 2.0, ms), false)
+		var fall: float = dropped.get(i, 0.0)
+		if fall >= 1.0:
+			continue
+		var at := Vector2(_space_x(i) + fall * 14.0, MARKER_Y + bob + fall * 80.0)
+		world.draw_set_transform(at, fall * 1.2, Vector2.ONE * (1.0 - fall * 0.4))
+		world.draw_texture_rect(m, Rect2(-ms / 2.0, ms), false, Color(1, 1, 1, 1.0 - fall * fall))
+		world.draw_set_transform(Vector2.ZERO)
 	# the slime
 	_draw_hero()
 	# the monster on the rock just reached, beside the slime and facing it
@@ -572,19 +601,19 @@ func _draw_goal(base: Vector2) -> void:
 func _draw_hud() -> void:
 	var font := ThemeDB.fallback_font
 	# dice tray
-	hud.draw_rect(TRAY, Color(0.1, 0.05, 0.1, 0.8))
-	hud.draw_rect(TRAY, Color(0.45, 0.3, 0.5), false, 3.0)
+	RoundBox.fill(hud, TRAY, Color(0.1, 0.05, 0.1, 0.8), 18.0)
+	RoundBox.frame(hud, TRAY, Color(0.45, 0.3, 0.5), 3.0, 18.0)
 	if tray_waiting:
 		var a := 0.5 + 0.5 * sin(_t * 5.0)
-		hud.draw_rect(TRAY.grow(3), Color(1.0, 0.92, 0.3, a), false, 4.0)
+		RoundBox.frame(hud, TRAY.grow(3), Color(1.0, 0.92, 0.3, a), 4.0, 20.0)
 		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
 		# plus or minus between the dice, coloured and gently pulsing
 		DiceDraw.draw_op(hud, Vector2(TRAY.get_center().x, DICE_Y), op_sign, 44.0, _t, op_alpha)
 	# speech bubble (tap it to hear the question again)
 	if bubble != "":
-		hud.draw_rect(BUBBLE, INK)
-		hud.draw_rect(BUBBLE, DARK, false, 3.0)
+		RoundBox.fill(hud, BUBBLE, INK, 18.0)
+		RoundBox.frame(hud, BUBBLE, DARK, 3.0, 18.0)
 		hud.draw_string(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, DARK)
 	# gems
 	var gem: Texture2D = tex["gem"]
@@ -592,19 +621,22 @@ func _draw_hud() -> void:
 	hud.draw_string(font, GEMS_AT + Vector2(46, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
 	# progress along the crossing: one tick per space
 	var n := run.length()
-	hud.draw_rect(BAR.grow(3), Color(0.1, 0.05, 0.1, 0.8))
-	hud.draw_rect(Rect2(BAR.position, Vector2(BAR.size.x * run.pos / n, BAR.size.y)), Color(0.4, 0.85, 0.65))
+	RoundBox.fill(hud, BAR.grow(3), Color(0.1, 0.05, 0.1, 0.8), 8.0)
+	if run.pos > 0:
+		RoundBox.fill(hud, Rect2(BAR.position, Vector2(BAR.size.x * run.pos / n, BAR.size.y)), Color(0.4, 0.85, 0.65), 5.0)
 	for i in range(1, n + 1):
 		var x := BAR.position.x + BAR.size.x * i / n
 		var s := run.space_at(i)
+		if dropped.get(i, 0.0) >= 1.0:
+			continue
 		if s.get("type") == "chest" and not run.looted.has(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.8, 0.2))
 		elif s.get("type") == "monster" and not beaten.has(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(0.9, 0.2, 0.2))
 	if cleared_banner:
-		hud.draw_rect(Rect2(200, 160, 560, 200), Color(0.1, 0.05, 0.1, 0.85))
+		RoundBox.fill(hud, Rect2(200, 160, 560, 200), Color(0.1, 0.05, 0.1, 0.85), 24.0)
 		hud.draw_string(font, Vector2(200, 220), run.area["name"], HORIZONTAL_ALIGNMENT_CENTER, 560, 34, Color(1.0, 0.85, 0.3))
-		hud.draw_rect(Rect2(400, 250, 160, 90), Color(0.25, 0.5, 0.3))
+		RoundBox.fill(hud, Rect2(400, 250, 160, 90), Color(0.25, 0.5, 0.3), 18.0)
 		hud.draw_string(font, Vector2(400, 308), "Map", HORIZONTAL_ALIGNMENT_CENTER, 160, 36, INK)
 
 

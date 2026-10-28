@@ -10,6 +10,11 @@ extends RefCounted
 ## the child names the peg face that completes it, aims, and fires. A wrong
 ## name is not a lost turn of aiming: the ball still flies, but every peg is
 ## a ghost and the boss laughs. The ball is spent either way.
+##
+## auto_name (Acorn): there is no naming step. The ball takes the boss's
+## roll (the boss rolls one dot, the ball becomes a 1 ball) and the pegs
+## show numerals, so the child aims the dots at the matching number. The
+## choices are still drawn, so the random draw order stays the same.
 
 const BounceSim = preload("res://logic/bounce/bounce_sim.gd")
 const BounceRules = preload("res://logic/bounce/bounce_rules.gd")
@@ -126,6 +131,26 @@ func _new_shot() -> void:
 	named_right = false
 	sim = null
 	state = State.NAMING
+
+
+## Acorn: no naming step, the ball takes the boss's roll.
+func auto_name() -> bool:
+	return bool(cfg.get("auto_name", false))
+
+
+## "numerals" or "dots": what the pegs show.
+func peg_labels() -> String:
+	return str(cfg.get("peg_labels", "dots"))
+
+
+## The value the ball shows: its own die, or at Acorn the boss's roll.
+func ball_shows() -> int:
+	return target if auto_name() and rule == "match" else ball_value
+
+
+## Names the right face for the child (auto_name grades).
+func name_for_child() -> void:
+	name_peg(choices.find(answer_face))
 
 
 ## The child taps choice `index`. Returns true if it was the right face.

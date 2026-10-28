@@ -6,7 +6,7 @@
 ## --demo=crossing plays the 40-space lava crossing at Acorn from the map:
 ## a right hop, a wrong hop on purpose (sink and restart), then a clean run
 ## with every chest and fight on the way. --demo=bounce plays one Match
-## Bounce boss fight (one wrong name on purpose, best aim otherwise).
+## Bounce boss fight (best aim; above Acorn, one wrong name on purpose).
 extends Node2D
 
 const InputSetup := preload("res://game/input_setup.gd")
@@ -148,6 +148,10 @@ func _bounce() -> void:
 			await _tap_choice(s.choice, idx)
 			await _wait(0.4)
 			await _aim_and_fire(s, _best_aim(f))
+		elif s.phase == "aiming" and s.fight.auto_name():
+			# Acorn: the ball took the boss's roll, so go straight to aiming
+			await _wait(THINK_S)
+			await _aim_and_fire(s, _best_aim(s.fight))
 	await _wait(2.0)
 	get_tree().quit()
 

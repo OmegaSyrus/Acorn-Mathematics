@@ -6,6 +6,7 @@ signal start(grade_id: int, resume: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
 
 var save: Dictionary
 var area_id := "lava_1"
@@ -53,7 +54,7 @@ func _draw() -> void:
 			Color(0.6, 0.55, 0.5))
 	for b in buttons:
 		var r: Rect2 = b["rect"]
-		draw_rect(r, Color(0.3, 0.5, 0.32) if b["resume"] else Color(0.42, 0.36, 0.33))
+		RoundBox.fill(self, r, Color(0.3, 0.5, 0.32) if b["resume"] else Color(0.42, 0.36, 0.33), 18.0)
 		draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), b["label"], HORIZONTAL_ALIGNMENT_CENTER,
 				r.size.x, 32, Color(0.96, 0.94, 0.9))
 		if not b["resume"] and SaveData.has_mark(save, area_id, b["grade"]):

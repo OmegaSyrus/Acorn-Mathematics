@@ -16,7 +16,7 @@
     "last_heart_time_scale": 0.3
   },
   "grades": {
-    "1": { "rule": "match", "board": "acorn_1", "balls": 8, "boss_hearts": 10, "min_live": 3, "choices": 3 },
+    "1": { "rule": "match", "board": "acorn_1", "balls": 8, "boss_hearts": 10, "min_live": 3, "choices": 3, "auto_name": true, "peg_labels": "numerals" },
     "2": { "rule": "sum", "board": "sprout_1", "balls": 6, "boss_hearts": 12, "min_live": 2, "choices": 4 },
     "3": { "rule": "sum", "board": "sprout_1", "balls": 6, "boss_hearts": 12, "min_live": 2, "choices": 4 },
     "4": { "rule": "difference", "board": "sprout_1", "balls": 6, "boss_hearts": 12, "min_live": 2, "choices": 4 }

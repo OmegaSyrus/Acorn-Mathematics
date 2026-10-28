@@ -17,6 +17,7 @@ const Monsters := preload("res://logic/fight/monsters.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
 
 const HERO_POS := Vector2(250, 372)
 const MONSTER_POS := Vector2(690, 372)
@@ -272,7 +273,7 @@ func _draw() -> void:
 		_draw_shields(font)
 	if bubble != "":
 		var b := Rect2(380, 12, 200, 44)
-		draw_rect(b, INK)
+		RoundBox.fill(self, b, INK, 16.0)
 		draw_string(font, b.position + Vector2(0, 32), bubble, HORIZONTAL_ALIGNMENT_CENTER, b.size.x, 28, Color(0.1, 0.1, 0.1))
 	if debug_on:
 		var atk = fight.attack
@@ -295,8 +296,8 @@ func _draw_target(font: Font) -> void:
 		return
 	DiceDraw.draw_op(self, Vector2(282, DICE_Y), "+", 32.0, _t)
 	var q := Rect2(312, DICE_Y - 34, 68, 68)
-	draw_rect(q, Color(0.25, 0.2, 0.18))
-	draw_rect(q, INK, false, 2.0)
+	RoundBox.fill(self, q, Color(0.25, 0.2, 0.18))
+	RoundBox.frame(self, q, INK, 2.0)
 	draw_string(font, q.position + Vector2(0, 50), "?", HORIZONTAL_ALIGNMENT_CENTER, q.size.x, 44, INK)
 	draw_string(font, Vector2(388, DICE_Y + 16), "=", HORIZONTAL_ALIGNMENT_CENTER, 40, 40, INK)
 	DiceDraw.draw_value(self, Vector2(492, DICE_Y), 56.0, atk.target)
@@ -381,8 +382,8 @@ func _draw_monster(font: Font) -> void:
 		draw_texture_rect(monster_tex, tr, false, Color(glow, glow, glow, col.a))
 		draw_string(font, Vector2(c.x - 100, c.y - ts.y + 44), monster_state, HORIZONTAL_ALIGNMENT_CENTER, 200, 18, Color(INK, col.a))
 		return
-	draw_rect(r, col)
-	draw_rect(r, Color(0.1, 0.05, 0.05, col.a), false, 3.0)
+	RoundBox.fill(self, r, col, 18.0)
+	RoundBox.frame(self, r, Color(0.1, 0.05, 0.05, col.a), 3.0, 18.0)
 	if fight.monster_id == "mimic":
 		# a chest with teeth: the lid line and a row of fangs
 		draw_line(r.position + Vector2(0, size.y * 0.35), r.position + Vector2(size.x, size.y * 0.35), Color(0.2, 0.1, 0.05, col.a), 4.0)
