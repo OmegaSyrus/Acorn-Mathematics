@@ -101,7 +101,6 @@ func _loop() -> void:
 		revealed = true
 		for d in dice:
 			if d.visible:
-				d.reveal_dots()
 				d.show_numeral()
 		_say(str(out["answer"]))
 		if out["right"]:
@@ -141,7 +140,6 @@ func _wind_up() -> void:
 		if not d.visible:
 			continue
 		d.slip = atk.kind == Attack.Kind.MOVE_AND_SLIP and i == 1
-		d.numeral_face = fight.attack_style() == Fight.AttackStyle.NUMERAL
 		d.position = Vector2(xs[i], DICE_Y)
 		d.roll_to(atk.dice[i], 0.12 * i)
 	Beeper.roll()
@@ -153,7 +151,7 @@ func _wind_up() -> void:
 		if all_on:
 			break
 	for i in atk.dice.size():
-		dice[i].countable = not dice[i].numeral_face
+		dice[i].countable = true
 	monster_state = "idle"
 	shields_shown = true
 	_say("Block!")

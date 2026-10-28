@@ -28,7 +28,7 @@ func test_last_heart_slow_mo_is_20_percent_faster() -> bool:
 
 func test_die_art_exists_for_every_face() -> bool:
 	for kind in ["wood", "red"]:
-		for f in ["1", "2", "3", "4", "5", "6", "blank"]:
+		for f in ["1", "2", "3", "4", "5", "6"]:
 			var path := "res://art/lava/die-%s-%s.png" % [kind, f]
 			var tex = load(path)
 			check(tex != null and tex.get_size() == Vector2(96, 96), path + " is a 96 px face")

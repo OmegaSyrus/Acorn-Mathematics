@@ -4,9 +4,9 @@
 ## through the roll and the face that lands is the same 96 px art.
 ## While face on, the child can tap each dot to count it.
 ##
-## numeral_face: the faces show numerals on blank art instead of dots (the
-## Acorn fight attack, where the child matches the number to dots). reveal_dots()
-## flips it over to the dots after the answer.
+## The cube is solid: a face is drawn only when it really faces the camera
+## (under perspective that is normal.z > 1 / FOCAL, not > 0), and the faces
+## that are drawn go back to front, so none shows through another or pops.
 extends Node2D
 
 signal landed
@@ -46,10 +46,6 @@ var slip := false:
 	set(v):
 		slip = v
 		_load_art()
-var numeral_face := false:
-	set(v):
-		numeral_face = v
-		queue_redraw()
 var value := 1
 var face_on := false
 var countable := false
@@ -60,7 +56,7 @@ var numeral_alpha := 0.0:
 var q := Quaternion.IDENTITY
 var offset := Vector2.ZERO
 var lit := []
-## face value -> Texture2D (96 x 96, pips at 27/48/69 px), plus "blank".
+## face value -> Texture2D (96 x 96, pips at 27/48/69 px).
 var face_art := {}
 var _frames := {}  # face value -> [normal, tangent, bitangent] in die space
 var _cosmetic := RandomNumberGenerator.new()  # look only, never game logic
@@ -78,7 +74,7 @@ func _ready() -> void:
 
 func _load_art() -> void:
 	var kind := "red" if slip else "wood"
-	face_art = {"blank": load(ART + "die-%s-blank.png" % kind)}
+	face_art = {}
 	for v in range(1, 7):
 		face_art[v] = load(ART + "die-%s-%d.png" % [kind, v])
 	queue_redraw()
@@ -148,25 +144,6 @@ func show_numeral() -> void:
 	create_tween().tween_property(self, "numeral_alpha", 1.0, 0.4)
 
 
-## A numeral die turns once on the spot and comes back round showing dots,
-## so the child sees how many the number was.
-func reveal_dots() -> void:
-	if not numeral_face:
-		return
-	var q_final := face_quat(value)
-	var spin := func(t: float) -> void:
-		q = q_final * Quaternion(Vector3.UP, TAU * t)
-		if t >= 0.5:
-			numeral_face = false
-		queue_redraw()
-	var tw := create_tween()
-	tw.tween_method(spin, 0.0, 1.0, 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await tw.finished
-	q = q_final
-	numeral_face = false
-	queue_redraw()
-
-
 func _reset_lit() -> void:
 	lit = []
 	for i in DiceDraw.PIPS[value].size():
@@ -187,17 +164,16 @@ func _on_face(v: int, px: Vector2, lift := 1.001) -> Vector2:
 
 func _draw() -> void:
 	draw_circle(Vector2(0, HALF * 1.45), HALF * 0.9, Color(0, 0, 0, 0.25))
+	var front := []
 	for v in _frames:
-		var fr: Array = _frames[v]
-		var n: Vector3 = fr[0]
-		var shade := (q * n).z
-		if shade <= 0.02:
-			continue
-		var light := 0.55 + 0.45 * shade
-		_draw_art_face(v, Color(light, light, light))
-		if numeral_face:
-			_draw_face_numeral(v, light)
-	if face_on and not numeral_face:
+		var nz := (q * (_frames[v][0] as Vector3)).z
+		if nz > 1.0 / FOCAL + 0.001:
+			front.append([nz, v])
+	front.sort_custom(func(a, b): return a[0] < b[0])
+	for f in front:
+		var light: float = 0.55 + 0.45 * f[0]
+		_draw_art_face(f[1], Color(light, light, light))
+	if face_on:
 		var pts: Array = ART_PIPS[value]
 		for i in pts.size():
 			if lit[i]:
@@ -222,7 +198,7 @@ func _draw_art_face(v: int, light: Color) -> void:
 	var corners := PackedVector2Array([
 		_project(n - t + b), _project(n + t + b), _project(n + t - b), _project(n - t - b)])
 	draw_colored_polygon(corners, ART_EDGE * light)
-	var tex: Texture2D = face_art["blank" if numeral_face else v]
+	var tex: Texture2D = face_art[v]
 	var cols := PackedColorArray([light])
 	for i in GRID:
 		for j in GRID:
@@ -238,18 +214,6 @@ func _draw_art_face(v: int, light: Color) -> void:
 			draw_polygon(pts, cols, uvs, tex)
 
 
-## A big numeral printed on face v, carried by the face's own skew.
-func _draw_face_numeral(v: int, light: float) -> void:
-	var o := _on_face(v, Vector2.ZERO)
-	var x_axis := (_on_face(v, Vector2(48, 0)) - o) / 48.0
-	var y_axis := (_on_face(v, Vector2(0, 48)) - o) / 48.0
-	draw_set_transform_matrix(Transform2D(x_axis, y_axis, o))
-	var col := Color(1, 1, 1) if slip else Color(0.12, 0.07, 0.1)
-	draw_string(ThemeDB.fallback_font, Vector2(-48, 24), str(v), HORIZONTAL_ALIGNMENT_CENTER, 96, 68,
-			col * Color(light, light, light))
-	draw_set_transform_matrix(Transform2D.IDENTITY)
-
-
 ## Face-on pip centers in local coordinates, for tap-to-count.
 func pip_points() -> Array:
 	var out := []
@@ -259,7 +223,7 @@ func pip_points() -> Array:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not (countable and face_on and visible) or numeral_face:
+	if not (countable and face_on and visible):
 		return
 	if not Pointer.is_press(event):
 		return
