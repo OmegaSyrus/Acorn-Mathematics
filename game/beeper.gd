@@ -67,6 +67,37 @@ func gems(n: int) -> void:
 		get_tree().create_timer(0.1 + i * 0.11).timeout.connect(tone.bind(1046.0 * pow(1.12, i), 0.09, -12.0))
 
 
+## The last heart: time slows and the sound wobbles with it.
+func warble() -> void:
+	if not _cache.has("warble"):
+		_cache["warble"] = _make_warble()
+	var p: AudioStreamPlayer = _players[_next]
+	_next = (_next + 1) % VOICES
+	p.stream = _cache["warble"]
+	p.volume_db = -8.0
+	p.play()
+
+
+func _make_warble() -> AudioStreamWAV:
+	var dur := 0.9
+	var n := int(RATE * dur)
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var ph := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var f := lerpf(620.0, 330.0, t / dur) * (1.0 + 0.09 * sin(TAU * 7.0 * t))
+		ph += TAU * f / RATE
+		var env := minf(1.0, i / 400.0) * (1.0 - float(i) / n)
+		data.encode_s16(i * 2, int(sin(ph) * env * 0.5 * 32767.0))
+	var s := AudioStreamWAV.new()
+	s.format = AudioStreamWAV.FORMAT_16_BITS
+	s.mix_rate = RATE
+	s.stereo = false
+	s.data = data
+	return s
+
+
 func _make_blorp() -> AudioStreamWAV:
 	var dur := 0.75
 	var n := int(RATE * dur)

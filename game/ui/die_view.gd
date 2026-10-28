@@ -1,7 +1,12 @@
 ## A die that tumbles, lands, turns its top face to the camera and holds it
-## face on (plan section 04). Drawn as a real 3D cube projected to 2D, so the
-## tumble looks like a die; pre-rendered frames can replace _draw later.
+## face on (plan section 04). A real 3D cube projected to 2D, with the pixel
+## art faces mapped onto every side, so the art is on the cube the whole way
+## through the roll and the face that lands is the same 96 px art.
 ## While face on, the child can tap each dot to count it.
+##
+## numeral_face: the faces show numerals on blank art instead of dots (the
+## Acorn fight attack, where the child matches the number to dots). reveal_dots()
+## flips it over to the dots after the answer.
 extends Node2D
 
 signal landed
@@ -10,20 +15,42 @@ signal pip_tapped(count: int)
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 
-const HALF := 36.0  # a face on die is about 96 px at this size
+const ART := "res://art/lava/"
+const HALF := 36.0  # a face on die is 96 px at this size (HALF * FOCAL / (FOCAL - 1) = 48)
 const FOCAL := 4.0
+const GRID := 4  # each face is cut into GRID x GRID quads so the art follows the perspective
 const TUMBLE_S := 0.95
 const SETTLE_S := 0.15
 const TURN_S := 0.35
 const TILT := -0.9  # radians the landed die leans back before turning to camera
+const FROM := Vector2(-170, -60)
 const NORMALS := {
 	1: Vector3(0, 0, 1), 6: Vector3(0, 0, -1),
 	2: Vector3(1, 0, 0), 5: Vector3(-1, 0, 0),
 	3: Vector3(0, 1, 0), 4: Vector3(0, -1, 0),
 }
+## Pip centers of the face art, in its 96 px frame, centered on 0, y down.
+const ART_PIPS := {
+	1: [Vector2(0, 0)],
+	2: [Vector2(21, -21), Vector2(-21, 21)],
+	3: [Vector2(21, -21), Vector2(0, 0), Vector2(-21, 21)],
+	4: [Vector2(-21, -21), Vector2(21, -21), Vector2(-21, 21), Vector2(21, 21)],
+	5: [Vector2(-21, -21), Vector2(21, -21), Vector2(0, 0), Vector2(-21, 21), Vector2(21, 21)],
+	6: [Vector2(-21, -21), Vector2(-21, 0), Vector2(-21, 21), Vector2(21, -21), Vector2(21, 0), Vector2(21, 21)],
+}
+const ART_EDGE := Color(0.1, 0.06, 0.12)  # the art's outline, filled under its rounded corners
+const LIT := Color(1.0, 0.8, 0.1)
 
+## The red die (the one taken away). Setting it swaps the face art.
+var slip := false:
+	set(v):
+		slip = v
+		_load_art()
+var numeral_face := false:
+	set(v):
+		numeral_face = v
+		queue_redraw()
 var value := 1
-var slip := false
 var face_on := false
 var countable := false
 var numeral_alpha := 0.0:
@@ -33,8 +60,7 @@ var numeral_alpha := 0.0:
 var q := Quaternion.IDENTITY
 var offset := Vector2.ZERO
 var lit := []
-## Optional art: face value -> Texture2D (96 x 96, pips at 27/48/69 px). When
-## set, the die shows the art once it is face on; the tumble stays 3D.
+## face value -> Texture2D (96 x 96, pips at 27/48/69 px), plus "blank".
 var face_art := {}
 var _frames := {}  # face value -> [normal, tangent, bitangent] in die space
 var _cosmetic := RandomNumberGenerator.new()  # look only, never game logic
@@ -45,7 +71,17 @@ func _ready() -> void:
 		var fq := face_quat(v)
 		var inv := fq.inverse()
 		_frames[v] = [NORMALS[v], inv * Vector3.RIGHT, inv * Vector3.UP]
+	if face_art.is_empty():
+		_load_art()
 	show_still(1)
+
+
+func _load_art() -> void:
+	var kind := "red" if slip else "wood"
+	face_art = {"blank": load(ART + "die-%s-blank.png" % kind)}
+	for v in range(1, 7):
+		face_art[v] = load(ART + "die-%s-%d.png" % [kind, v])
+	queue_redraw()
 
 
 ## The rotation that shows face v to the camera, upright.
@@ -67,7 +103,8 @@ func show_still(v: int) -> void:
 	queue_redraw()
 
 
-func roll_to(v: int, delay := 0.0) -> void:
+## Tumbles in from `from` (local to where the die sits) and lands on v.
+func roll_to(v: int, delay := 0.0, from := FROM) -> void:
 	value = v
 	face_on = false
 	countable = false
@@ -80,10 +117,10 @@ func roll_to(v: int, delay := 0.0) -> void:
 		axis = Vector3(1, 1, 0)
 	axis = axis.normalized()
 	var spin := TAU * _cosmetic.randi_range(2, 3) + _cosmetic.randf_range(0, PI)
-	var from := Vector2(-170, -60)
 	q = q_land * Quaternion(axis, spin)
 	offset = from
 	visible = true
+	queue_redraw()
 	if delay > 0:
 		await get_tree().create_timer(delay).timeout
 	var tumble := func(t: float) -> void:
@@ -111,6 +148,25 @@ func show_numeral() -> void:
 	create_tween().tween_property(self, "numeral_alpha", 1.0, 0.4)
 
 
+## A numeral die turns once on the spot and comes back round showing dots,
+## so the child sees how many the number was.
+func reveal_dots() -> void:
+	if not numeral_face:
+		return
+	var q_final := face_quat(value)
+	var spin := func(t: float) -> void:
+		q = q_final * Quaternion(Vector3.UP, TAU * t)
+		if t >= 0.5:
+			numeral_face = false
+		queue_redraw()
+	var tw := create_tween()
+	tw.tween_method(spin, 0.0, 1.0, 0.45).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await tw.finished
+	q = q_final
+	numeral_face = false
+	queue_redraw()
+
+
 func _reset_lit() -> void:
 	lit = []
 	for i in DiceDraw.PIPS[value].size():
@@ -123,37 +179,13 @@ func _project(p: Vector3) -> Vector2:
 	return offset + Vector2(w.x, -w.y) * k * HALF
 
 
-## Pip centers of the face art, in its 96 px frame, centered on 0.
-const ART_PIPS := {
-	1: [Vector2(0, 0)],
-	2: [Vector2(21, -21), Vector2(-21, 21)],
-	3: [Vector2(21, -21), Vector2(0, 0), Vector2(-21, 21)],
-	4: [Vector2(-21, -21), Vector2(21, -21), Vector2(-21, 21), Vector2(21, 21)],
-	5: [Vector2(-21, -21), Vector2(21, -21), Vector2(0, 0), Vector2(-21, 21), Vector2(21, 21)],
-	6: [Vector2(-21, -21), Vector2(-21, 0), Vector2(-21, 21), Vector2(21, -21), Vector2(21, 0), Vector2(21, 21)],
-}
-
-
-func _art_on() -> bool:
-	return face_on and offset == Vector2.ZERO and face_art.has(value)
+## A point on face v, from art pixels (96 px frame centered on 0, y down).
+func _on_face(v: int, px: Vector2, lift := 1.001) -> Vector2:
+	var fr: Array = _frames[v]
+	return _project(fr[0] * lift + fr[1] * (px.x / 48.0) - fr[2] * (px.y / 48.0))
 
 
 func _draw() -> void:
-	if _art_on():
-		draw_circle(Vector2(0, HALF * 1.45), HALF * 0.9, Color(0, 0, 0, 0.25))
-		var tex: Texture2D = face_art[value]
-		draw_texture(tex, -tex.get_size() / 2.0)
-		var pts: Array = ART_PIPS[value]
-		for i in pts.size():
-			if lit[i]:
-				draw_circle(pts[i], 9.0, Color(1.0, 0.8, 0.1))
-		if numeral_alpha > 0.0:
-			# under the die, so it never runs into a sign between two dice
-			draw_string(ThemeDB.fallback_font, Vector2(-40, 78), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 36,
-					Color(1, 1, 1, numeral_alpha))
-		return
-	var dot_col: Color = DiceDraw.SLIP_DOT if slip else DiceDraw.DOT
-	var face_col: Color = DiceDraw.SLIP_FACE if slip else DiceDraw.FACE
 	draw_circle(Vector2(0, HALF * 1.45), HALF * 0.9, Color(0, 0, 0, 0.25))
 	for v in _frames:
 		var fr: Array = _frames[v]
@@ -161,43 +193,73 @@ func _draw() -> void:
 		var shade := (q * n).z
 		if shade <= 0.02:
 			continue
-		var t: Vector3 = fr[1]
-		var b: Vector3 = fr[2]
-		var poly := PackedVector2Array([
-			_project(n - t + b), _project(n + t + b), _project(n + t - b), _project(n - t - b)])
-		draw_colored_polygon(poly, face_col * Color(0.55 + 0.45 * shade, 0.55 + 0.45 * shade, 0.55 + 0.45 * shade))
-		poly.append(poly[0])
-		draw_polyline(poly, DiceDraw.EDGE, 2.0)
-		var pips: Array = DiceDraw.PIPS[v]
-		for i in pips.size():
-			var pc: Vector2 = pips[i]
-			var ring := PackedVector2Array()
-			for s in 12:
-				var a := TAU * s / 12.0
-				var u := pc + Vector2(cos(a), sin(a)) * DiceDraw.PIP_R
-				ring.append(_project(n * 1.001 + t * u.x + b * u.y))
-			var col := dot_col
-			if face_on and v == value and lit[i]:
-				col = Color(1.0, 0.8, 0.1)
-			draw_colored_polygon(ring, col)
-	if numeral_alpha > 0.0:
-		draw_string(ThemeDB.fallback_font, Vector2(HALF * 1.5, HALF * 0.45), str(value),
-				HORIZONTAL_ALIGNMENT_LEFT, -1, 44, Color(1, 1, 1, numeral_alpha))
+		var light := 0.55 + 0.45 * shade
+		_draw_art_face(v, Color(light, light, light))
+		if numeral_face:
+			_draw_face_numeral(v, light)
+	if face_on and not numeral_face:
+		var pts: Array = ART_PIPS[value]
+		for i in pts.size():
+			if lit[i]:
+				var ring := PackedVector2Array()
+				for s in 12:
+					var a := TAU * s / 12.0
+					ring.append(_on_face(value, pts[i] + Vector2(cos(a), sin(a)) * 9.0, 1.002))
+				draw_colored_polygon(ring, LIT)
+	if numeral_alpha > 0.0 and face_on:
+		# under the die, so it never runs into a sign between two dice
+		draw_string(ThemeDB.fallback_font, Vector2(-40, 78), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 36,
+				Color(1, 1, 1, numeral_alpha))
+
+
+## The face art mapped onto one side of the cube, cut into a grid so it
+## bends with the perspective instead of shearing.
+func _draw_art_face(v: int, light: Color) -> void:
+	var fr: Array = _frames[v]
+	var n: Vector3 = fr[0]
+	var t: Vector3 = fr[1]
+	var b: Vector3 = fr[2]
+	var corners := PackedVector2Array([
+		_project(n - t + b), _project(n + t + b), _project(n + t - b), _project(n - t - b)])
+	draw_colored_polygon(corners, ART_EDGE * light)
+	var tex: Texture2D = face_art["blank" if numeral_face else v]
+	var cols := PackedColorArray([light])
+	for i in GRID:
+		for j in GRID:
+			var u0 := float(i) / GRID
+			var u1 := float(i + 1) / GRID
+			var v0 := float(j) / GRID
+			var v1 := float(j + 1) / GRID
+			var pts := PackedVector2Array()
+			var uvs := PackedVector2Array()
+			for c in [Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)]:
+				pts.append(_project(n + t * (c.x * 2.0 - 1.0) + b * (1.0 - c.y * 2.0)))
+				uvs.append(c)
+			draw_polygon(pts, cols, uvs, tex)
+
+
+## A big numeral printed on face v, carried by the face's own skew.
+func _draw_face_numeral(v: int, light: float) -> void:
+	var o := _on_face(v, Vector2.ZERO)
+	var x_axis := (_on_face(v, Vector2(48, 0)) - o) / 48.0
+	var y_axis := (_on_face(v, Vector2(0, 48)) - o) / 48.0
+	draw_set_transform_matrix(Transform2D(x_axis, y_axis, o))
+	var col := Color(1, 1, 1) if slip else Color(0.12, 0.07, 0.1)
+	draw_string(ThemeDB.fallback_font, Vector2(-48, 24), str(v), HORIZONTAL_ALIGNMENT_CENTER, 96, 68,
+			col * Color(light, light, light))
+	draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
 ## Face-on pip centers in local coordinates, for tap-to-count.
 func pip_points() -> Array:
-	if _art_on():
-		return ART_PIPS[value]
 	var out := []
-	var fr: Array = _frames[value]
-	for pc in DiceDraw.PIPS[value]:
-		out.append(_project(fr[0] + fr[1] * pc.x + fr[2] * pc.y))
+	for p in ART_PIPS[value]:
+		out.append(_on_face(value, p))
 	return out
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not (countable and face_on and visible):
+	if not (countable and face_on and visible) or numeral_face:
 		return
 	if not Pointer.is_press(event):
 		return

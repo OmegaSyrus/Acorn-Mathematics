@@ -30,17 +30,54 @@ static func draw_face(ci: CanvasItem, c: Vector2, size: float, value: int, slip 
 		ci.draw_circle(c + Vector2(p.x, -p.y) * h, PIP_R * h * 1.15, SLIP_DOT if slip else DOT)
 
 
+## The dice faces that show a value: [v] up to 6, two faces up to 12 (the
+## bigger first, 7 = 4 and 3), none above 12 (shown as a numeral).
+static func split_value(value: int) -> Array:
+	if value >= 1 and value <= 6:
+		return [value]
+	if value >= 7 and value <= 12:
+		var a := ceili(value / 2.0)
+		return [a, value - a]
+	return []
+
+
 ## A value as the child sees it: one die up to 6, two dice side by side up to
 ## 12 (7 = 4 and 3), a numeral above 12.
 static func draw_value(ci: CanvasItem, c: Vector2, size: float, value: int) -> void:
-	if value >= 1 and value <= 6:
+	var faces := split_value(value)
+	if faces.size() == 1:
 		draw_face(ci, c, size, value)
-	elif value >= 7 and value <= 12:
-		var a := ceili(value / 2.0)
+	elif faces.size() == 2:
 		var gap := size * 0.56
-		draw_face(ci, c - Vector2(gap, 0), size, a)
-		draw_face(ci, c + Vector2(gap, 0), size, value - a)
+		draw_face(ci, c - Vector2(gap, 0), size, faces[0])
+		draw_face(ci, c + Vector2(gap, 0), size, faces[1])
 	else:
 		var font := ThemeDB.fallback_font
 		var fs := int(size)
 		ci.draw_string(font, c + Vector2(-size, fs * 0.35), str(value), HORIZONTAL_ALIGNMENT_CENTER, size * 2, fs, DOT)
+
+
+const PLUS_COL := Color(0.3, 0.88, 0.35)
+const MINUS_COL := Color(1.0, 0.32, 0.22)
+const SIGN_RIM := Color(0.06, 0.03, 0.06)
+
+
+## The plus or minus between two dice: big, coloured (green add, red take
+## away, like the red die), drawn as bars so every font shows it. It swells
+## a little and glows on a slow beat (t in seconds) to pull the eye up.
+static func draw_op(ci: CanvasItem, c: Vector2, op: String, size: float, t: float, alpha := 1.0) -> void:
+	var beat := 0.5 + 0.5 * sin(t * 4.0)
+	var s := size * (1.0 + 0.08 * beat)
+	var col: Color = PLUS_COL if op == "+" else MINUS_COL
+	var glow := Color(col, (0.18 + 0.17 * beat) * alpha)
+	ci.draw_circle(c, s * 0.78, glow)
+	var long := s
+	var thick := s * 0.3
+	var rim := 3.0
+	var bars := [Rect2(c - Vector2(long, thick) / 2.0, Vector2(long, thick))]
+	if op == "+":
+		bars.append(Rect2(c - Vector2(thick, long) / 2.0, Vector2(thick, long)))
+	for r in bars:
+		ci.draw_rect(r.grow(rim), Color(SIGN_RIM, alpha))
+	for r in bars:
+		ci.draw_rect(r, Color(col.lightened(0.15 * beat), alpha))

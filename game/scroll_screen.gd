@@ -13,6 +13,7 @@ const SaveData := preload("res://logic/core/save_data.gd")
 const InputGate := preload("res://logic/core/input_gate.gd")
 const SaveStore := preload("res://game/save_store.gd")
 const DieView := preload("res://game/ui/die_view.gd")
+const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
@@ -191,9 +192,6 @@ func _roll_dice(p: Dictionary) -> void:
 		var d: DieView = dice[i]
 		var red: bool = i == 1 and p["op"] == "sub"
 		d.slip = red
-		d.face_art = {}
-		for v in range(1, 7):
-			d.face_art[v] = load(ART + ("die-red-%d.png" if red else "die-wood-%d.png") % v)
 		d.position = Vector2(xs[i], DICE_Y)
 		d.roll_to(p["dice"][i], 0.12 * i)
 	while not (dice[0].face_on and dice[1].face_on):
@@ -502,7 +500,8 @@ func _draw_world() -> void:
 		var size := t.get_size() * MONSTER_SCALE * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
-		world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y + breathe), Vector2(size.x, size.y + breathe)), false)
+		# the art faces right; a negative width mirrors it to face the slime
+		world.draw_texture_rect(t, Rect2(c + Vector2(size.x / 2, -size.y - breathe), Vector2(-size.x, size.y + breathe)), false)
 	# the chest on the rock just reached, in front of the slime so it stays in view
 	if revealed >= 0 and run.space_at(revealed).get("type") == "chest":
 		var t: Texture2D = tex["chest-open" if lid_open else "chest-closed"]
@@ -580,12 +579,8 @@ func _draw_hud() -> void:
 		hud.draw_rect(TRAY.grow(3), Color(1.0, 0.92, 0.3, a), false, 4.0)
 		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
-		# plus or minus between the dice, drawn as bars so every font shows it
-		var c := Vector2(TRAY.get_center().x, DICE_Y)
-		var col := Color(1, 1, 1, op_alpha)
-		hud.draw_rect(Rect2(c - Vector2(16, 4), Vector2(32, 8)), col)
-		if op_sign == "+":
-			hud.draw_rect(Rect2(c - Vector2(4, 16), Vector2(8, 32)), col)
+		# plus or minus between the dice, coloured and gently pulsing
+		DiceDraw.draw_op(hud, Vector2(TRAY.get_center().x, DICE_Y), op_sign, 44.0, _t, op_alpha)
 	# speech bubble (tap it to hear the question again)
 	if bubble != "":
 		hud.draw_rect(BUBBLE, INK)

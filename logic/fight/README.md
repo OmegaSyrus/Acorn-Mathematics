@@ -68,8 +68,15 @@ at 14% or under.
 `game/fight/fight_screen.gd`: `setup(rng, grade, monster_id, first_strike, duel, show_debug)`,
 add it as a child, `await done` for `won`. The area screen does this for `fight` tasks and
 mimics (`_fight()` in `game/area_screen.gd`) with `run.rng`, so replays stay seeded. The
-monster is a labelled box that names the reaction it is playing; the attack dice tumble in
-and their dots can be tapped to count; shields show dice faces (numerals in the duel).
+monster is its sprite mirrored to face the hero (Blorp, Craggy) or a labelled box, with a label
+naming the reaction it is playing; the attack dice tumble in as 3D cubes wearing the pixel
+faces and their dots can be tapped to count; shields show dice faces (numerals in the duel).
+
+`fight.attack_style()`: at Acorn a monster's die shows a NUMERAL and the shields show dots,
+so the child matches a number to a count (Terrence, 2026-10-28: dots to the same dots was
+too simple). After the pick the die spins round to show its dots. Every other grade, and
+the duel, shows dots on the dice. Sprout and Oak show a coloured, pulsing + or - between
+the two dice.
 
 Play the test area: `godot --path . -- --area=lava_1_fights` (a fight, a mimic chest with
 its tells, a 4-heart Craggy). Headless smoke run, which loses the first fight on purpose,

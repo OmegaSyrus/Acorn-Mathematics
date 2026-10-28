@@ -26,7 +26,7 @@ is a ghost: nothing pops and the boss laughs. The ball is spent either way.
 - The needed face is drawn only from faces with at least `min_live` pegs left; when no
   face has enough, the board fills up again ("New pegs!").
 - Balls: 8 at Acorn, 6 above. Out of balls with hearts left is the fail screen (Try, Map).
-- The last heart: `fight.is_lethal()` turns true mid-flight; the screen slows to 25%.
+- The last heart: `fight.is_lethal()` turns true mid-flight; the screen slows to 30% (`screen.last_heart_time_scale` in tuning.json) and the ball and pegs warble.
 
 Draw order per shot (the C++ port must match): refill check, needed face
 (`randi_range` over eligible faces), the ball die if the rule has one, then the

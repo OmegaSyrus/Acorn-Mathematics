@@ -10,12 +10,18 @@ extends RefCounted
 ## The monster holds its wind-up for as long as the child needs.
 
 const AttackGen = preload("res://logic/fight/attack_gen.gd")
+const GradesLib = preload("res://logic/core/grades.gd")
 
 enum State { WIND_UP, RESOLVING, WON, LOST }
 
 ## What the choices look like on screen. Monster fights use dice faces;
 ## the miniboss duel uses big plain numerals.
 enum ChoiceStyle { DICE, NUMERALS }
+
+## How the monster's dice are shown. Acorn monster fights print a numeral on
+## the die and the shields show dots, so the child matches a number to a
+## count instead of dots to the same dots. Everywhere else the dice show dots.
+enum AttackStyle { DOTS, NUMERAL }
 
 ## What losing costs. The path layer acts on this; the fight only reports it.
 enum OnLoss { RESTART_AREA, RESTART_DUEL }
@@ -98,3 +104,9 @@ func is_over() -> bool:
 func _wind_up() -> void:
 	attack = AttackGen.generate(rng, grade)
 	state = State.WIND_UP
+
+
+func attack_style() -> int:
+	if grade == GradesLib.Grade.ACORN and choice_style == ChoiceStyle.DICE:
+		return AttackStyle.NUMERAL
+	return AttackStyle.DOTS
