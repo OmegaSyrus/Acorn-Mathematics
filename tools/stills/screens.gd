@@ -75,6 +75,16 @@ func _ready() -> void:
 	b._fire()
 	await _frames(55)
 	_shot("boss-fight-shot")
+	b.queue_free()
+	await _frames(2)
+	# above Acorn the naming column takes the left of the board
+	var b2 := BounceScreen.new()
+	b2.setup(SeededRng.new(11), 2)
+	stage.add_child(b2)
+	while not b2.choice.active:
+		await _frames(1)
+	await _frames(20)
+	_shot("boss-fight-sprout")
 	get_tree().quit()
 
 

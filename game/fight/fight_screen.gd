@@ -38,6 +38,7 @@ const MONSTER_ART := {
 }
 ## The hero: the robot dragon, facing the monster on the right.
 const HERO_TEX := preload("res://art/lava/robodragon.png")
+const BG_TEX := preload("res://art/lava/fight-bg.png")
 const HERO_ART_SCALE := 1.5
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
@@ -275,8 +276,9 @@ func _dice_xs(atk) -> Array:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
-	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.12, 0.07, 0.06))
-	draw_rect(Rect2(-480, 380, 1920, 260), Color(0.2, 0.12, 0.09))
+	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.05, 0.03, 0.06))
+	# the lava cave arena, 320x180 pixel art drawn at 3x
+	draw_texture_rect(BG_TEX, Rect2(0, 0, 960, 540), false)
 	_draw_hearts(Vector2(140, 30), fight.hero_hearts, 3)
 	_draw_hearts(Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30), fight.monster_hearts, fight.monster_max_hearts)
 	# the enemy's name in a fiery box, top right under its hearts
