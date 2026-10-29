@@ -28,12 +28,20 @@ const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
-const SHIELD := Color(0.62, 0.6, 0.58)
-const SHIELD_RIM := Color(0.3, 0.28, 0.27)
-const HEART := Color(0.9, 0.15, 0.2)
-const HEART_EMPTY := Color(0.35, 0.25, 0.25)
-const MONSTER_ART := {"blorp": "res://art/lava/blorp-idle.png", "craggy": "res://art/lava/blorp-idle-alt.png"}
+## Monster art and the scale it is drawn at. Bolt is drawn at twice its
+## pixel size so its pixels stay square.
+const MONSTER_ART := {
+	"bolt": ["res://art/lava/robodragon.png", 2.0],
+	"blorp": ["res://art/lava/blorp-idle.png", 0.95],
+	"craggy": ["res://art/lava/blorp-idle-alt.png", 0.95],
+}
+const HEART_TEX := preload("res://art/ui/heart.png")
+const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
+const SHIELD_TEX := preload("res://art/ui/shield.png")
+const SHIELD_ART_SCALE := 1.2
+const NAME_BOX := Rect2(600, 58, 240, 40)
 const MONSTER_COLORS := {
+	"bolt": Color(0.5, 0.55, 0.6),
 	"blorp": Color(0.85, 0.35, 0.12),
 	"craggy": Color(0.5, 0.48, 0.45),
 	"mimic": Color(0.55, 0.33, 0.12),
@@ -59,6 +67,7 @@ var hero_sink := 0.0
 var clang := 0.0
 var bubble := ""
 var monster_tex: Texture2D
+var monster_scale := 1.0
 var _t := 0.0
 
 
@@ -84,7 +93,8 @@ func _ready() -> void:
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	if MONSTER_ART.has(fight.monster_id):
-		monster_tex = load(MONSTER_ART[fight.monster_id])
+		monster_tex = load(MONSTER_ART[fight.monster_id][0])
+		monster_scale = MONSTER_ART[fight.monster_id][1]
 	_loop()
 
 
@@ -263,9 +273,11 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.12, 0.07, 0.06))
 	draw_rect(Rect2(-480, 380, 1920, 260), Color(0.2, 0.12, 0.09))
-	_draw_hearts(Vector2(140, 34), fight.hero_hearts, 3)
-	_draw_hearts(Vector2(820 - 30 * (fight.monster_max_hearts - 1), 34), fight.monster_hearts, fight.monster_max_hearts)
-	draw_string(font, Vector2(540, 72), Monsters.name_of(fight.monster_id), HORIZONTAL_ALIGNMENT_RIGHT, 300, 18, INK)
+	_draw_hearts(Vector2(140, 30), fight.hero_hearts, 3)
+	_draw_hearts(Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30), fight.monster_hearts, fight.monster_max_hearts)
+	# the enemy's name in a fiery box, top right under its hearts
+	RoundBox.fire(self, NAME_BOX, _t, 14.0)
+	_outlined(font, NAME_BOX.position + Vector2(0, 29), Monsters.name_of(fight.monster_id), NAME_BOX.size.x, 24)
 	_draw_target(font)
 	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0))
 	_draw_monster(font)
@@ -273,8 +285,8 @@ func _draw() -> void:
 		_draw_shields(font)
 	if bubble != "":
 		var b := Rect2(380, 12, 200, 44)
-		RoundBox.fill(self, b, INK, 16.0)
-		draw_string(font, b.position + Vector2(0, 32), bubble, HORIZONTAL_ALIGNMENT_CENTER, b.size.x, 28, Color(0.1, 0.1, 0.1))
+		RoundBox.fire(self, b, _t, 16.0)
+		_outlined(font, b.position + Vector2(0, 32), bubble, b.size.x, 28)
 	if debug_on:
 		var atk = fight.attack
 		var line := "dice %s target %d answer %d choices %s  hearts %d/%d" % [str(atk.dice), atk.target, atk.answer,
@@ -306,43 +318,39 @@ func _draw_target(font: Font) -> void:
 func _draw_shields(font: Font) -> void:
 	var rects := _shield_rects()
 	var atk = fight.attack
+	var size := SHIELD_TEX.get_size() * SHIELD_ART_SCALE
 	for i in rects.size():
 		var r: Rect2 = rects[i]
-		var col := SHIELD
+		var tint := Color.WHITE
 		if revealed and i == atk.answer_index:
-			col = Color(0.95, 0.8, 0.3)
+			tint = Color(1.25, 1.05, 0.45)
 		elif revealed and i == picked:
-			col = Color(0.55, 0.3, 0.28)
+			tint = Color(0.75, 0.4, 0.38)
 		if clang > 0.0 and i == picked:
-			col = col.lerp(Color.WHITE, clang)
-		var pts := _shield_shape(r)
-		draw_colored_polygon(pts, col)
-		pts.append(pts[0])
-		draw_polyline(pts, SHIELD_RIM, 4.0)
-		var c := r.get_center() + Vector2(0, -8)
+			tint = tint.lerp(Color(2.0, 2.0, 2.0), clang)
+		var art := Rect2(r.get_center() - size / 2.0, size)
+		draw_texture_rect(SHIELD_TEX, art, false, tint)
+		# the numeral or dots sit on the wooden face, a little above center
+		var c := art.get_center() + Vector2(0, -10)
 		var v: int = atk.choices[i]
 		if fight.choice_style == Fight.ChoiceStyle.NUMERALS:
-			draw_string(font, c + Vector2(-60, 24), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 64, Color(0.08, 0.08, 0.08))
+			draw_string_outline(font, c + Vector2(-60, 22), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 60, 6, Color(1, 0.95, 0.85))
+			draw_string(font, c + Vector2(-60, 22), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 60, Color(0.08, 0.06, 0.05))
 		else:
-			DiceDraw.draw_value(self, c, 46.0 if v <= 6 else 40.0, v)
+			DiceDraw.draw_value(self, c, 44.0 if v <= 6 else 36.0, v)
 
 
-func _shield_shape(r: Rect2) -> PackedVector2Array:
-	var p := r.position
-	var w := r.size.x
-	var h := r.size.y
-	return PackedVector2Array([
-		p, p + Vector2(w, 0), p + Vector2(w, h * 0.55),
-		p + Vector2(w * 0.5, h), p + Vector2(0, h * 0.55)])
+## Light text with a dark outline, for the fiery boxes.
+func _outlined(font: Font, pos: Vector2, text: String, width: float, size: int) -> void:
+	draw_string_outline(font, pos, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, 7, Color(0.08, 0.03, 0.03))
+	draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, INK)
 
 
+## Pixel hearts at 32 px, full then empty.
 func _draw_hearts(at: Vector2, have: int, total: int) -> void:
 	for i in total:
-		var c := at + Vector2(30 * i, 0)
-		var col := HEART if i < have else HEART_EMPTY
-		draw_circle(c + Vector2(-6, -4), 8.0, col)
-		draw_circle(c + Vector2(6, -4), 8.0, col)
-		draw_colored_polygon(PackedVector2Array([c + Vector2(-13, -1), c + Vector2(13, -1), c + Vector2(0, 14)]), col)
+		var c := at + Vector2(36 * i, 0)
+		draw_texture(HEART_TEX if i < have else HEART_EMPTY_TEX, c - Vector2(16, 16))
 
 
 func _draw_hero(base: Vector2) -> void:
@@ -363,7 +371,7 @@ func _draw_hero(base: Vector2) -> void:
 	draw_circle(base + Vector2(12, -43 * squash), 3.5, Color(0, 0, 0, alpha))
 	# the hero's shield, raised while the child decides
 	if shields_shown and not revealed:
-		draw_rect(Rect2(base + Vector2(30, -70), Vector2(16, 60)), SHIELD)
+		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(22, -78), SHIELD_TEX.get_size() * 0.5), false)
 
 
 func _draw_monster(font: Font) -> void:
@@ -376,11 +384,12 @@ func _draw_monster(font: Font) -> void:
 	var r := Rect2(c - Vector2(size.x / 2.0, size.y), size)
 	if monster_tex != null:
 		# the art faces right; a negative width mirrors it to face the hero
-		var ts := monster_tex.get_size() * 0.95 * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
+		var ts := monster_tex.get_size() * monster_scale * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
 		var tr := Rect2(c + Vector2(ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
 		var glow := 1.0 + monster_flash * 2.0
 		draw_texture_rect(monster_tex, tr, false, Color(glow, glow, glow, col.a))
-		draw_string(font, Vector2(c.x - 100, c.y - ts.y + 44), monster_state, HORIZONTAL_ALIGNMENT_CENTER, 200, 18, Color(INK, col.a))
+		if debug_on:
+			draw_string(font, Vector2(c.x - 100, c.y - ts.y + 44), monster_state, HORIZONTAL_ALIGNMENT_CENTER, 200, 18, Color(INK, col.a))
 		return
 	RoundBox.fill(self, r, col, 18.0)
 	RoundBox.frame(self, r, Color(0.1, 0.05, 0.05, col.a), 3.0, 18.0)

@@ -27,7 +27,6 @@ const WATER_Y := 452.0      # where the rocks meet the lava
 const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
-const MONSTER_SCALE := 0.625
 const CHEST_SCALE := 0.7
 const TRAY := Rect2(300, 8, 360, 150)
 const DICE_Y := 66.0
@@ -39,7 +38,9 @@ const FLICK_PX := 24.0
 const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
-const MONSTER_ART := {"blorp": "blorp-idle", "craggy": "blorp-idle-alt"}
+## Monster art and the scale it is drawn at on the crossing. Bolt's art is
+## drawn at its own size, pixel for pixel.
+const MONSTER_ART := {"bolt": ["robodragon", 1.0], "blorp": ["blorp-idle", 0.625], "craggy": ["blorp-idle-alt", 0.625]}
 ## Event rocks wear a marker (yellow treasure, red enemy) from the start; what
 ## is on them stays hidden until the slime lands there. false hides the
 ## markers too, so every rock looks the same until it is reached.
@@ -97,7 +98,7 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 func _ready() -> void:
 	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
-			"blorp-idle", "blorp-idle-alt", "slime-idle-0", "slime-idle-1", "slime-blink", "slime-hop-squash",
+			"robodragon", "blorp-idle", "blorp-idle-alt", "slime-idle-0", "slime-idle-1", "slime-blink", "slime-hop-squash",
 			"slime-hop-stretch", "slime-hop-air"]:
 		tex[f] = load(ART + f + ".png")
 	world = Node2D.new()
@@ -525,8 +526,9 @@ func _draw_world() -> void:
 	# the monster on the rock just reached, beside the slime and facing it
 	if revealed >= 0 and _event_at(revealed) == "monster":
 		var s := run.space_at(revealed)
-		var t: Texture2D = tex[MONSTER_ART.get(s["monster"], "blorp-idle")]
-		var size := t.get_size() * MONSTER_SCALE * _pop()
+		var art: Array = MONSTER_ART.get(s["monster"], MONSTER_ART["bolt"])
+		var t: Texture2D = tex[art[0]]
+		var size: Vector2 = t.get_size() * float(art[1]) * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
 		# the art faces right; a negative width mirrors it to face the slime
@@ -601,20 +603,20 @@ func _draw_goal(base: Vector2) -> void:
 func _draw_hud() -> void:
 	var font := ThemeDB.fallback_font
 	# dice tray
-	RoundBox.fill(hud, TRAY, Color(0.1, 0.05, 0.1, 0.8), 18.0)
-	RoundBox.frame(hud, TRAY, Color(0.45, 0.3, 0.5), 3.0, 18.0)
+	RoundBox.fire(hud, TRAY, _t, 18.0)
 	if tray_waiting:
 		var a := 0.5 + 0.5 * sin(_t * 5.0)
 		RoundBox.frame(hud, TRAY.grow(3), Color(1.0, 0.92, 0.3, a), 4.0, 20.0)
+		hud.draw_string_outline(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, 8, DARK)
 		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
 		# plus or minus between the dice, coloured and gently pulsing
 		DiceDraw.draw_op(hud, Vector2(TRAY.get_center().x, DICE_Y), op_sign, 44.0, _t, op_alpha)
 	# speech bubble (tap it to hear the question again)
 	if bubble != "":
-		RoundBox.fill(hud, BUBBLE, INK, 18.0)
-		RoundBox.frame(hud, BUBBLE, DARK, 3.0, 18.0)
-		hud.draw_string(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, DARK)
+		RoundBox.fire(hud, BUBBLE, _t, 18.0)
+		hud.draw_string_outline(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, 7, DARK)
+		hud.draw_string(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, INK)
 	# gems
 	var gem: Texture2D = tex["gem"]
 	hud.draw_texture(gem, GEMS_AT)

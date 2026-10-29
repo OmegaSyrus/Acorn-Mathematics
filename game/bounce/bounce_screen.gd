@@ -31,22 +31,41 @@ const FACE_COLORS := {
 	5: Color(0.95, 0.85, 0.2),
 	6: Color(0.4, 0.85, 0.9),
 }
+## Pixel-art pegs by face: a gem and a tint (white keeps the gem's colour).
+const PEG_ART := {
+	1: ["blue", Color.WHITE],
+	2: ["green", Color.WHITE],
+	3: ["orange", Color.WHITE],
+	4: ["purple", Color(1.25, 0.85, 1.1)],
+	5: ["orange", Color(1.25, 1.25, 0.45)],
+	6: ["blue", Color(0.7, 1.3, 1.3)],
+}
+const PEG_ART_SCALE := 1.25    # 32 px gems drawn to fill a 40 px peg
+const BUMPER_ART_SCALE := 1.375
+const DRAGON_TEX := preload("res://art/boss/skeleton-dragon.png")
+const TREASURE_TEX := preload("res://art/boss/treasure-cave.png")
+const BOARD_TEX := preload("res://art/boss/board.png")
+const BUMPER_TEX := preload("res://art/boss/bumper.png")
+const BALL_TEX := preload("res://art/ui/ball.png")
+const HEART_TEX := preload("res://art/ui/heart.png")
+const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
+## The Skeleton Dragon fills the top right: its skull sits right of the
+## board and its neck runs off the screen to the right and up.
+const DRAGON_AT := Vector2(700, -96)
+const DRAGON_SCALE := 2.5
 const INK := Color(0.96, 0.94, 0.9)
+const OUTLINE := Color(0.08, 0.03, 0.03)
 const WALL := Color(0.55, 0.42, 0.35)
-const BUMPER := Color(0.6, 0.25, 0.15)
-const MOD := Color(0.55, 0.35, 0.9)
-const HEART := Color(0.9, 0.15, 0.2)
-const HEART_EMPTY := Color(0.35, 0.25, 0.25)
 
 const CHOICE_X := 172.0
 const CHOICE_SIZE := 76.0
 const CHOICE_GAP := 96.0
-const BOSS_POS := Vector2(840, 150)
+const BOSS_POS := Vector2(820, 96)   # the skull
 const STUB_LENGTH := 70.0
 const AIM_KEY_SPEED := 600.0   # tenths of a degree per second
-const BOSS_DIE_SCALE := 0.67   # 96 px dice drawn at about 64 px
-const BOSS_DIE_AT := Vector2(790, 214)
-const BOSS_JAW := Vector2(840, 160)
+const BOSS_DIE_SCALE := 1.0    # full 96 px dice
+const BOSS_DIE_AT := Vector2(800, 318)
+const BOSS_JAW := Vector2(770, 170)
 const FLOAT_S := 1.1
 const FIRST_FACE_Y := 150.0
 
@@ -72,6 +91,7 @@ var floaters := []      # damage numbers: [text, pos, age]
 var slow_t := 0.0       # seconds since the last-heart slow-down began
 var ball_pop := 0.0     # 1 when the ball has just taken the boss's roll
 var slow_mo := 0.3      # time scale on the last heart, from tuning.json "screen"
+var peg_tex := {}
 
 
 func setup(rng, grade: int, show_debug := false) -> void:
@@ -81,6 +101,8 @@ func setup(rng, grade: int, show_debug := false) -> void:
 
 
 func _ready() -> void:
+	for c in ["blue", "green", "orange", "purple"]:
+		peg_tex[c] = load("res://art/boss/peg-%s.png" % c)
 	for i in 2:
 		var d := DieView.new()
 		d.scale = Vector2.ONE * BOSS_DIE_SCALE
@@ -131,7 +153,7 @@ func _boss_rolls() -> void:
 	Beeper.roll()
 	for i in faces.size():
 		var d: DieView = boss_dice[i]
-		d.position = BOSS_DIE_AT + Vector2((i - (faces.size() - 1) / 2.0) * 70.0, 0)
+		d.position = BOSS_DIE_AT + Vector2((i - (faces.size() - 1) / 2.0) * 104.0, 0)
 		d.roll_to(faces[i], 0.12 * i, (BOSS_JAW - d.position) / BOSS_DIE_SCALE)
 	while true:
 		await get_tree().process_frame
@@ -312,18 +334,37 @@ func _board_rect() -> Rect2:
 	return Rect2(230, 40, 500, 500)
 
 
+## The boss's hearts and the balls left. At Acorn there is no naming
+## column, so they sit left of the board, inside the 4:3 safe area; above
+## Acorn the naming column has that space, so they go right, under the dice.
+func _hearts_panel() -> Rect2:
+	return Rect2(124, 40, 100, 270) if fight.auto_name() else Rect2(744, 330, 196, 100)
+
+
+func _balls_panel() -> Rect2:
+	return Rect2(124, 330, 100, 200) if fight.auto_name() else Rect2(744, 440, 196, 92)
+
+
+func _bubble_rect() -> Rect2:
+	return Rect2(745, 400, 150, 46) if fight.auto_name() else Rect2(745, 190, 150, 46)
+
+
 # --- drawing ---------------------------------------------------------------
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
-	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.1, 0.06, 0.05))
-	RoundBox.fill(self, _board_rect(), Color(0.16, 0.09, 0.07), 22.0)
+	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.06, 0.04, 0.05))
+	# the dragon's hoard: gold and jewels heaped left, right and behind
+	draw_texture_rect(TREASURE_TEX, Rect2(0, 0, 960, 540), false)
+	draw_texture_rect(BOARD_TEX, _board_rect(), false, Color(1, 1, 1, 0.9))
+	_draw_dragon()
 	var b: Dictionary = fight.board
 	for w in b["walls"]:
 		draw_line(Vector2(w[0], w[1]), Vector2(w[2], w[3]), WALL, 6.0)
 	for bm in b["bumpers"]:
-		draw_circle(Vector2(bm["x"], bm["y"]), bm["r"], BUMPER)
-		draw_arc(Vector2(bm["x"], bm["y"]), bm["r"], 0, TAU, 24, Color(1, 0.6, 0.3), 3.0)
+		# the movement peg: a brass bumper the ball bounces off
+		var bs := BUMPER_TEX.get_size() * BUMPER_ART_SCALE * float(bm["r"]) / 22.0
+		draw_texture_rect(BUMPER_TEX, Rect2(Vector2(bm["x"], bm["y"]) - bs / 2.0, bs), false)
 	_draw_pegs(font)
 	for r in pop_rings:
 		var k: float = r[2] / 0.5
@@ -335,9 +376,9 @@ func _draw() -> void:
 	if not fight.auto_name():
 		_draw_choices(font)
 	if bubble_t > 0.0:
-		var br := Rect2(BOSS_POS + Vector2(-150, 150), Vector2(140, 40))
-		RoundBox.fill(self, br, INK, 16.0)
-		draw_string(font, br.position + Vector2(0, 29), bubble, HORIZONTAL_ALIGNMENT_CENTER, br.size.x, 24, Color(0.1, 0.1, 0.1))
+		var br := _bubble_rect()
+		RoundBox.fire(self, br, _t, 16.0)
+		_outlined(font, br.position + Vector2(0, 32), bubble, br.size.x, 26)
 	_draw_floaters(font)
 	if phase == "lost":
 		_draw_fail(font)
@@ -368,26 +409,36 @@ func _draw_pegs(font: Font) -> void:
 		if slow:
 			c += _warble(c) * 3.0
 		var face := int(p["face"])
-		var col: Color = FACE_COLORS.get(face, INK)
+		var art: Array = PEG_ART.get(face, PEG_ART[1])
+		var tint: Color = art[1]
 		if wobble.has(i):
-			col = col.darkened(0.4)
-		draw_circle(c, r, col)
-		draw_arc(c, r, 0, TAU, 24, Color(0, 0, 0, 0.5), 2.0)
+			tint = tint.darkened(0.4)
+		_draw_peg_art(peg_tex[art[0]], c, r, tint)
 		if fight.peg_labels() == "numerals":
-			draw_circle(c, r * 0.72, INK)
-			draw_string(font, c + Vector2(-r, r * 0.42), str(face), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0, int(r * 1.3),
-					Color(0.08, 0.06, 0.06))
+			_outlined(font, c + Vector2(-r, r * 0.45), str(face), r * 2.0, int(r * 1.35))
 		else:
-			DiceDraw.draw_face(self, c, r * 1.4, face)
+			DiceDraw.draw_face(self, c, r * 1.2, face)
 		if debug_on and phase == "naming" and face == fight.answer_face:
 			draw_arc(c, r + 5, 0, TAU, 24, Color(0.6, 1, 0.6), 2.0)
 	for i in b["mods"].size():
 		var m: Dictionary = b["mods"][i]
 		var c := Vector2(m["x"], m["y"])
 		var used: bool = phase in ["flying", "settling"] and fight.sim != null and fight.sim.mod_used[i]
-		draw_circle(c, r, MOD.lightened(0.3) if used else MOD)
+		_draw_peg_art(peg_tex["purple"], c, r, Color(1.5, 1.5, 1.5) if used else Color.WHITE)
+		draw_arc(c, r + 2.0, 0, TAU, 24, Color(1.0, 0.85, 0.3), 3.0)
 		var label := "+%d" % m["add"] if int(m["add"]) > 0 else str(m["add"])
-		draw_string(font, c + Vector2(-r, 8), label, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 22, INK)
+		_outlined(font, c + Vector2(-r, 8), label, r * 2, 22)
+
+
+func _draw_peg_art(t: Texture2D, c: Vector2, r: float, tint: Color) -> void:
+	var size := t.get_size() * PEG_ART_SCALE * r / 20.0
+	draw_texture_rect(t, Rect2(c - size / 2.0, size), false, tint)
+
+
+## Light text with a dark outline: peg numerals and the fiery boxes.
+func _outlined(font: Font, pos: Vector2, text: String, width: float, size: int) -> void:
+	draw_string_outline(font, pos, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, maxi(4, size / 4), OUTLINE)
+	draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, INK)
 
 
 func _draw_launcher(font: Font) -> void:
@@ -413,10 +464,12 @@ func _draw_ball() -> void:
 			col = FACE_COLORS.get(fight.named_face, INK).lightened(0.3)
 		if slow and phase in ["flying", "settling"]:
 			_draw_warble_ball(at, r + 3.0, col)
-		elif value > 0:
-			draw_circle(at, r + 7, col)
 		else:
-			draw_circle(at, r, col)
+			# the pixel pearl, a little bigger while it carries a die face
+			var rr := r + 7.0 if value > 0 else r
+			var bs := Vector2.ONE * rr * 2.0 * 32.0 / 22.0
+			var tint := Color.WHITE if fight.named_face <= 0 else col
+			draw_texture_rect(BALL_TEX, Rect2(at - bs / 2.0, bs), false, tint)
 		if value > 0:
 			# The ball's die, drawn a little bigger than the ball so the dots
 			# read while it flies.
@@ -448,20 +501,30 @@ func _warble(c: Vector2) -> Vector2:
 	return Vector2(sin(slow_t * 11.0 + c.y * 0.05), cos(slow_t * 9.0 + c.x * 0.05)) * k
 
 
+## The big Skeleton Dragon: it flashes and shakes when a peg pops.
+func _draw_dragon() -> void:
+	var shake := Vector2(sin(_t * 70.0), cos(_t * 53.0)) * 6.0 * boss_flash
+	var breathe := Vector2(0, sin(_t * 1.6) * 3.0)
+	var glow := 1.0 + boss_flash * 1.2
+	var size := DRAGON_TEX.get_size() * DRAGON_SCALE
+	draw_texture_rect(DRAGON_TEX, Rect2(DRAGON_AT + shake + breathe, size), false, Color(glow, glow, glow))
+
+
+## The boss's hearts and the balls left, in pixel art on fiery panels.
 func _draw_boss(font: Font) -> void:
-	var col := Color(0.55, 0.5, 0.45).lerp(Color.WHITE, boss_flash * 0.7)
-	var shake := Vector2(sin(_t * 70.0), cos(_t * 53.0)) * 5.0 * boss_flash
-	var body := Rect2(BOSS_POS - Vector2(90, 100) + shake, Vector2(180, 120))
-	RoundBox.fill(self, body, col, 20.0)
-	RoundBox.frame(self, body, Color(0.1, 0.05, 0.05), 3.0, 20.0)
-	draw_string(font, body.position + Vector2(0, -8), "Skeleton Dragon", HORIZONTAL_ALIGNMENT_CENTER, body.size.x, 16, INK)
 	# The target, spat out of the jaw as rolled dice (above 12 a numeral).
 	if DiceDraw.split_value(fight.target).is_empty():
-		DiceDraw.draw_value(self, BOSS_DIE_AT, 64.0, fight.target)
-	# Hearts in rows of five, inside the safe area.
+		DiceDraw.draw_value(self, BOSS_DIE_AT, 80.0, fight.target)
+	var hp := _hearts_panel()
+	RoundBox.fire(self, hp, _t, 16.0)
+	var cols := 2 if fight.auto_name() else 5
+	var top := hp.position + Vector2(hp.size.x / 2.0 - (cols - 1) * 18.0, 26)
+	if fight.auto_name():
+		_outlined(font, hp.position + Vector2(0, 30), "Dragon", hp.size.x, 22)
+		top.y += 38
 	for i in fight.boss_max_hearts:
-		var c := Vector2(770 + (i % 5) * 14, 300 + (i / 5) * 16)
-		draw_circle(c, 6.0, HEART if i < fight.boss_hearts else HEART_EMPTY)
+		var c := top + Vector2((i % cols) * 36, (i / cols) * 36)
+		draw_texture(HEART_TEX if i < fight.boss_hearts else HEART_EMPTY_TEX, c - Vector2(16, 16))
 
 
 ## Damage numbers: they pop in big, settle, float up and fade.
@@ -478,9 +541,16 @@ func _draw_floaters(font: Font) -> void:
 
 
 func _draw_balls_left() -> void:
+	var bp := _balls_panel()
+	RoundBox.fire(self, bp, _t, 16.0)
+	var cols := 2 if fight.auto_name() else 5
+	var top := bp.position + Vector2(bp.size.x / 2.0 - (cols - 1) * 18.0, 28)
+	if fight.auto_name():
+		_outlined(ThemeDB.fallback_font, bp.position + Vector2(0, 30), "Balls", bp.size.x, 22)
+		top.y += 36
 	var shown: int = fight.balls_left - (1 if phase in ["flying", "settling"] else 0)
 	for i in maxi(0, shown):
-		draw_circle(Vector2(768 + (i % 4) * 22, 360 + (i / 4) * 22), 8.0, INK)
+		draw_texture(BALL_TEX, top + Vector2((i % cols) * 36, (i / cols) * 36) - Vector2(16, 16))
 
 
 func _draw_choices(font: Font) -> void:

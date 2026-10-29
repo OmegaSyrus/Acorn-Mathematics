@@ -18,6 +18,8 @@ const STATES := [
 const MIMIC_TELLS := ["lid_twitch", "tongue_tip", "tooth_latch"]
 
 const ROSTER := {
+	# Bolt, the cute robot dragon (2026-10-29): the Lava Caves crossing enemy.
+	"bolt": {"name": "Bolt", "hearts": 3, "role": "monster"},
 	"blorp": {"name": "Blorp the Ember Troll", "hearts": 3, "role": "monster"},
 	# Craggy is here as the 4-heart test case; which area he lives in is not decided.
 	"craggy": {"name": "Craggy", "hearts": 4, "role": "monster"},
