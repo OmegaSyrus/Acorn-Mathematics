@@ -9,12 +9,12 @@
   "chest_gems": [2, 4],
   "spaces": [
     { "at": 4, "type": "chest" },
-    { "at": 9, "type": "monster", "monster": "bolt" },
+    { "at": 9, "type": "monster", "monster": "blorp" },
     { "at": 13, "type": "chest" },
     { "at": 18, "type": "chest" },
-    { "at": 22, "type": "monster", "monster": "bolt" },
+    { "at": 22, "type": "monster", "monster": "surtling" },
     { "at": 27, "type": "chest" },
     { "at": 31, "type": "chest" },
-    { "at": 35, "type": "monster", "monster": "bolt" }
+    { "at": 35, "type": "monster", "monster": "craggy" }
   ]
 }

@@ -28,20 +28,24 @@ const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
-## Monster art and the scale it is drawn at. Bolt is drawn at twice its
-## pixel size so its pixels stay square.
+## Monster art and the scale it is drawn at.
 const MONSTER_ART := {
-	"bolt": ["res://art/lava/robodragon.png", 2.0],
 	"blorp": ["res://art/lava/blorp-idle.png", 0.95],
-	"craggy": ["res://art/lava/blorp-idle-alt.png", 0.95],
+	"craggy": ["res://art/lava/craggy.png", 1.0],
+	"surtling": ["res://art/lava/surtling.png", 1.4],
+	"mimic": ["res://art/lava/mimic.png", 1.4],
+	"lava_miniboss": ["res://art/lava/surtling-chief.png", 1.05],
 }
+## The hero: the robot dragon, facing the monster on the right.
+const HERO_TEX := preload("res://art/lava/robodragon.png")
+const HERO_ART_SCALE := 1.5
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 const SHIELD_TEX := preload("res://art/ui/shield.png")
 const SHIELD_ART_SCALE := 1.2
-const NAME_BOX := Rect2(600, 58, 240, 40)
+const NAME_RIGHT := 842.0   # the name box hugs the right edge of the safe area
+const NAME_Y := 58.0
 const MONSTER_COLORS := {
-	"bolt": Color(0.5, 0.55, 0.6),
 	"blorp": Color(0.85, 0.35, 0.12),
 	"craggy": Color(0.5, 0.48, 0.45),
 	"mimic": Color(0.55, 0.33, 0.12),
@@ -276,8 +280,11 @@ func _draw() -> void:
 	_draw_hearts(Vector2(140, 30), fight.hero_hearts, 3)
 	_draw_hearts(Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30), fight.monster_hearts, fight.monster_max_hearts)
 	# the enemy's name in a fiery box, top right under its hearts
-	RoundBox.fire(self, NAME_BOX, _t, 14.0)
-	_outlined(font, NAME_BOX.position + Vector2(0, 29), Monsters.name_of(fight.monster_id), NAME_BOX.size.x, 24)
+	var name := Monsters.name_of(fight.monster_id)
+	var w := maxf(160.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x + 36.0)
+	var box := Rect2(NAME_RIGHT - w, NAME_Y, w, 40)
+	RoundBox.fire(self, box, _t, 14.0)
+	_outlined(font, box.position + Vector2(0, 29), name, box.size.x, 24)
 	_draw_target(font)
 	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0))
 	_draw_monster(font)
@@ -353,25 +360,19 @@ func _draw_hearts(at: Vector2, have: int, total: int) -> void:
 		draw_texture(HEART_TEX if i < have else HEART_EMPTY_TEX, c - Vector2(16, 16))
 
 
+## The robot dragon: it breathes while idle, flashes red when hit and
+## squashes down when it collapses.
 func _draw_hero(base: Vector2) -> void:
 	var alpha := 1.0 - hero_sink * 0.7
-	var body := Color(0.35, 0.8, 0.35, alpha).lerp(Color(1, 0.3, 0.3, alpha), hero_flash)
-	var pts := PackedVector2Array()
-	var squash := 1.0 - hero_sink * 0.5
-	for s in 24:
-		var a := TAU * s / 24.0
-		var p := Vector2(cos(a) * 34.0 * (2.0 - squash), sin(a) * 50.0 * squash)
-		if p.y > 0:
-			p.y *= 0.4
-		pts.append(base + Vector2(0, -24) + p)
-	draw_colored_polygon(pts, body)
-	draw_circle(base + Vector2(-11, -44 * squash), 7.0, Color(1, 1, 1, alpha))
-	draw_circle(base + Vector2(11, -44 * squash), 7.0, Color(1, 1, 1, alpha))
-	draw_circle(base + Vector2(-10, -43 * squash), 3.5, Color(0, 0, 0, alpha))
-	draw_circle(base + Vector2(12, -43 * squash), 3.5, Color(0, 0, 0, alpha))
+	var tint := Color.WHITE.lerp(Color(1.6, 0.5, 0.5), hero_flash)
+	tint.a = alpha
+	var breathe := sin(_t * 2.4) * 0.02
+	var size := HERO_TEX.get_size() * HERO_ART_SCALE * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
+	var feet := base + Vector2(0, 12)
+	draw_texture_rect(HERO_TEX, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
 	# the hero's shield, raised while the child decides
 	if shields_shown and not revealed:
-		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(22, -78), SHIELD_TEX.get_size() * 0.5), false)
+		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(52, -100), SHIELD_TEX.get_size() * 0.55), false)
 
 
 func _draw_monster(font: Font) -> void:

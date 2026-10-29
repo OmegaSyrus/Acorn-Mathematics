@@ -1,4 +1,5 @@
-## Saves one still of each play screen (lava walk, combat, boss fight) at
+## Saves one still of each play screen (lava walk, combat with each
+## Lava Caves fighter, boss fight) at
 ## Acorn, for sharing looks after an art pass.
 ##   xvfb-run godot --path . --rendering-driver opengl3 res://tools/stills/screens.tscn -- --out=/tmp/shots
 extends Node2D
@@ -51,15 +52,17 @@ func _ready() -> void:
 	s.queue_free()
 	await _frames(2)
 
-	var f := FightScreen.new()
-	f.setup(SeededRng.new(78), 1, "bolt")
-	stage.add_child(f)
-	while not f.choice.active:
-		await _frames(1)
-	await _frames(20)
-	_shot("combat")
-	f.queue_free()
-	await _frames(2)
+	# combat against each Lava Caves fighter; the duel is the miniboss
+	for id in ["blorp", "surtling", "craggy", "mimic", "lava_miniboss"]:
+		var f := FightScreen.new()
+		f.setup(SeededRng.new(78), 1, id, false, id == "lava_miniboss")
+		stage.add_child(f)
+		while not f.choice.active:
+			await _frames(1)
+		await _frames(20)
+		_shot("combat" if id == "blorp" else "combat-" + id)
+		f.queue_free()
+		await _frames(2)
 
 	var b := BounceScreen.new()
 	b.setup(SeededRng.new(11), 1)
