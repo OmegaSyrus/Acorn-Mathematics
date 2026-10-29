@@ -27,7 +27,6 @@ const WATER_Y := 452.0      # where the rocks meet the lava
 const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
-const MONSTER_SCALE := 0.625
 const CHEST_SCALE := 0.7
 const TRAY := Rect2(300, 8, 360, 150)
 const DICE_Y := 66.0
@@ -39,9 +38,25 @@ const FLICK_PX := 24.0
 const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
-const MONSTER_ART := {"blorp": "blorp-idle", "craggy": "blorp-idle-alt"}
+## Monster art and the scale it is drawn at on the crossing.
+const MONSTER_ART := {
+	"blorp": ["blorp-idle", 0.625],
+	"craggy": ["craggy", 0.625],
+	"surtling": ["surtling", 0.8],
+}
+## The hero is the robot dragon (2026-10-29: it replaced the slime). It has
+## one sprite; the hop is squash, stretch and tilt done here, per frame
+## name: [scale x, scale y, tilt in radians].
+const HERO_POSE := {
+	"idle-0": [1.0, 1.0, 0.0],
+	"idle-1": [1.015, 0.985, 0.0],
+	"blink": [1.0, 1.0, 0.0],
+	"hop-squash": [1.16, 0.82, 0.0],
+	"hop-stretch": [0.9, 1.12, -0.08],
+	"hop-air": [1.0, 1.04, -0.14],
+}
 ## Event rocks wear a marker (yellow treasure, red enemy) from the start; what
-## is on them stays hidden until the slime lands there. false hides the
+## is on them stays hidden until the dragon lands there. false hides the
 ## markers too, so every rock looks the same until it is reached.
 const MARKERS_AHEAD := true
 const MARKER_Y := WATER_Y - 60.0
@@ -68,7 +83,7 @@ var sink_space := -1
 var rock_sink := 0.0
 var beaten := {}       # monster spaces beaten this attempt
 var dropped := {}      # event spaces hopped past: 0..1 as their marker falls into the lava
-var revealed := -1     # the event space the slime is on, its contents shown
+var revealed := -1     # the event space the dragon is on, its contents shown
 var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
 var lid_open := false
 var opening := -1      # chest space whose gems are flying
@@ -97,8 +112,7 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 func _ready() -> void:
 	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
-			"blorp-idle", "blorp-idle-alt", "slime-idle-0", "slime-idle-1", "slime-blink", "slime-hop-squash",
-			"slime-hop-stretch", "slime-hop-air"]:
+			"robodragon", "blorp-idle", "craggy", "surtling"]:
 		tex[f] = load(ART + f + ".png")
 	world = Node2D.new()
 	world.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
@@ -260,7 +274,7 @@ func _cleared() -> void:
 
 # --- animations ------------------------------------------------------------
 
-## The slime hops rock by rock, each hop counted, with a squash before the
+## The dragon hops rock by rock, each hop counted, with a squash before the
 ## jump, a stretch on the way up and a small bounce on landing.
 func _hop_along(from: int, to: int) -> void:
 	revealed = -1
@@ -300,8 +314,8 @@ func _bounce() -> void:
 	hero_frame = "idle-0"
 
 
-## Treasures and enemies the slime hopped over are gone: their markers tip
-## and fall into the lava once the slime has passed them.
+## Treasures and enemies the dragon hopped over are gone: their markers tip
+## and fall into the lava once the dragon has passed them.
 func _drop_passed(from: int, to: int) -> void:
 	var passed := []
 	for i in range(from + 1, to):
@@ -316,7 +330,7 @@ func _drop_passed(from: int, to: int) -> void:
 	await create_tween().tween_method(fall, 0.0, 1.0, 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD).finished
 
 
-## A wrong rock: it tips into the lava and the slime sinks with a blorp.
+## A wrong rock: it tips into the lava and the dragon sinks with a blorp.
 func _sink(space: int) -> void:
 	sink_space = space
 	Beeper.blorp()
@@ -471,7 +485,7 @@ func _world_w() -> float:
 	return tex["strip"].get_width() * STRIP_SCALE
 
 
-## Keeps the slime near the left so the next five rocks are on screen.
+## Keeps the dragon near the left so the next five rocks are on screen.
 func _cam_target() -> float:
 	return clampf(hero_x - HERO_SCREEN_X, 0.0, _world_w() - 960.0)
 
@@ -520,18 +534,19 @@ func _draw_world() -> void:
 		world.draw_set_transform(at, fall * 1.2, Vector2.ONE * (1.0 - fall * 0.4))
 		world.draw_texture_rect(m, Rect2(-ms / 2.0, ms), false, Color(1, 1, 1, 1.0 - fall * fall))
 		world.draw_set_transform(Vector2.ZERO)
-	# the slime
+	# the dragon
 	_draw_hero()
-	# the monster on the rock just reached, beside the slime and facing it
+	# the monster on the rock just reached, beside the dragon and facing it
 	if revealed >= 0 and _event_at(revealed) == "monster":
 		var s := run.space_at(revealed)
-		var t: Texture2D = tex[MONSTER_ART.get(s["monster"], "blorp-idle")]
-		var size := t.get_size() * MONSTER_SCALE * _pop()
+		var art: Array = MONSTER_ART.get(s["monster"], MONSTER_ART["blorp"])
+		var t: Texture2D = tex[art[0]]
+		var size: Vector2 = t.get_size() * float(art[1]) * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
-		# the art faces right; a negative width mirrors it to face the slime
+		# the art faces right; a negative width mirrors it to face the dragon
 		world.draw_texture_rect(t, Rect2(c + Vector2(size.x / 2, -size.y - breathe), Vector2(-size.x, size.y + breathe)), false)
-	# the chest on the rock just reached, in front of the slime so it stays in view
+	# the chest on the rock just reached, in front of the dragon so it stays in view
 	if revealed >= 0 and run.space_at(revealed).get("type") == "chest":
 		var t: Texture2D = tex["chest-open" if lid_open else "chest-closed"]
 		var size := t.get_size() * CHEST_SCALE * _pop()
@@ -565,7 +580,7 @@ func _pop() -> float:
 
 
 func _draw_hero() -> void:
-	var t: Texture2D = tex["slime-" + hero_frame]
+	var t: Texture2D = tex["robodragon"]
 	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * 120.0)
 	var pos := feet - Vector2(t.get_width() / 2.0, t.get_height())
 	if hero_sink > 0.0:
@@ -577,7 +592,11 @@ func _draw_hero() -> void:
 					Color(1.0, 0.85, 0.4, (1.0 - ph) * minf(1.0, hero_sink * 3.0)))
 	else:
 		world.draw_circle(Vector2(hero_x, FEET_Y + 2), 30.0 - hero_lift * 0.25, Color(0, 0, 0, 0.25))
-		world.draw_texture(t, pos)
+		# squash, stretch and tilt about the feet
+		var pose: Array = HERO_POSE.get(hero_frame, HERO_POSE["idle-0"])
+		world.draw_set_transform(feet, pose[2], Vector2(pose[0], pose[1]))
+		world.draw_texture(t, Vector2(-t.get_width() / 2.0, -t.get_height()))
+		world.draw_set_transform(Vector2.ZERO)
 
 
 ## Draws only the part of a sprite above the lava line, so it sinks into it.
@@ -601,20 +620,20 @@ func _draw_goal(base: Vector2) -> void:
 func _draw_hud() -> void:
 	var font := ThemeDB.fallback_font
 	# dice tray
-	RoundBox.fill(hud, TRAY, Color(0.1, 0.05, 0.1, 0.8), 18.0)
-	RoundBox.frame(hud, TRAY, Color(0.45, 0.3, 0.5), 3.0, 18.0)
+	RoundBox.fire(hud, TRAY, _t, 18.0)
 	if tray_waiting:
 		var a := 0.5 + 0.5 * sin(_t * 5.0)
 		RoundBox.frame(hud, TRAY.grow(3), Color(1.0, 0.92, 0.3, a), 4.0, 20.0)
+		hud.draw_string_outline(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, 8, DARK)
 		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
 		# plus or minus between the dice, coloured and gently pulsing
 		DiceDraw.draw_op(hud, Vector2(TRAY.get_center().x, DICE_Y), op_sign, 44.0, _t, op_alpha)
 	# speech bubble (tap it to hear the question again)
 	if bubble != "":
-		RoundBox.fill(hud, BUBBLE, INK, 18.0)
-		RoundBox.frame(hud, BUBBLE, DARK, 3.0, 18.0)
-		hud.draw_string(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, DARK)
+		RoundBox.fire(hud, BUBBLE, _t, 18.0)
+		hud.draw_string_outline(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, 7, DARK)
+		hud.draw_string(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, INK)
 	# gems
 	var gem: Texture2D = tex["gem"]
 	hud.draw_texture(gem, GEMS_AT)

@@ -19,10 +19,10 @@ const MIMIC_TELLS := ["lid_twitch", "tongue_tip", "tooth_latch"]
 
 const ROSTER := {
 	"blorp": {"name": "Blorp the Ember Troll", "hearts": 3, "role": "monster"},
-	# Craggy is here as the 4-heart test case; which area he lives in is not decided.
-	"craggy": {"name": "Craggy", "hearts": 4, "role": "monster"},
+	"craggy": {"name": "Craggy the Stone Troll", "hearts": 4, "role": "monster"},
+	"surtling": {"name": "Surtling", "hearts": 3, "role": "monster"},
 	"mimic": {"name": "Mimic", "hearts": 3, "role": "mimic"},
-	"lava_miniboss": {"name": "Lava Caves miniboss", "hearts": 3, "role": "miniboss"},
+	"lava_miniboss": {"name": "Surtling Chief", "hearts": 3, "role": "miniboss"},
 }
 
 
