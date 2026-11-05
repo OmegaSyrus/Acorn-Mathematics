@@ -19,6 +19,7 @@ const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
+const GameMenu := preload("res://game/ui/game_menu.gd")
 
 const ART := "res://art/lava/"
 const STRIP_SCALE := 3.0
@@ -30,7 +31,9 @@ const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const CHEST_SCALE := 0.7
 ## The dice box: die, sign, die, "=", each die with its numeral under it.
-const TRAY := Rect2(300, 8, 410, 160)
+## 20 units narrower on the right (2026-11-05) to make room for the gems
+## beside the menu button on a 4:3 tablet.
+const TRAY := Rect2(300, 8, 390, 160)
 ## The small talk box left of the dice box: the question, and the count when
 ## a die's pips are tapped (back by Terrence's request 2026-11-05; tap it to
 ## hear the question again).
@@ -41,7 +44,8 @@ const DICE_Y := 64.0
 const DICE_XS := [370.0, 530.0]
 const OP_X := 450.0
 const EQ_X := 630.0
-const GEMS_AT := Vector2(752, 26)
+const GEMS_Y := 26.0
+const GEMS_FONT := 30
 const BAR := Rect2(140, 516, 680, 10)
 const DEBUG_CORNER := Rect2(120, 0, 90, 60)
 const FLICK_PX := 24.0
@@ -823,10 +827,7 @@ func _draw_hud() -> void:
 		hud.draw_string_outline(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8, Color(DARK, op_alpha))
 		hud.draw_string(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, eq)
 	_draw_bubble(font)
-	# gems
-	var gem: Texture2D = tex["gem"]
-	hud.draw_texture(gem, GEMS_AT)
-	hud.draw_string(font, GEMS_AT + Vector2(46, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
+	_draw_gems(font)
 	# progress along the crossing: one tick per space
 	var n := run.length()
 	RoundBox.fill(hud, BAR.grow(3), Color(0.1, 0.05, 0.1, 0.8), 8.0)
@@ -849,9 +850,19 @@ func _draw_cleared(font: Font) -> void:
 	hud.draw_string(font, box.position + Vector2(0, 50), run.area["name"], HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 26, Color(1.0, 0.85, 0.3))
 	hud.draw_string_outline(font, box.position + Vector2(0, 100), "Yes!", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 40, 7, DARK)
 	hud.draw_string(font, box.position + Vector2(0, 100), "Yes!", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 40, INK)
+	_draw_gems(font)
+
+
+## The gem count just left of the menu button in the top right corner; a
+## longer number grows to the left.
+func _draw_gems(font: Font) -> void:
 	var gem: Texture2D = tex["gem"]
-	hud.draw_texture(gem, GEMS_AT)
-	hud.draw_string(font, GEMS_AT + Vector2(46, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
+	var text := str(save.get("gems", 0))
+	var right := GameMenu.button_rect(get_viewport()).position.x - 8.0
+	var x := right - font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT).x
+	hud.draw_texture(gem, Vector2(x - 46, GEMS_Y))
+	hud.draw_string_outline(font, Vector2(x, GEMS_Y + 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT, 6, DARK)
+	hud.draw_string(font, Vector2(x, GEMS_Y + 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT, INK)
 
 
 func _draw_overlay() -> void:
