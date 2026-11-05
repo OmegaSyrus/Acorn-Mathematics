@@ -34,15 +34,14 @@ const SHIELD_GAP := 160.0
 const INK := Color(0.96, 0.94, 0.9)
 ## Monster art and the scale it is drawn at.
 const MONSTER_ART := {
-	"blorp": ["res://art/lava/blorp-idle.png", 0.95],
-	"craggy": ["res://art/lava/craggy.png", 1.0],
-	"surtling": ["res://art/lava/surtling.png", 1.4],
-	"mimic": ["res://art/lava/mimic.png", 1.4],
-	"lava_miniboss": ["res://art/lava/surtling-chief.png", 1.05],
+	"blorp": ["res://art/lava/blorp-idle.png"],
+	"craggy": ["res://art/lava/craggy.png"],
+	"surtling": ["res://art/lava/surtling.png"],
+	"mimic": ["res://art/lava/mimic.png"],
+	"lava_miniboss": ["res://art/lava/surtling-chief.png"],
 }
 ## The hero: the robot dragon, facing the monster on the right.
 const BG_TEX := preload("res://art/lava/fight-bg.png")
-const HERO_ART_SCALE := 1.5
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 const SHIELD_TEX := preload("res://art/ui/shield.png")
@@ -77,7 +76,6 @@ var hero_sink := 0.0
 var clang := 0.0
 var bubble := ""
 var monster_tex: Texture2D
-var monster_scale := 1.0
 var hero_lift := 0.0
 var _t := 0.0
 
@@ -106,7 +104,6 @@ func _ready() -> void:
 	add_child(choice)
 	if MONSTER_ART.has(fight.monster_id):
 		monster_tex = load(MONSTER_ART[fight.monster_id][0])
-		monster_scale = MONSTER_ART[fight.monster_id][1]
 	_loop()
 
 
@@ -387,12 +384,12 @@ func _draw_hero(base: Vector2) -> void:
 	var tint := Color.WHITE.lerp(Color(1.6, 0.5, 0.5), hero_flash)
 	tint.a = alpha
 	var breathe := sin(_t * 2.4) * 0.02
-	var size := hero_tex.get_size() * HERO_ART_SCALE * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
+	var size := hero_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
 	var feet := base + Vector2(0, 12)
 	draw_texture_rect(hero_tex, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
 	# the hero's shield, raised while the child decides
 	if shields_shown and not revealed:
-		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(52, -100), SHIELD_TEX.get_size() * 0.55), false)
+		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(30, -78), SHIELD_TEX.get_size() * 0.55), false)
 
 
 func _draw_monster(font: Font) -> void:
@@ -405,7 +402,7 @@ func _draw_monster(font: Font) -> void:
 	var r := Rect2(c - Vector2(size.x / 2.0, size.y), size)
 	if monster_tex != null:
 		# the art faces right; a negative width mirrors it to face the hero
-		var ts := monster_tex.get_size() * monster_scale * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
+		var ts := monster_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
 		# a mirrored rect spans position .. position + |size|, so this centers it on c
 		var tr := Rect2(c + Vector2(-ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
 		var glow := 1.0 + monster_flash * 2.0
