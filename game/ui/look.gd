@@ -7,6 +7,12 @@ extends RefCounted
 const Store := preload("res://logic/core/store.gd")
 
 const DEFAULT_HERO := "robodragon"
+## The one pixel grid for every hero and enemy sprite (2026-11-05, Terrence:
+## sizes were "wildly different"): one art pixel is one unit of the 960x540
+## frame, on every screen. Characters are never scaled up or down; a character
+## that has to be bigger or smaller gets art made at that size instead.
+## (On the 1340x800 tablet one unit is about 1.5 screen pixels.)
+const CHAR_PX := 1.0
 
 static var hero_id := DEFAULT_HERO
 static var dice_id := "classic"
@@ -19,9 +25,7 @@ static func apply(save: Dictionary) -> void:
 	dice_id = Store.equipped(cat, save, "dice")
 
 
-## The hero's sprite (faces right), already at the size it is drawn at 1x:
-## an item's "scale" is baked in with nearest filtering, so every screen can
-## keep sizing the hero by its texture.
+## The hero's sprite (faces right), drawn at CHAR_PX like every character.
 static func hero_texture(id := "") -> Texture2D:
 	if id == "":
 		id = hero_id
@@ -31,11 +35,6 @@ static func hero_texture(id := "") -> Texture2D:
 	if it.is_empty() or it["kind"] != "hero":
 		it = Store.item(Store.catalog(), DEFAULT_HERO)
 	var tex: Texture2D = load(it["art"])
-	var s := float(it.get("scale", 1.0))
-	if not is_equal_approx(s, 1.0):
-		var img := tex.get_image()
-		img.resize(roundi(img.get_width() * s), roundi(img.get_height() * s), Image.INTERPOLATE_NEAREST)
-		tex = ImageTexture.create_from_image(img)
 	_hero_tex[id] = tex
 	return tex
 

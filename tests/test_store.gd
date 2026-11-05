@@ -29,8 +29,10 @@ func test_catalog_is_well_formed() -> bool:
 			var tex = load(it["art"])
 			check(tex is Texture2D, "%s: art %s" % [it["id"], it["art"]])
 			if tex is Texture2D:
-				var h: float = tex.get_height() * float(it.get("scale", 1.0))
-				check(h >= 100.0 and h <= 125.0, "%s: drawn %d px tall, near the dragon's 115" % [it["id"], h])
+				# one pixel grid for every character: no per-hero scale, the art is the size
+				check(not it.has("scale"), "%s: heroes are never scaled (Look.CHAR_PX)" % it["id"])
+				var h: float = tex.get_height()
+				check(h >= 100.0 and h <= 125.0, "%s: %d px tall, near the dragon's 115" % [it["id"], h])
 		else:
 			for key in ["style", "face", "shade", "pip"]:
 				check(it.get("look", {}).has(key), "%s: look.%s" % [it["id"], key])

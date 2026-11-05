@@ -51,15 +51,18 @@ const BALL_TEX := preload("res://art/ui/ball.png")
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 ## The Skeleton Dragon fills the top right: its skull sits right of the
-## board and its neck runs off the screen to the right and up.
-const DRAGON_AT := Vector2(700, -96)
-const DRAGON_SCALE := 2.5
-## One bony claw grips the right wall of the board, under the skull.
-const CLAW_TEX := preload("res://art/boss/bone-claw.png")
-const CLAW_AT := Vector2(690, 236)
-const CLAW_SCALE := 1.5
+## board and its neck curls down and off the screen to the right. Drawn on
+## the one character grid (Look.CHAR_PX), 400 px art, nothing scaled.
+const DRAGON_AT := Vector2(716, -34)
+## Its bony arm comes in from the body off screen right, and the claw at its
+## end grips the right wall of the board, under the skull.
+const ARM_TEX := preload("res://art/boss/bone-arm.png")
+const ARM_AT := Vector2(700, 196)
 ## The player's robot dragon watches from the bottom left.
 const INK := Color(0.96, 0.94, 0.9)
+## The right edge everything readable stays left of: the 1340x800 tablet
+## (5:3) shows x 28..932 of the 960 wide frame, so keep a margin inside it.
+const SAFE_RIGHT := 920.0
 const OUTLINE := Color(0.08, 0.03, 0.03)
 const WALL := Color(0.55, 0.42, 0.35)
 
@@ -70,8 +73,8 @@ const BOSS_POS := Vector2(820, 96)   # the skull
 const STUB_LENGTH := 70.0
 const AIM_KEY_SPEED := 600.0   # tenths of a degree per second
 const BOSS_DIE_SCALE := 1.0    # full 96 px dice
-const BOSS_DIE_AT := Vector2(846, 318)
-const BOSS_JAW := Vector2(770, 170)
+const BOSS_DIE_AT := Vector2(822, 400)  # two dice side by side still end at SAFE_RIGHT
+const BOSS_JAW := Vector2(790, 250)
 const FLOAT_S := 1.1
 const FIRST_FACE_Y := 150.0
 
@@ -345,16 +348,17 @@ func _board_rect() -> Rect2:
 ## The boss's hearts sit bottom right, under its dice. The balls left and
 ## the player's dragon sit left of the board: inside the 4:3 safe area at
 ## Acorn, further left above Acorn, where the naming column needs the space.
+## It ends at SAFE_RIGHT so no heart is cut off on the 5:3 tablet.
 func _hearts_panel() -> Rect2:
-	return Rect2(744, 428, 196, 106)
+	return Rect2(744, 452, SAFE_RIGHT - 744, 86)
 
 
 func _left_x() -> float:
-	return 124.0 if fight.auto_name() else 16.0
+	return 124.0 if fight.auto_name() else 38.0   # the 5:3 tablet shows x 28 and up
 
 
 func _balls_panel() -> Rect2:
-	return Rect2(_left_x(), 40, 100, 200)
+	return Rect2(_left_x(), 40, 100 if fight.auto_name() else 92, 200)
 
 
 func _hero_feet() -> Vector2:
@@ -362,7 +366,7 @@ func _hero_feet() -> Vector2:
 
 
 func _bubble_rect() -> Rect2:
-	return Rect2(784, 380, 150, 42)
+	return Rect2(SAFE_RIGHT - 160, 300, 160, 42)
 
 
 # --- drawing ---------------------------------------------------------------
@@ -373,6 +377,7 @@ func _draw() -> void:
 	# the dragon's hoard: gold and jewels heaped left, right and behind
 	draw_texture_rect(TREASURE_TEX, Rect2(0, 0, 960, 540), false)
 	draw_texture_rect(BOARD_TEX, _board_rect(), false, Color(1, 1, 1, 0.9))
+	_draw_claw()   # behind the skull: the arm comes from the body behind it
 	_draw_dragon()
 	_draw_hero()
 	var b: Dictionary = fight.board
@@ -383,7 +388,6 @@ func _draw() -> void:
 		var bs := BUMPER_TEX.get_size() * BUMPER_ART_SCALE * float(bm["r"]) / 22.0
 		draw_texture_rect(BUMPER_TEX, Rect2(Vector2(bm["x"], bm["y"]) - bs / 2.0, bs), false)
 	_draw_pegs(font)
-	_draw_claw()
 	for r in pop_rings:
 		var k: float = r[2] / 0.5
 		draw_arc(r[0], 20.0 + 30.0 * k, 0, TAU, 24, Color(r[1], 1.0 - k), 5.0)
@@ -524,15 +528,15 @@ func _draw_dragon() -> void:
 	var shake := Vector2(sin(_t * 70.0), cos(_t * 53.0)) * 6.0 * boss_flash
 	var breathe := Vector2(0, sin(_t * 1.6) * 3.0)
 	var glow := 1.0 + boss_flash * 1.2
-	var size := DRAGON_TEX.get_size() * DRAGON_SCALE
+	var size := DRAGON_TEX.get_size() * Look.CHAR_PX
 	draw_texture_rect(DRAGON_TEX, Rect2(DRAGON_AT + shake + breathe, size), false, Color(glow, glow, glow))
 
 
 func _draw_claw() -> void:
 	var shake := Vector2(sin(_t * 61.0), cos(_t * 47.0)) * 4.0 * boss_flash
-	var size := CLAW_TEX.get_size() * CLAW_SCALE
+	var size := ARM_TEX.get_size() * Look.CHAR_PX
 	var glow := 1.0 + boss_flash * 1.2
-	draw_texture_rect(CLAW_TEX, Rect2(CLAW_AT + shake, size), false, Color(glow, glow, glow))
+	draw_texture_rect(ARM_TEX, Rect2(ARM_AT + shake, size), false, Color(glow, glow, glow))
 
 
 ## The player's robot dragon, facing the board, bobbing gently.
@@ -552,10 +556,10 @@ func _draw_boss(font: Font) -> void:
 	# two rows of hearts, packed a little closer when there are more than 10
 	var cols := ceili(fight.boss_max_hearts / 2.0)
 	var step := minf(36.0, (hp.size.x - 22.0) / cols)
-	var top := hp.position + Vector2(hp.size.x / 2.0 - (cols - 1) * step / 2.0, 54)
-	_outlined(font, hp.position + Vector2(0, 28), "Dragon", hp.size.x, 22)
+	var top := hp.position + Vector2(hp.size.x / 2.0 - (cols - 1) * step / 2.0, 46)
+	_outlined(font, hp.position + Vector2(0, 23), "Dragon", hp.size.x, 20)
 	for i in fight.boss_max_hearts:
-		var c := top + Vector2((i % cols) * step, (i / cols) * 34)
+		var c := top + Vector2((i % cols) * step, (i / cols) * 26)
 		draw_texture(HEART_TEX if i < fight.boss_hearts else HEART_EMPTY_TEX, c - Vector2(16, 16))
 
 

@@ -34,7 +34,7 @@
       "price": { "currency": "crystals", "amount": 50 } },
     { "id": "hedgehog", "kind": "hero", "name": "Spike", "art": "res://art/heroes/hedgehog.png",
       "price": { "currency": "leaves", "amount": 30 } },
-    { "id": "bunny", "kind": "hero", "name": "Nutkin", "art": "res://art/heroes/bunny.png", "scale": 1.25,
+    { "id": "bunny", "kind": "hero", "name": "Nutkin", "art": "res://art/heroes/bunny.png",
       "price": { "currency": "leaves", "amount": 40 } },
     { "id": "fox", "kind": "hero", "name": "Rusty", "art": "res://art/heroes/fox.png",
       "price": { "currency": "leaves", "amount": 50 } },

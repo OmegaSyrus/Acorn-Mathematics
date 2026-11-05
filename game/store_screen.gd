@@ -293,7 +293,8 @@ func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:
 		tint = Color(0.85, 0.85, 0.85)
 	if it["kind"] == "hero":
 		var tex := Look.hero_texture(id)
-		var s := minf(1.0, minf(pic.size.x / tex.get_width(), pic.size.y / tex.get_height())) * (1.0 + pop)
+		# on the one character grid, never shrunk to fit (Look.CHAR_PX)
+		var s := Look.CHAR_PX * (1.0 + pop)
 		var bob := 0.0
 		if st == Store.EQUIPPED:
 			bob = absf(sin(_t * 2.4)) * 3.0

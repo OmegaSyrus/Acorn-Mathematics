@@ -11,6 +11,9 @@ Tap the dice tray to roll two dice (add, or subtract with a red die), then tap t
 that many spaces ahead (always 1 to 5). A right rock resolves its space: a chest gives 2
 to 4 gems, a monster starts a fight. A wrong rock sinks the slime with a blorp and the
 crossing starts again. Art is in `art/lava/` (PixelLab, see the project's art folders).
+Every hero and enemy sits on one pixel grid: one art pixel is one unit of the 960x540
+frame (`Look.CHAR_PX` in `game/ui/look.gd`). Characters are never scaled; a character that
+needs another size gets art made at that size.
 The old ten-task path is still there: `godot --path . -- --area=lava_1`.
 
 ## The store

@@ -54,11 +54,11 @@ const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
 const PALE := Color(0.82, 0.9, 1.05)  # the worried dragon goes a little pale
-## Monster art and the scale it is drawn at on the crossing.
+## Monster art on the crossing, drawn on the one character grid (Look.CHAR_PX).
 const MONSTER_ART := {
-	"blorp": ["blorp-idle", 0.625],
-	"craggy": ["craggy", 0.625],
-	"surtling": ["surtling", 0.8],
+	"blorp": ["blorp-idle"],
+	"craggy": ["craggy"],
+	"surtling": ["surtling"],
 }
 ## The hero is the robot dragon (2026-10-29: it replaced the slime). It has
 ## one sprite; the hop is squash, stretch and tilt done here, per frame
@@ -625,7 +625,7 @@ func _draw_world() -> void:
 		var s := run.space_at(revealed)
 		var art: Array = MONSTER_ART.get(s["monster"], MONSTER_ART["blorp"])
 		var t: Texture2D = tex[art[0]]
-		var size: Vector2 = t.get_size() * float(art[1]) * _pop()
+		var size: Vector2 = t.get_size() * Look.CHAR_PX * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
 		# the art faces right; a negative width mirrors it to face the dragon
