@@ -12,6 +12,9 @@ const RoundBox := preload("res://game/ui/round_box.gd")
 
 const PAD := 6.0
 
+## false hides the yellow highlight frame (touch screens where the targets
+## carry their own numbers; Terrence 2026-11-04). The d-pad still moves it.
+var show_highlight := true
 var rects: Array = []
 var highlight := 0
 var active := false
@@ -102,7 +105,7 @@ func _dir_vec(action: String) -> Vector2:
 
 
 func _draw() -> void:
-	if not active or rects.is_empty():
+	if not active or rects.is_empty() or not show_highlight:
 		return
 	var r: Rect2 = _rect(highlight).grow(8.0 + 2.0 * sin(_pulse * 5.0))
 	var open := gate.is_open(Time.get_ticks_msec())

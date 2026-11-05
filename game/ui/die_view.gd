@@ -184,7 +184,9 @@ func _draw() -> void:
 				draw_colored_polygon(ring, LIT)
 	if numeral_alpha > 0.0 and face_on:
 		# under the die, so it never runs into a sign between two dice
-		draw_string(ThemeDB.fallback_font, Vector2(-40, 78), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 36,
+		draw_string_outline(ThemeDB.fallback_font, Vector2(-40, 82), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 40, 7,
+				Color(0.08, 0.04, 0.06, numeral_alpha))
+		draw_string(ThemeDB.fallback_font, Vector2(-40, 82), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 40,
 				Color(1, 1, 1, numeral_alpha))
 
 

@@ -108,10 +108,11 @@ Run (`logic/path/scroll_run.gd`, reference `tools/ref/scroll_run.py`), phases
 |---|---|
 | roll() | `generate_move(grade, rng, length - pos)` |
 | choose(i) wrong | `sink`: **restart** (attempt + 1, pos 0) |
-| choose(i) right | move to `pos + answer`, then: the last space `goal` (cleared); a monster `monster` (await_fight); an unopened chest `chest` with `gems = randi_range(chest_gems[0], chest_gems[1])`; anything else `hop` |
-| resolve_fight(won) | `fight_won` (await_roll) or `fight_lost` (restart) |
+| choose(i) right | `target = pos + answer`, then walk one space at a time; every space walked onto triggers (2026-11-04): an unopened chest gives `gems = randi_range(chest_gems[0], chest_gems[1])` and the walk goes on; a monster stops the walk there (`monster`, await_fight); the last space is `goal` (cleared). Reaching the target: `chest` if it was an unopened chest, else `hop`. The outcome carries `to` (where it stopped), `chests: [{at, gems}]` in order and `gems` (their total, when any) |
+| resolve_fight(won) | `fight_won` (await_roll) or `fight_lost` (restart). A win with `target > pos` finishes the walk the same way; its outcome is under `walk` and logged as its own event |
 
 Opened chests stay empty after a restart (`looted`), so gems can't be farmed; monsters come
 back. Events: `{attempt, pos, result, op?, dice?, pick?, gems?}`. Save:
-`{area, grade, seed, attempt, pos, looted, gems, phase, rng_state}`; a run saved in
+`{area, grade, seed, attempt, pos, target, looted, gems, phase, rng_state}` (a save without
+`target` loads with `target = pos`); a run saved in
 `await_choice` resumes at the roll. Vectors: `tests/vectors/scroll.json`.

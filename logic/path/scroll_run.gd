@@ -18,6 +18,7 @@ var run_seed: int
 var rng: Rng
 var attempt := 1
 var pos := 0
+var target := 0   # where the current walk ends; > pos while a fight on the way is pending
 var looted := []  # chest spaces already opened; they stay empty after a restart
 var gems := 0
 var problem := {}
@@ -44,6 +45,7 @@ func to_save() -> Dictionary:
 		"seed": run_seed,
 		"attempt": attempt,
 		"pos": pos,
+		"target": target,
 		"looted": looted.duplicate(),
 		"gems": gems,
 		"phase": phase,
@@ -56,6 +58,7 @@ func to_save() -> Dictionary:
 func restore(data: Dictionary) -> void:
 	attempt = data["attempt"]
 	pos = data["pos"]
+	target = maxi(pos, int(data.get("target", pos)))
 	looted = data["looted"].duplicate()
 	gems = data["gems"]
 	phase = AWAIT_ROLL if data["phase"] == AWAIT_CHOICE else data["phase"]
@@ -93,8 +96,9 @@ func roll() -> Dictionary:
 
 
 ## A wrong space sinks and the run starts again from space 0. A right one
-## moves there and resolves it: a monster starts a fight, an unopened chest
-## gives gems, the last space clears the area.
+## walks there space by space, and everything walked onto triggers: an
+## unopened chest gives gems on the way, a monster stops the walk for a fight
+## (the rest of the walk follows a win), the last space clears the area.
 func choose(index: int) -> Dictionary:
 	assert(phase == AWAIT_CHOICE)
 	assert(index >= 0 and index < problem["choices"].size())
@@ -107,47 +111,75 @@ func choose(index: int) -> Dictionary:
 		_fail()
 		out["restarted"] = true
 		return out
-	pos += dist
-	var space := space_at(pos)
-	phase = AWAIT_ROLL
-	if pos >= length():
-		out["result"] = "goal"
-		phase = CLEARED
-	elif space.get("type") == "monster":
-		out["result"] = "monster"
-		out["monster"] = space["monster"]
-		phase = AWAIT_FIGHT
-	elif space.get("type") == "chest" and not looted.has(pos):
-		var range_: Array = area["chest_gems"]
-		out["result"] = "chest"
-		out["gems"] = rng.randi_range(range_[0], range_[1])
-		looted.append(pos)
-		gems += out["gems"]
-	else:
-		out["result"] = "hop"
+	target = pos + dist
+	_walk(out)
 	_log(out)
 	problem = {}
 	return out
 
 
-## The fight layer reports the result. A lost fight restarts like a sink.
+## The fight layer reports the result. A lost fight restarts like a sink. A
+## won fight met on the way finishes the walk: its outcome is under "walk".
 func resolve_fight(won: bool) -> Dictionary:
 	assert(phase == AWAIT_FIGHT)
 	var out := {"result": "fight_won" if won else "fight_lost", "restarted": false}
 	_log(out)
-	if won:
-		phase = AWAIT_ROLL
-	else:
+	if not won:
 		_fail()
 		out["restarted"] = true
+		return out
+	phase = AWAIT_ROLL
+	if target > pos:
+		var w := {"result": "", "from": pos, "to": target}
+		_walk(w)
+		_log(w)
+		out["walk"] = w
 	return out
 
 
 # --- internals -------------------------------------------------------------
 
+## Steps from pos toward target. Fills out: result (where it stopped: goal,
+## monster, chest or hop), to (that space), chests ([{at, gems}] opened on the
+## way, in order) and gems (their total, when any).
+func _walk(out: Dictionary) -> void:
+	var chests := []
+	var total := 0
+	phase = AWAIT_ROLL
+	out["result"] = "hop"
+	while pos < target:
+		pos += 1
+		var space := space_at(pos)
+		if pos >= length():
+			out["result"] = "goal"
+			phase = CLEARED
+			break
+		if space.get("type") == "monster":
+			out["result"] = "monster"
+			out["monster"] = space["monster"]
+			phase = AWAIT_FIGHT
+			break
+		if space.get("type") == "chest" and not looted.has(pos):
+			var range_: Array = area["chest_gems"]
+			var g := rng.randi_range(range_[0], range_[1])
+			looted.append(pos)
+			gems += g
+			total += g
+			chests.append({"at": pos, "gems": g})
+			if pos == target:
+				out["result"] = "chest"
+	if phase != AWAIT_FIGHT:
+		target = pos
+	out["to"] = pos
+	out["chests"] = chests
+	if not chests.is_empty():
+		out["gems"] = total
+
+
 func _fail() -> void:
 	attempt += 1
 	pos = 0
+	target = 0
 	problem = {}
 	phase = AWAIT_ROLL
 

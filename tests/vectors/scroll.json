@@ -3360,22 +3360,23 @@
     "roll",
     "pick:3",
     "roll",
-    "pick:2",
+    "pick:4",
+    "win",
     "roll",
     "pick:3",
-    "roll",
-    "pick:0",
     "roll",
     "pick:0",
     "roll",
     "pick:4",
     "roll",
     "pick:1",
-    "roll",
-    "pick:0",
     "win",
     "roll",
-    "pick:4"
+    "pick:1",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:0"
    ],
    "log": [
     {
@@ -3481,7 +3482,8 @@
       1,
       1
      ],
-     "pick": 1
+     "pick": 1,
+     "gems": 3
     },
     {
      "attempt": 4,
@@ -3489,37 +3491,48 @@
      "result": "chest",
      "op": "add",
      "dice": [
-      3,
-      1
-     ],
-     "pick": 3,
-     "gems": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 21,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      5,
+      2,
       2
      ],
-     "pick": 2
+     "pick": 3,
+     "gems": 4
     },
     {
      "attempt": 4,
-     "pos": 25,
-     "result": "hop",
+     "pos": 22,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 23,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
      "op": "sub",
      "dice": [
       6,
       2
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 4
     },
     {
      "attempt": 4,
-     "pos": 26,
+     "pos": 28,
      "result": "hop",
      "op": "sub",
      "dice": [
@@ -3530,31 +3543,20 @@
     },
     {
      "attempt": 4,
-     "pos": 27,
-     "result": "chest",
-     "op": "sub",
-     "dice": [
-      3,
-      2
-     ],
-     "pick": 0,
-     "gems": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 32,
+     "pos": 33,
      "result": "hop",
      "op": "sub",
      "dice": [
       6,
       1
      ],
-     "pick": 4
+     "pick": 4,
+     "gems": 2
     },
     {
      "attempt": 4,
-     "pos": 34,
-     "result": "hop",
+     "pos": 35,
+     "result": "monster",
      "op": "add",
      "dice": [
       1,
@@ -3565,29 +3567,40 @@
     {
      "attempt": 4,
      "pos": 35,
-     "result": "monster",
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 37,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      1
+     ],
+     "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
      "op": "sub",
      "dice": [
       3,
       2
      ],
      "pick": 0
-    },
-    {
-     "attempt": 4,
-     "pos": 35,
-     "result": "fight_won"
-    },
-    {
-     "attempt": 4,
-     "pos": 40,
-     "result": "goal",
-     "op": "add",
-     "dice": [
-      1,
-      4
-     ],
-     "pick": 4
     }
    ],
    "final": {
@@ -3596,14 +3609,17 @@
     "seed": 1,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
      4,
+     13,
      18,
-     27
+     27,
+     31
     ],
-    "gems": 8,
+    "gems": 16,
     "phase": "cleared",
-    "rng_state": 244103520
+    "rng_state": 2914927536
    },
    "phase": "cleared"
   },
@@ -3624,28 +3640,25 @@
     "pick:3",
     "roll",
     "pick:1",
+    "win",
     "roll",
     "pick:3",
     "roll",
     "pick:3",
+    "roll",
+    "pick:3",
+    "win",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:4",
     "roll",
     "pick:1",
     "roll",
-    "pick:2",
-    "roll",
-    "pick:2",
-    "roll",
-    "pick:3",
-    "roll",
     "pick:1",
+    "win",
     "roll",
-    "pick:1",
-    "roll",
-    "pick:3",
-    "roll",
-    "pick:0",
-    "roll",
-    "pick:0"
+    "pick:3"
    ],
    "log": [
     {
@@ -3706,14 +3719,24 @@
     },
     {
      "attempt": 4,
-     "pos": 10,
-     "result": "hop",
+     "pos": 9,
+     "result": "monster",
      "op": "sub",
      "dice": [
       3,
       1
      ],
      "pick": 1
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 10,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -3724,7 +3747,8 @@
       6,
       2
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 3
     },
     {
      "attempt": 4,
@@ -3740,51 +3764,47 @@
     },
     {
      "attempt": 4,
-     "pos": 20,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      5,
-      3
-     ],
-     "pick": 1
-    },
-    {
-     "attempt": 4,
-     "pos": 23,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      3
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 26,
-     "result": "hop",
+     "pos": 22,
+     "result": "monster",
      "op": "add",
      "dice": [
-      2,
-      1
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 30,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      3,
-      1
+      1,
+      3
      ],
      "pick": 3
     },
     {
      "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
      "pos": 32,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
      "result": "hop",
      "op": "add",
      "dice": [
@@ -3795,8 +3815,8 @@
     },
     {
      "attempt": 4,
-     "pos": 34,
-     "result": "hop",
+     "pos": 35,
+     "result": "monster",
      "op": "sub",
      "dice": [
       3,
@@ -3806,36 +3826,24 @@
     },
     {
      "attempt": 4,
-     "pos": 38,
-     "result": "hop",
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 36,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
      "op": "add",
      "dice": [
       2,
       2
      ],
      "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 39,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      2,
-      1
-     ],
-     "pick": 0
-    },
-    {
-     "attempt": 4,
-     "pos": 40,
-     "result": "goal",
-     "op": "sub",
-     "dice": [
-      6,
-      5
-     ],
-     "pick": 0
     }
    ],
    "final": {
@@ -3844,13 +3852,17 @@
     "seed": 2,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
      4,
-     18
+     13,
+     18,
+     27,
+     31
     ],
-    "gems": 6,
+    "gems": 15,
     "phase": "cleared",
-    "rng_state": 1823984889
+    "rng_state": 2989891831
    },
    "phase": "cleared"
   },
@@ -3877,17 +3889,19 @@
     "roll",
     "pick:4",
     "roll",
-    "pick:4",
-    "roll",
-    "pick:2",
-    "roll",
-    "pick:2",
-    "roll",
-    "pick:4",
-    "roll",
     "pick:3",
     "roll",
     "pick:2",
+    "win",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:2",
+    "roll",
+    "pick:4",
+    "win",
     "roll",
     "pick:0"
    ],
@@ -3984,67 +3998,68 @@
       1,
       4
      ],
-     "pick": 4
+     "pick": 4,
+     "gems": 2
     },
     {
      "attempt": 4,
-     "pos": 21,
+     "pos": 20,
      "result": "hop",
      "op": "sub",
      "dice": [
-      6,
+      5,
       1
      ],
-     "pick": 4
-    },
-    {
-     "attempt": 4,
-     "pos": 24,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      2,
-      1
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 27,
-     "result": "chest",
-     "op": "add",
-     "dice": [
-      2,
-      1
-     ],
-     "pick": 2,
+     "pick": 3,
      "gems": 4
     },
     {
      "attempt": 4,
-     "pos": 32,
+     "pos": 22,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 23,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 26,
      "result": "hop",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 31,
+     "result": "chest",
      "op": "sub",
      "dice": [
       6,
       1
      ],
-     "pick": 4
+     "pick": 4,
+     "gems": 6
     },
     {
      "attempt": 4,
-     "pos": 36,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      2
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 39,
+     "pos": 34,
      "result": "hop",
      "op": "add",
      "dice": [
@@ -4052,6 +4067,27 @@
       1
      ],
      "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -4059,8 +4095,8 @@
      "result": "goal",
      "op": "sub",
      "dice": [
-      5,
-      4
+      6,
+      5
      ],
      "pick": 0
     }
@@ -4071,13 +4107,17 @@
     "seed": 3,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
      4,
-     27
+     13,
+     18,
+     27,
+     31
     ],
-    "gems": 7,
+    "gems": 15,
     "phase": "cleared",
-    "rng_state": 869686143
+    "rng_state": 270897844
    },
    "phase": "cleared"
   },
@@ -4097,29 +4137,30 @@
     "roll",
     "pick:1",
     "roll",
+    "pick:0",
+    "roll",
     "pick:2",
+    "win",
     "roll",
     "pick:0",
+    "roll",
+    "pick:3",
+    "roll",
+    "pick:4",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:4",
     "win",
     "roll",
     "pick:2",
     "roll",
     "pick:3",
     "roll",
-    "pick:2",
-    "roll",
-    "pick:2",
+    "pick:3",
     "win",
     "roll",
     "pick:1",
-    "roll",
-    "pick:4",
-    "roll",
-    "pick:2",
-    "roll",
-    "pick:1",
-    "roll",
-    "pick:4",
     "roll",
     "pick:0"
    ],
@@ -4177,39 +4218,24 @@
       5,
       3
      ],
-     "pick": 1
+     "pick": 1,
+     "gems": 4
     },
     {
      "attempt": 4,
-     "pos": 8,
+     "pos": 6,
      "result": "hop",
-     "op": "add",
-     "dice": [
-      1,
-      2
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 9,
-     "result": "monster",
      "op": "sub",
      "dice": [
-      4,
-      3
+      6,
+      5
      ],
      "pick": 0
     },
     {
      "attempt": 4,
      "pos": 9,
-     "result": "fight_won"
-    },
-    {
-     "attempt": 4,
-     "pos": 12,
-     "result": "hop",
+     "result": "monster",
      "op": "add",
      "dice": [
       1,
@@ -4219,25 +4245,54 @@
     },
     {
      "attempt": 4,
-     "pos": 16,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 10,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 14,
      "result": "hop",
      "op": "add",
      "dice": [
       3,
       1
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 3
     },
     {
      "attempt": 4,
      "pos": 19,
      "result": "hop",
-     "op": "add",
+     "op": "sub",
      "dice": [
-      2,
+      6,
       1
      ],
-     "pick": 2
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 21,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      4,
+      2
+     ],
+     "pick": 1
     },
     {
      "attempt": 4,
@@ -4245,10 +4300,10 @@
      "result": "monster",
      "op": "add",
      "dice": [
-      2,
-      1
+      3,
+      2
      ],
-     "pick": 2
+     "pick": 4
     },
     {
      "attempt": 4,
@@ -4257,14 +4312,8 @@
     },
     {
      "attempt": 4,
-     "pos": 24,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      4,
-      2
-     ],
-     "pick": 1
+     "pos": 26,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -4272,43 +4321,55 @@
      "result": "hop",
      "op": "add",
      "dice": [
-      3,
-      2
-     ],
-     "pick": 4
-    },
-    {
-     "attempt": 4,
-     "pos": 32,
-     "result": "hop",
-     "op": "add",
-     "dice": [
       1,
       2
      ],
-     "pick": 2
+     "pick": 2,
+     "gems": 2
     },
     {
      "attempt": 4,
-     "pos": 34,
+     "pos": 33,
      "result": "hop",
      "op": "add",
      "dice": [
-      1,
-      1
+      2,
+      2
      ],
-     "pick": 1
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      1,
+      3
+     ],
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 37,
+     "result": "hop"
     },
     {
      "attempt": 4,
      "pos": 39,
      "result": "hop",
-     "op": "add",
+     "op": "sub",
      "dice": [
-      3,
-      2
+      6,
+      4
      ],
-     "pick": 4
+     "pick": 1
     },
     {
      "attempt": 4,
@@ -4316,8 +4377,8 @@
      "result": "goal",
      "op": "sub",
      "dice": [
-      4,
-      3
+      2,
+      1
      ],
      "pick": 0
     }
@@ -4328,10 +4389,17 @@
     "seed": 4,
     "attempt": 4,
     "pos": 40,
-    "looted": [],
-    "gems": 0,
+    "target": 40,
+    "looted": [
+     4,
+     13,
+     18,
+     27,
+     31
+    ],
+    "gems": 14,
     "phase": "cleared",
-    "rng_state": 4044578112
+    "rng_state": 94581155
    },
    "phase": "cleared"
   },
@@ -4349,25 +4417,28 @@
     "roll",
     "pick:4",
     "roll",
-    "pick:1",
+    "pick:2",
     "roll",
-    "pick:3",
-    "roll",
-    "pick:3",
+    "pick:0",
+    "win",
     "roll",
     "pick:3",
     "roll",
     "pick:4",
     "roll",
     "pick:4",
+    "win",
     "roll",
     "pick:3",
     "roll",
-    "pick:2",
+    "pick:4",
     "roll",
-    "pick:2",
+    "pick:4",
+    "win",
     "roll",
-    "pick:0"
+    "pick:0",
+    "roll",
+    "pick:1"
    ],
    "log": [
     {
@@ -4412,117 +4483,147 @@
       6,
       1
      ],
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 8,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      6,
+      5
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 13,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      1,
+      3
+     ],
+     "pick": 3,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      4,
+      1
+     ],
      "pick": 4
     },
     {
      "attempt": 4,
-     "pos": 7,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 23,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 27,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      2,
+      2
+     ],
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
      "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 37,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 38,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 0
+    },
+    {
+     "attempt": 4,
+     "pos": 40,
+     "result": "goal",
      "op": "add",
      "dice": [
       1,
       1
      ],
      "pick": 1
-    },
-    {
-     "attempt": 4,
-     "pos": 11,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      2
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 15,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      2,
-      2
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 19,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      1,
-      3
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 24,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      1
-     ],
-     "pick": 4
-    },
-    {
-     "attempt": 4,
-     "pos": 29,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      4,
-      1
-     ],
-     "pick": 4
-    },
-    {
-     "attempt": 4,
-     "pos": 33,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      2,
-      2
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 36,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      3
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 39,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      3
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 40,
-     "result": "goal",
-     "op": "sub",
-     "dice": [
-      4,
-      3
-     ],
-     "pick": 0
     }
    ],
    "final": {
@@ -4531,10 +4632,17 @@
     "seed": 5,
     "attempt": 4,
     "pos": 40,
-    "looted": [],
-    "gems": 0,
+    "target": 40,
+    "looted": [
+     4,
+     13,
+     18,
+     27,
+     31
+    ],
+    "gems": 12,
     "phase": "cleared",
-    "rng_state": 1221277132
+    "rng_state": 1923059747
    },
    "phase": "cleared"
   },
@@ -4558,25 +4666,24 @@
     "roll",
     "pick:4",
     "roll",
-    "pick:0",
+    "pick:4",
+    "win",
     "roll",
-    "pick:1",
+    "pick:0",
     "roll",
     "pick:4",
     "roll",
-    "pick:2",
+    "pick:4",
+    "win",
+    "roll",
+    "pick:1",
     "roll",
     "pick:2",
     "roll",
     "pick:3",
     "roll",
-    "pick:3",
-    "roll",
-    "pick:3",
-    "roll",
-    "pick:2",
-    "roll",
-    "pick:0",
+    "pick:4",
+    "win",
     "roll",
     "pick:2"
    ],
@@ -4656,63 +4763,74 @@
       6,
       1
      ],
-     "pick": 4
+     "pick": 4,
+     "gems": 3
     },
     {
      "attempt": 4,
-     "pos": 8,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      5,
-      4
-     ],
-     "pick": 0
-    },
-    {
-     "attempt": 4,
-     "pos": 10,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      4
-     ],
-     "pick": 1
-    },
-    {
-     "attempt": 4,
-     "pos": 15,
-     "result": "hop",
+     "pos": 9,
+     "result": "monster",
      "op": "add",
      "dice": [
-      3,
-      2
+      4,
+      1
      ],
      "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 12,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 13,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      4,
+      3
+     ],
+     "pick": 0,
+     "gems": 2
     },
     {
      "attempt": 4,
      "pos": 18,
      "result": "chest",
-     "op": "sub",
+     "op": "add",
      "dice": [
-      4,
-      1
+      1,
+      4
      ],
-     "pick": 2,
+     "pick": 4,
      "gems": 2
     },
     {
      "attempt": 4,
-     "pos": 21,
-     "result": "hop",
-     "op": "sub",
+     "pos": 22,
+     "result": "monster",
+     "op": "add",
      "dice": [
-      6,
-      3
+      4,
+      1
      ],
-     "pick": 2
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 23,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -4720,54 +4838,55 @@
      "result": "hop",
      "op": "add",
      "dice": [
-      2,
-      2
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 29,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      5,
+      1,
       1
      ],
-     "pick": 3
+     "pick": 1
     },
     {
      "attempt": 4,
-     "pos": 33,
+     "pos": 28,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 32,
      "result": "hop",
      "op": "add",
      "dice": [
       1,
       3
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 2
     },
     {
      "attempt": 4,
-     "pos": 36,
-     "result": "hop",
-     "op": "add",
+     "pos": 35,
+     "result": "monster",
+     "op": "sub",
      "dice": [
-      1,
-      2
+      6,
+      1
      ],
-     "pick": 2
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
     },
     {
      "attempt": 4,
      "pos": 37,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      2,
-      1
-     ],
-     "pick": 0
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -4775,8 +4894,8 @@
      "result": "goal",
      "op": "add",
      "dice": [
-      2,
-      1
+      1,
+      2
      ],
      "pick": 2
     }
@@ -4787,12 +4906,17 @@
     "seed": 6,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
-     18
+     4,
+     13,
+     18,
+     27,
+     31
     ],
-    "gems": 2,
+    "gems": 12,
     "phase": "cleared",
-    "rng_state": 2878451679
+    "rng_state": 2298682158
    },
    "phase": "cleared"
   },
@@ -4821,20 +4945,25 @@
     "roll",
     "pick:2",
     "roll",
-    "pick:3",
+    "pick:2",
     "roll",
     "pick:3",
+    "roll",
+    "pick:1",
     "win",
-    "roll",
-    "pick:4",
     "roll",
     "pick:1",
     "roll",
     "pick:4",
     "roll",
-    "pick:4",
+    "pick:2",
     "roll",
-    "pick:0"
+    "pick:0",
+    "roll",
+    "pick:3",
+    "win",
+    "roll",
+    "pick:1"
    ],
    "log": [
     {
@@ -4940,30 +5069,42 @@
       5,
       2
      ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 18,
-     "result": "chest",
-     "op": "sub",
-     "dice": [
-      6,
-      2
-     ],
-     "pick": 3,
+     "pick": 2,
      "gems": 3
     },
     {
      "attempt": 4,
-     "pos": 22,
-     "result": "monster",
+     "pos": 17,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 21,
+     "result": "hop",
      "op": "add",
      "dice": [
       3,
       1
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      6,
+      4
+     ],
+     "pick": 1
     },
     {
      "attempt": 4,
@@ -4972,19 +5113,12 @@
     },
     {
      "attempt": 4,
-     "pos": 27,
-     "result": "chest",
-     "op": "add",
-     "dice": [
-      2,
-      3
-     ],
-     "pick": 4,
-     "gems": 4
+     "pos": 23,
+     "result": "hop"
     },
     {
      "attempt": 4,
-     "pos": 29,
+     "pos": 25,
      "result": "hop",
      "op": "add",
      "dice": [
@@ -4995,25 +5129,59 @@
     },
     {
      "attempt": 4,
+     "pos": 30,
+     "result": "hop",
+     "op": "sub",
+     "dice": [
+      6,
+      1
+     ],
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 33,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      1,
+      2
+     ],
+     "pick": 2,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
      "pos": 34,
      "result": "hop",
      "op": "sub",
      "dice": [
-      6,
+      2,
       1
      ],
-     "pick": 4
+     "pick": 0
     },
     {
      "attempt": 4,
-     "pos": 39,
-     "result": "hop",
+     "pos": 35,
+     "result": "monster",
      "op": "sub",
      "dice": [
       6,
-      1
+      2
      ],
-     "pick": 4
+     "pick": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 38,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -5021,10 +5189,10 @@
      "result": "goal",
      "op": "sub",
      "dice": [
-      4,
-      3
+      3,
+      1
      ],
-     "pick": 0
+     "pick": 1
     }
    ],
    "final": {
@@ -5033,14 +5201,17 @@
     "seed": 7,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
      4,
+     13,
      18,
-     27
+     27,
+     31
     ],
-    "gems": 11,
+    "gems": 17,
     "phase": "cleared",
-    "rng_state": 487092077
+    "rng_state": 2173120272
    },
    "phase": "cleared"
   },
@@ -5069,26 +5240,25 @@
     "pick:1",
     "roll",
     "pick:2",
-    "roll",
-    "pick:3",
-    "roll",
-    "pick:1",
-    "roll",
-    "pick:2",
+    "win",
     "roll",
     "pick:3",
     "roll",
     "pick:2",
     "roll",
-    "pick:2",
+    "pick:3",
     "roll",
     "pick:2",
+    "win",
     "roll",
     "pick:3",
     "roll",
-    "pick:0",
+    "pick:2",
     "roll",
-    "pick:1",
+    "pick:2",
+    "roll",
+    "pick:4",
+    "win",
     "roll",
     "pick:0"
    ],
@@ -5195,14 +5365,24 @@
     },
     {
      "attempt": 4,
-     "pos": 10,
-     "result": "hop",
+     "pos": 9,
+     "result": "monster",
      "op": "add",
      "dice": [
       1,
       2
      ],
      "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 9,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 10,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -5213,106 +5393,108 @@
       2,
       2
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 3
     },
     {
      "attempt": 4,
-     "pos": 16,
+     "pos": 17,
      "result": "hop",
-     "op": "sub",
+     "op": "add",
      "dice": [
-      4,
-      2
-     ],
-     "pick": 1
-    },
-    {
-     "attempt": 4,
-     "pos": 19,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      3
+      2,
+      1
      ],
      "pick": 2
     },
     {
      "attempt": 4,
-     "pos": 23,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      2
-     ],
-     "pick": 3
-    },
-    {
-     "attempt": 4,
-     "pos": 26,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      5,
-      2
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 29,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      3
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 32,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      5,
-      2
-     ],
-     "pick": 2
-    },
-    {
-     "attempt": 4,
-     "pos": 36,
+     "pos": 21,
      "result": "hop",
      "op": "add",
      "dice": [
       3,
       1
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 4
     },
     {
      "attempt": 4,
-     "pos": 37,
+     "pos": 22,
+     "result": "monster",
+     "op": "sub",
+     "dice": [
+      4,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 22,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 24,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 28,
      "result": "hop",
      "op": "sub",
      "dice": [
       6,
-      5
+      2
      ],
-     "pick": 0
+     "pick": 3,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 31,
+     "result": "chest",
+     "op": "sub",
+     "dice": [
+      5,
+      2
+     ],
+     "pick": 2,
+     "gems": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 34,
+     "result": "hop",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      3,
+      2
+     ],
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
     },
     {
      "attempt": 4,
      "pos": 39,
-     "result": "hop",
-     "op": "add",
-     "dice": [
-      1,
-      1
-     ],
-     "pick": 1
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -5332,12 +5514,17 @@
     "seed": 8,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
-     4
+     4,
+     13,
+     18,
+     27,
+     31
     ],
-    "gems": 4,
+    "gems": 19,
     "phase": "cleared",
-    "rng_state": 2893898524
+    "rng_state": 862115289
    },
    "phase": "cleared"
   },
@@ -5360,28 +5547,29 @@
     "pick:1",
     "win",
     "roll",
-    "pick:3",
+    "pick:0",
     "roll",
     "pick:2",
-    "roll",
-    "pick:1",
-    "roll",
-    "pick:0",
     "roll",
     "pick:4",
     "roll",
     "pick:2",
     "roll",
     "pick:1",
+    "win",
+    "roll",
+    "pick:1",
+    "roll",
+    "pick:1",
     "roll",
     "pick:1",
     "roll",
     "pick:3",
+    "roll",
+    "pick:4",
     "win",
     "roll",
-    "pick:3",
-    "roll",
-    "pick:0"
+    "pick:1"
    ],
    "log": [
     {
@@ -5437,7 +5625,8 @@
       2,
       2
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 3
     },
     {
      "attempt": 4,
@@ -5457,19 +5646,42 @@
     },
     {
      "attempt": 4,
-     "pos": 13,
-     "result": "chest",
+     "pos": 10,
+     "result": "hop",
      "op": "sub",
      "dice": [
       5,
-      1
+      4
      ],
-     "pick": 3,
-     "gems": 3
+     "pick": 0
     },
     {
      "attempt": 4,
-     "pos": 16,
+     "pos": 13,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      2,
+      1
+     ],
+     "pick": 2,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 18,
+     "result": "chest",
+     "op": "add",
+     "dice": [
+      1,
+      4
+     ],
+     "pick": 4,
+     "gems": 2
+    },
+    {
+     "attempt": 4,
+     "pos": 21,
      "result": "hop",
      "op": "add",
      "dice": [
@@ -5480,49 +5692,47 @@
     },
     {
      "attempt": 4,
-     "pos": 18,
-     "result": "chest",
-     "op": "sub",
+     "pos": 22,
+     "result": "monster",
+     "op": "add",
      "dice": [
-      6,
-      4
+      1,
+      1
      ],
-     "pick": 1,
-     "gems": 4
+     "pick": 1
     },
     {
      "attempt": 4,
-     "pos": 19,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      2,
-      1
-     ],
-     "pick": 0
+     "pos": 22,
+     "result": "fight_won"
     },
     {
      "attempt": 4,
-     "pos": 24,
+     "pos": 23,
+     "result": "hop"
+    },
+    {
+     "attempt": 4,
+     "pos": 25,
      "result": "hop",
-     "op": "sub",
+     "op": "add",
      "dice": [
-      6,
+      1,
       1
      ],
-     "pick": 4
+     "pick": 1
     },
     {
      "attempt": 4,
      "pos": 27,
      "result": "chest",
-     "op": "sub",
+     "op": "add",
      "dice": [
-      5,
-      2
+      1,
+      1
      ],
-     "pick": 2,
-     "gems": 4
+     "pick": 1,
+     "gems": 3
     },
     {
      "attempt": 4,
@@ -5537,26 +5747,26 @@
     },
     {
      "attempt": 4,
-     "pos": 31,
-     "result": "chest",
-     "op": "add",
-     "dice": [
-      1,
-      1
-     ],
-     "pick": 1,
-     "gems": 4
-    },
-    {
-     "attempt": 4,
-     "pos": 35,
-     "result": "monster",
+     "pos": 33,
+     "result": "hop",
      "op": "sub",
      "dice": [
       6,
       2
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 3
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "monster",
+     "op": "add",
+     "dice": [
+      2,
+      3
+     ],
+     "pick": 4
     },
     {
      "attempt": 4,
@@ -5565,25 +5775,19 @@
     },
     {
      "attempt": 4,
-     "pos": 39,
-     "result": "hop",
-     "op": "sub",
-     "dice": [
-      6,
-      2
-     ],
-     "pick": 3
+     "pos": 38,
+     "result": "hop"
     },
     {
      "attempt": 4,
      "pos": 40,
      "result": "goal",
-     "op": "sub",
+     "op": "add",
      "dice": [
-      3,
-      2
+      1,
+      1
      ],
-     "pick": 0
+     "pick": 1
     }
    ],
    "final": {
@@ -5592,15 +5796,17 @@
     "seed": 9,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
+     4,
      13,
      18,
      27,
      31
     ],
-    "gems": 15,
+    "gems": 13,
     "phase": "cleared",
-    "rng_state": 818370916
+    "rng_state": 1261171988
    },
    "phase": "cleared"
   },
@@ -5642,9 +5848,10 @@
     "roll",
     "pick:3",
     "roll",
-    "pick:3",
+    "pick:4",
+    "win",
     "roll",
-    "pick:1"
+    "pick:0"
    ],
    "log": [
     {
@@ -5824,18 +6031,29 @@
       3,
       1
      ],
-     "pick": 3
+     "pick": 3,
+     "gems": 4
     },
     {
      "attempt": 4,
-     "pos": 38,
-     "result": "hop",
+     "pos": 35,
+     "result": "monster",
      "op": "add",
      "dice": [
       2,
-      2
+      3
      ],
-     "pick": 3
+     "pick": 4
+    },
+    {
+     "attempt": 4,
+     "pos": 35,
+     "result": "fight_won"
+    },
+    {
+     "attempt": 4,
+     "pos": 39,
+     "result": "hop"
     },
     {
      "attempt": 4,
@@ -5843,10 +6061,10 @@
      "result": "goal",
      "op": "sub",
      "dice": [
-      4,
-      2
+      5,
+      4
      ],
-     "pick": 1
+     "pick": 0
     }
    ],
    "final": {
@@ -5855,13 +6073,15 @@
     "seed": 10,
     "attempt": 4,
     "pos": 40,
+    "target": 40,
     "looted": [
      4,
      13,
      18,
-     27
+     27,
+     31
     ],
-    "gems": 11,
+    "gems": 15,
     "phase": "cleared",
     "rng_state": 557909453
    },
