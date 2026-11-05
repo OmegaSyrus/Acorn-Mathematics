@@ -77,6 +77,13 @@ const NAME_Y := WATER_Y + 22.0
 const MARKERS_AHEAD := true
 const MARKER_Y := WATER_Y - 104.0  # above the rock, clear of its number
 const MARKER_SCALE := 1.5
+## The way out on the far shore, this far past the last space.
+const GOAL_DX := 200.0
+## About an inch on the tablet, in design units. The game always shows 540
+## units top to bottom, and a 10 inch tablet held sideways is about 5.4 inches
+## tall, so 100 units is about 1 inch (a smaller 8 inch tablet makes it about
+## 0.8 inch). The exit door's tap area is the door plus this all round.
+const INCH := 100.0
 
 var run: ScrollRun
 var save: Dictionary
@@ -137,6 +144,9 @@ func _ready() -> void:
 	world.draw.connect(_draw_world)
 	choice = ChoiceWidget.new()
 	choice.show_highlight = false
+	# select a stone, then tap Go (Terrence 2026-11-05)
+	choice.confirm = true
+	choice.selected.connect(_on_stone_selected)
 	world.add_child(choice)
 	hud = Node2D.new()
 	hud.z_index = 2
@@ -182,6 +192,8 @@ func _loop() -> void:
 		var rects := []
 		for d in p["choices"]:
 			rects.append(_rock_rect(run.pos + d))
+		# keep the Go button inside what a 4:3 tablet shows (x 120..840)
+		choice.go_area = Rect2(_cam_target() + 132, 0, 690, 540)
 		choice.present(rects, 0)
 		var pick: int = await choice.picked
 		var out := run.choose(pick)
@@ -301,15 +313,38 @@ func _fight() -> void:
 			await _play_walk(out["walk"])
 
 
+## The crossing is done: a golden "GO!" arrow points at the door on the far
+## shore, and tapping the door (or anywhere within about an inch of it) walks
+## the dragon through it and back to the map.
 func _cleared() -> void:
 	_save_progress()
 	cleared_banner = true
 	_cheer("Yes!")
 	await _wait(0.5)
 	_cheer("Yes!")
-	_ask("Map")
-	hud_choice.present([Rect2(400, 250, 160, 90)])
+	question = ""
+	hud_choice.show_highlight = false
+	hud_choice.present([exit_rect()])
 	await hud_choice.picked
+	Beeper.good()
+	await _hop(hero_x, _goal_x())
+	await _fade_to(1.0)
+
+
+## The door's tap area in screen (HUD) space, once the camera has settled.
+func exit_rect() -> Rect2:
+	var r := _door_rect().grow(INCH)
+	r.position.x -= _cam_target()
+	return r
+
+
+## The door in world space: the frame and the arch over it.
+func _door_rect() -> Rect2:
+	return Rect2(_goal_x() - 50, FEET_Y - 200, 100, 200)
+
+
+func _goal_x() -> float:
+	return _space_x(run.length()) + GOAL_DX
 
 
 # --- animations ------------------------------------------------------------
@@ -460,6 +495,10 @@ func _cheer(text: String) -> void:
 	Beeper.good()
 
 
+func _on_stone_selected(_i: int) -> void:
+	Beeper.tone(523.0, 0.07)
+
+
 func _on_pip_tapped(count: int) -> void:
 	Beeper.count(count)
 	_say(str(count))
@@ -553,7 +592,7 @@ func _draw_world() -> void:
 	for r in [start_ledge, end_ledge]:
 		world.draw_texture_rect(wall, r, true)
 		world.draw_rect(Rect2(r.position, Vector2(r.size.x, 4)), Color(0.45, 0.3, 0.5))
-	_draw_goal(Vector2(_space_x(run.length()) + 60, FEET_Y))
+	_draw_goal(Vector2(_goal_x(), FEET_Y))
 	# rocks
 	for i in range(1, run.length()):
 		var rock: Texture2D = tex["rock-%d" % (i % 3 + 1)]
@@ -715,6 +754,36 @@ func _draw_goal(base: Vector2) -> void:
 	var pulse := 0.6 + 0.4 * sin(_t * 3.0)
 	world.draw_rect(Rect2(base + Vector2(-38, -140), Vector2(76, 140)), Color(1.0, 0.85, 0.4, 0.35 * pulse))
 	world.draw_circle(base + Vector2(0, -170), 14.0, Color(1.0, 0.85, 0.3, pulse))
+	if cleared_banner:
+		_draw_go_arrow(base + Vector2(0, -212 + 8.0 * sin(_t * 4.0)))
+
+
+## A golden arrow pointing down at the door, with "GO!" on it. tip is the
+## arrow's point.
+func _draw_go_arrow(tip: Vector2) -> void:
+	var gold := Color(1.0, 0.8, 0.22)
+	var light := Color(1.0, 0.94, 0.55)
+	var edge := Color(0.42, 0.24, 0.05)
+	var pts := PackedVector2Array([
+		tip + Vector2(-58, -70), tip + Vector2(-82, -70), tip,
+		tip + Vector2(82, -70), tip + Vector2(58, -70),
+		tip + Vector2(58, -150), tip + Vector2(-58, -150),
+	])
+	# a dark edge, the gold body, then a shine down the left side
+	world.draw_colored_polygon(_grow_poly(pts, 6.0), edge)
+	world.draw_colored_polygon(pts, gold)
+	world.draw_colored_polygon(PackedVector2Array([tip + Vector2(-50, -142), tip + Vector2(-34, -142),
+			tip + Vector2(-34, -78), tip + Vector2(-50, -78)]), Color(light, 0.8))
+	var font := ThemeDB.fallback_font
+	var at := tip + Vector2(-58, -92)
+	world.draw_string_outline(font, at, "GO!", HORIZONTAL_ALIGNMENT_CENTER, 116, 44, 6, light)
+	world.draw_string(font, at, "GO!", HORIZONTAL_ALIGNMENT_CENTER, 116, 44, edge)
+
+
+## The polygon pushed out from its middle by about px (for a simple outline).
+func _grow_poly(pts: PackedVector2Array, px: float) -> PackedVector2Array:
+	var grown := Geometry2D.offset_polygon(pts, px)
+	return grown[0] if grown.size() > 0 else pts
 
 
 ## Short words sit on one big line; a longer question wraps onto two.
@@ -737,6 +806,9 @@ func _draw_bubble(font: Font) -> void:
 
 func _draw_hud() -> void:
 	var font := ThemeDB.fallback_font
+	if cleared_banner:
+		_draw_cleared(font)
+		return
 	# dice tray
 	RoundBox.fire(hud, TRAY, _t, 18.0)
 	if tray_waiting:
@@ -767,11 +839,19 @@ func _draw_hud() -> void:
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.8, 0.2))
 		elif s.get("type") == "monster" and not beaten.has(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(0.9, 0.2, 0.2))
-	if cleared_banner:
-		RoundBox.fill(hud, Rect2(200, 160, 560, 200), Color(0.1, 0.05, 0.1, 0.85), 24.0)
-		hud.draw_string(font, Vector2(200, 220), run.area["name"], HORIZONTAL_ALIGNMENT_CENTER, 560, 34, Color(1.0, 0.85, 0.3))
-		RoundBox.fill(hud, Rect2(400, 250, 160, 90), Color(0.25, 0.5, 0.3), 18.0)
-		hud.draw_string(font, Vector2(400, 308), "Map", HORIZONTAL_ALIGNMENT_CENTER, 160, 36, INK)
+
+
+## The crossing done: the area's name in a box to the right of the door,
+## and the gems. The door itself is the way out.
+func _draw_cleared(font: Font) -> void:
+	var box := Rect2(496, 190, 336, 120)  # inside the 4:3 view (x 120..840)
+	RoundBox.fill(hud, box, Color(0.1, 0.05, 0.1, 0.85), 24.0)
+	hud.draw_string(font, box.position + Vector2(0, 50), run.area["name"], HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 26, Color(1.0, 0.85, 0.3))
+	hud.draw_string_outline(font, box.position + Vector2(0, 100), "Yes!", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 40, 7, DARK)
+	hud.draw_string(font, box.position + Vector2(0, 100), "Yes!", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 40, INK)
+	var gem: Texture2D = tex["gem"]
+	hud.draw_texture(gem, GEMS_AT)
+	hud.draw_string(font, GEMS_AT + Vector2(46, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
 
 
 func _draw_overlay() -> void:

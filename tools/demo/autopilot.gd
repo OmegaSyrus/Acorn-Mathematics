@@ -107,7 +107,10 @@ func _crossing() -> void:
 				# a wrong rock on purpose: the farthest wrong choice
 				var n: int = s.run.problem["choices"].size()
 				pick = (pick + n - 1) % n if pick > 0 else 1
+			# select the stone, then tap Go
 			await _tap_choice(s.choice, pick)
+			await _wait(0.4)
+			await _tap_at(s.choice, s.choice.go_rect().get_center())
 			continue
 		if s.hud_choice.active:
 			await _wait(1.2)

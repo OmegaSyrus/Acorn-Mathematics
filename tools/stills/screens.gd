@@ -37,6 +37,11 @@ func _ready() -> void:
 		await _frames(1)
 	await _frames(30)
 	_shot("lava-walk")
+	# a stone selected: its highlight and the Go button above it
+	s.choice._select(s.run.problem["answer_index"])
+	await _frames(10)
+	_shot("lava-selected")
+	s.choice.close()
 	var mpos := -1
 	for sp in area["spaces"]:
 		if sp["type"] == "monster":
@@ -49,6 +54,14 @@ func _ready() -> void:
 	s._hide_dice()
 	await _frames(30)
 	_shot("lava-enemy")
+	# the far shore once the crossing is done: the GO! arrow on the door
+	s.revealed = -1
+	s.bubble = ""
+	s._place_hero(s.run.length())
+	s.cleared_banner = true
+	await _frames(30)
+	_shot("lava-exit")
+	print("exit tap area (screen): ", s.exit_rect())
 	s.queue_free()
 	await _frames(2)
 
