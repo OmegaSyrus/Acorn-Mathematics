@@ -30,8 +30,13 @@ const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const CHEST_SCALE := 0.7
 ## The dice box: die, sign, die, "=", each die with its numeral under it.
-## (The small talk box left of it went, Terrence 2026-11-04.)
-const TRAY := Rect2(250, 8, 460, 160)
+const TRAY := Rect2(300, 8, 410, 160)
+## The small talk box left of the dice box: the question, and the count when
+## a die's pips are tapped (back by Terrence's request 2026-11-05; tap it to
+## hear the question again).
+const BUBBLE := Rect2(124, 20, 168, 112)
+const BUBBLE_FONT := 34
+const BUBBLE_FONT_SMALL := 24
 const DICE_Y := 64.0
 const DICE_XS := [370.0, 530.0]
 const OP_X := 450.0
@@ -173,7 +178,7 @@ func _loop() -> void:
 		await _wait_for_roll()
 		var p := run.roll()
 		await _roll_dice(p)
-		_ask("Where?")
+		_ask("Which stone\nis safe?")
 		var rects := []
 		for d in p["choices"]:
 			rects.append(_rock_rect(run.pos + d))
@@ -502,6 +507,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if tray_waiting and TRAY.has_point(pos) and tray_gate.accepts(Time.get_ticks_msec()):
 			_tray_down = true
 			_tray_down_at = pos
+		elif BUBBLE.has_point(pos) and question != "":
+			_say(question)
 		elif DEBUG_CORNER.has_point(pos):
 			_corner_down_ms = Time.get_ticks_msec()
 	else:
@@ -710,6 +717,24 @@ func _draw_goal(base: Vector2) -> void:
 	world.draw_circle(base + Vector2(0, -170), 14.0, Color(1.0, 0.85, 0.3, pulse))
 
 
+## Short words sit on one big line; a longer question wraps onto two.
+func _draw_bubble(font: Font) -> void:
+	if bubble == "":
+		return
+	RoundBox.fire(hud, BUBBLE, _t, 18.0)
+	var w := BUBBLE.size.x - 8.0
+	if font.get_string_size(bubble, HORIZONTAL_ALIGNMENT_LEFT, -1, BUBBLE_FONT).x <= w:
+		var at := BUBBLE.position + Vector2(4, BUBBLE.size.y / 2.0 + BUBBLE_FONT * 0.36)
+		hud.draw_string_outline(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT, 7, DARK)
+		hud.draw_string(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT, INK)
+		return
+	var lines := font.get_multiline_string_size(bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL).y
+	var top := BUBBLE.position.y + (BUBBLE.size.y - lines) / 2.0 + font.get_ascent(BUBBLE_FONT_SMALL)
+	var at := Vector2(BUBBLE.position.x + 4, top)
+	hud.draw_multiline_string_outline(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL, 3, 7, DARK)
+	hud.draw_multiline_string(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL, 3, INK)
+
+
 func _draw_hud() -> void:
 	var font := ThemeDB.fallback_font
 	# dice tray
@@ -725,6 +750,7 @@ func _draw_hud() -> void:
 		var eq := Color(INK, op_alpha)
 		hud.draw_string_outline(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8, Color(DARK, op_alpha))
 		hud.draw_string(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, eq)
+	_draw_bubble(font)
 	# gems
 	var gem: Texture2D = tex["gem"]
 	hud.draw_texture(gem, GEMS_AT)
