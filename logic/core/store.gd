@@ -73,6 +73,12 @@ static func add(save: Dictionary, currency: String, n: int) -> void:
 	save["currencies"][currency] = balance(save, currency) + n
 
 
+## Sets a currency back to zero (the store's reset, Terrence 2026-11-05).
+## Only the balance: heroes and dice already bought stay owned.
+static func reset_balance(save: Dictionary, currency: String) -> void:
+	add(save, currency, -balance(save, currency))
+
+
 static func owns(cat: Dictionary, save: Dictionary, id: String) -> bool:
 	var it := item(cat, id)
 	if it.is_empty():

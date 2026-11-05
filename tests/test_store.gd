@@ -125,6 +125,24 @@ func test_buy_the_slime() -> bool:
 	return true
 
 
+func test_reset_gems_keeps_what_was_bought() -> bool:
+	var cat := Store.catalog()
+	var s := _fresh()
+	s["gems"] = 52
+	check(Store.buy(cat, s, "slime_knight"), "bought")
+	Store.equip(cat, s, "slime_knight")
+	Store.reset_balance(s, "gems")
+	eq(s["gems"], 0, "gems back to zero")
+	eq(s["owned"], ["slime_knight"], "slime still owned")
+	eq(Store.equipped(cat, s, "hero"), "slime_knight", "slime still in use")
+	Store.reset_balance(s, "gems")
+	eq(s["gems"], 0, "reset at zero stays zero")
+	var back := SaveData.from_text(SaveData.to_text(s), "1")
+	eq(back["gems"], 0, "save round trip")
+	eq(back["owned"], ["slime_knight"], "owned survives the round trip")
+	return true
+
+
 func test_locked_items_cant_be_bought_or_used() -> bool:
 	var cat := Store.catalog()
 	var s := _fresh()

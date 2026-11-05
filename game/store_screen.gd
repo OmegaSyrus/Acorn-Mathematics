@@ -7,6 +7,9 @@
 ##   a grey "Buy" (not enough yet): the card shakes;
 ##   a lock (a currency the game can't give yet): the card shakes;
 ##   a blue "Use" (owned): puts it on; a check mark: in use.
+## Tapping the gem count (it has a small reset arrow) asks "Reset gems?"
+## with No and Yes; Yes sets the gems to 0 (Terrence 2026-11-05). What was
+## bought stays bought.
 ## All rules live in logic/core/store.gd; the catalog is content/store.json.
 extends Node2D
 
@@ -23,6 +26,11 @@ const GEM_TEX := preload("res://art/lava/gem.png")
 const BACK_RECT := Rect2(136, 10, 150, 80)
 const TAB_RECTS := {"hero": Rect2(302, 10, 150, 80), "dice": Rect2(462, 10, 150, 80)}
 const GEMS_BOX := Rect2(628, 14, 196, 72)
+## The "Reset gems?" panel and its two buttons (No is the safe default).
+const RESET_PANEL := Rect2(250, 140, 460, 260)
+const NO_RECT := Rect2(280, 270, 190, 100)
+const YES_RECT := Rect2(490, 270, 190, 100)
+const RESET_RED := Color(0.75, 0.22, 0.2)
 const COLS := 6
 const CARD := Vector2(108, 205)
 const GAP := 8.0
@@ -48,7 +56,8 @@ var persist := true       # false: stills and tests leave the profile file alone
 var cat: Dictionary
 var tab := "hero"
 var selected := ""        # a Buy card tapped once: its big Buy button shows
-var targets: Array = []   # [{rect, what: back|tab|card|buy, id}]
+var targets: Array = []   # [{rect, what: back|tab|card|buy|gems|no|yes, id}]
+var confirming := false   # the "Reset gems?" panel is up
 var choice: ChoiceWidget
 var shown_gems := 0.0
 var _shake := {}          # item id -> seconds of shake left
@@ -87,6 +96,22 @@ func _loop() -> void:
 					Beeper.tone(523.0, 0.07)
 			"buy":
 				_buy(t["id"])
+			"gems":
+				selected = ""
+				confirming = true
+				Beeper.tone(440.0, 0.08)
+				_present({"what": "no", "id": ""})
+				continue
+			"no":
+				confirming = false
+				Beeper.tone(440.0, 0.08)
+				_present({"what": "gems", "id": ""})
+				continue
+			"yes":
+				confirming = false
+				_reset_gems()
+				_present({"what": "gems", "id": ""})
+				continue
 			"card":
 				_tap_card(t["id"])
 		_present(t)
@@ -139,6 +164,16 @@ func _buy(id: String) -> void:
 	create_tween().tween_property(self, "shown_gems", float(Store.balance(save, "gems")), 0.7)
 
 
+## The store's reset: gems back to 0, saved straight away. Bought heroes and
+## dice stay owned and in use.
+func _reset_gems() -> void:
+	Store.reset_balance(save, "gems")
+	_saved()
+	Beeper.tone(392.0, 0.12)
+	get_tree().create_timer(0.12).timeout.connect(Beeper.tone.bind(262.0, 0.18))
+	create_tween().tween_property(self, "shown_gems", 0.0, 0.6)
+
+
 func _saved() -> void:
 	if persist:
 		SaveStore.write(save)
@@ -166,6 +201,11 @@ func _buy_rect(i: int) -> Rect2:
 ## target picked last (`last`, a target dictionary).
 func _present(last: Dictionary) -> void:
 	targets = []
+	if confirming:
+		targets.append({"rect": NO_RECT, "what": "no", "id": ""})
+		targets.append({"rect": YES_RECT, "what": "yes", "id": ""})
+		choice.present([NO_RECT, YES_RECT], 0)
+		return
 	var items := _tab_items()
 	if selected != "":
 		var si := items.find(Store.item(cat, selected))
@@ -174,6 +214,7 @@ func _present(last: Dictionary) -> void:
 	targets.append({"rect": BACK_RECT, "what": "back", "id": ""})
 	for k in TAB_RECTS:
 		targets.append({"rect": TAB_RECTS[k], "what": "tab", "id": k})
+	targets.append({"rect": GEMS_BOX, "what": "gems", "id": ""})
 	for i in mini(items.size(), COLS * 2):
 		targets.append({"rect": _card_rect(i), "what": "card", "id": items[i]["id"]})
 	var rects := []
@@ -223,6 +264,45 @@ func _draw() -> void:
 	for s in _sparks:
 		var a: float = clampf(s["life"] * 2.0, 0.0, 1.0)
 		_star(s["pos"], 7.0, Color(s["col"], a), Color(DARK, a * 0.6))
+	if confirming:
+		_draw_reset(font)
+
+
+## "Reset gems?" over a dimmed store: a gem, an arrow, a 0; No and Yes.
+func _draw_reset(font: Font) -> void:
+	draw_rect(Rect2(-480, -100, 1920, 740), Color(0, 0, 0, 0.6))
+	var p := RESET_PANEL
+	RoundBox.fill(self, p, Color(0.12, 0.06, 0.08, 0.97), 26.0)
+	RoundBox.frame(self, p, Color(1.0, 0.6, 0.25), 4.0, 26.0)
+	var at := p.position + Vector2(0, 56)
+	draw_string_outline(font, at, "Reset gems?", HORIZONTAL_ALIGNMENT_CENTER, p.size.x, 38, 7, DARK)
+	draw_string(font, at, "Reset gems?", HORIZONTAL_ALIGNMENT_CENTER, p.size.x, 38, GOLD)
+	# gem -> 0
+	var cy := p.position.y + 96.0
+	var cx := p.get_center().x
+	draw_texture_rect(GEM_TEX, Rect2(Vector2(cx - 92, cy - 22), Vector2(44, 44)), false)
+	var n := str(Store.balance(save, "gems"))
+	draw_string(font, Vector2(cx - 44, cy + 13), n, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, INK)
+	draw_colored_polygon(PackedVector2Array([Vector2(cx + 14, cy - 12), Vector2(cx + 34, cy), Vector2(cx + 14, cy + 12)]), INK)
+	draw_rect(Rect2(cx - 4, cy - 4, 20, 8), INK)
+	draw_string(font, Vector2(cx + 46, cy + 13), "0", HORIZONTAL_ALIGNMENT_LEFT, -1, 34, INK)
+	_reset_button(font, NO_RECT, "No", Color(0.42, 0.36, 0.33))
+	_reset_button(font, YES_RECT, "Yes", RESET_RED)
+
+
+func _reset_button(font: Font, r: Rect2, label: String, col: Color) -> void:
+	RoundBox.fill(self, r, col, 20.0)
+	RoundBox.frame(self, r, Color(INK, 0.5), 3.0, 20.0)
+	var at := r.position + Vector2(0, r.size.y / 2.0 + 15)
+	draw_string_outline(font, at, label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 42, 7, DARK)
+	draw_string(font, at, label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 42, INK)
+
+
+## A small round reset arrow, the hint that the gem count can be tapped.
+func _reset_icon(c: Vector2, rad: float, col: Color) -> void:
+	draw_arc(c, rad, deg_to_rad(-60), deg_to_rad(230), 16, col, 3.0, true)
+	var tip := c + Vector2(cos(deg_to_rad(-60)), sin(deg_to_rad(-60))) * rad
+	draw_colored_polygon(PackedVector2Array([tip + Vector2(-7, -3), tip + Vector2(5, -6), tip + Vector2(2, 6)]), col)
 
 
 func _draw_back(font: Font) -> void:
@@ -266,6 +346,7 @@ func _draw_gems(font: Font) -> void:
 	var n := str(roundi(shown_gems))
 	draw_string_outline(font, at, n, HORIZONTAL_ALIGNMENT_LEFT, -1, 42, 6, DARK)
 	draw_string(font, at, n, HORIZONTAL_ALIGNMENT_LEFT, -1, 42, Color(1.0, 0.86, 0.5))
+	_reset_icon(r.position + Vector2(r.size.x - 22, 22), 9.0, Color(INK, 0.75))
 
 
 func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:

@@ -63,6 +63,14 @@ func _ready() -> void:
 	await _tap(st2, "card", "slime_knight")
 	await _frames(4)
 	_shot("store-6-not-yet")
+	await _tap(st2, "gems", "")
+	await _frames(4)
+	_shot("store-7-reset-ask")
+	await _tap(st2, "yes", "")
+	await _frames(50)
+	_shot("store-8-reset-done")
+	if int(poor["gems"]) != 0:
+		push_error("reset left %d gems" % int(poor["gems"]))
 	st2.queue_free()
 
 	# play with the slime and a gem skin (the skin is set directly: it is
