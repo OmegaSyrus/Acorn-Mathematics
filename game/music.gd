@@ -1,94 +1,70 @@
-## Background music. Autoloaded as Music.
-## The main menu loops "Welcome to Math Land"; the lava crossing (and its
-## fights) plays the lava songs in a shuffled order, never the same song twice
-## in a row. play_menu() and play_lava() do nothing if that set is already on,
-## so screens can call them freely without restarting the song.
+## Background music (Terrence's songs, 2026-11-05). Autoloaded as Music.
+## The main menu loops "Welcome to Math Land!"; the lava section plays its
+## five songs in a random order, never the same song twice in a row. Keeps
+## playing while the in-game menu has the game paused.
 extends Node
 
-const MENU := "res://audio/music/welcome-to-math-land.mp3"
+const DIR := "res://audio/music/"
+const MENU := ["menu-welcome-to-math-land.mp3"]
 const LAVA := [
-	"res://audio/music/lava-pixel-run.mp3",
-	"res://audio/music/lava-pixel-run-2.mp3",
-	"res://audio/music/lava-cave-jump.mp3",
-	"res://audio/music/lava-jump.mp3",
-	"res://audio/music/volcano-jump.mp3",
+	"lava-pixel-lava-run-1.mp3",
+	"lava-cave-jump.mp3",
+	"lava-jump.mp3",
+	"lava-pixel-lava-run.mp3",
+	"lava-volcano-jump.mp3",
 ]
+## Under the beeps and, later, Ellwynn's voice.
 const VOLUME_DB := -8.0
-const FADE_S := 0.6
 
-var _player: AudioStreamPlayer
-var _set := ""          # "menu", "lava" or ""
-var _queue: Array = []  # lava songs still to play this round
-var _last := ""
+var player: AudioStreamPlayer
+var playlist := ""     # "menu", "lava" or "" when quiet
+var current := ""      # the file playing now
+var _tracks: Array = []
 var _rng := RandomNumberGenerator.new()
-var _fade: Tween
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS  # keeps playing under the pause menu
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_rng.randomize()
-	_player = AudioStreamPlayer.new()
-	_player.volume_db = VOLUME_DB
-	add_child(_player)
-	_player.finished.connect(_on_finished)
+	player = AudioStreamPlayer.new()
+	player.volume_db = VOLUME_DB
+	add_child(player)
+	player.finished.connect(_next)
 
 
 func play_menu() -> void:
-	if _set == "menu":
-		return
-	_set = "menu"
-	_start(MENU, true)
+	_start("menu", MENU)
 
 
 func play_lava() -> void:
-	if _set == "lava":
-		return
-	_set = "lava"
-	_queue.clear()
-	_start(_next_lava(), false)
+	_start("lava", LAVA)
 
 
 func stop() -> void:
-	_set = ""
-	_player.stop()
+	playlist = ""
+	current = ""
+	player.stop()
 
 
-func current_set() -> String:
-	return _set
-
-
-## Shuffled rounds through every lava song; a new round never opens with the
-## song that just ended.
-func _next_lava() -> String:
-	if _queue.is_empty():
-		_queue = LAVA.duplicate()
-		for i in range(_queue.size() - 1, 0, -1):
-			var j := _rng.randi_range(0, i)
-			var t = _queue[i]
-			_queue[i] = _queue[j]
-			_queue[j] = t
-		if _queue.size() > 1 and _queue[0] == _last:
-			_queue.push_back(_queue.pop_front())
-	_last = _queue.pop_front()
-	return _last
-
-
-func _start(path: String, loop: bool) -> void:
-	var stream := load(path) as AudioStreamMP3
-	if stream == null:
-		push_error("music missing: %s" % path)
+## Already playing this list: carry on with the song that is on.
+func _start(list_name: String, tracks: Array) -> void:
+	if playlist == list_name and player.playing:
 		return
-	stream = stream.duplicate()
-	stream.loop = loop
-	if _fade != null:
-		_fade.kill()
-	_player.stream = stream
-	_player.volume_db = -40.0
-	_player.play()
-	_fade = create_tween()
-	_fade.tween_property(_player, "volume_db", VOLUME_DB, FADE_S)
+	playlist = list_name
+	_tracks = tracks
+	current = ""
+	_next()
 
 
-func _on_finished() -> void:
-	if _set == "lava":
-		_start(_next_lava(), false)
+## The next song: the same one again for a one-song list, else a random
+## pick that is not the song that just ended.
+func _next() -> void:
+	if playlist == "" or _tracks.is_empty():
+		return
+	var pick: String = _tracks[0]
+	if _tracks.size() > 1:
+		var others := _tracks.filter(func(t): return t != current)
+		pick = others[_rng.randi_range(0, others.size() - 1)]
+	current = pick
+	player.stream = load(DIR + pick)
+	player.play()

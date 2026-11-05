@@ -11,12 +11,14 @@ const AreaScreen := preload("res://game/area_screen.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const ScrollScreen := preload("res://game/scroll_screen.gd")
 const StoreScreen := preload("res://game/store_screen.gd")
+const GameMenu := preload("res://game/ui/game_menu.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
 
 var stage: Node2D
 var screen: Node2D
+var menu: GameMenu
 var save: Dictionary
 var grades: Dictionary
 var debug_on := false
@@ -28,6 +30,10 @@ func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.05, 0.03, 0.03))
 	stage = Node2D.new()
 	add_child(stage)
+	menu = GameMenu.new()
+	menu.visible = false
+	menu.home.connect(show_map)
+	stage.add_child(menu)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 	area_id = _area_from_args()
@@ -65,10 +71,10 @@ func _swap(next: Node2D) -> void:
 		screen.queue_free()
 	screen = next
 	stage.add_child(screen)
+	stage.move_child(menu, -1)
 
 
 func show_map() -> void:
-	Music.play_menu()
 	# A scroll area lists the grades it is built for.
 	var area := Content.area(area_id)
 	var shown := grades
@@ -81,19 +87,25 @@ func show_map() -> void:
 	m.start.connect(_on_start)
 	m.shop.connect(show_store)
 	_swap(m)
+	menu.visible = false
+	Music.play_menu()
 
 
-## The store, from the map's Shop button; Back returns to the map.
+## The store, from the map's Shop button; Back returns to the map. The menu
+## song keeps playing.
 func show_store() -> void:
 	var st := StoreScreen.new()
 	st.setup(save)
 	st.back.connect(show_map)
 	_swap.call_deferred(st)
+	menu.visible = false
+	Music.play_menu()
 
 
 func _on_start(grade_id: int, resume: bool) -> void:
-	Music.play_lava()
 	var area := Content.area(area_id)
+	_play_level_music()
+	menu.visible = true
 	if area.get("type") == "scroll":
 		_start_scroll(area, grade_id, resume)
 		return
@@ -111,6 +123,14 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	a.setup(run, save, debug_on)
 	a.finished.connect(show_map)
 	_swap.call_deferred(a)
+
+
+## Every area so far is in the Lava Caves; other worlds get their own songs.
+func _play_level_music() -> void:
+	if area_id.begins_with("lava"):
+		Music.play_lava()
+	else:
+		Music.stop()
 
 
 ## `-- --seed=123` makes new runs repeatable (demos, bug reports).

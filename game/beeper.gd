@@ -11,7 +11,6 @@ var _cache := {}
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS  # menu sounds play while paused
 	for i in VOICES:
 		var p := AudioStreamPlayer.new()
 		add_child(p)

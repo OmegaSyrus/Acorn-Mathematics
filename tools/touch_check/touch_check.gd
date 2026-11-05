@@ -76,10 +76,31 @@ func _ready() -> void:
 	_check(picked[0], "tap on Go picked the rock")
 	await _frames(60)
 	_shot("5-picked")
+	_check(Music.playlist == "lava" and Music.player.playing, "lava music playing on the crossing")
+
+	# The menu button beside the gems: opens a paused menu; Play closes it,
+	# Main Menu goes back to the map (and its music).
+	var menu = main.menu
+	_check(menu.visible, "menu button showing on the crossing")
+	var btn: Rect2 = menu.button_rect(menu.get_viewport())
+	var vis: Rect2 = menu.get_viewport().get_visible_rect()
+	var corner: Vector2 = menu.get_global_transform_with_canvas() * btn.end
+	_check(vis.has_point(corner - Vector2(1, 1)) and corner.x > vis.end.x - 20.0, "menu button in the top right corner, on screen")
+	await _tap(menu, btn.get_center())
+	_check(menu.is_open and get_tree().paused, "tap on the menu button opened the menu and paused")
+	_shot("6-menu")
+	await _tap(menu, menu.PLAY_RECT.get_center())
+	_check(not menu.is_open and not get_tree().paused and Engine.time_scale == 1.0, "Play closed the menu")
+	await _tap(menu, btn.get_center())
+	await _tap(menu, menu.HOME_RECT.get_center())
+	await _frames(10)
+	_check(not get_tree().paused and main.screen.get_script().resource_path.ends_with("map_screen.gd"), "Main Menu went back to the map")
+	_check(not menu.visible, "no menu button on the map")
+	_check(Music.playlist == "menu" and Music.current.begins_with("menu-"), "menu music on the map")
 
 	# The exit door on a crossing already cleared: a tap about an inch to the
 	# left of the door, outside the door itself, still leaves.
-	scroll.queue_free()
+	main.screen.queue_free()
 	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 2)
 	run.pos = run.length()
 	run.phase = ScrollRun.CLEARED
@@ -94,7 +115,7 @@ func _ready() -> void:
 		waited += 1
 	_check(done.hud_choice.active, "cleared crossing waits for the door")
 	await _frames(20)
-	_shot("6-exit")
+	_shot("7-exit")
 	var ex: Rect2 = done.exit_rect()
 	await _tap(done.hud, Vector2(ex.position.x + 20, ex.get_center().y))
 	waited = 0
@@ -110,7 +131,8 @@ func _ready() -> void:
 ## A finger press and lift at a point in `ci`'s local space.
 ## Waits out the 300 ms choice lockout first, as a child would.
 func _tap(ci: CanvasItem, local: Vector2) -> void:
-	await get_tree().create_timer(0.5).timeout
+	# real time, so it also runs while the menu has the game stopped
+	await get_tree().create_timer(0.5, true, false, true).timeout
 	var at := get_viewport().get_screen_transform() * ci.get_global_transform_with_canvas() * local
 	for pressed in [true, false]:
 		var e := InputEventScreenTouch.new()
