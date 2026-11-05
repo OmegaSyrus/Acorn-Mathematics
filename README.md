@@ -101,7 +101,8 @@ script lists what it needs. Always sign with the same keystore so a new APK
 installs over the old one and keeps the save. The launcher icon is the robot
 dragon, in `art/icon/`.
 
-`tools/touch_check/touch_check.tscn` plays map, Roll and a rock pick with
+`tools/touch_check/touch_check.tscn` plays map, Roll and a rock pick (tap a
+rock to select it, tap another to change, then tap Go) with
 synthetic finger taps only and saves a still after each step:
 
     xvfb-run godot --path . --rendering-driver opengl3 --resolution 1024x768 \

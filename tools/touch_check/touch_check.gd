@@ -5,6 +5,9 @@
 extends Node
 
 const MainScene := preload("res://scenes/main.tscn")
+const Content := preload("res://logic/core/content.gd")
+const ScrollRun := preload("res://logic/path/scroll_run.gd")
+const ScrollScreen := preload("res://game/scroll_screen.gd")
 
 var out_dir := "/tmp"
 var main: Node2D
@@ -54,11 +57,51 @@ func _ready() -> void:
 	_check(before > 0, "rocks to pick")
 	var picked := [false]
 	c.picked.connect(func(_i): picked[0] = true)
+	# two steps: a tap selects the rock and shows Go; tapping another rock
+	# moves the selection; Go picks
 	await _tap(c, c._rect(0).get_center())
 	await _frames(5)
-	_check(picked[0], "tap on a rock picked it")
+	_check(not picked[0] and c.chosen == 0, "tap on a rock selected it without picking")
+	_check(c.go_rect().has_area(), "Go button showing")
+	if c.rects.size() > 1:
+		await _tap(c, c._rect(1).get_center())
+		await _frames(5)
+		_check(not picked[0] and c.chosen == 1, "tap on another rock moved the selection")
+	_shot("4-selected")
+	var go_at: Vector2 = c.go_rect().get_center()
+	_check(scroll.get_viewport_rect().has_point(get_viewport().get_screen_transform() * c.get_global_transform_with_canvas() * go_at),
+			"Go button on screen")
+	await _tap(c, go_at)
+	await _frames(5)
+	_check(picked[0], "tap on Go picked the rock")
 	await _frames(60)
-	_shot("4-picked")
+	_shot("5-picked")
+
+	# The exit door on a crossing already cleared: a tap about an inch to the
+	# left of the door, outside the door itself, still leaves.
+	scroll.queue_free()
+	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 2)
+	run.pos = run.length()
+	run.phase = ScrollRun.CLEARED
+	var done := ScrollScreen.new()
+	done.setup(run, main.save.duplicate(true), false)
+	main.stage.add_child(done)
+	var left := [false]
+	done.finished.connect(func(): left[0] = true)
+	waited = 0
+	while not done.hud_choice.active and waited < 600:
+		await _frames(1)
+		waited += 1
+	_check(done.hud_choice.active, "cleared crossing waits for the door")
+	await _frames(20)
+	_shot("6-exit")
+	var ex: Rect2 = done.exit_rect()
+	await _tap(done.hud, Vector2(ex.position.x + 20, ex.get_center().y))
+	waited = 0
+	while not left[0] and waited < 300:
+		await _frames(1)
+		waited += 1
+	_check(left[0], "tap an inch beside the door left the crossing")
 
 	print("TOUCH CHECK %s (%d failures)" % ["PASS" if failures == 0 else "FAIL", failures])
 	get_tree().quit(1 if failures else 0)
