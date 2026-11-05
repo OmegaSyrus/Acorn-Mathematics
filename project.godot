@@ -13,6 +13,7 @@ config/icon="res://art/icon/icon.png"
 [autoload]
 
 Beeper="*res://game/beeper.gd"
+Music="*res://game/music.gd"
 
 [display]
 

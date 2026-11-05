@@ -27,7 +27,12 @@ A repeatable run: add `--seed=123` after the `--`.
 | Pick | tap the rock, key or button | A | Space / Enter |
 | Count dots | tap each dot on a landed die | | |
 | Hear the question again | tap Ellwynn | Y | R |
+| Menu (pause, back to the main menu) | tap the button with three bars, top right | | Esc |
 | Debug overlay (seed, dice, answer) | hold the top-left corner 1.5 s | Back / Select | F1 |
+
+Music: the main menu loops `audio/music/menu-welcome-to-math-land.mp3`; the Lava Caves
+play the five `audio/music/lava-*.mp3` songs in a random order (`game/music.gd`, autoloaded
+as `Music`). The songs are Terrence's.
 
 Choices ignore input for 300 ms after they appear, and only a fresh press picks.
 
