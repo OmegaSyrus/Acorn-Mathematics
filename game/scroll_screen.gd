@@ -116,6 +116,7 @@ var revealed := -1     # the event space the dragon is on, its contents shown
 var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
 var lid_open := false
 var opening := -1      # chest space whose gems are flying
+var gems_unshown := 0  # gems already banked in the save whose chest hasn't opened on screen yet
 var gem_fly := 0.0
 var gem_count := 0
 var op_sign := ""
@@ -223,6 +224,14 @@ func _play_walk(w: Dictionary) -> void:
 	var chest_gems := {}
 	for c in w["chests"]:
 		chest_gems[int(c["at"])] = int(c["gems"])
+	# Bank the walk's gems and the run (chests now looted) in one write before
+	# the walk plays, so leaving through the menu mid-walk can't open the same
+	# chest twice on resume. The counter still climbs as each chest opens.
+	if not chest_gems.is_empty():
+		var total := int(w.get("gems", 0))
+		SaveData.add_gems(save, total)
+		gems_unshown += total
+		_save_progress()
 	revealed = -1
 	var from: int = w["from"]
 	for i in range(from + 1, int(w["to"]) + 1):
@@ -459,7 +468,7 @@ func _open_chest(space: int, n: int) -> void:
 	opening = space
 	gem_count = n
 	gem_fly = 0.0
-	SaveData.add_gems(save, n)
+	gems_unshown = maxi(gems_unshown - n, 0)
 	_cheer("+%d" % n)
 	Beeper.gems(n)
 	await _tween_prop("gem_fly", 1.0, 1.1)
@@ -860,7 +869,7 @@ func _draw_cleared(font: Font) -> void:
 ## longer number grows to the left.
 func _draw_gems(font: Font) -> void:
 	var gem: Texture2D = tex["gem"]
-	var text := str(save.get("gems", 0))
+	var text := str(int(save.get("gems", 0)) - gems_unshown)
 	var right := GameMenu.button_rect(get_viewport()).position.x - 8.0
 	var x := right - font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT).x
 	hud.draw_texture(gem, Vector2(x - 46, GEMS_Y))
