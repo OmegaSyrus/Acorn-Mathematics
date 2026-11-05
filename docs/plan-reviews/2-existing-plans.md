@@ -1,6 +1,6 @@
 # Digest of existing plans for future levels (found 2026-11-05)
 
-Sources: docs/difficulty-plan.md (newest, 11-05); Sum-Dungeon-Design-v0.19 (10-26; text in scratchpad/txt/Sum-Dungeon-Design-v0.19.txt); review 10-29 (scratchpad/txt/Acorn-Review-2026-10-29.txt); repo content/, logic/fight/README.md, logic/bounce/README.md, content/bounce/tuning.json, content/store.json.
+Sources: docs/difficulty-plan.md (newest, 11-05); Sum-Dungeon-Design-v0.19 (10-26, project folder sum-dungeon/); review 10-29 (project folder sum-dungeon/reviews/); repo content/, logic/fight/README.md, logic/bounce/README.md, content/bounce/tuning.json, content/store.json.
 
 ## Grades
 - v0.19 §03: Acorn = one die, "a full roll is shown; pick where you land"; Sprout = add two dice; Sapling = missing number; Oak = take away (move die + red slip die). "Later: Within 20, then times and share as new grades. Same areas, same monsters, same bosses." Grade picked on map, "never changes by itself", parents can lock. Dice: dots first, numeral after; "Above 6: two dice side by side... Above 12: numerals." No hints, no adaptive difficulty.
