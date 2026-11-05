@@ -17,6 +17,8 @@ const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
+const Look := preload("res://game/ui/look.gd")
+const GameMenu := preload("res://game/ui/game_menu.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
 
@@ -30,7 +32,7 @@ const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const CHEST_SCALE := 0.7
 ## The dice box: die, sign, die, "=", each die with its numeral under it.
-const TRAY := Rect2(300, 8, 410, 160)
+const TRAY := Rect2(300, 8, 376, 160)
 ## The small talk box left of the dice box: the question, and the count when
 ## a die's pips are tapped (back by Terrence's request 2026-11-05; tap it to
 ## hear the question again).
@@ -41,7 +43,8 @@ const DICE_Y := 64.0
 const DICE_XS := [370.0, 530.0]
 const OP_X := 450.0
 const EQ_X := 630.0
-const GEMS_AT := Vector2(752, 26)
+## Gems sit left of the menu button (game/ui/game_menu.gd, top right).
+const GEMS_AT := Vector2(684, 26)
 const BAR := Rect2(140, 516, 680, 10)
 const DEBUG_CORNER := Rect2(120, 0, 90, 60)
 const FLICK_PX := 24.0
@@ -94,6 +97,7 @@ var hud: Node2D
 var overlay: Node2D
 var choice: ChoiceWidget
 var hud_choice: ChoiceWidget
+var menu: GameMenu
 var dice: Array = []
 var tex := {}
 
@@ -136,8 +140,9 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 func _ready() -> void:
 	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
-			"robodragon", "blorp-idle", "craggy", "surtling"]:
+			"blorp-idle", "craggy", "surtling"]:
 		tex[f] = load(ART + f + ".png")
+	tex["hero"] = Look.hero_texture()  # the robot dragon or the store hero in use
 	world = Node2D.new()
 	world.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	add_child(world)
@@ -164,6 +169,9 @@ func _ready() -> void:
 	overlay.z_index = 10
 	add_child(overlay)
 	overlay.draw.connect(_draw_overlay)
+	menu = GameMenu.new()
+	add_child(menu)
+	menu.home.connect(_on_home)
 	_place_hero(run.pos)
 	if run.phase == ScrollRun.AWAIT_FIGHT:
 		revealed = run.pos
@@ -499,6 +507,12 @@ func _on_stone_selected(_i: int) -> void:
 	Beeper.tone(523.0, 0.07)
 
 
+## Menu > Home: the run is already saved after every task, so just leave;
+## the map's Go button resumes it.
+func _on_home() -> void:
+	finished.emit()
+
+
 func _on_pip_tapped(count: int) -> void:
 	Beeper.count(count)
 	_say(str(count))
@@ -692,7 +706,7 @@ func _pop() -> float:
 
 
 func _draw_hero() -> void:
-	var t: Texture2D = tex["robodragon"]
+	var t: Texture2D = tex["hero"]
 	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * 120.0)
 	var pos := feet - Vector2(t.get_width() / 2.0, t.get_height())
 	if hero_sink > 0.0:
@@ -722,8 +736,9 @@ func _draw_worried(top_left: Vector2, line_y: float) -> void:
 	var a := worried
 	var ink := Color(0.12, 0.1, 0.16, a)
 	# the brow, just over the eye: low at the outer end, steeply up toward the
-	# snout (worried, not cross)
-	for k in 8:
+	# snout (worried, not cross). Only the dragon's eye is known; other store
+	# heroes just sweat.
+	for k in (8 if Look.is_default_hero() else 0):
 		var p := top_left + Vector2(31 + k * 3.5, 27 - k * 1.9)
 		if p.y < line_y:
 			world.draw_rect(Rect2(p.round(), Vector2(5, 5)), ink)
@@ -826,7 +841,7 @@ func _draw_hud() -> void:
 	# gems
 	var gem: Texture2D = tex["gem"]
 	hud.draw_texture(gem, GEMS_AT)
-	hud.draw_string(font, GEMS_AT + Vector2(46, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
+	hud.draw_string(font, GEMS_AT + Vector2(44, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 28, INK)
 	# progress along the crossing: one tick per space
 	var n := run.length()
 	RoundBox.fill(hud, BAR.grow(3), Color(0.1, 0.05, 0.1, 0.8), 8.0)
@@ -851,7 +866,7 @@ func _draw_cleared(font: Font) -> void:
 	hud.draw_string(font, box.position + Vector2(0, 100), "Yes!", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 40, INK)
 	var gem: Texture2D = tex["gem"]
 	hud.draw_texture(gem, GEMS_AT)
-	hud.draw_string(font, GEMS_AT + Vector2(46, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
+	hud.draw_string(font, GEMS_AT + Vector2(44, 30), str(save.get("gems", 0)), HORIZONTAL_ALIGNMENT_LEFT, -1, 28, INK)
 
 
 func _draw_overlay() -> void:

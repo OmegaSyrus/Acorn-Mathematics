@@ -10,6 +10,7 @@ const MapScreen := preload("res://game/map_screen.gd")
 const AreaScreen := preload("res://game/area_screen.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const ScrollScreen := preload("res://game/scroll_screen.gd")
+const StoreScreen := preload("res://game/store_screen.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -67,6 +68,7 @@ func _swap(next: Node2D) -> void:
 
 
 func show_map() -> void:
+	Music.play_menu()
 	# A scroll area lists the grades it is built for.
 	var area := Content.area(area_id)
 	var shown := grades
@@ -77,10 +79,20 @@ func show_map() -> void:
 	var m := MapScreen.new()
 	m.setup(save, shown, area_id)
 	m.start.connect(_on_start)
+	m.shop.connect(show_store)
 	_swap(m)
 
 
+## The store, from the map's Shop button; Back returns to the map.
+func show_store() -> void:
+	var st := StoreScreen.new()
+	st.setup(save)
+	st.back.connect(show_map)
+	_swap.call_deferred(st)
+
+
 func _on_start(grade_id: int, resume: bool) -> void:
+	Music.play_lava()
 	var area := Content.area(area_id)
 	if area.get("type") == "scroll":
 		_start_scroll(area, grade_id, resume)

@@ -14,6 +14,8 @@ signal pip_tapped(count: int)
 
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
+const DiceSkins := preload("res://game/ui/dice_skins.gd")
+const Look := preload("res://game/ui/look.gd")
 
 const ART := "res://art/lava/"
 const HALF := 36.0  # a face on die is 96 px at this size (HALF * FOCAL / (FOCAL - 1) = 48)
@@ -46,6 +48,11 @@ var slip := false:
 	set(v):
 		slip = v
 		_load_art()
+## The store skin to draw; "" uses the equipped one (Look.dice_id).
+var skin := "":
+	set(v):
+		skin = v
+		_load_art()
 var value := 1
 var face_on := false
 var countable := false
@@ -72,11 +79,12 @@ func _ready() -> void:
 	show_still(1)
 
 
+## The equipped skin's faces (the classic skin is the wood and red art);
+## the red die stays red in every skin.
 func _load_art() -> void:
-	var kind := "red" if slip else "wood"
 	face_art = {}
 	for v in range(1, 7):
-		face_art[v] = load(ART + "die-%s-%d.png" % [kind, v])
+		face_art[v] = DiceSkins.face(skin if skin != "" else Look.dice_id, v, slip)
 	queue_redraw()
 
 

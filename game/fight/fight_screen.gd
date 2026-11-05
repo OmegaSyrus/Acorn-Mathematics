@@ -18,6 +18,7 @@ const DieView := preload("res://game/ui/die_view.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
+const Look := preload("res://game/ui/look.gd")
 
 ## Feet a little higher than before and the shields a little lower, so the
 ## monster's name fits under it (Terrence 2026-11-04). The monster's middle
@@ -40,7 +41,6 @@ const MONSTER_ART := {
 	"lava_miniboss": ["res://art/lava/surtling-chief.png", 1.05],
 }
 ## The hero: the robot dragon, facing the monster on the right.
-const HERO_TEX := preload("res://art/lava/robodragon.png")
 const BG_TEX := preload("res://art/lava/fight-bg.png")
 const HERO_ART_SCALE := 1.5
 const HEART_TEX := preload("res://art/ui/heart.png")
@@ -56,6 +56,8 @@ const MONSTER_COLORS := {
 	"lava_miniboss": Color(0.55, 0.12, 0.35),
 }
 
+## The robot dragon, or the store hero in use (game/ui/look.gd).
+var hero_tex: Texture2D = Look.hero_texture()
 var fight
 var is_duel := false
 var debug_on := false
@@ -385,9 +387,9 @@ func _draw_hero(base: Vector2) -> void:
 	var tint := Color.WHITE.lerp(Color(1.6, 0.5, 0.5), hero_flash)
 	tint.a = alpha
 	var breathe := sin(_t * 2.4) * 0.02
-	var size := HERO_TEX.get_size() * HERO_ART_SCALE * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
+	var size := hero_tex.get_size() * HERO_ART_SCALE * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
 	var feet := base + Vector2(0, 12)
-	draw_texture_rect(HERO_TEX, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
+	draw_texture_rect(hero_tex, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
 	# the hero's shield, raised while the child decides
 	if shields_shown and not revealed:
 		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(52, -100), SHIELD_TEX.get_size() * 0.55), false)

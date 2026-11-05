@@ -81,6 +81,13 @@ with attempt/task as they were when the task was answered.
   "run": null | {"area", "grade", "seed", "attempt", "task_index", "rng_state"} }
 ```
 
+Store fields (2026-11-05; a save without them loads with these defaults):
+`"currencies": {}` (balances by currency id; gems stay in the top-level `"gems"`),
+`"owned": []` (bought item ids; unpriced catalog items are always owned), `"hero":
+"robodragon"`, `"dice": "classic"` (equipped; an id that is missing, of the wrong kind or
+not owned falls back to the kind's first unpriced item). Rules: logic/core/store.gd over
+content/store.json; an item priced in a currency whose `open` is false cannot be bought.
+
 Resume = new run from `seed`, then set attempt, task_index and rng_state. The current
 task starts over and regenerates the same problem. Stickers and marks only ever grow.
 
