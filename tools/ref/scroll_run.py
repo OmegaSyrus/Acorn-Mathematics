@@ -16,6 +16,7 @@ class ScrollRun:
         self.rng = SeededRng(self.seed)
         self.attempt = 1
         self.pos = 0
+        self.target = 0
         self.looted = []
         self.gems = 0
         self.problem = None
@@ -36,7 +37,7 @@ class ScrollRun:
 
     def to_save(self):
         return {"area": self.area["id"], "grade": self.grade["id"], "seed": self.seed,
-                "attempt": self.attempt, "pos": self.pos, "looted": list(self.looted),
+                "attempt": self.attempt, "pos": self.pos, "target": self.target, "looted": list(self.looted),
                 "gems": self.gems, "phase": self.phase, "rng_state": self.rng.get_state()}
 
     @classmethod
@@ -44,6 +45,7 @@ class ScrollRun:
         run = cls(area, grade, data["seed"])
         run.attempt = data["attempt"]
         run.pos = data["pos"]
+        run.target = max(run.pos, data.get("target", run.pos))
         run.looted = list(data["looted"])
         run.gems = data["gems"]
         run.phase = data["phase"]
@@ -70,24 +72,8 @@ class ScrollRun:
             self._fail()
             out["restarted"] = True
             return out
-        self.pos += dist
-        space = self.space_at(self.pos)
-        self.phase = AWAIT_ROLL
-        if self.pos >= self.length():
-            out["result"] = "goal"
-            self.phase = CLEARED
-        elif space is not None and space["type"] == "monster":
-            out["result"] = "monster"
-            out["monster"] = space["monster"]
-            self.phase = AWAIT_FIGHT
-        elif space is not None and space["type"] == "chest" and self.pos not in self.looted:
-            lo, hi = self.area["chest_gems"]
-            out["result"] = "chest"
-            out["gems"] = self.rng.randi_range(lo, hi)
-            self.looted.append(self.pos)
-            self.gems += out["gems"]
-        else:
-            out["result"] = "hop"
+        self.target = self.pos + dist
+        self._walk(out)
         self._log(out)
         self.problem = None
         return out
@@ -96,16 +82,55 @@ class ScrollRun:
         assert self.phase == AWAIT_FIGHT
         out = {"result": "fight_won" if won else "fight_lost", "restarted": False}
         self._log(out)
-        if won:
-            self.phase = AWAIT_ROLL
-        else:
+        if not won:
             self._fail()
             out["restarted"] = True
+            return out
+        self.phase = AWAIT_ROLL
+        if self.target > self.pos:
+            w = {"result": "", "from": self.pos, "to": self.target}
+            self._walk(w)
+            self._log(w)
+            out["walk"] = w
         return out
+
+    def _walk(self, out):
+        chests = []
+        total = 0
+        self.phase = AWAIT_ROLL
+        out["result"] = "hop"
+        while self.pos < self.target:
+            self.pos += 1
+            space = self.space_at(self.pos)
+            if self.pos >= self.length():
+                out["result"] = "goal"
+                self.phase = CLEARED
+                break
+            if space is not None and space["type"] == "monster":
+                out["result"] = "monster"
+                out["monster"] = space["monster"]
+                self.phase = AWAIT_FIGHT
+                break
+            if space is not None and space["type"] == "chest" and self.pos not in self.looted:
+                lo, hi = self.area["chest_gems"]
+                g = self.rng.randi_range(lo, hi)
+                self.looted.append(self.pos)
+                self.gems += g
+                total += g
+                chests.append({"at": self.pos, "gems": g})
+                if self.pos == self.target:
+                    out["result"] = "chest"
+        if self.phase != AWAIT_FIGHT:
+            self.target = self.pos
+        out["to"] = self.pos
+        out["chests"] = chests
+        if chests:
+            out["gems"] = total
 
     def _fail(self):
         self.attempt += 1
         self.pos = 0
+        self.target = 0
         self.problem = None
         self.phase = AWAIT_ROLL
 

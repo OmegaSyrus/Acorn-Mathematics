@@ -18,6 +18,7 @@ const RoundBox := preload("res://game/ui/round_box.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
+const Monsters := preload("res://logic/fight/monsters.gd")
 
 const ART := "res://art/lava/"
 const STRIP_SCALE := 3.0
@@ -28,9 +29,13 @@ const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const CHEST_SCALE := 0.7
-const TRAY := Rect2(300, 8, 360, 150)
-const DICE_Y := 66.0
-const BUBBLE := Rect2(124, 20, 150, 52)
+## The dice box: die, sign, die, "=", each die with its numeral under it.
+## (The small talk box left of it went, Terrence 2026-11-04.)
+const TRAY := Rect2(250, 8, 460, 160)
+const DICE_Y := 64.0
+const DICE_XS := [370.0, 530.0]
+const OP_X := 450.0
+const EQ_X := 630.0
 const GEMS_AT := Vector2(752, 26)
 const BAR := Rect2(140, 516, 680, 10)
 const DEBUG_CORNER := Rect2(120, 0, 90, 60)
@@ -38,6 +43,7 @@ const FLICK_PX := 24.0
 const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
+const PALE := Color(0.82, 0.9, 1.05)  # the worried dragon goes a little pale
 ## Monster art and the scale it is drawn at on the crossing.
 const MONSTER_ART := {
 	"blorp": ["blorp-idle", 0.625],
@@ -55,11 +61,16 @@ const HERO_POSE := {
 	"hop-stretch": [0.9, 1.12, -0.08],
 	"hop-air": [1.0, 1.04, -0.14],
 }
+## The rocks ahead carry how far away they are (1 to 5), in the shields' look,
+## so the answer is the number on the rock.
+const STONE_NUM_Y := WATER_Y - 30.0
+## Monster names under the monster on the crossing.
+const NAME_Y := WATER_Y + 22.0
 ## Event rocks wear a marker (yellow treasure, red enemy) from the start; what
 ## is on them stays hidden until the dragon lands there. false hides the
 ## markers too, so every rock looks the same until it is reached.
 const MARKERS_AHEAD := true
-const MARKER_Y := WATER_Y - 60.0
+const MARKER_Y := WATER_Y - 104.0  # above the rock, clear of its number
 const MARKER_SCALE := 1.5
 
 var run: ScrollRun
@@ -79,10 +90,11 @@ var hero_x := SPACE0_X
 var hero_lift := 0.0
 var hero_frame := "idle-0"
 var hero_sink := 0.0
+var worried := 0.0     # 0..1 the worried face while sinking
+var stone_from := -1   # the space the rock numbers count from, -1 hides them
 var sink_space := -1
 var rock_sink := 0.0
 var beaten := {}       # monster spaces beaten this attempt
-var dropped := {}      # event spaces hopped past: 0..1 as their marker falls into the lava
 var revealed := -1     # the event space the dragon is on, its contents shown
 var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
 var lid_open := false
@@ -119,6 +131,7 @@ func _ready() -> void:
 	add_child(world)
 	world.draw.connect(_draw_world)
 	choice = ChoiceWidget.new()
+	choice.show_highlight = false
 	world.add_child(choice)
 	hud = Node2D.new()
 	hud.z_index = 2
@@ -137,8 +150,6 @@ func _ready() -> void:
 	add_child(overlay)
 	overlay.draw.connect(_draw_overlay)
 	_place_hero(run.pos)
-	for i in range(1, run.pos):
-		dropped[i] = 1.0
 	if run.phase == ScrollRun.AWAIT_FIGHT:
 		revealed = run.pos
 		reveal = 1.0
@@ -157,6 +168,7 @@ func _loop() -> void:
 			await _fight()
 			_save_progress()
 			continue
+		stone_from = run.pos
 		_ask("Roll!")
 		await _wait_for_roll()
 		var p := run.roll()
@@ -168,30 +180,47 @@ func _loop() -> void:
 		choice.present(rects, 0)
 		var pick: int = await choice.picked
 		var out := run.choose(pick)
-		for d in dice:
-			d.show_numeral()
-		await _hop_along(out["from"], out["to"])
-		if out["result"] != "sink":
-			await _drop_passed(out["from"], out["to"])
-		match out["result"]:
-			"sink":
-				await _sink(out["to"])
-				await _restart()
-			"chest":
-				await _reveal(out["to"])
-				await _open_chest(out["to"], out["gems"])
-			"monster":
-				await _reveal(out["to"])
-				_say("Fight!")
-				await _wait(0.5)
-				await _fight()
-			"goal":
-				pass
-			"hop":
-				_cheer("Yes!")
-				await _wait(0.3)
+		if out["right"]:
+			await _happy()
+			stone_from = -1
+			await _play_walk(out)
+		else:
+			stone_from = -1
+			await _hop_along(out["from"], out["to"])
+			await _sink(out["to"])
+			await _restart()
 		_hide_dice()
 		_save_progress()
+
+
+## A right answer's walk, rock by rock. Chests walked onto open on the way;
+## the walk ends at the target, the goal, or a monster (fight, then the rest
+## of the walk).
+func _play_walk(w: Dictionary) -> void:
+	var chest_gems := {}
+	for c in w["chests"]:
+		chest_gems[int(c["at"])] = int(c["gems"])
+	revealed = -1
+	var from: int = w["from"]
+	for i in range(from + 1, int(w["to"]) + 1):
+		revealed = -1
+		await _hop(_space_x(i - 1), _space_x(i))
+		Beeper.count(i - from)
+		_say(str(i - from))
+		if chest_gems.has(i):
+			await _bounce()
+			await _reveal(i)
+			await _open_chest(i, chest_gems[i])
+	await _bounce()
+	match w["result"]:
+		"monster":
+			await _reveal(int(w["to"]))
+			_say("Fight!")
+			await _wait(0.5)
+			await _fight()
+		"hop":
+			_cheer("Yes!")
+			await _wait(0.3)
 
 
 func _wait_for_roll() -> void:
@@ -203,11 +232,12 @@ func _wait_for_roll() -> void:
 
 
 ## Add: two wood dice. Subtract: the first die wood, the one taken away red.
+## Once they land each shows its numeral underneath, then the sign and "=".
 func _roll_dice(p: Dictionary) -> void:
 	Beeper.roll()
 	op_sign = "+" if p["op"] == "add" else "-"
 	op_alpha = 0.0
-	var xs := [TRAY.get_center().x - 80.0, TRAY.get_center().x + 80.0]
+	var xs := DICE_XS
 	for i in 2:
 		var d: DieView = dice[i]
 		var red: bool = i == 1 and p["op"] == "sub"
@@ -216,9 +246,10 @@ func _roll_dice(p: Dictionary) -> void:
 		d.roll_to(p["dice"][i], 0.12 * i)
 	while not (dice[0].face_on and dice[1].face_on):
 		await get_tree().process_frame
-	await _tween_prop("op_alpha", 1.0, 0.2)
 	for d in dice:
+		d.show_numeral()
 		d.countable = true
+	await _tween_prop("op_alpha", 1.0, 0.2)
 
 
 func _hide_dice() -> void:
@@ -252,13 +283,17 @@ func _fight() -> void:
 	debug_on = f.debug_on
 	await _fade_to(1.0)
 	f.queue_free()
+	var at := run.pos
 	var out := run.resolve_fight(won)
 	if out["restarted"]:
 		await _restart()
 	else:
-		beaten[run.pos] = true
+		beaten[at] = true
 		await _fade_to(0.0)
-		_cheer("Yes!")
+		await _happy()
+		if out.has("walk"):
+			_save_progress()
+			await _play_walk(out["walk"])
 
 
 func _cleared() -> void:
@@ -314,20 +349,21 @@ func _bounce() -> void:
 	hero_frame = "idle-0"
 
 
-## Treasures and enemies the dragon hopped over are gone: their markers tip
-## and fall into the lava once the dragon has passed them.
-func _drop_passed(from: int, to: int) -> void:
-	var passed := []
-	for i in range(from + 1, to):
-		if _event_at(i) != "" and not dropped.has(i):
-			passed.append(i)
-	if passed.is_empty():
-		return
-	Beeper.tone(200.0, 0.25, -12.0)
-	var fall := func(t: float) -> void:
-		for i in passed:
-			dropped[i] = t
-	await create_tween().tween_method(fall, 0.0, 1.0, 0.6).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD).finished
+## A right answer: the dragon jumps for joy, twice, on the spot.
+func _happy() -> void:
+	Beeper.good()
+	for k in 2:
+		hero_frame = "hop-squash"
+		await _wait(0.06)
+		hero_frame = "hop-stretch"
+		var up := func(t: float) -> void:
+			hero_lift = sin(t * PI) * 34.0
+			hero_frame = "hop-air" if t > 0.25 and t < 0.75 else "hop-stretch"
+		await create_tween().tween_method(up, 0.0, 1.0, 0.26).finished
+		hero_lift = 0.0
+	hero_frame = "hop-squash"
+	await _wait(0.06)
+	hero_frame = "idle-0"
 
 
 ## A wrong rock: it tips into the lava and the dragon sinks with a blorp.
@@ -335,6 +371,9 @@ func _sink(space: int) -> void:
 	sink_space = space
 	Beeper.blorp()
 	_say("Oops!")
+	# a worried look first, then down it goes still looking worried
+	await _tween_prop("worried", 1.0, 0.18)
+	await _wait(0.35)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 1.0, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tw.tween_property(self, "hero_sink", 1.0, 0.9).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -347,11 +386,11 @@ func _restart() -> void:
 	await _fade_to(1.0)
 	_hide_dice()
 	beaten.clear()
-	dropped.clear()
 	revealed = -1
 	sink_space = -1
 	rock_sink = 0.0
 	hero_sink = 0.0
+	worried = 0.0
 	_place_hero(0)
 	_say("Again!")
 	await _fade_to(0.0)
@@ -463,8 +502,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if tray_waiting and TRAY.has_point(pos) and tray_gate.accepts(Time.get_ticks_msec()):
 			_tray_down = true
 			_tray_down_at = pos
-		elif BUBBLE.has_point(pos) and question != "":
-			_say(question)
 		elif DEBUG_CORNER.has_point(pos):
 			_corner_down_ms = Time.get_ticks_msec()
 	else:
@@ -527,13 +564,8 @@ func _draw_world() -> void:
 		var m: Texture2D = tex["marker-treasure" if kind == "chest" else "marker-enemy"]
 		var bob := sin(_t * 2.5 + i * 0.7) * 3.0
 		var ms := m.get_size() * MARKER_SCALE
-		var fall: float = dropped.get(i, 0.0)
-		if fall >= 1.0:
-			continue
-		var at := Vector2(_space_x(i) + fall * 14.0, MARKER_Y + bob + fall * 80.0)
-		world.draw_set_transform(at, fall * 1.2, Vector2.ONE * (1.0 - fall * 0.4))
-		world.draw_texture_rect(m, Rect2(-ms / 2.0, ms), false, Color(1, 1, 1, 1.0 - fall * fall))
-		world.draw_set_transform(Vector2.ZERO)
+		world.draw_texture_rect(m, Rect2(Vector2(_space_x(i), MARKER_Y + bob) - ms / 2.0, ms), false)
+	_draw_stone_numbers()
 	# the dragon
 	_draw_hero()
 	# the monster on the rock just reached, beside the dragon and facing it
@@ -546,6 +578,9 @@ func _draw_world() -> void:
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
 		# the art faces right; a negative width mirrors it to face the dragon
 		world.draw_texture_rect(t, Rect2(c + Vector2(size.x / 2, -size.y - breathe), Vector2(-size.x, size.y + breathe)), false)
+		# its name underneath, in a fiery box
+		# (the mirrored rect lands one width right of c, so its middle is c.x + size.x)
+		_draw_name(Monsters.name_of(str(s["monster"])), Vector2(c.x + size.x, NAME_Y), reveal)
 	# the chest on the rock just reached, in front of the dragon so it stays in view
 	if revealed >= 0 and run.space_at(revealed).get("type") == "chest":
 		var t: Texture2D = tex["chest-open" if lid_open else "chest-closed"]
@@ -560,6 +595,37 @@ func _draw_world() -> void:
 			var e := gem_fly
 			var p := Vector2(_space_x(opening) + 46 + spread * minf(1.0, e * 2.0), FEET_Y - 60 - 120 * sin(minf(1.0, e * 1.4) * PI * 0.5))
 			world.draw_texture(gem, p - gem.get_size() / 2.0, Color(1, 1, 1, 1.0 - maxf(0.0, e - 0.7) / 0.3))
+
+
+## The numbers on the rocks ahead: how many spaces away each one is, drawn
+## like the numerals on the fight shields (dark with a light outline).
+func _draw_stone_numbers() -> void:
+	if stone_from < 0:
+		return
+	var font := ThemeDB.fallback_font
+	var m := mini(int(run.grade["move"]["max_answer"]), run.length() - stone_from)
+	for d in range(1, m + 1):
+		var i := stone_from + d
+		if i == sink_space:
+			continue
+		var c := Vector2(_space_x(i), STONE_NUM_Y)
+		if i >= run.length():
+			c.y = FEET_Y + 40.0  # the far shore: on the ledge face
+		world.draw_string_outline(font, c + Vector2(-50, 17), str(d), HORIZONTAL_ALIGNMENT_CENTER, 100, 48, 6,
+				Color(1, 0.95, 0.85))
+		world.draw_string(font, c + Vector2(-50, 17), str(d), HORIZONTAL_ALIGNMENT_CENTER, 100, 48,
+				Color(0.08, 0.06, 0.05))
+
+
+func _draw_name(text: String, center: Vector2, alpha: float) -> void:
+	if alpha <= 0.0:
+		return
+	var font := ThemeDB.fallback_font
+	var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
+	var box := Rect2(center.x - w / 2.0, center.y, w, 36)
+	RoundBox.fire(world, box, _t, 12.0)
+	world.draw_string_outline(font, box.position + Vector2(0, 26), text, HORIZONTAL_ALIGNMENT_CENTER, w, 22, 6, DARK)
+	world.draw_string(font, box.position + Vector2(0, 26), text, HORIZONTAL_ALIGNMENT_CENTER, w, 22, INK)
 
 
 ## "chest" or "monster" while that space still holds something, else "".
@@ -584,7 +650,8 @@ func _draw_hero() -> void:
 	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * 120.0)
 	var pos := feet - Vector2(t.get_width() / 2.0, t.get_height())
 	if hero_sink > 0.0:
-		_draw_clipped(t, pos, WATER_Y - 4.0, 1.0)
+		_draw_clipped(t, pos, WATER_Y - 4.0, 1.0, PALE)
+		_draw_worried(pos, WATER_Y - 4.0)
 		# bubbles where it went under
 		for k in 4:
 			var ph := fmod(_t * 1.7 + k * 0.27, 1.0)
@@ -595,17 +662,43 @@ func _draw_hero() -> void:
 		# squash, stretch and tilt about the feet
 		var pose: Array = HERO_POSE.get(hero_frame, HERO_POSE["idle-0"])
 		world.draw_set_transform(feet, pose[2], Vector2(pose[0], pose[1]))
-		world.draw_texture(t, Vector2(-t.get_width() / 2.0, -t.get_height()))
+		var shake := Vector2(sin(_t * 40.0) * 2.0 * worried, 0)
+		world.draw_texture(t, Vector2(-t.get_width() / 2.0, -t.get_height()) + shake, Color.WHITE.lerp(PALE, worried))
 		world.draw_set_transform(Vector2.ZERO)
+		if worried > 0.0:
+			_draw_worried(pos + shake, INF)
+
+
+## The worried face, drawn over the sprite in its own pixels (93 x 115, the
+## big eye at about x 33..68, y 28..50): a brow raised toward the snout and
+## sweat drops, with a tremble and a pale tint. Only what is above line_y shows.
+func _draw_worried(top_left: Vector2, line_y: float) -> void:
+	var a := worried
+	var ink := Color(0.12, 0.1, 0.16, a)
+	# the brow, just over the eye: low at the outer end, steeply up toward the
+	# snout (worried, not cross)
+	for k in 8:
+		var p := top_left + Vector2(31 + k * 3.5, 27 - k * 1.9)
+		if p.y < line_y:
+			world.draw_rect(Rect2(p.round(), Vector2(5, 5)), ink)
+	# two sweat drops by the head, sliding down
+	for j in 2:
+		var drop := top_left + Vector2(18 - j * 10, 8 + j * 14 + fmod(_t * 12.0 + j * 4.0, 10.0))
+		if drop.y + 12 >= line_y:
+			continue
+		var blue := Color(0.6, 0.88, 1.0, a)
+		world.draw_circle(drop + Vector2(0, 7), 6.0, blue)
+		world.draw_colored_polygon(PackedVector2Array([drop + Vector2(-5.5, 6), drop + Vector2(0, -5), drop + Vector2(5.5, 6)]), blue)
+		world.draw_rect(Rect2(drop + Vector2(-3, 5), Vector2(2, 2)), Color(1, 1, 1, a))
 
 
 ## Draws only the part of a sprite above the lava line, so it sinks into it.
-func _draw_clipped(t: Texture2D, pos: Vector2, line_y: float, alpha: float) -> void:
+func _draw_clipped(t: Texture2D, pos: Vector2, line_y: float, alpha: float, tint := Color.WHITE) -> void:
 	var h := clampf(line_y - pos.y, 0.0, t.get_height())
 	if h <= 0.0:
 		return
 	world.draw_texture_rect_region(t, Rect2(pos, Vector2(t.get_width(), h)), Rect2(0, 0, t.get_width(), h),
-			Color(1, 1, 1, alpha))
+			Color(tint, alpha))
 
 
 func _draw_goal(base: Vector2) -> void:
@@ -627,13 +720,11 @@ func _draw_hud() -> void:
 		hud.draw_string_outline(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, 8, DARK)
 		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
 	if op_alpha > 0.0:
-		# plus or minus between the dice, coloured and gently pulsing
-		DiceDraw.draw_op(hud, Vector2(TRAY.get_center().x, DICE_Y), op_sign, 44.0, _t, op_alpha)
-	# speech bubble (tap it to hear the question again)
-	if bubble != "":
-		RoundBox.fire(hud, BUBBLE, _t, 18.0)
-		hud.draw_string_outline(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, 7, DARK)
-		hud.draw_string(font, BUBBLE.position + Vector2(0, 37), bubble, HORIZONTAL_ALIGNMENT_CENTER, BUBBLE.size.x, 30, INK)
+		# plus or minus between the dice, coloured and gently pulsing, then "="
+		DiceDraw.draw_op(hud, Vector2(OP_X, DICE_Y), op_sign, 44.0, _t, op_alpha)
+		var eq := Color(INK, op_alpha)
+		hud.draw_string_outline(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8, Color(DARK, op_alpha))
+		hud.draw_string(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, eq)
 	# gems
 	var gem: Texture2D = tex["gem"]
 	hud.draw_texture(gem, GEMS_AT)
@@ -646,8 +737,6 @@ func _draw_hud() -> void:
 	for i in range(1, n + 1):
 		var x := BAR.position.x + BAR.size.x * i / n
 		var s := run.space_at(i)
-		if dropped.get(i, 0.0) >= 1.0:
-			continue
 		if s.get("type") == "chest" and not run.looted.has(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.8, 0.2))
 		elif s.get("type") == "monster" and not beaten.has(i):

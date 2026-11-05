@@ -103,3 +103,47 @@ func test_save_resume() -> bool:
 	if run.phase == ScrollRun.AWAIT_ROLL:
 		eq(again.roll(), run.roll(), "resumed run rolls the same problem")
 	return true
+
+
+## Rigs the next move so the right answer is `dist` spaces ahead.
+func _force_move(run: ScrollRun, dist: int) -> int:
+	run.roll()
+	run.problem["answer_index"] = dist - 1
+	return dist - 1
+
+
+## Walking over a chest opens it on the way; walking over a monster stops
+## there for the fight, and a win finishes the walk.
+func test_walking_over_triggers() -> bool:
+	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 5)
+	run.pos = 2
+	run.target = 2
+	var out := run.choose(_force_move(run, 5))  # 3..7 passes the chest on 4
+	check(out["result"] == "hop" and out["to"] == 7, "walked to 7: %s" % str(out))
+	eq(out["chests"].size(), 1, "one chest on the way")
+	check(out["chests"][0]["at"] == 4 and run.looted.has(4), "the chest on 4 opened")
+	check(run.gems == out["gems"] and out["gems"] >= 2, "its gems counted")
+	out = run.choose(_force_move(run, 5))  # 8..12 meets Blorp on 9
+	check(out["result"] == "monster" and out["to"] == 9 and run.pos == 9, "stopped at the monster: %s" % str(out))
+	check(run.phase == ScrollRun.AWAIT_FIGHT and run.target == 12, "fight pending, walk not done")
+	var save := run.to_save()
+	var again := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], save["seed"])
+	again.restore(save)
+	eq(again.to_save(), save, "resume mid-walk")
+	var won := run.resolve_fight(true)
+	check(won.has("walk") and won["walk"]["to"] == 12 and run.pos == 12, "won fight finishes the walk: %s" % str(won))
+	check(run.phase == ScrollRun.AWAIT_ROLL and run.target == 12, "back to rolling")
+	run.choose(_force_move(run, 1))  # lands on the chest on 13
+	check(run.looted.has(13), "landing on a chest still opens it")
+	return true
+
+
+func test_lost_fight_on_the_way_restarts() -> bool:
+	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 6)
+	run.pos = 7
+	run.target = 7
+	run.choose(_force_move(run, 4))
+	check(run.pos == 9 and run.phase == ScrollRun.AWAIT_FIGHT, "met the monster on 9")
+	var out := run.resolve_fight(false)
+	check(out["restarted"] and run.pos == 0 and run.target == 0 and not out.has("walk"), "lost: back to the start")
+	return true

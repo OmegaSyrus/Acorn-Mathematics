@@ -19,11 +19,14 @@ const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 
-const HERO_POS := Vector2(250, 372)
-const MONSTER_POS := Vector2(690, 372)
+## Feet a little higher than before and the shields a little lower, so the
+## monster's name fits under it (Terrence 2026-11-04). The monster's middle
+## sits at MONSTER_POS.x, inside the 4:3 safe area.
+const HERO_POS := Vector2(250, 350)
+const MONSTER_POS := Vector2(728, 350)
 const MONSTER_SIZE := Vector2(150, 170)
 const DICE_Y := 128.0
-const SHIELD_Y := 455.0
+const SHIELD_Y := 472.0
 const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
@@ -43,9 +46,9 @@ const HERO_ART_SCALE := 1.5
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 const SHIELD_TEX := preload("res://art/ui/shield.png")
-const SHIELD_ART_SCALE := 1.2
-const NAME_RIGHT := 842.0   # the name box hugs the right edge of the safe area
-const NAME_Y := 58.0
+const SHIELD_ART_SCALE := 1.1
+const NAME_GAP := 14.0      # from the monster's feet down to its name box
+const NAME_RIGHT := 842.0   # the name box never runs past the safe area
 const MONSTER_COLORS := {
 	"blorp": Color(0.85, 0.35, 0.12),
 	"craggy": Color(0.5, 0.48, 0.45),
@@ -73,6 +76,7 @@ var clang := 0.0
 var bubble := ""
 var monster_tex: Texture2D
 var monster_scale := 1.0
+var hero_lift := 0.0
 var _t := 0.0
 
 
@@ -96,6 +100,7 @@ func _ready() -> void:
 		d.pip_tapped.connect(_on_pip_tapped)
 		dice.append(d)
 	choice = ChoiceWidget.new()
+	choice.show_highlight = false
 	add_child(choice)
 	if MONSTER_ART.has(fight.monster_id):
 		monster_tex = load(MONSTER_ART[fight.monster_id][0])
@@ -106,7 +111,7 @@ func _ready() -> void:
 # --- the exchange loop -----------------------------------------------------
 
 func _loop() -> void:
-	_say(Monsters.name_of(fight.monster_id))
+	_say("Fight!")  # its name sits under it now
 	await _wait(0.8)
 	while true:
 		await _wind_up()
@@ -120,6 +125,7 @@ func _loop() -> void:
 				d.show_numeral()
 		_say(str(out["answer"]))
 		if out["right"]:
+			await _happy()
 			await _parry()
 		else:
 			await _hit()
@@ -190,6 +196,15 @@ func _parry() -> void:
 	await _tween_prop("hero_dx", 0.0, 0.25)
 	await _wait(0.35)
 	monster_state = "idle"
+
+
+## A right answer: the hero jumps for joy, twice, before blocking.
+func _happy() -> void:
+	for k in 2:
+		var up := func(t: float) -> void:
+			hero_lift = sin(t * PI) * 40.0
+		await create_tween().tween_method(up, 0.0, 1.0, 0.24).finished
+	hero_lift = 0.0
 
 
 ## Wrong answer: the swing lands and the hero loses a heart.
@@ -281,15 +296,16 @@ func _draw() -> void:
 	draw_texture_rect(BG_TEX, Rect2(0, 0, 960, 540), false)
 	_draw_hearts(Vector2(140, 30), fight.hero_hearts, 3)
 	_draw_hearts(Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30), fight.monster_hearts, fight.monster_max_hearts)
-	# the enemy's name in a fiery box, top right under its hearts
-	var name := Monsters.name_of(fight.monster_id)
-	var w := maxf(160.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x + 36.0)
-	var box := Rect2(NAME_RIGHT - w, NAME_Y, w, 40)
-	RoundBox.fire(self, box, _t, 14.0)
-	_outlined(font, box.position + Vector2(0, 29), name, box.size.x, 24)
 	_draw_target(font)
-	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0))
+	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0 - hero_lift))
 	_draw_monster(font)
+	# the enemy's name in a fiery box, under it
+	var name := Monsters.name_of(fight.monster_id)
+	var w := font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
+	var nx := minf(MONSTER_POS.x - w / 2.0, NAME_RIGHT - w)
+	var box := Rect2(nx, MONSTER_POS.y + NAME_GAP, w, 34)
+	RoundBox.fire(self, box, _t, 12.0)
+	_outlined(font, box.position + Vector2(0, 25), name, box.size.x, 22)
 	if shields_shown or revealed:
 		_draw_shields(font)
 	if bubble != "":
@@ -388,7 +404,8 @@ func _draw_monster(font: Font) -> void:
 	if monster_tex != null:
 		# the art faces right; a negative width mirrors it to face the hero
 		var ts := monster_tex.get_size() * monster_scale * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
-		var tr := Rect2(c + Vector2(ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
+		# a mirrored rect spans position .. position + |size|, so this centers it on c
+		var tr := Rect2(c + Vector2(-ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
 		var glow := 1.0 + monster_flash * 2.0
 		draw_texture_rect(monster_tex, tr, false, Color(glow, glow, glow, col.a))
 		if debug_on:
