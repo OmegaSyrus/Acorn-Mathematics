@@ -88,25 +88,30 @@ about 10 dB while she speaks (`game/music.gd` already leaves room for this).
 
 ## 4. Talking: mouth frames
 
-- **Frames:** 2 or 3 hand-made mouth frames on top of the approved art:
-  closed (the existing small closed smile), half open, and open. Plus one blink
-  frame. These are small pixel edits on the face only, done by hand in Aseprite
-  (Terrence's final touch-up) or by me as free pixel edits for Terrence to check.
-  They are needed on two images: the full body (where the mouth is only a few
-  pixels wide, so 2 frames may be enough) and the 96 px bust.
+Terrence, 2026-11-06: the menu shows her full body, and the mouth frames are
+drawn with PixelLab for now.
+
+- **Done (2026-11-06):** four frames of the full body, all 160 by 256, in
+  `art/ellwynn/` (copies in `/mnt/project-files/sum-dungeon/ellwynn-intro/mouth-frames/`):
+  `fullbody-closed.png` (the approved C2 final, unchanged), `fullbody-mouth-half.png`,
+  `fullbody-mouth-open.png` and `fullbody-blink.png`.
+- **How they were made:** PixelLab Pro Flash inpaint on a 64 by 64 crop of her
+  face, with only an 11 by 8 box over the mouth (or a 23 by 8 box over the eyes
+  for the blink) allowed to change. Everything outside the box stays pixel for
+  pixel the same, then the crop goes back into the full body. The changed
+  pixels (36 to 128 per frame) were snapped to colours already in the full body,
+  so the palette holds. Cost: 3 jobs at 5 generations, 15 of the 9,840 left this
+  month. The 12 fixed details are untouched, because only the mouth and eyes changed.
+- **Why not PixelLab's talking tool:** `create_vocal_animation` only works on a
+  bust portrait and redraws the whole face, so the inpaint box was the safer way
+  to keep the locked face.
+- **The 96 px bust** (for the quick "yay" pop-in) has no mouth frames yet. The
+  same method costs another 5 generations a frame when it is needed.
 - **Timing:** each voice file gets a small mouth track made offline by a script:
   it measures the loudness of the audio every 1/15 s and picks closed, half or
   open. The track ships as a small JSON next to the audio, so the game just
-  plays it back in time with the sound. No lip-sync tool is needed for this.
-- **Tools:** RetroDiffusion does no lip-sync. **Correction to our earlier note:**
-  PixelLab now has a mouth tool (`create_vocal_animation`) that makes mouth
-  frames for a bust portrait up to 256 px, driven by text rather than audio.
-  Its docs list about 6 plan generations at 128 px and 24 at 256 px, out of the
-  roughly 10,000 a month on the plan, so it is close to free. It does not work
-  on a full body sprite, and it would redraw her face, so it would need checking
-  against the 12 fixed details. I suggest hand-made frames first, and the
-  PixelLab tool only if the hand-made ones look stiff.
-
+  plays it back in time with the sound. The blink plays on its own timer.
+- `talk-test.gif` in the shared folder shows the frames cycling as a rough check.
 
 ## 5. Voice: production steps and cost
 
@@ -133,17 +138,17 @@ pays for**. The plan includes the commercial licence needed for Steam and Xbox.
 
 ## 6. Build order (once the questions are answered)
 
-1. Ellwynn node with idle bob, blink and mouth track playback (no new art, using placeholders for the extra frames).
+1. Ellwynn node with idle bob, blink and mouth track playback, using the four frames in `art/ellwynn/`.
 2. Main menu spot, intro, replay, button reactions, save flag.
 3. Voice queue and music ducking.
 4. In-play cues: enemy "yay" pop-in, chest voice, boss congratulation, questions read aloud.
-5. Generate each real line as it is written, and make the mouth frames.
+5. Generate each real line as it is written.
 
 
 ## 7. Questions for Terrence
 
-1. **Main menu:** is the full body standing bottom left right, or would you rather have the 96 px bust in a corner there too?
-2. **Pose:** are code moves (hop, lean, wave-like tilt) on the one approved image enough for now, or do you want a real pointing or waving pose? That would be new art, PixelLab first.
-3. **Mouth frames:** shall I make the 2 or 3 mouth frames and the blink as free hand edits for you to check, or will you draw them in Aseprite?
-4. **How often:** is "about 1 in 3 enemies" right for the quick "Yay!" pop-in, and should every chest get a line or only some?
-5. **Boss win:** should she appear full body beside the hero when a region's boss is beaten?
+Answered 2026-11-06: the menu shows her full body; I draw the mouth frames with PixelLab.
+
+1. **Pose:** are code moves (hop, lean, wave-like tilt) on the one approved image enough for now, or do you want a real pointing or waving pose? That would be new art, PixelLab first.
+2. **How often:** is "about 1 in 3 enemies" right for the quick "Yay!" pop-in, and should every chest get a line or only some?
+3. **Boss win:** should she appear full body beside the hero when a region's boss is beaten?
