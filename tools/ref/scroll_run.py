@@ -8,6 +8,21 @@ AWAIT_FIGHT = "await_fight"
 CLEARED = "cleared"
 
 
+def chest_draw(cfg, rng):
+    """One chest's gems: {common, rare, rare_in} is rare when randi_range(1, rare_in) == rare_in;
+    an [lo, hi] pair draws randi_range(lo, hi)."""
+    if isinstance(cfg, list):
+        return rng.randi_range(cfg[0], cfg[1])
+    n = cfg["rare_in"]
+    return cfg["rare"] if rng.randi_range(1, n) == n else cfg["common"]
+
+
+def chest_range(cfg):
+    if isinstance(cfg, list):
+        return cfg[0], cfg[1]
+    return min(cfg["common"], cfg["rare"]), max(cfg["common"], cfg["rare"])
+
+
 class ScrollRun:
     def __init__(self, area, grade, seed):
         self.area = area
@@ -112,8 +127,7 @@ class ScrollRun:
                 self.phase = AWAIT_FIGHT
                 break
             if space is not None and space["type"] == "chest" and self.pos not in self.looted:
-                lo, hi = self.area["chest_gems"]
-                g = self.rng.randi_range(lo, hi)
+                g = chest_draw(self.area["chest_gems"], self.rng)
                 self.looted.append(self.pos)
                 self.gems += g
                 total += g

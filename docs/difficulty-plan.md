@@ -1,10 +1,12 @@
-# Difficulty plan v4: levels world by world, more dice, more stones
+# Difficulty plan v5: levels world by world, more dice, more stones
 
-Status: plan (2026-11-06, v4). Nothing below is built yet except the store fix noted at
-the end. History: v1 (2026-11-05) was checked by a Fable review and against the existing
+Status: plan (2026-11-06, v5). Built so far: the store fix noted at the end, and (v5,
+2026-11-06) Lava 1's scarcer chests, Red and Green Bolt in the shop, livelier chest gems
+and the dragon's gem bucket (section 6.5). History: v1 (2026-11-05) was checked by a Fable review and against the existing
 plans (design doc v0.19, the 2026-10-29 review, the repo content), which gave v2; four
 Opus reviews gave v3 (their notes are in `docs/plan-reviews/`); Terrence answered v3's
-questions on 2026-11-06, which gives this version (section 9).
+questions on 2026-11-06, which gave v4, and v4's last four the same day, which gives
+this version (section 9).
 
 Asked for by Terrence after the 0.11.0 tablet test: his 4.5 year old had no trouble with
 today's Acorn crossing (two dice, add or take away, answers 1 to 5, five stones), so the
@@ -17,33 +19,36 @@ design doc v0.19 or by Terrence, **[proposal]** is new in this plan.
 
 ## Summary
 
-- **Each world has its own six levels, and each world picks up where the one before
-  left off**: Lava Caves is the easiest, Space the hardest. 30 levels in all, named by
-  world and number (Lava 1 to Lava 6, Crystal 1 to 6, Bog 1 to 6, Mushroom 1 to 6,
-  Space 1 to 6), each tagged with its age band (Acorn, Sprout, Sapling, Oak) as the
+- **Each world has its own six or seven levels, and each world picks up where the one
+  before left off**: Lava Caves is the easiest, Space the hardest. 31 levels in all,
+  named by world and number (Lava 1 to Lava 6, Crystal 1 to 6, Bog 1 to 6, Mushroom 1
+  to 7, Space 1 to 6), each tagged with its age band (Acorn, Sprout, Sapling, Oak) as the
   parent's hint. [decided structure, proposal for the levels]
 - **Lava 1 is today's crossing** [built]. **Lava 2 is the son's next step**: two dice,
   answers to 8, 8 stones, 46 spaces (about 11 moves). [decided]
 - **Each world's idea fits its math**: Lava adds and takes away with two dice, then a
   third; the Crystal Mines count along the rails to 18 and make ten; the Bog takes away
   and hides a die; the Mushroom Forest adds four dice in pairs and takes away across ten;
-  Space numbers its track by place and starts times with equal dice.
+  Space numbers its track by place and stays within 20 [decided 2026-11-06].
 - **Worlds open as v0.19 says**: beating a world's boss at any of its levels opens the
-  next world, and every level of an open world is open, with marks. [decided]
+  next world, and every level of an open world is open, with marks. A parent can also
+  open a later world straight away for an older child. [decided]
 - **Stones**: Lava 1 stays at today's 1x view. Every other level shows the crossing at
   half size, smoothed (filtered), with the stones spread to fill the screen. Levels whose
   stones run past the screen edge add **drag to scroll**, with landmark stones.
   [decided: smoothing]
 - **Generator v1.2**: answer first, then a sign pattern that can make it, then the dice;
-  new kinds for the hidden die, equal dice and mixed rolls. Lava 1 keeps today's draw
+  new kinds for the hidden die and mixed rolls. Lava 1 keeps today's draw
   exactly.
 - **Crossings are about 13 moves** (Lava 2 about 11; Space at most 99 spaces). Always 5
-  chests, and **treasure grows with the level**: 2 to 4 per chest at levels 1 and 2 of a
-  world, 3 to 5 at levels 3 and 4, 4 to 6 at levels 5 and 6.
+  chests. **Treasure is scarce and grows a little with the level** [decided 2026-11-06]:
+  a chest gives 1, sometimes 2; the 2 comes more often at higher levels; beating a
+  world's boss gives a bucket of its currency. Lava 1 is built this way now.
 - **Fights use the level's own question** from Lava 2 up; Lava 1 keeps today's one die
   fight; the old Sprout, Sapling and Oak fight rules stay for the graybox. [decided]
-- **Bolt's colors**: the store sells red, black, green, purple and pink for the robot
-  dragon, recolored in code, priced in gems. [decided idea, proposal for prices]
+- **Bolt's colors**: red, black, green, purple and pink for the robot dragon, recolored
+  in code. Red Bolt (10 gems) and Green Bolt (15) are built and sold in the Lava shop
+  beside Sir Blob (25); black, purple and pink come with later worlds.
 - **Save v2**: level ids are world x 10 + level (Lava 1 = 11, the old Acorn id 1
   migrates to it). The graybox grades 2 to 4 stay.
 
@@ -67,13 +72,12 @@ design doc v0.19 or by Terrence, **[proposal]** is new in this plan.
   [decided, v0.19]. The boss run is played at the level the child picked.
 - **A child who outgrows Lava** plays Lava 5 or 6, beats Fafnir's Bones there, and the
   Crystal Mines open with all six levels. To reach harder math they go world by world,
-  one boss at a time (whether a parent may open a later world directly is in "Still
-  open").
+  one boss at a time, or a parent opens a later world directly [decided 2026-11-06].
 - **Each step is small.** One new thing per level: a bigger range, one more die, a red
   die, a new way of reading the stones, or a hidden die. The first level of each world
   is a short step from the last level of the world before.
 
-### 1.3 The 30 levels: math and view
+### 1.3 The 31 levels: math and view
 
 Signs: `+` is a plain die added, `-` is a red die taken away; red dice sit at the right
 end. "Stones" is how many numbered stones are offered (fewer near the far shore).
@@ -114,7 +118,7 @@ numbered again.
 | Bog 3 | 6 | `++`, second die hidden | 1 to 6 | 6 | half, 110 | the missing die: `[4] + [?] = 9` |
 | Bog 4 | 6 | `++` or `+-`, second die hidden | 1 to 6 | 6 | half, 110 | a hidden red die: `[6] - [?] = 2` |
 | Bog 5 | 6 to 7 | `+++`, any die hidden | 1 to 6 | 6 | half, 110 | missing among three, total to 18 |
-| Bog 6 | 6 to 7 | `++-`, any die hidden | 1 to 6 | 6 | half, 110 | missing among three with a red die |
+| Bog 6 | 6 to 7 | each roll a Bog 2 or a Bog 4 roll | 1 to 18 | 18 | half, 60, drag | the Wisp chase: take away and the hidden die mixed |
 
 **Mushroom Forest: four dice in pairs, then take away across ten** (Sapling, then Oak)
 
@@ -123,24 +127,26 @@ numbered again.
 | Mushroom 1 | 6 to 7 | `++++`, pairs | 4 to 20 | 20 | half, 60, drag | four dice; the first two a double half the time it fits |
 | Mushroom 2 | 6 to 7 | `++++`, `+++-`, pairs | 1 to 20 | 20 | half, 60, drag | a red die among four |
 | Mushroom 3 | 7 | `++++`, `+++-`, `++--`, pairs | 1 to 20 | 20 | half, 60, drag | two red dice among four |
-| Mushroom 4 | 7 | `++++`, any die hidden | 1 to 6 | 6 | half, 110 | missing among four, total to 24 |
-| Mushroom 5 | 7 | `++-`, `+++-`, across ten | 5 to 9 | 9 | half, 73 | take away across ten: the plain dice make 11 or more |
-| Mushroom 6 | 7 to 8 | `++-`, `+++-`, `++--`, across ten | 1 to 9 | 9 | half, 73 | across ten with two red dice |
+| Mushroom 4 | 7 | `++-`, any die hidden | 1 to 6 | 6 | half, 110 | missing among three with a red die (moved from the Bog, 2026-11-06) |
+| Mushroom 5 | 7 | `++++`, any die hidden | 1 to 6 | 6 | half, 110 | missing among four, total to 24 |
+| Mushroom 6 | 7 | `++-`, `+++-`, across ten | 5 to 9 | 9 | half, 73 | take away across ten: the plain dice make 11 or more |
+| Mushroom 7 | 7 to 8 | `++-`, `+++-`, `++--`, across ten | 1 to 9 | 9 | half, 73 | across ten with two red dice |
 
-**Space: the star track, within 20, and the start of times** (Oak). On every Space level
+**Space: the star track, within 20** (Oak). On every Space level
 the star stones show their place on the track, not how far away they are (section 2).
 
 | Level | Age | Dice and signs | Answers | Stones | View, step | New at this level |
 |---|---|---|---|---|---|---|
 | Space 1 | 7 | every three and four dice pattern | 1 to 20 | 20 | half, 60, drag | track places: "on 23, the dice make 7, find 30" |
 | Space 2 | 7 | `+++-`, any die hidden | 1 to 6 | 6 | half, 110 | missing among four with a red die |
-| Space 3 | 7 to 8 | two or three equal dice | 2, 3, 4, 6, 8, 9, 10, 12, 15, 18 | 18 | half, 60, drag | equal groups: three 4s make 12 |
-| Space 4 | 7 to 8 | two to four equal dice | as Space 3, plus 16 and 20 | 20 | half, 60, drag | four equal groups |
-| Space 5 | 8 | three or four dice, all equal but the last | 4 to 15 | 15 | half, 60, drag | groups and one more: 4 + 4 + 4 + 3 |
-| Space 6 | 8 | each roll one of Space 1, 2 or 5 | 1 to 20 | 20 | half, 60, drag | Fenrir's chase: everything mixed |
+| Space 3 | 7 to 8 | `++++`, `+++-`, `++--`, ten pairs | 1 to 20 | 20 | half, 60, drag | make ten among four dice, counted on from a track place |
+| Space 4 | 7 to 8 | `++--`, any die hidden | 1 to 6 | 6 | half, 110 | missing among four with two red dice |
+| Space 5 | 8 | `++-`, `+++-`, `++--`, across ten | 1 to 9 | 9 | half, 73 | take away across ten from a track place: "on 34, take away 7, find 27" |
+| Space 6 | 8 | each roll one of Space 1 to 5 | 1 to 20 | 20 | half, 60, drag | Fenrir's chase: everything mixed |
 
-Space 3 to 6 go past v0.19's "within 20" toward its "times later" with dice only (equal
-dice are repeated adding). [proposal; see "Still open"]
+Space stays within 20 (Terrence 2026-11-06); times stay a later grade, as v0.19 says.
+Every Space level is harder than the same math elsewhere because the stones show track
+places, so the child adds onto or takes away from a bigger number.
 
 ### 1.4 What each pattern can make, and the tells
 
@@ -164,9 +170,8 @@ Tells that come from real math and are kept (the spec states them):
   mid-crossing (three dice make at least 3).
 - Crystal 6, Bog 1 and 2: answers 12 to 18 are always all plain. Mushroom 2 and 3,
   Space 1: answers 18 to 20 are always all plain.
-- Mushroom 5: stones 1 to 4 are never right mid-crossing (one red die takes at most 6
-  from 11 or more). Mushroom 6: answers 1 to 4 always come as `++--`.
-- Space 3 and 4: only products are right (5, 7, 11, 13, 14, 17, 19 never are).
+- Mushroom 6: stones 1 to 4 are never right mid-crossing (one red die takes at most 6
+  from 11 or more). Mushroom 7 and Space 5: answers 1 to 4 always come as `++--`.
 
 ### 1.5 One crossing at each level
 
@@ -177,36 +182,37 @@ at most two digits. Monsters: 3 under 70 spaces, 4 from 70. Chests: always 5.
 
 | Level | Mean answer | Length | Moves | Monsters | Chest | Fight swing | Fight top | Boss rule |
 |---|---|---|---|---|---|---|---|---|
-| Lava 1 | 3.25 | 40 [built] | 12.9 | 3 | 2 to 4 | one die, pick its numeral [built] | 6 | match 1 to 3 [built] |
-| Lava 2 | 4.50 | 46 | 11.3 | 3 | 2 to 4 | Lava 2 question | 8 | match 1 to 3 |
-| Lava 3 | 5.50 | 65 | 13.1 | 3 | 3 to 5 | Lava 3 question | 10 | match 1 to 6 |
-| Lava 4 | 6.50 | 75 | 12.9 | 4 | 3 to 5 | Lava 4 question | 12 | match 1 to 6 |
-| Lava 5 | 6.00 | 73 | 13.0 | 4 | 4 to 6 | three dice, 3 to 9 | 9 | match 1 to 6 |
-| Lava 6 | 7.00 | 84 | 13.0 | 4 | 4 to 6 | three dice, 3 to 11 | 11 | match 1 to 6 |
-| Crystal 1 | 7.00 | 84 | 13.0 | 4 | 2 to 4 | three dice, 3 to 11 | 11 | sum |
-| Crystal 2 | 8.50 | 101 | 13.0 | 4 | 2 to 4 | three dice | 12 | sum |
-| Crystal 3 | 10.50 | 123 | 13.0 | 4 | 3 to 5 | three dice | 12 | sum |
-| Crystal 4 | 10.50 | 123 | 13.0 | 4 | 3 to 5 | three dice, ten pairs | 12 | sum |
-| Crystal 5 | 6.00 | 70 | 13.0 | 4 | 4 to 6 | `++-` | 11 | sum |
-| Crystal 6 | 9.50 | 107 | 13.0 | 4 | 4 to 6 | Crystal 6 question | 12 | sum |
-| Bog 1 | 9.50 | 107 | 13.0 | 4 | 2 to 4 | Bog 1 question | 12 | sum |
-| Bog 2 | 9.50 | 107 | 13.0 | 4 | 2 to 4 | Bog 2 question | 12 | sum |
-| Bog 3 | 3.50 | 43 | 13.1 | 3 | 3 to 5 | missing die (die and target) | 12 | sum |
-| Bog 4 | 3.50 | 43 | 13.1 | 3 | 3 to 5 | missing die, plain or red | 12 | sum |
-| Bog 5 | 3.50 | 43 | 13.1 | 3 | 4 to 6 | missing among three | 12 | sum |
-| Bog 6 | 3.50 | 43 | 13.1 | 3 | 4 to 6 | missing among three, red | 12 | sum |
-| Mushroom 1 | 12.00 | 140 | 13.0 | 4 | 2 to 4 | four dice | 12 | sum |
-| Mushroom 2 | 10.50 | 117 | 13.0 | 4 | 2 to 4 | four dice, one red | 12 | sum |
-| Mushroom 3 | 10.50 | 117 | 13.0 | 4 | 3 to 5 | four dice, two red | 12 | sum |
-| Mushroom 4 | 3.50 | 43 | 13.1 | 3 | 3 to 5 | missing among four | 12 | sum |
-| Mushroom 5 | 7.00 | 85 | 13.1 | 4 | 4 to 6 | across ten | 9 | difference |
-| Mushroom 6 | 5.00 | 59 | 13.0 | 3 | 4 to 6 | across ten | 9 | difference |
-| Space 1 | 10.50 | 99 (cap) | 11.3 | 4 | 2 to 4 | Space 1 question | 12 | difference |
-| Space 2 | 3.50 | 43 | 13.1 | 3 | 2 to 4 | missing among four, red | 12 | difference |
-| Space 3 | 8.70 | 99 (cap) | 12.9 | 4 | 3 to 5 | equal dice | 12 | difference |
-| Space 4 | 10.25 | 99 (cap) | 11.3 | 4 | 3 to 5 | equal dice | 12 | difference |
-| Space 5 | 9.50 | 99 (cap) | 11.6 | 4 | 4 to 6 | groups and one more | 12 | difference |
-| Space 6 | 8.67 | 90 | 13.0 | 4 | 4 to 6 | mixed | 12 | difference |
+| Lava 1 | 3.25 | 40 [built] | 12.9 | 3 | 1, rare 2 (1 in 6) [built 2026-11-06] | one die, pick its numeral [built] | 6 | match 1 to 3 [built] |
+| Lava 2 | 4.50 | 46 | 11.3 | 3 | 1, rare 2 (1 in 6) | Lava 2 question | 8 | match 1 to 3 |
+| Lava 3 | 5.50 | 65 | 13.1 | 3 | 1, rare 2 (1 in 4) | Lava 3 question | 10 | match 1 to 6 |
+| Lava 4 | 6.50 | 75 | 12.9 | 4 | 1, rare 2 (1 in 4) | Lava 4 question | 12 | match 1 to 6 |
+| Lava 5 | 6.00 | 73 | 13.0 | 4 | 1, rare 2 (1 in 3) | three dice, 3 to 9 | 9 | match 1 to 6 |
+| Lava 6 | 7.00 | 84 | 13.0 | 4 | 1, rare 2 (1 in 3) | three dice, 3 to 11 | 11 | match 1 to 6 |
+| Crystal 1 | 7.00 | 84 | 13.0 | 4 | 1, rare 2 (1 in 6) | three dice, 3 to 11 | 11 | sum |
+| Crystal 2 | 8.50 | 101 | 13.0 | 4 | 1, rare 2 (1 in 6) | three dice | 12 | sum |
+| Crystal 3 | 10.50 | 123 | 13.0 | 4 | 1, rare 2 (1 in 4) | three dice | 12 | sum |
+| Crystal 4 | 10.50 | 123 | 13.0 | 4 | 1, rare 2 (1 in 4) | three dice, ten pairs | 12 | sum |
+| Crystal 5 | 6.00 | 70 | 13.0 | 4 | 1, rare 2 (1 in 3) | `++-` | 11 | sum |
+| Crystal 6 | 9.50 | 107 | 13.0 | 4 | 1, rare 2 (1 in 3) | Crystal 6 question | 12 | sum |
+| Bog 1 | 9.50 | 107 | 13.0 | 4 | 1, rare 2 (1 in 6) | Bog 1 question | 12 | sum |
+| Bog 2 | 9.50 | 107 | 13.0 | 4 | 1, rare 2 (1 in 6) | Bog 2 question | 12 | sum |
+| Bog 3 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 4) | missing die (die and target) | 12 | sum |
+| Bog 4 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 4) | missing die, plain or red | 12 | sum |
+| Bog 5 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 3) | missing among three | 12 | sum |
+| Bog 6 | about 6.5 | about 80 (computed when built) | 13 | 4 | 1, rare 2 (1 in 3) | Bog 6 question | 12 | sum |
+| Mushroom 1 | 12.00 | 140 | 13.0 | 4 | 1, rare 2 (1 in 6) | four dice | 12 | sum |
+| Mushroom 2 | 10.50 | 117 | 13.0 | 4 | 1, rare 2 (1 in 6) | four dice, one red | 12 | sum |
+| Mushroom 3 | 10.50 | 117 | 13.0 | 4 | 1, rare 2 (1 in 4) | four dice, two red | 12 | sum |
+| Mushroom 4 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 4) | missing among three, red | 12 | sum |
+| Mushroom 5 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 3) | missing among four | 12 | sum |
+| Mushroom 6 | 7.00 | 85 | 13.1 | 4 | 1, rare 2 (1 in 3) | across ten | 9 | difference |
+| Mushroom 7 | 5.00 | 59 | 13.0 | 3 | 1, rare 2 (1 in 3) | across ten | 9 | difference |
+| Space 1 | 10.50 | 99 (cap) | 11.3 | 4 | 1, rare 2 (1 in 6) | Space 1 question | 12 | difference |
+| Space 2 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 6) | missing among four, red | 12 | difference |
+| Space 3 | 10.50 | 99 (cap) | 11.3 | 4 | 1, rare 2 (1 in 4) | four dice, ten pairs | 12 | difference |
+| Space 4 | 3.50 | 43 | 13.1 | 3 | 1, rare 2 (1 in 4) | missing among four, two red | 12 | difference |
+| Space 5 | 5.00 | 59 | 13.0 | 3 | 1, rare 2 (1 in 3) | across ten | 9 | difference |
+| Space 6 | about 6.6 | about 86 (computed when built) | 13 | 4 | 1, rare 2 (1 in 3) | mixed | 12 | difference |
 
 - **Fight swing** [decided: fights use the level's question]: from Lava 2 up a monster
   swings with a problem from the level's own generator, answer at most the fight top,
@@ -289,8 +295,8 @@ levels can be built and tested on the Lava art first.
 
 | | |
 |---|---|
-| Math | take away with one and two red dice; the missing die, plain and red, among two and three dice |
-| On the path | **the bog takes away**: at Bog 1 and 2 a red die is picked 2 times in 3 when an answer can be made either way. **The bog hides a die**: at Bog 3 to 6 the hidden die sinks into the water with a few bubbles (code drawn) and comes back up showing its face after the right stone |
+| Math | take away with one and two red dice; the missing die, plain and red, among two and three dice; Bog 6 mixes them |
+| On the path | **the bog takes away**: at Bog 1 and 2 a red die is picked 2 times in 3 when an answer can be made either way. **The bog hides a die**: at Bog 3 to 5 (and in Bog 6's hidden rolls) the hidden die sinks into the water with a few bubbles (code drawn) and comes back up showing its face after the right stone |
 | Path | grassy tussocks, sunken logs, peat stepping stones [decided] |
 | Fall | the hero sinks into the black water [decided: "into the bog"] |
 | Monsters | wisplings, nixies, bog-draugr, Tiddy Mun [decided] |
@@ -298,11 +304,11 @@ levels can be built and tested on the Lava art first.
 | Boss | Jenny Greenteeth [decided] |
 | Chests | **brooches**, old brooches found in the bog like real bog finds [decided 2026-11-06; new currency, code drawn icon] |
 
-**4. Mushroom Forest** (Mushroom 1 to 6, Sapling then Oak)
+**4. Mushroom Forest** (Mushroom 1 to 7, Sapling then Oak)
 
 | | |
 |---|---|
-| Math | four dice to 20 with one and two red dice, missing among four, take away across ten |
+| Math | four dice to 20 with one and two red dice, missing among three with a red die (moved from the Bog) and among four, take away across ten |
 | On the path | **mushroom pairs** at Mushroom 1 to 3: when the first two dice can be a double, a coin flip makes them one and a puff of spores cheers it (code drawn). Adding four dice is easier as two pairs |
 | Path | mushroom caps [decided] |
 | Fall | the cap bends and the hero tumbles into the leaf litter [proposal] |
@@ -315,7 +321,7 @@ levels can be built and tested on the Lava art first.
 
 | | |
 |---|---|
-| Math | within 20 with everything, missing among four with a red die, equal dice (repeated adding, the start of times), everything mixed |
+| Math | within 20 with everything from track places: four dice with ten pairs, missing among four with one and two red dice, take away across ten, everything mixed [decided 2026-11-06: within 20] |
 | On the path | **the star track** on every level [decided 2026-11-06]: the star stones show their place on the track (1 to the length), not how far away they are, and the hero's own star stone shows its number too. "I'm on stone 23, the dice make 7, which stone is 30?" Landmarks are places 10, 20, 30 and so on. Crossings stop at 99 |
 | Path | star platforms along the branches [decided], called star stones in play (so "stars" stays the band reward) |
 | Fall | the hero drifts off the star stone into the dark and floats back to the start [proposal] |
@@ -364,7 +370,7 @@ offered stones run from the hero at x 150 to about x 810:
 |---|---|---|---|---|
 | 6 | 110 | 220 | about 23 mm | the hidden die levels |
 | 8 | 82 | 164 | about 17 mm | Lava 2 |
-| 9 | 73 | 146 | about 15 mm | Lava 5, Mushroom 5 and 6 |
+| 9 | 73 | 146 | about 15 mm | Lava 5, Mushroom 6 and 7, Space 5 |
 | 10 | 66 | 132 | about 14 mm | Lava 3 |
 | 11 or more | 60 | 120 | about 12.6 mm | all others |
 
@@ -478,15 +484,12 @@ more than two dice or a total. A level that mixes dice counts picks the layout p
   - `"patterns"`: answer first, then a pattern, then the dice (section 4.2).
   - `"hidden"`: one die face down; `options` lists `[pattern, slot]` pairs, slot
     `"last"` or `"any"`.
-  - `"equal"`: all dice equal; `counts` lists the dice counts (Space 3: [2, 3]).
-  - `"equal_plus_one"`: all dice equal but the last; `counts` [3, 4].
   - `"mix"`: `parts` lists level ids whose configs are drawn from, one per roll.
 - The number of dice comes from the pattern.
 - `constraint`: `"none"`, `"ten_pair"`, `"pairs"` (Mushroom 1 to 3), `"red_heavy"` (Bog
   1 and 2), `"across_ten"`. These are now level settings, not world twists.
 - `fallback`: patterns added when no answer fits the room left (section 4.2 step 4):
-  `["++-"]` for three plain dice, `["+++-"]` for Mushroom 1, `["++--"]` for Mushroom 5,
-  `["++", "+-"]` for the equal levels.
+  `["++-"]` for three plain dice, `["+++-"]` for Mushroom 1, `["++--"]` for Mushroom 6.
 - `generate_move(level, rng, room)`. Rail markers and track places are screen only.
 
 ### 4.2 The draw
@@ -537,17 +540,8 @@ them are drawn again in the same order until it is 1 or more. The result adds
 `hidden: place` and `total` (the result, shown as a numeral). The hidden die's face is
 the answer, so the stone to pick is that face.
 
-**`equal`:** `A` = every `n x f` up to `m` with n in `counts` and f from 1 to 6 (empty
-means the fallback); `answer` by step 5; `n` from the counts that divide it with
-`answer / n <= 6`, by the list rule; every die is `answer / n`.
-
-**`equal_plus_one`:** options are every (n, f, g) in that order with n in `counts`, f
-and g from 1 to 6, g not f, and `(n - 1) f + g` up to `max_answer`. `A` = their values up
-to `m`; `answer` by step 5; the option by the list rule; dice are f repeated n - 1 times,
-then g.
-
 **`mix`:** `part = randi(0, len(parts) - 1)`, then that part's draw with this crossing's
-room. Space 6 mixes Space 1, 2 and 5.
+room. Bog 6 mixes Bog 2 and 4; Space 6 mixes Space 1 to 5.
 
 **Lava 1 stays byte for byte.** `op_first` is v1.1 unchanged and returns exactly v1.1's
 keys (no `signs`), so `test_scroll_run` keeps matching. For two dice, steps 7 to 9 draw
@@ -577,7 +571,7 @@ unchanged]; the spec text is corrected and the new levels are even.
   step 4 applied; the dice read left to right equal the answer (or the total, with the
   hidden die set to the answer) and never go below 1 on the way; the answer is in 1 to
   `m` and in `A`; `choices` is 1 to `m`; constraints hold (ten pair adds to 10 when used,
-  across ten has plain total 11 or more and answer 9 or less, equal dice are equal).
+  across ten has plain total 11 or more and answer 9 or less).
 - **Evenness**: a fixed sample (seeds 1 to 12,000, room 99, one draw each) per level:
   every reachable answer appears and counts pass a chi-square test at 1 percent
   (`mix` levels test each part).
@@ -725,59 +719,65 @@ unchanged]; the spec text is corrected and the new levels are even.
 
 ### 6.5 Treasure, currencies, stars and the store
 
-**Treasure grows with the level** [decided idea, proposal for the numbers]. Every world
-uses the same table for its own currency:
+**Treasure: scarce, a little more at higher levels, and a bucket for the boss**
+[decided 2026-11-06: "normally 1, rare 2"; the higher-level odds and bucket sizes are a
+proposal]. A chest gives 1 of the world's currency, or 2 now and then:
 
-| Level in the world | Per chest | Per clear (5 chests, average) | One clear of each level |
-|---|---|---|---|
-| 1 and 2 | 2 to 4 | 15 | 30 |
-| 3 and 4 | 3 to 5 | 20 | 40 |
-| 5 and 6 | 4 to 6 | 25 | 50 |
-| world total | | | about 120 |
+| Level in the world | Per chest | Per clear (5 chests, average) |
+|---|---|---|
+| 1 and 2 | 1, or 2 one time in 6 | 5.8 |
+| 3 and 4 | 1, or 2 one time in 4 | 6.3 |
+| 5 to 7 | 1, or 2 one time in 3 | 6.7 |
 
-Lava 1 keeps 2 to 4, so its vectors and the store test "about three crossings for the
-slime" hold. At Lava 5 or 6 the slime takes about 2 clears.
+Beating a world's boss (the Match Bounce fight) pours out a **bucket** of that world's
+currency: 10 for the Skeleton Dragon [built 2026-11-06, `content/bounce/tuning.json`
+`win_gems`], and a proposed 10 more for each later world's boss (Knocker King 20 crystals,
+Jenny Greenteeth 30 brooches, the Green Man 40 leaves, Fenrir 50 feathers). Opened chests
+stay empty after a restart, as before.
+
+Built for Lava 1 (2026-11-06): `chest_gems` `{common 1, rare 2, rare_in 6}` in
+`content/areas/lava_scroll.json`, one draw per chest (spec section 6), the chest's gems
+burst out, spin, twinkle and swoop to the counter one by one, and the dragon's bucket is
+drawn in code on the boss screen. A level's area file sets its own `rare_in` (6, 4 or 3).
 
 **Currencies by world**: Lava gems [built], Crystal Mines crystals, the Bog **brooches**
 [decided], Mushroom Forest leaves, Space feathers. In `content/store.json`: leaves
 `from` "Mossy Woods" becomes "Mushroom Forest", feathers `from` "Cloud Tops" becomes
 "Space", and `brooches` is added (closed). Each currency opens when its world ships.
 
-**Bolt's colors** [decided idea, proposal for prices]. The robot dragon (Bolt, today's
+**Bolt's colors** [decided; red and green built 2026-11-06]. The robot dragon (Bolt,
 steel blue-grey with teal lights) can be painted red, black, green, purple or pink.
 
-- **How**: a code recolor at load time, no paid art. The sprite has 39 colors; the
-  body's blue-grey ramp is mapped to the new color's ramp by keeping each pixel's
-  brightness and setting its hue and saturation; the near-black outline and the teal
-  eye lights stay. Black uses a dark ramp with a light rim so the outline still reads.
-  Each paint is a few numbers in store.json (`hue`, `sat`, `value_scale`).
-- **Store**: a new item kind `paint`, shown as a "Bolt's colors" row in the heroes tab:
-  six small Bolts (classic plus the five). Classic is owned from the start. A bought
-  paint is equipped like a dice skin, and shows on Bolt everywhere the hero is drawn
-  (crossing, fights, boss, store), by way of `Look.hero_texture()`. It applies only
-  while Bolt is the hero; other heroes are unchanged. Save: `paint` (default
-  "classic").
-- **Prices, in gems** (so Lava has more to buy after the slime): red 25, green 25,
-  black 35, purple 45, pink 45. All five cost 175; with the 40 gem slime, the gem shop
-  is 215, about two rounds of the six Lava levels (about 120 each), or fewer for a child
-  who replays the later Lava levels.
+- **How** [built]: a code recolor when the texture is first used (`game/ui/look.gd`
+  `painted`): the body's blue-grey shades take the paint's hue with added saturation,
+  keeping each pixel's brightness; the near-black outline and the teal eyes and lights
+  stay. Each color is a hero item in store.json with the same art and a `paint`
+  (`hue`, `sat`, `value`). Black will use a low `value` with a light rim.
+- **Store** [built]: each color is its own hero card (Red Bolt, Green Bolt), so it is
+  bought and used like any hero; the heroes tab is now 7 cards by 2 (14 heroes).
+- **Prices** [built for the Lava shop]: Red Bolt 10 gems, Green Bolt 15, Sir Blob 25 (was
+  40). At about 6 gems a crossing plus the 10 gem bucket, the three take about 8 Lava
+  crossings in all. Black, purple and pink wait for later worlds' currencies (proposal:
+  black 30 crystals, purple 30 brooches, pink 30 feathers); the heroes tab then needs a
+  third row or a second page.
 
-**Does every shop still make sense** with the treasure table (about 120 per world
-round)?
+**Does every shop still make sense** with about 6 a crossing (a round of a world's six
+levels is about 38, plus the boss bucket)?
 
-| Currency | Items (price) | Total | Rounds of the world |
+| Currency | Items (price) | Total | Crossings to buy everything |
 |---|---|---|---|
-| gems | Sir Blob 40, five paints 175 | 215 | about 2 |
-| crystals | steel 20, Pip 50, blue gem 40, night 30 | 140 | about 1.2 |
-| brooches | Shelly the turtle 30 (moved from crystals); no new dice skins (Terrence 2026-11-06) | 30 | under 1 (more Bog items later) |
-| leaves | mint 15, Spike 30, Nutkin 40, green gem 40, Rusty 50 | 175 | about 1.5 |
-| feathers | sky 15, pink 25, Talon 30, Griff 50 | 120 | about 1 |
+| gems | Red Bolt 10, Green Bolt 15, Sir Blob 25 [built] | 50 | about 7 with one dragon bucket |
+| crystals | steel 20, Pip 50, blue gem 40, night 30, black Bolt 30 | 170 | about 25: lower these prices when Crystal Mines ships |
+| brooches | Shelly 30, purple Bolt 30 | 60 | about 8 |
+| leaves | mint 15, Spike 30, Nutkin 40, green gem 40, Rusty 50 | 175 | about 25: lower these prices |
+| feathers | sky 15, pink 25, Talon 30, Griff 50, pink Bolt 30 | 150 | about 20: lower these prices |
 
-The cheapest item in each currency takes one or two clears, the dearest about a round.
+The later shops were priced for the old 2 to 4 chests; each world's prices get cut to
+about 5 to 25 when that world ships (data only).
 
 **Stars**: the first clear of an area at a level gives one star of the level's band:
 Sprout levels (Crystal 1 to 6, Bog 1 and 2) a Sprout star, Sapling levels (Bog 3 to 6,
-Mushroom 1 to 4) a Sapling star, Oak levels a Sapling star until Oak items exist; Acorn
+Mushroom 1 to 5) a Sapling star, Oak levels a Sapling star until Oak items exist; Acorn
 levels give treasure and the mark only. With one area per world that is 8 Sprout stars
 (Leo 3 and Sir Tam 5; the gold dice 4 need a second area) and 8 Sapling stars (Blaze 5
 and the purple gem 3). `sprout_stars` opens with Crystal 1, `sapling_stars` with Bog 3.
@@ -785,18 +785,20 @@ and the purple gem 3). `sprout_stars` opens with Crystal 1, `sapling_stars` with
 ### 6.6 Map
 
 The world map shows the open worlds; an area shows its world's six levels as two rows of
-three buttons (160 x 96, x 220 to 740, inside a 4:3 screen), each with the level name,
+three buttons (160 x 96, x 220 to 740, inside a 4:3 screen; Mushroom's seventh sits under
+the middle), each with the level name,
 the band tag and age, and its cleared mark. Every level of an open world is open
-[decided]. A parent lock comes with the parent area (v0.19). The saved run's Go button
+[decided]. The parent area (v0.19, not built yet) can open any later world for an older
+child [decided 2026-11-06], and lock levels. The saved run's Go button
 stays.
 
 ## 7. Files that change
 
 | File | Change |
 |---|---|
-| `content/grades.json` | version 2: 30 levels by world, Lava 1 as id 11, graybox 2 to 4 kept |
+| `content/grades.json` | version 2: 31 levels by world, Lava 1 as id 11, graybox 2 to 4 kept |
 | `logic/core/grades.gd`, `logic/core/content.gd` | level ids, names, world and band of a level; `Grade` enum kept for the graybox |
-| `logic/core/move_gen.gd` | v1.2: patterns, hidden, equal, equal plus one, mix, `can_make`, constraints, fallback |
+| `logic/core/move_gen.gd` | v1.2: patterns, hidden, mix, `can_make`, constraints, fallback |
 | `tools/ref/move_gen.py`, `common.py`, `generator.py`, `make_vectors.py`, `scroll_run.py` | Python reference and new vectors |
 | `spec/logic-spec.md` sections 2, 5 and 6 | grades v2, save v2, spec v1.2, layout by thousandths, the v1.1 evenness correction |
 | `logic/path/scroll_run.gd` | length and chest amounts from the level, spaces from the layout, `max_length`, `length` in the save |
@@ -822,7 +824,7 @@ as before. Nothing goes on the tablet without Terrence. A level's `available` is
 on only in the milestone that builds its screen.
 
 1. **Levels, generator v1.2 and plumbing** (nothing changes on screen): grades.json v2
-   with all 30 levels as data and only Lava 1 available; move_gen v1.2; Python
+   with all 31 levels as data and only Lava 1 available; move_gen v1.2; Python
    reference; spec sections 2, 5 and 6; vectors; exact length test; area layout; save
    v2; fights by level and the level id passed through fight, duel, bounce and the demo
    tools. Store currency renames and `brooches` (closed), data only. Lava 1 plays
@@ -831,21 +833,23 @@ on only in the milestone that builds its screen.
    layer for text and the stone widget, hero at 150, step 82, 46 space crossing,
    landmark 5, hop speed, fight screen with two dice, the red die and shields to 8. The
    map shows Lava 1 and Lava 2.
-3. **Lava 3 and 4, and the level picker**: landmarks 5 and 10, chest amounts by level,
+3. **Lava 3 and 4, and the level picker**: landmarks 5 and 10, chest odds by level,
    drag to scroll with the edge arrow and back chevron (Lava 4 on 4:3), the `match_6`
    board and the bounce tuning keyed by rule name, two rows of level buttons.
-4. **Lava 5 and 6, and Bolt's colors**: three dice in the tray at 72, the fallback red
-   die; the paint items, recolor and store row. Lava is complete with six levels: the
-   Lava Caves fun gate.
+4. **Lava 5 and 6, and the boss in the flow**: three dice in the tray at 72, the
+   fallback red die; the Skeleton Dragon after the crossing so its bucket is reachable
+   (Red and Green Bolt, the recolor and the bucket are already built). Lava is complete
+   with six levels: the Lava Caves fun gate.
 5. **Crystal Mines** (logic and screen on Lava art first; its own art after Terrence's
    yes to that job): rail markers, ten pairs, three dice to 18, crystals and Sprout stars
    open.
-6. **The Bog**: red preferred, two red dice, the hidden die (sinking) at three sizes;
-   brooches open, Shelly; Sapling stars open.
-7. **Mushroom Forest**: four dice at 60, pairs and the spore puff, missing among four
-   (52 px), across ten; leaves open.
-8. **Space**: track places with the hero's own number, the 99 cap, equal dice, groups
-   and one more, the mixed level; feathers open.
+6. **The Bog**: red preferred, two red dice, the hidden die (sinking), the mixed Bog 6;
+   brooches open, Shelly and purple Bolt; Sapling stars open.
+7. **Mushroom Forest**: four dice at 60, pairs and the spore puff, missing among three
+   with a red die and among four (52 px), across ten; leaves open.
+8. **Space**: track places with the hero's own number, the 99 cap, ten pairs among four,
+   missing among four with two red, across ten from a track place, the mixed level;
+   feathers open. The parent area's "open a world" comes with the parent area.
 
 ## 9. Decisions (2026-11-06)
 
@@ -868,17 +872,24 @@ Terrence's answers to v3's questions:
     Ratatoskr (Space); instead of gem-priced dice skins, the store sells **Bolt's
     colors** (red, black, green, purple, pink); **treasure grows with the level**.
 
+Terrence's answers to v4's last four (2026-11-06):
+
+11. **A parent can open a later world** straight away for an older child (with the
+    parent area).
+12. **Space stays within 20**: no equal-dice (times) levels; Space 3 to 6 rebuilt from
+    within-20 math on the star track (section 1.3).
+13. **Treasure was too generous**: a chest now gives 1, rarely 2 (built for Lava 1), two
+    more Lava gem items were added (Red Bolt 10, Green Bolt 15; Sir Blob 40 to 25), the
+    chest's gems are animated more, and beating the dragon pours out a 10 gem bucket
+    (all built 2026-11-06).
+14. **One Bog missing-die level moved**: "missing among three with a red die" is now
+    Mushroom 4; Bog 6 mixes Bog 2's take away and Bog 4's hidden die.
+
 ### Still open
 
-1. **Shortcut for an older child**: to reach Space math a child must beat four bosses.
-   Should the parent area be able to open a later world directly? (Plan: no for now;
-   the parent area is not built yet.)
-2. **Space 3 to 6 start times with equal dice** ("three 4s make 12"), past v0.19's
-   "within 20". Keep them, or keep Space within 20 (more mixed and hidden rolls)?
-3. **Prices**: Bolt's colors at 25 to 45 gems, and the treasure table (2 to 4, 3 to 5,
-   4 to 6 by level in each world). Do they feel right?
-4. **The Bog has four missing-die levels in a row** (Bog 3 to 6). Fine as the Bog's
-   theme, or move one (for example Bog 6) into the Mushroom Forest?
+1. **Boss in the flow**: the Skeleton Dragon fight is only a standalone test scene
+   today; the crossing ends at the door. Put it after the crossing (milestone 4, plan
+   default) or sooner?
 
 ## 10. Where this differs from the Fable review
 

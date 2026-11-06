@@ -7,6 +7,7 @@ extends Node2D
 const InputSetup := preload("res://game/input_setup.gd")
 const SeededRng := preload("res://logic/core/rng.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
+const SaveStore := preload("res://game/save_store.gd")
 
 const DESIGN := Vector2(960, 540)
 
@@ -43,5 +44,6 @@ func _start() -> void:
 		s = (int(Time.get_unix_time_from_system() * 1000.0) ^ Time.get_ticks_usec()) & 0xFFFFFFFF
 	screen = BounceScreen.new()
 	screen.setup(SeededRng.new(s), grade)
+	screen.save = SaveStore.read()  # a win banks the gem bucket in the profile
 	screen.done.connect(func(_won): _start.call_deferred())
 	stage.add_child(screen)

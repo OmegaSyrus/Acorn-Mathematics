@@ -160,8 +160,7 @@ func _walk(out: Dictionary) -> void:
 			phase = AWAIT_FIGHT
 			break
 		if space.get("type") == "chest" and not looted.has(pos):
-			var range_: Array = area["chest_gems"]
-			var g := rng.randi_range(range_[0], range_[1])
+			var g := chest_draw(area["chest_gems"], rng)
 			looted.append(pos)
 			gems += g
 			total += g
@@ -174,6 +173,31 @@ func _walk(out: Dictionary) -> void:
 	out["chests"] = chests
 	if not chests.is_empty():
 		out["gems"] = total
+
+
+## One chest's gems (2026-11-06, Terrence: "normally 1, rare 2"): one draw.
+## {common, rare, rare_in}: rare when randi_range(1, rare_in) == rare_in.
+## An [lo, hi] pair (the old form) draws randi_range(lo, hi).
+static func chest_draw(cfg, r: Rng) -> int:
+	if cfg is Array:
+		return r.randi_range(int(cfg[0]), int(cfg[1]))
+	var n := int(cfg["rare_in"])
+	return int(cfg["rare"]) if r.randi_range(1, n) == n else int(cfg["common"])
+
+
+## The fewest and most gems one chest can give.
+static func chest_range(cfg) -> Array:
+	if cfg is Array:
+		return [int(cfg[0]), int(cfg[1])]
+	return [mini(int(cfg["common"]), int(cfg["rare"])), maxi(int(cfg["common"]), int(cfg["rare"]))]
+
+
+## The average gems of one chest.
+static func chest_mean(cfg) -> float:
+	if cfg is Array:
+		return (float(cfg[0]) + float(cfg[1])) / 2.0
+	var n := float(cfg["rare_in"])
+	return (float(cfg["common"]) * (n - 1.0) + float(cfg["rare"])) / n
 
 
 func _fail() -> void:
