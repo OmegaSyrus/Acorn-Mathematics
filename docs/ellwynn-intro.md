@@ -34,7 +34,7 @@ The bottom left of the 4:3 band (x 120..380) is empty apart from the small
   1 art pixel = 1 unit like every other character, never scaled. The stickers
   text moves up or right.
 - **Idle:** a gentle 2 px bob, the locket glows on a slow pulse, and she blinks
-  every 3 to 5 s (one hand-made blink frame).
+  every 3 to 5 s (the blink frame in `art/ellwynn/`).
 - **When the difficulty plan lands** (6 levels per world, its own thread), the
   level buttons should stay right of x 380 so her spot is kept. That thread
   owns the button layout; this plan only asks for the space.
