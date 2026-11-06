@@ -3444,7 +3444,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3483,7 +3483,7 @@
       1
      ],
      "pick": 1,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3495,7 +3495,7 @@
       2
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -3528,7 +3528,7 @@
       2
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3551,7 +3551,7 @@
       1
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3617,7 +3617,7 @@
      27,
      31
     ],
-    "gems": 16,
+    "gems": 6,
     "phase": "cleared",
     "rng_state": 2914927536
    },
@@ -3704,7 +3704,7 @@
       2
      ],
      "pick": 3,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3748,7 +3748,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3760,7 +3760,7 @@
       2
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -3788,7 +3788,7 @@
       1
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3800,7 +3800,7 @@
       1
      ],
      "pick": 4,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -3860,7 +3860,7 @@
      27,
      31
     ],
-    "gems": 15,
+    "gems": 7,
     "phase": "cleared",
     "rng_state": 2989891831
    },
@@ -3949,7 +3949,7 @@
       1
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -3999,7 +3999,7 @@
       4
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4011,7 +4011,7 @@
       1
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -4055,7 +4055,7 @@
       1
      ],
      "pick": 4,
-     "gems": 6
+     "gems": 3
     },
     {
      "attempt": 4,
@@ -4115,7 +4115,7 @@
      27,
      31
     ],
-    "gems": 15,
+    "gems": 7,
     "phase": "cleared",
     "rng_state": 270897844
    },
@@ -4219,7 +4219,7 @@
       3
      ],
      "pick": 1,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4269,7 +4269,7 @@
       1
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4281,7 +4281,7 @@
       1
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4325,7 +4325,7 @@
       2
      ],
      "pick": 2,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4337,7 +4337,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4397,7 +4397,7 @@
      27,
      31
     ],
-    "gems": 14,
+    "gems": 5,
     "phase": "cleared",
     "rng_state": 94581155
    },
@@ -4484,7 +4484,7 @@
       1
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4523,7 +4523,7 @@
       3
      ],
      "pick": 3,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4535,7 +4535,7 @@
       2
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4568,7 +4568,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4580,7 +4580,7 @@
       1
      ],
      "pick": 4,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4640,7 +4640,7 @@
      27,
      31
     ],
-    "gems": 12,
+    "gems": 5,
     "phase": "cleared",
     "rng_state": 1923059747
    },
@@ -4764,7 +4764,7 @@
       1
      ],
      "pick": 4,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4797,7 +4797,7 @@
       3
      ],
      "pick": 0,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4809,7 +4809,7 @@
       4
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4853,7 +4853,7 @@
       1
      ],
      "pick": 2,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4865,7 +4865,7 @@
       3
      ],
      "pick": 3,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -4914,7 +4914,7 @@
      27,
      31
     ],
-    "gems": 12,
+    "gems": 5,
     "phase": "cleared",
     "rng_state": 2298682158
    },
@@ -5020,7 +5020,7 @@
       1
      ],
      "pick": 1,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5070,7 +5070,7 @@
       2
      ],
      "pick": 2,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5093,7 +5093,7 @@
       1
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5137,7 +5137,7 @@
       1
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5149,7 +5149,7 @@
       2
      ],
      "pick": 2,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -5209,7 +5209,7 @@
      27,
      31
     ],
-    "gems": 17,
+    "gems": 6,
     "phase": "cleared",
     "rng_state": 2173120272
    },
@@ -5339,7 +5339,7 @@
       1
      ],
      "pick": 2,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -5394,7 +5394,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5417,7 +5417,7 @@
       1
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -5450,7 +5450,7 @@
       2
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 2
     },
     {
      "attempt": 4,
@@ -5462,7 +5462,7 @@
       2
      ],
      "pick": 2,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5522,7 +5522,7 @@
      27,
      31
     ],
-    "gems": 19,
+    "gems": 8,
     "phase": "cleared",
     "rng_state": 862115289
    },
@@ -5626,7 +5626,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5665,7 +5665,7 @@
       1
      ],
      "pick": 2,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5677,7 +5677,7 @@
       4
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5732,7 +5732,7 @@
       1
      ],
      "pick": 1,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5755,7 +5755,7 @@
       2
      ],
      "pick": 3,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5804,7 +5804,7 @@
      27,
      31
     ],
-    "gems": 13,
+    "gems": 5,
     "phase": "cleared",
     "rng_state": 1261171988
    },
@@ -5908,7 +5908,7 @@
       4
      ],
      "pick": 1,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5947,7 +5947,7 @@
       1
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5959,7 +5959,7 @@
       1
      ],
      "pick": 4,
-     "gems": 3
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -5998,7 +5998,7 @@
       1
      ],
      "pick": 4,
-     "gems": 2
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -6032,7 +6032,7 @@
       1
      ],
      "pick": 3,
-     "gems": 4
+     "gems": 1
     },
     {
      "attempt": 4,
@@ -6081,7 +6081,7 @@
      27,
      31
     ],
-    "gems": 15,
+    "gems": 5,
     "phase": "cleared",
     "rng_state": 557909453
    },

@@ -122,7 +122,7 @@ func test_walking_over_triggers() -> bool:
 	check(out["result"] == "hop" and out["to"] == 7, "walked to 7: %s" % str(out))
 	eq(out["chests"].size(), 1, "one chest on the way")
 	check(out["chests"][0]["at"] == 4 and run.looted.has(4), "the chest on 4 opened")
-	check(run.gems == out["gems"] and out["gems"] >= 2, "its gems counted")
+	check(run.gems == out["gems"] and out["gems"] >= 1, "its gems counted")
 	out = run.choose(_force_move(run, 5))  # 8..12 meets Blorp on 9
 	check(out["result"] == "monster" and out["to"] == 9 and run.pos == 9, "stopped at the monster: %s" % str(out))
 	check(run.phase == ScrollRun.AWAIT_FIGHT and run.target == 12, "fight pending, walk not done")

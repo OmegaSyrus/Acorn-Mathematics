@@ -5,10 +5,12 @@
     "price: {currency, amount}; no price means owned from the start.",
     "A currency with open false cannot be earned yet: its items show a lock.",
     "When an area or grade starts awarding a currency, set open to true here.",
-    "Slime price 40: a cleared Acorn crossing of lava_scroll banks 15 gems on",
-    "average (5 chests of 2 to 4, 10 to 20 per run; restarts give nothing,",
-    "opened chests stay empty). 2 runs can't reach 40 (bar 1 in 59049),",
-    "3 runs reach it 96% of the time, 4 runs always."
+    "Gem prices (2026-11-06, Terrence: chests give 1, rarely 2; two more Lava items):",
+    "a cleared Acorn crossing banks about 6 gems (5 chests, each 1, or 2 one time",
+    "in 6; restarts give nothing, opened chests stay empty), plus a 10 gem bucket for",
+    "beating the Skeleton Dragon. Red Bolt 10 (about 2 crossings), Green Bolt 15",
+    "(about 3), Sir Blob 25 (about 4). Bolt's other colors (black, purple, pink) wait",
+    "for later currencies. A paint recolors Bolt's sprite in code (game/ui/look.gd)."
   ],
   "currencies": {
     "gems": { "name": "Gems", "from": "Lava Caves chests", "open": true,
@@ -26,8 +28,14 @@
   },
   "items": [
     { "id": "robodragon", "kind": "hero", "name": "Bolt", "art": "res://art/lava/robodragon.png" },
+    { "id": "bolt_red", "kind": "hero", "name": "Red Bolt", "art": "res://art/lava/robodragon.png",
+      "paint": { "hue": 0.0, "sat": 0.45, "value": 1.0 },
+      "price": { "currency": "gems", "amount": 10 } },
+    { "id": "bolt_green", "kind": "hero", "name": "Green Bolt", "art": "res://art/lava/robodragon.png",
+      "paint": { "hue": 0.33, "sat": 0.4, "value": 1.0 },
+      "price": { "currency": "gems", "amount": 15 } },
     { "id": "slime_knight", "kind": "hero", "name": "Sir Blob", "art": "res://art/heroes/slime_knight.png",
-      "price": { "currency": "gems", "amount": 40 } },
+      "price": { "currency": "gems", "amount": 25 } },
     { "id": "turtle", "kind": "hero", "name": "Shelly", "art": "res://art/heroes/turtle.png",
       "price": { "currency": "crystals", "amount": 30 } },
     { "id": "elf_mage", "kind": "hero", "name": "Pip", "art": "res://art/heroes/elf_mage.png",

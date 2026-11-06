@@ -8,8 +8,8 @@ with the real fail rule.
 
 `lava_scroll` is the first round at Acorn: 40 rocks in the lava, crossed left to right.
 Tap the dice tray to roll two dice (add, or subtract with a red die), then tap the rock
-that many spaces ahead (always 1 to 5). A right rock resolves its space: a chest gives 2
-to 4 gems, a monster starts a fight. A wrong rock sinks the slime with a blorp and the
+that many spaces ahead (always 1 to 5). A right rock resolves its space: a chest gives 1
+gem (2 one time in 6), a monster starts a fight. A wrong rock sinks the slime with a blorp and the
 crossing starts again. Art is in `art/lava/` (PixelLab, see the project's art folders).
 Every hero and enemy sits on one pixel grid: one art pixel is one unit of the 960x540
 frame (`Look.CHAR_PX` in `game/ui/look.gd`). Characters are never scaled; a character that
@@ -20,8 +20,10 @@ The old ten-task path is still there: `godot --path . -- --area=lava_1`.
 
 The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and dice
 skins on two tabs, priced in currencies listed in `content/store.json` with their rules
-in `logic/core/store.gd`. Only the helmet slime can be bought now (40 gems, about three
-cleared Acorn crossings: each banks 15 gems on average, 10 to 20); the others need
+in `logic/core/store.gd`. Gems buy Red Bolt (10), Green Bolt (15) and the helmet slime
+(25): a cleared Acorn crossing banks about 6 gems, and beating the Skeleton Dragon pours
+out a 10 gem bucket. Red and Green Bolt are the robot dragon recolored in code
+(`Look.painted`). The others need
 currencies from areas and grades still to come, so they show a lock. A later area opens
 its currency by setting `"open": true` in the catalog. Equipped hero and dice show in
 the crossing, fights and the boss fight (`game/ui/look.gd`); dice skins are drawn in code

@@ -6,7 +6,7 @@
   "name": "Lava Caves: the crossing",
   "grades": [1],
   "length": 40,
-  "chest_gems": [2, 4],
+  "chest_gems": { "common": 1, "rare": 2, "rare_in": 6 },
   "spaces": [
     { "at": 4, "type": "chest" },
     { "at": 9, "type": "monster", "monster": "blorp" },

@@ -10,7 +10,7 @@ from area_run import AreaRun  # noqa: E402
 from bots import play, apply_input  # noqa: E402
 import common  # noqa: E402
 from move_gen import generate_move  # noqa: E402
-from scroll_run import ScrollRun, play_scroll  # noqa: E402
+from scroll_run import ScrollRun, play_scroll, chest_range  # noqa: E402
 
 FAILS = []
 
@@ -70,7 +70,7 @@ def test_scroll_bots(runs):
         run = ScrollRun(area, grade, 100 + i)
         cleared, _ = play_scroll(run, "perfect", None)
         check(cleared and run.pos == area["length"], "perfect scroll bot failed seed %d" % (100 + i))
-        lo, hi = area["chest_gems"]
+        lo, hi = chest_range(area["chest_gems"])
         check(lo * len(run.looted) <= run.gems <= hi * len(run.looted), "gems vs looted chests seed %d" % (100 + i))
     rnd = sum(play_scroll(ScrollRun(area, grade, 900 + i), "random", SeededRng(i + 1))[0] for i in range(runs))
     check(rnd == 0, "random scroll bot cleared %d" % rnd)
