@@ -25,7 +25,7 @@ func test_catalog_is_well_formed() -> bool:
 			var p: Dictionary = it["price"]
 			check(cat["currencies"].has(p["currency"]), "%s: unknown currency %s" % [it["id"], p["currency"]])
 			check(int(p["amount"]) > 0, "%s: price above 0" % it["id"])
-		if it["kind"] == "hero":
+		if it["kind"] == "hero" or it["kind"] == "color":
 			var tex = load(it["art"])
 			check(tex is Texture2D, "%s: art %s" % [it["id"], it["art"]])
 			if tex is Texture2D:
@@ -41,6 +41,14 @@ func test_catalog_is_well_formed() -> bool:
 		check(c.has("icon") and c["icon"].has("shape"), "currency %s has an icon" % cid)
 	eq(Store.default_id(cat, "hero"), "robodragon", "the robot dragon is the starting hero")
 	eq(Store.default_id(cat, "dice"), "classic", "the white dice are the starting dice")
+	eq(Store.default_id(cat, "color"), "steel", "the dragon starts steel")
+	# Terrence 2026-11-06: dragon colours red, black, green, purple, pink
+	var colors := []
+	for it in Store.items(cat, "color"):
+		colors.append(it["id"])
+	eq(colors, ["steel", "red", "black", "green", "purple", "pink"], "dragon colours")
+	eq(Store.items(cat, "dice").size(), 1, "dice skins are gone from the store")
+	check(cat["currencies"].has("broaches"), "the Bog pays in broaches")
 	return true
 
 
@@ -98,7 +106,8 @@ func test_fresh_profile_owns_and_uses_the_defaults() -> bool:
 	eq(Store.state(cat, s, "robodragon"), Store.EQUIPPED, "dragon state")
 	eq(Store.state(cat, s, "slime_knight"), Store.SHORT, "slime with no gems")
 	eq(Store.state(cat, s, "lion"), Store.LOCKED, "lion")
-	eq(Store.state(cat, s, "gold"), Store.LOCKED, "gold dice")
+	eq(Store.equipped(cat, s, "color"), "steel", "colour")
+	eq(Store.state(cat, s, "red"), Store.LOCKED, "red dragon")
 	return true
 
 
@@ -149,9 +158,9 @@ func test_locked_items_cant_be_bought_or_used() -> bool:
 	Store.add(s, "crystals", 999)
 	eq(Store.balance(s, "crystals"), 999, "crystals kept in currencies")
 	eq(s["gems"], 0, "gems untouched")
-	check(Store.is_locked(cat, s, "steel"), "crystals can't be earned yet")
-	check(not Store.buy(cat, s, "steel"), "locked: no buy")
-	check(not Store.equip(cat, s, "steel"), "not owned: no equip")
+	check(Store.is_locked(cat, s, "red"), "crystals can't be earned yet")
+	check(not Store.buy(cat, s, "red"), "locked: no buy")
+	check(not Store.equip(cat, s, "red"), "not owned: no equip")
 	check(not Store.equip(cat, s, "nonsense"), "unknown id")
 	eq(Store.balance(s, "crystals"), 999, "nothing spent")
 	return true
@@ -162,12 +171,12 @@ func test_opening_a_currency_in_data_unlocks_its_items() -> bool:
 	var cat: Dictionary = Store.catalog().duplicate(true)
 	cat["currencies"]["crystals"]["open"] = true
 	var s := _fresh()
-	eq(Store.state(cat, s, "steel"), Store.SHORT, "open but no crystals")
+	eq(Store.state(cat, s, "red"), Store.SHORT, "open but no crystals")
 	Store.add(s, "crystals", 25)
-	check(Store.buy(cat, s, "steel"), "bought steel dice")
+	check(Store.buy(cat, s, "red"), "bought the red dragon")
 	eq(Store.balance(s, "crystals"), 5, "20 spent")
-	check(Store.equip(cat, s, "steel"), "equip dice")
-	eq(Store.equipped(cat, s, "dice"), "steel", "steel in use")
+	check(Store.equip(cat, s, "red"), "equip the colour")
+	eq(Store.equipped(cat, s, "color"), "red", "red in use")
 	eq(Store.equipped(cat, s, "hero"), "robodragon", "hero unchanged")
 	return true
 
@@ -191,6 +200,7 @@ func test_old_saves_load_with_store_defaults() -> bool:
 	eq(s["currencies"], {}, "no other currencies")
 	eq(s["hero"], "robodragon", "hero default")
 	eq(s["dice"], "classic", "dice default")
+	eq(s["color"], "steel", "colour default")
 	var broken := SaveData.from_text('{"gems": 5, "owned": "oops", "currencies": 3}', "1")
 	eq(broken["owned"], [], "a broken owned list resets")
 	eq(broken["currencies"], {}, "a broken currencies dict resets")

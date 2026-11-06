@@ -1,4 +1,4 @@
-## The store's rules (2026-11-05, Terrence): heroes and dice skins bought
+## The store's rules (2026-11-05, Terrence): heroes and robot dragon colours bought
 ## with currencies earned in play. Pure logic over the catalog
 ## (content/store.json) and the save; the game draws and plays sounds.
 ##
@@ -11,7 +11,9 @@ extends RefCounted
 const JsonUtil := preload("res://logic/core/json_util.gd")
 
 const PATH := "res://content/store.json"
-const KINDS := ["hero", "dice"]
+## "color" is the robot dragon's colour (2026-11-06, replacing dice skins in
+## the store); "dice" stays as the one free white look.
+const KINDS := ["hero", "color", "dice"]
 
 ## What an item's card shows.
 const EQUIPPED := "equipped"  # owned and in use: a check mark

@@ -1,5 +1,5 @@
 ## Stills of the store (map button, both tabs, buying the slime, "not yet"),
-## and the crossing, a fight and the boss fight with a store hero and dice.
+## and the crossing, a fight and the boss fight with a store hero and a dragon colour.
 ## Uses its own save in memory; the profile file is never written.
 ##   godot --headless --path . --import
 ##   xvfb-run -a godot --path . --rendering-driver opengl3 res://tools/stills/store_stills.tscn -- --out=/tmp/shots
@@ -50,9 +50,9 @@ func _ready() -> void:
 	_shot("store-3-bought")
 	await _frames(60)
 	_shot("store-4-slime-on")
-	await _tap(st, "tab", "dice")
+	await _tap(st, "tab", "color")
 	await _frames(10)
-	_shot("store-5-dice")
+	_shot("store-5-colors")
 	st.queue_free()
 
 	var poor := SaveData.new_profile("stills")
@@ -76,7 +76,6 @@ func _ready() -> void:
 	# play with the slime and a gem skin (the skin is set directly: it is
 	# not for sale yet)
 	Look.hero_id = "slime_knight"
-	Look.dice_id = "sapphire"
 	var area := Content.area("lava_scroll")
 	var run := ScrollRun.new(area, Content.grades()[1], _sub_seed(area))
 	var s := ScrollScreen.new()
@@ -87,17 +86,18 @@ func _ready() -> void:
 	while not s.choice.active:
 		await _frames(1)
 	await _frames(30)
-	_shot("crossing-slime-sapphire")
+	_shot("crossing-slime")
 	s.queue_free()
 	await _frames(2)
-	Look.dice_id = "gold"
+	Look.hero_id = "robodragon"
+	Look.color_id = "purple"  # set directly: not for sale yet
 	var f := FightScreen.new()
 	f.setup(SeededRng.new(78), 1, "blorp", false, false)
 	stage.add_child(f)
 	while not f.choice.active:
 		await _frames(1)
 	await _frames(20)
-	_shot("fight-slime-gold")
+	_shot("fight-dragon-purple")
 	f.queue_free()
 	await _frames(2)
 	Look.hero_id = "phoenix"

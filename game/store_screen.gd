@@ -1,5 +1,6 @@
-## The store (2026-11-05, Terrence): spend gems on heroes and dice skins.
-## Two tabs (heroes, dice) of big cards, six by two, all inside what a 4:3
+## The store (2026-11-05, Terrence): spend gems on heroes and on colours for
+## the robot dragon (2026-11-06: the colours replaced dice skins).
+## Two tabs (heroes, dragon colours) of big cards, six by two, all inside what a 4:3
 ## tablet shows (x 120..840). Each card: the picture, the price with its
 ## currency's icon, and what a tap does:
 ##   a green "Buy" (enough gems): the first tap picks it and a big Buy
@@ -19,12 +20,11 @@ const Store := preload("res://logic/core/store.gd")
 const SaveStore := preload("res://game/save_store.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
-const DiceSkins := preload("res://game/ui/dice_skins.gd")
 const Look := preload("res://game/ui/look.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
 
 const BACK_RECT := Rect2(136, 10, 150, 80)
-const TAB_RECTS := {"hero": Rect2(302, 10, 150, 80), "dice": Rect2(462, 10, 150, 80)}
+const TAB_RECTS := {"hero": Rect2(302, 10, 150, 80), "color": Rect2(462, 10, 150, 80)}
 const GEMS_BOX := Rect2(628, 14, 196, 72)
 ## The "Reset gems?" panel and its two buttons (No is the safe default).
 const RESET_PANEL := Rect2(250, 140, 460, 260)
@@ -128,7 +128,7 @@ func _tap_card(id: String) -> void:
 				get_tree().create_timer(0.08).timeout.connect(Beeper.tone.bind(784.0, 0.09))
 		Store.OWNED:
 			selected = ""
-			Store.equip(cat, save, id)
+			_equip(id)
 			_saved()
 			_pop[id] = 0.5
 			Beeper.good()
@@ -151,7 +151,7 @@ func _buy(id: String) -> void:
 	if not Store.buy(cat, save, id):
 		_shake[id] = SHAKE_S
 		return
-	Store.equip(cat, save, id)
+	_equip(id)
 	_saved()
 	_pop[id] = 0.6
 	Beeper.good()
@@ -178,6 +178,14 @@ func _saved() -> void:
 	if persist:
 		SaveStore.write(save)
 	Look.apply(save)
+
+
+## Puts an item on. A dragon colour also makes the robot dragon the hero:
+## picking a colour means wanting to play the dragon in it.
+func _equip(id: String) -> void:
+	Store.equip(cat, save, id)
+	if Store.item(cat, id).get("kind") == "color":
+		Store.equip(cat, save, Look.DEFAULT_HERO)
 
 
 func _tab_items() -> Array:
@@ -316,8 +324,8 @@ func _draw_back(font: Font) -> void:
 	draw_string(font, r.position + Vector2(58, r.size.y / 2.0 + 11), "Back", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
 
 
-## The tabs are pictures: the hero in use, and a pair of dice in the skin in
-## use (one red, the take-away die).
+## The tabs are pictures: the hero in use, and the robot dragon in the
+## colour in use with a little paint drop.
 func _draw_tabs() -> void:
 	for k in TAB_RECTS:
 		var r: Rect2 = TAB_RECTS[k]
@@ -333,8 +341,11 @@ func _draw_tabs() -> void:
 					Color.WHITE if on else Color(0.7, 0.7, 0.7))
 		else:
 			var m := Color.WHITE if on else Color(0.7, 0.7, 0.7)
-			draw_texture_rect(DiceSkins.face(Look.dice_id, 5), Rect2(r.get_center() + Vector2(-50, -26), Vector2(52, 52)), false, m)
-			draw_texture_rect(DiceSkins.face(Look.dice_id, 2, true), Rect2(r.get_center() + Vector2(2, -20), Vector2(46, 46)), false, m)
+			var tex := Look.color_texture(Look.color_id)
+			var s := 66.0 / tex.get_height()
+			var size := tex.get_size() * s
+			draw_texture_rect(tex, Rect2(r.get_center() - size / 2.0 + Vector2(-14, 2), size), false, m)
+			_paint_drops(r.get_center() + Vector2(42, 4), m)
 
 
 func _draw_gems(font: Font) -> void:
@@ -369,11 +380,11 @@ func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:
 	var tint := Color.WHITE
 	if st == Store.LOCKED:
 		# dim, but still easy to make out: something to look forward to
-		tint = Color(0.55, 0.53, 0.62) if it["kind"] == "hero" else Color(0.78, 0.76, 0.84)
+		tint = Color(0.55, 0.53, 0.62)
 	elif st == Store.SHORT:
 		tint = Color(0.85, 0.85, 0.85)
-	if it["kind"] == "hero":
-		var tex := Look.hero_texture(id)
+	if it["kind"] == "hero" or it["kind"] == "color":
+		var tex := Look.hero_texture(id) if it["kind"] == "hero" else Look.color_texture(id)
 		var s := minf(1.0, minf(pic.size.x / tex.get_width(), pic.size.y / tex.get_height())) * (1.0 + pop)
 		var bob := 0.0
 		if st == Store.EQUIPPED:
@@ -384,13 +395,6 @@ func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:
 		draw_circle(Vector2.ZERO, 30.0, Color(0, 0, 0, 0.25))
 		draw_set_transform(Vector2.ZERO)
 		draw_texture_rect(tex, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
-	else:
-		var big := 74.0 * (1.0 + pop)
-		var c := pic.get_center() + Vector2(-8, -6)
-		draw_texture_rect(DiceSkins.face(id, 5), Rect2(c - Vector2(big, big) / 2.0, Vector2(big, big)), false, tint)
-		var small := 44.0 * (1.0 + pop)
-		var c2 := c + Vector2(34, 40)
-		draw_texture_rect(DiceSkins.face(id, 2, true), Rect2(c2 - Vector2(small, small) / 2.0, Vector2(small, small)), false, tint)
 	# what a tap does
 	var mid := r.position.x + r.size.x / 2.0
 	match st:
@@ -487,11 +491,40 @@ func _currency_icon(cid: String, c: Vector2, size: float) -> void:
 				p.append(c + Vector2(sin(t) * h * 0.4, -cos(t) * h).rotated(-0.6))
 			_shape(p, light)
 			draw_line(c + Vector2(0, h * 1.1).rotated(-0.6), c + Vector2(0, -h * 0.8).rotated(-0.6), col, 2.5)
+		"broach":
+			# a round gold brooch with a green stone (the Bog's old brooches)
+			draw_circle(c, h * 0.95, DARK)
+			draw_circle(c, h * 0.82, col)
+			for k in 8:
+				draw_circle(c + Vector2(0, -h * 0.62).rotated(TAU * k / 8.0), h * 0.12, col.lightened(0.35))
+			draw_circle(c, h * 0.42, DARK)
+			draw_circle(c, h * 0.34, light)
+			draw_circle(c + Vector2(-h * 0.1, -h * 0.12), h * 0.1, Color(1, 1, 1, 0.8))
+		"mushroom":
+			var cap := PackedVector2Array()
+			for k in 13:
+				var t := PI * k / 12.0
+				cap.append(c + Vector2(-cos(t) * h, -sin(t) * h * 0.8 + h * 0.05))
+			_shape(cap, col)
+			draw_circle(c + Vector2(-h * 0.35, -h * 0.35), h * 0.14, light)
+			draw_circle(c + Vector2(h * 0.3, -h * 0.45), h * 0.12, light)
+			var stem := PackedVector2Array([c + Vector2(-h * 0.28, h * 0.05), c + Vector2(h * 0.28, h * 0.05),
+					c + Vector2(h * 0.34, h * 0.95), c + Vector2(-h * 0.34, h * 0.95)])
+			_shape(stem, light)
 		"star":
 			_star(c, h, col, DARK)
 			draw_circle(c + Vector2(-h * 0.2, -h * 0.2), h * 0.18, light)
 		_:
 			draw_circle(c, h, col)
+
+
+## Three paint drops (red, green, purple) for the colours tab.
+func _paint_drops(c: Vector2, m: Color) -> void:
+	var cols := [Color(0.9, 0.2, 0.2), Color(0.3, 0.75, 0.35), Color(0.6, 0.35, 0.9)]
+	for k in 3:
+		var p := c + Vector2(0, -20 + k * 20)
+		draw_circle(p, 9.0, Color(DARK, m.a))
+		draw_circle(p, 7.0, cols[k] * m)
 
 
 func _shape(p: PackedVector2Array, col: Color) -> void:

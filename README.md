@@ -15,15 +15,17 @@ The old ten-task path is still there: `godot --path . -- --area=lava_1`.
 
 ## The store
 
-The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and dice
-skins on two tabs, priced in currencies listed in `content/store.json` with their rules
+The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and robot
+dragon colours (red, black, green, purple, pink; they replaced dice skins on 2026-11-06)
+on two tabs, priced in currencies listed in `content/store.json` with their rules
 in `logic/core/store.gd`. Only the helmet slime can be bought now (40 gems, about three
 cleared Acorn crossings: each banks 15 gems on average, 10 to 20); the others need
-currencies from areas and grades still to come, so they show a lock. A later area opens
-its currency by setting `"open": true` in the catalog. Equipped hero and dice show in
-the crossing, fights and the boss fight (`game/ui/look.gd`); dice skins are drawn in code
-(`game/ui/dice_skins.gd`) and the take-away die stays red in every skin. Hero art:
-PixelLab, `art/heroes/`. Stills: `res://tools/stills/store_stills.tscn` (same command as
+currencies from worlds and grades still to come (crystals, the Bog's broaches,
+mushrooms, grade stars), so they show a lock. A later world opens its currency by
+setting `"open": true` in the catalog. Tapping the gem count offers a reset to 0. The
+equipped hero and dragon colour show in the crossing, fights and the boss fight
+(`game/ui/look.gd`). Colours are recoloured from the dragon by
+`tools/art/recolor_dragon.py`. Hero art: PixelLab, `art/heroes/`. Stills: `res://tools/stills/store_stills.tscn` (same command as
 the other stills).
 
 ## Run it
