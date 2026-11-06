@@ -1,6 +1,6 @@
-# Ellwynn in the game: main menu intro and cue plan (draft 1, 2026-11-06)
+# Ellwynn in the game: main menu intro and cue plan (draft 2, 2026-11-06)
 
-A plan only. No art or audio has been made for it, and nothing has been spent.
+A plan. Only the three placeholder voice lines have been made (section 3). No art has been made.
 The look and voice come from `/mnt/project-files/sum-dungeon/Ellwynn-Character-Bible.md`,
 which wins if this page disagrees with it.
 
@@ -13,8 +13,8 @@ heard, not seen. She shows up on screen only at these moments:
 |---|---|---|
 | Main menu, first visit | Yes, full body | Says hello and explains the game (section 3). |
 | Main menu, later visits | Yes, full body, quiet | Stands in her spot. One short greeting. Tap her to hear the explanation again. |
-| Enemy beaten | **Sometimes** (about 1 in 3) | Her 96 px bust pops into the bottom-left corner for about 1.2 s with a quick "Yay!" and pops out. The other times she only speaks, or says nothing. |
-| Treasure chest opened | No, voice only | A short word of encouragement ("Ooh, gems!"). Not every chest, so it stays special. |
+| Enemy beaten | **Sometimes** (about 1 in 3) | Her 96 px bust pops into the bottom-left corner for about 1.2 s with a quick cheer and pops out. The other times she only speaks, or says nothing. |
+| Treasure chest opened | No, voice only | A short word of encouragement. Not every chest, so it stays special. |
 | Region boss beaten | Yes, full body | She walks or slides in beside the hero and congratulates the player, with a longer line. This is her big moment. |
 | Reading questions ("Which stone is safe?") | No, voice only | Reads the talk box text aloud. |
 
@@ -41,14 +41,14 @@ The bottom left of the 4:3 band (x 120..380) is empty apart from the small
 
 ### How she reacts to the buttons
 
-| Tap | Her reaction | Voice (draft) |
+| Tap | Her reaction | Line |
 |---|---|---|
-| A grade or level (Play) | Hops once and points the way | "Let's go!" |
-| Go (resume) | Hops once | "Back we go!" |
-| Shop | Leans toward it, locket flares | "Ooh, shiny!" |
-| Back from the Shop | Small wave | "Nice pick!" (only if something was bought) |
-| Menu button (top right, in play) then Main Menu | Already standing in her spot when the map comes back | "Welcome back!" |
-| Ellwynn herself | Turns to the child | Replays the explanation |
+| A grade or level (Play) | Hops once and points the way | Sheet point M3 |
+| Go (resume) | Hops once | Sheet point M4 |
+| Shop | Leans toward it, locket flares | Sheet point M5 |
+| Back from the Shop | Small wave | Sheet point M6 |
+| Menu button (top right, in play) then Main Menu | Already standing in her spot when the map comes back | Sheet point M2 |
+| Ellwynn herself | Turns to the child | Replays the explanation (M1) |
 
 The hop, lean and wave are code motion on the one approved image (move, squash,
 a tilt of a few degrees), so they cost nothing. A real pointing or waving pose
@@ -58,44 +58,33 @@ The two-tap rule still applies to the play buttons where it applies now, so a
 tap on Play starts her line and the game swaps screens when the line ends or
 after 1 s, whichever comes first.
 
-## 3. The explanation script (draft for Terrence and Rachel to rewrite)
+## 3. Her lines: placeholders now, Terrence and Rachel write the real ones
 
-Terrence and Rachel write her lines, so these are placeholders that show the
-length and order, not final wording. On-screen words are sight words of 3 to 5
-letters in a small speech bubble beside her; the voice says the rest.
+Terrence, 2026-11-06: "we'll write the lines, you give us the situation and the
+context, point by point". The situations are in the separate sheet
+**`docs/ellwynn-lines-sheet.md`**, one point per moment, each with what is on
+screen, what the child just did, how long the line can be, and how many
+variants are worth having.
 
-**First visit** (plays once, about 30 s, a save flag `ellwynn_intro_seen` stops it repeating):
+Until a point's real line is written, the game plays one of three generic
+placeholders that fit any moment (generated 2026-11-06 in the Bubbles voice,
+eleven_v4, 2 takes each, about 107 credits in all):
 
-| # | Voice | Bubble |
-|---|---|---|
-| 1 | "Hi! I'm Ellwynn. I'm here to help you!" | Hi! |
-| 2 | "To cross the lava, roll the dice and count the dots." | Roll |
-| 3 | "Tap the stone with that number, then tap Go to hop." | Tap · Go |
-| 4 | "Monsters will try to stop you. Pick the right number to beat them!" | Pick |
-| 5 | "Open chests to find gems, and spend them in the Shop." | Gems · Shop |
-| 6 | "If you miss, you go back to the start. Just try again!" | Try |
-| 7 | "Tap Acorn to play. Tap me if you want to hear this again!" | Play |
+| Placeholder | Takes |
+|---|---|
+| "Yay!" | `yay-1.mp3`, `yay-2.mp3` |
+| "Woo-hoo!" | `woohoo-1.mp3`, `woohoo-2.mp3` |
+| "Let's go!" | `letsgo-1.mp3`, `letsgo-2.mp3` |
 
-While each line plays, the button it talks about glows (the Shop for line 5,
-Acorn for line 7). Any tap on a button ends the intro and does what was tapped.
-
-**Later visits:** one random line from a short set ("Welcome back!", "Ready to
-roll?", "Let's go!"), and a tiny "?" bubble over her head as a reminder that
-tapping her replays the explanation.
-
-**Replay:** tapping her plays lines 2 to 7 (skipping the hello).
-
-### In-play cues (from Terrence's list)
-
-| Cue | Lines needed | Draft |
-|---|---|---|
-| Enemy beaten | 3 to 4 short ones | "Yay!", "You did it!", "Woo-hoo!", "Got it!" |
-| Treasure opened | 3 to 4 | "Ooh, gems!", "Shiny!", "Nice find!" |
-| Region boss beaten | 1 to 2 per boss | "You beat the Skeleton Dragon! You're amazing!" |
-| Questions read aloud | 1 per question | "Which stone is safe?" and the fight and chest prompts |
+They are in `/mnt/project-files/sum-dungeon/ellwynn-intro/placeholder-voice/`.
+Each sheet point falls back to a random placeholder while its own line is
+missing, so lines can be swapped in one at a time as they are written and
+generated. The explanation itself (M1) has no placeholder that makes sense, so
+until it is written, tapping her just plays a placeholder.
 
 A small queue makes sure she never talks over herself, and the music ducks
 about 10 dB while she speaks (`game/music.gd` already leaves room for this).
+
 
 ## 4. Talking: mouth frames
 
@@ -118,33 +107,29 @@ about 10 dB while she speaks (`game/music.gd` already leaves room for this).
   against the 12 fixed details. I suggest hand-made frames first, and the
   PixelLab tool only if the hand-made ones look stiff.
 
+
 ## 5. Voice: production steps and cost
 
 **Voice:** ElevenLabs Bubbles, id `cl7Lq9M5lHPrBM5kbtI6`, model eleven_v4.
 Save it to My Voices first, so the owner cannot withdraw it from under us.
 
-**Steps:**
+**Steps (per line, as each one is written):**
 
-1. Terrence and Rachel finalise the wording (section 3).
-2. One line per file, generated with 2 takes each. Terrence picks the take.
+1. Terrence and Rachel write the line for a sheet point.
+2. Generate it with 2 takes. Terrence picks the take.
 3. Trim silence, normalise loudness, and export as OGG for Godot (about 20 KB a line).
-4. The script makes each line's mouth track (section 4).
-5. Files go in `audio/voice/ellwynn/<cue>-<n>.ogg`, listed in one
-   `content/ellwynn_lines.json` so cues pick from them.
+4. The script makes the line's mouth track (section 4).
+5. The file goes in `audio/voice/ellwynn/<point>-<n>.ogg` and is listed in
+   `content/ellwynn_lines.json`, replacing the placeholder for that point.
 
-**Cost estimate** (from ElevenLabs' published prices; I have not checked
-Terrence's current plan):
+**Cost:** Terrence's ElevenLabs plan is about $20 a month (the Creator plan is
+$22 with about 100,000 credits). Measured on 2026-11-06, a short line costs
+14 to 20 credits a take, so the three placeholders with 2 takes each came
+to about 107 credits, roughly 2 cents of the month's credits. The whole sheet
+(about 60 lines, 2 takes each, plus retakes) should need at most about 3,000
+credits, around 3% of one month, so **no extra spend beyond the plan he already
+pays for**. The plan includes the commercial licence needed for Steam and Xbox.
 
-| Batch | Characters (with 2 takes) | Credits | Dollars |
-|---|---|---|---|
-| Main menu intro, greetings, button reactions (about 17 lines) | about 1,400 | about 1,400 | |
-| In-play cues and Lava Caves question lines (about 20 lines) | about 1,200 | about 1,200 | |
-| Retakes margin | | about 1,000 | |
-| **Total for this plan** | | **about 3,600** | **$5** (one month of the Starter plan, 30,000 credits), or **$0** if the current plan's credits cover it |
-
-The Starter plan or higher is needed for the commercial licence when the game
-ships on Steam and Xbox; the free plan does not include it. This is a small
-part of the $100 to $200 voice budget for the whole series.
 
 ## 6. Build order (once the questions are answered)
 
@@ -152,14 +137,13 @@ part of the $100 to $200 voice budget for the whole series.
 2. Main menu spot, intro, replay, button reactions, save flag.
 3. Voice queue and music ducking.
 4. In-play cues: enemy "yay" pop-in, chest voice, boss congratulation, questions read aloud.
-5. Generate audio and make mouth frames (after the spend is approved).
+5. Generate each real line as it is written, and make the mouth frames.
+
 
 ## 7. Questions for Terrence
 
-1. **Wording:** do you and Rachel want to write the intro lines yourselves, or start from the draft in section 3?
-2. **Main menu:** is the full body standing bottom left right, or would you rather have the 96 px bust in a corner there too?
-3. **Pose:** are code moves (hop, lean, wave-like tilt) on the one approved image enough for now, or do you want a real pointing or waving pose? That would be new art, PixelLab first.
-4. **Mouth frames:** shall I make the 2 or 3 mouth frames and the blink as free hand edits for you to check, or will you draw them in Aseprite?
-5. **How often:** is "about 1 in 3 enemies" right for the quick "Yay!" pop-in, and should every chest get a voice line or only some?
-6. **Boss win:** should she appear full body beside the hero when a region's boss is beaten, and is a longer line (about 5 s) okay there?
-7. **Voice spend:** which ElevenLabs plan are you on now? Is about $5 (or the current credits) okay to generate the lines once the wording is final?
+1. **Main menu:** is the full body standing bottom left right, or would you rather have the 96 px bust in a corner there too?
+2. **Pose:** are code moves (hop, lean, wave-like tilt) on the one approved image enough for now, or do you want a real pointing or waving pose? That would be new art, PixelLab first.
+3. **Mouth frames:** shall I make the 2 or 3 mouth frames and the blink as free hand edits for you to check, or will you draw them in Aseprite?
+4. **How often:** is "about 1 in 3 enemies" right for the quick "Yay!" pop-in, and should every chest get a line or only some?
+5. **Boss win:** should she appear full body beside the hero when a region's boss is beaten?
