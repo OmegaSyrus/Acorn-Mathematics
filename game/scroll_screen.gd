@@ -17,6 +17,7 @@ const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
+const Look := preload("res://game/ui/look.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
@@ -140,8 +141,9 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 func _ready() -> void:
 	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
-			"robodragon", "blorp-idle", "craggy", "surtling"]:
+			"blorp-idle", "craggy", "surtling"]:
 		tex[f] = load(ART + f + ".png")
+	tex["hero"] = Look.hero_texture()  # the robot dragon or the store hero in use
 	world = Node2D.new()
 	world.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	add_child(world)
@@ -696,7 +698,7 @@ func _pop() -> float:
 
 
 func _draw_hero() -> void:
-	var t: Texture2D = tex["robodragon"]
+	var t: Texture2D = tex["hero"]
 	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * 120.0)
 	var pos := feet - Vector2(t.get_width() / 2.0, t.get_height())
 	if hero_sink > 0.0:
@@ -726,8 +728,9 @@ func _draw_worried(top_left: Vector2, line_y: float) -> void:
 	var a := worried
 	var ink := Color(0.12, 0.1, 0.16, a)
 	# the brow, just over the eye: low at the outer end, steeply up toward the
-	# snout (worried, not cross)
-	for k in 8:
+	# snout (worried, not cross). Only the dragon's eye is known; other store
+	# heroes just sweat.
+	for k in (8 if Look.is_default_hero() else 0):
 		var p := top_left + Vector2(31 + k * 3.5, 27 - k * 1.9)
 		if p.y < line_y:
 			world.draw_rect(Rect2(p.round(), Vector2(5, 5)), ink)

@@ -10,6 +10,7 @@ const MapScreen := preload("res://game/map_screen.gd")
 const AreaScreen := preload("res://game/area_screen.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const ScrollScreen := preload("res://game/scroll_screen.gd")
+const StoreScreen := preload("res://game/store_screen.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
 
 const DESIGN := Vector2(960, 540)
@@ -84,7 +85,19 @@ func show_map() -> void:
 	var m := MapScreen.new()
 	m.setup(save, shown, area_id)
 	m.start.connect(_on_start)
+	m.shop.connect(show_store)
 	_swap(m)
+	menu.visible = false
+	Music.play_menu()
+
+
+## The store, from the map's Shop button; Back returns to the map. The menu
+## song keeps playing.
+func show_store() -> void:
+	var st := StoreScreen.new()
+	st.setup(save)
+	st.back.connect(show_map)
+	_swap.call_deferred(st)
 	menu.visible = false
 	Music.play_menu()
 

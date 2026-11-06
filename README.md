@@ -13,6 +13,21 @@ to 4 gems, a monster starts a fight. A wrong rock sinks the slime with a blorp a
 crossing starts again. Art is in `art/lava/` (PixelLab, see the project's art folders).
 The old ten-task path is still there: `godot --path . -- --area=lava_1`.
 
+## The store
+
+The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and robot
+dragon colours (red, black, green, purple, pink; they replaced dice skins on 2026-11-06)
+on two tabs, priced in currencies listed in `content/store.json` with their rules
+in `logic/core/store.gd`. Only the helmet slime can be bought now (40 gems, about three
+cleared Acorn crossings: each banks 15 gems on average, 10 to 20); the others need
+currencies from worlds and grades still to come (crystals, the Bog's broaches,
+mushrooms, grade stars), so they show a lock. A later world opens its currency by
+setting `"open": true` in the catalog. Tapping the gem count offers a reset to 0. The
+equipped hero and dragon colour show in the crossing, fights and the boss fight
+(`game/ui/look.gd`). Colours are recoloured from the dragon by
+`tools/art/recolor_dragon.py`. Hero art: PixelLab, `art/heroes/`. Stills: `res://tools/stills/store_stills.tscn` (same command as
+the other stills).
+
 ## Run it
 
 Godot 4.4 (standard build, not .NET). Open `project.godot`, press Play.

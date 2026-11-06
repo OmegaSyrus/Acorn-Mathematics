@@ -20,6 +20,7 @@ const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
+const Look := preload("res://game/ui/look.gd")
 
 ## Peg colours by face. Acorn uses 1 to 3; the colour helps the eye, the
 ## count is the answer.
@@ -58,7 +59,6 @@ const CLAW_TEX := preload("res://art/boss/bone-claw.png")
 const CLAW_AT := Vector2(690, 236)
 const CLAW_SCALE := 1.5
 ## The player's robot dragon watches from the bottom left.
-const HERO_TEX := preload("res://art/lava/robodragon.png")
 const INK := Color(0.96, 0.94, 0.9)
 const OUTLINE := Color(0.08, 0.03, 0.03)
 const WALL := Color(0.55, 0.42, 0.35)
@@ -75,6 +75,8 @@ const BOSS_JAW := Vector2(770, 170)
 const FLOAT_S := 1.1
 const FIRST_FACE_Y := 150.0
 
+## The robot dragon, or the store hero in use (game/ui/look.gd).
+var hero_tex: Texture2D = Look.hero_texture()
 var fight
 var debug_on := false
 var choice: ChoiceWidget
@@ -535,9 +537,9 @@ func _draw_claw() -> void:
 
 ## The player's robot dragon, facing the board, bobbing gently.
 func _draw_hero() -> void:
-	var size := HERO_TEX.get_size()
+	var size := hero_tex.get_size()
 	var bob := absf(sin(_t * 2.2)) * 3.0
-	draw_texture_rect(HERO_TEX, Rect2(_hero_feet() - Vector2(size.x / 2.0, size.y + bob), size), false)
+	draw_texture_rect(hero_tex, Rect2(_hero_feet() - Vector2(size.x / 2.0, size.y + bob), size), false)
 
 
 ## The boss's hearts and the balls left, in pixel art on fiery panels.

@@ -15,6 +15,13 @@ static func new_profile(profile_id: String) -> Dictionary:
 		"gems": 0,
 		"marks": {},
 		"run": null,
+		# the store (content/store.json, logic/core/store.gd). "gems" above stays
+		# the gem balance; other currencies live in "currencies" by id.
+		"currencies": {},
+		"owned": [],
+		"hero": "robodragon",
+		"color": "steel",
+		"dice": "classic",
 	}
 
 
@@ -53,5 +60,10 @@ static func from_text(text: String, profile_id: String) -> Dictionary:
 	var fresh := new_profile(profile_id)
 	for k in fresh:
 		if not save.has(k):
+			save[k] = fresh[k]
+	# saves from before the store load with its defaults; a hand-broken store
+	# field falls back to its default too
+	for k in ["currencies", "owned", "hero", "color", "dice"]:
+		if typeof(save[k]) != typeof(fresh[k]):
 			save[k] = fresh[k]
 	return save
