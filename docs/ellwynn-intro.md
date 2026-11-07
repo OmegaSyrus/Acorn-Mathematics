@@ -13,7 +13,7 @@ heard, not seen. She shows up on screen only at these moments:
 |---|---|---|
 | Main menu, first visit | Yes, full body | Says hello and explains the game (section 3). |
 | Main menu, later visits | Yes, full body, quiet | Stands in her spot. One short greeting. Tap her to hear the explanation again. |
-| Enemy beaten | **Sometimes** (about 1 in 3) | Her 96 px bust pops into the bottom-left corner for about 1.2 s with a quick cheer and pops out. The other times she only speaks, or says nothing. |
+| Enemy beaten | **Sometimes** (1 in 3, confirmed by Terrence 2026-11-07) | Her 96 px bust pops into the bottom-left corner for about 1.2 s with a quick cheer and pops out. The other times she only speaks, or says nothing. |
 | Treasure chest opened | No, voice only | A short word of encouragement. Not every chest, so it stays special. |
 | Region boss beaten | Yes, full body | She walks or slides in beside the hero and congratulates the player, with a longer line. This is her big moment. |
 | Reading questions ("Which stone is safe?") | No, voice only | Reads the talk box text aloud. |
@@ -51,8 +51,7 @@ The bottom left of the 4:3 band (x 120..380) is empty apart from the small
 | Ellwynn herself | Turns to the child | Replays the explanation (M1) |
 
 The hop, lean and wave are code motion on the one approved image (move, squash,
-a tilt of a few degrees), so they cost nothing. A real pointing or waving pose
-would be new art; see the questions.
+a tilt of a few degrees), so they cost nothing. Terrence, 2026-11-07: hops and leans are enough, so no new pose art is planned.
 
 The two-tap rule still applies to the play buttons where it applies now, so a
 tap on Play starts her line and the game swaps screens when the line ends or
@@ -147,8 +146,9 @@ pays for**. The plan includes the commercial licence needed for Steam and Xbox.
 
 ## 7. Questions for Terrence
 
-Answered 2026-11-06: the menu shows her full body; I draw the mouth frames with PixelLab.
+Answered: the menu shows her full body and I draw the mouth frames with PixelLab
+(2026-11-06); the quick "Yay!" pop-in shows on 1 in 3 enemy wins, and hops and
+leans are enough with no new pose (2026-11-07).
 
-1. **Pose:** are code moves (hop, lean, wave-like tilt) on the one approved image enough for now, or do you want a real pointing or waving pose? That would be new art, PixelLab first.
-2. **How often:** is "about 1 in 3 enemies" right for the quick "Yay!" pop-in, and should every chest get a line or only some?
-3. **Boss win:** should she appear full body beside the hero when a region's boss is beaten?
+1. **Chests:** should every chest get a voice line, or only some (the plan says most, not all)?
+2. **Boss win:** should she appear full body beside the hero when a region's boss is beaten?
