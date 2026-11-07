@@ -50,14 +50,26 @@ func test_areas_have_6_to_10_tasks() -> bool:
 ## grades that have a "move" config.
 func _check_scroll(a: Dictionary) -> void:
 	var id: String = a["id"]
-	var length: int = a["length"]
-	check(length >= 10, "scroll %s too short" % id)
 	for gid in a["grades"]:
 		check(Content.grades()[int(gid)].has("move"), "scroll %s grade %d has no move config" % [id, gid])
+	var entries: Array
+	var key: String
+	var top: int
+	if a.has("guesses"):
+		# a run of guesses: the steps land on the stones the answers reach
+		top = int(a["guesses"])
+		check(top >= 3, "scroll %s too few guesses" % id)
+		entries = a["steps"]
+		key = "after"
+	else:
+		top = int(a["length"])
+		check(top >= 10, "scroll %s too short" % id)
+		entries = a["spaces"]
+		key = "at"
 	var seen := {}
-	for s in a["spaces"]:
-		var at: int = s["at"]
-		check(at > 0 and at < length and not seen.has(at), "scroll %s bad space %d" % [id, at])
+	for s in entries:
+		var at: int = s[key]
+		check(at > 0 and at < top and not seen.has(at), "scroll %s bad %s %d" % [id, key, at])
 		seen[at] = true
 		check(["chest", "monster"].has(s["type"]), "scroll %s unknown space type" % id)
 		if s["type"] == "monster":

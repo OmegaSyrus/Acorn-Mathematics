@@ -85,7 +85,59 @@ func test_perfect_player_crosses() -> bool:
 			else:
 				run.roll()
 				run.choose(run.problem["answer_index"])
-		check(run.phase == ScrollRun.CLEARED and run.attempt == 1 and run.pos == 40, "perfect run %d" % i)
+		check(run.phase == ScrollRun.CLEARED and run.attempt == 1 and run.pos == run.length(), "perfect run %d" % i)
+	return true
+
+
+## Terrence 2026-11-07: a run is 9 guesses and the crossing has as many
+## stones as the 9 answers add up to. Each roll's answer is the next one
+## drawn; a sink starts a new run with new answers and a new crossing.
+func test_run_is_9_guesses() -> bool:
+	var lengths := {}
+	for i in 600:
+		var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 900 + i)
+		if i % 3 == 0:
+			run.roll()
+			run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+			check(run.rolls == 0 and run.answers.size() == 9, "a sink starts a new run of 9")
+		var answers: Array = run.answers.duplicate()
+		var total := 0
+		for a in answers:
+			total += int(a)
+		check(run.length() == total, "seed %d: %d stones for answers %s" % [900 + i, run.length(), answers])
+		var guard := 0
+		while run.phase != ScrollRun.CLEARED and guard < 100:
+			guard += 1
+			if run.phase == ScrollRun.AWAIT_FIGHT:
+				run.resolve_fight(true)
+			else:
+				var p := run.roll()
+				check(p["answer"] == answers[run.rolls - 1], "roll %d answers %d" % [run.rolls, p["answer"]])
+				run.choose(run.problem["answer_index"])
+		check(run.rolls == 9 and run.attempt == (2 if i % 3 == 0 else 1), "seed %d took %d rolls" % [900 + i, run.rolls])
+		lengths[run.length()] = true
+	check(lengths.size() > 10, "crossing lengths vary: %s" % [lengths.keys()])
+	return true
+
+
+## Every step's event sits on the stone its answers reach, so a perfect run
+## meets every chest and monster; an opened chest stays empty in a new layout.
+func test_steps_land_on_the_answers() -> bool:
+	var area := Content.area("lava_scroll")
+	var run := ScrollRun.new(area, Content.grades()[1], 31)
+	var at := 0
+	for k in 8:
+		at += int(run.answers[k])
+		var st: Dictionary = area["steps"][k]
+		check(run.space_at(at).get("type") == st["type"], "step %d on stone %d" % [k + 1, at])
+	run.roll()
+	var first := run.choose(run.problem["answer_index"])
+	check(first["result"] == "chest" and run.looted == [1], "the first stone is the first chest")
+	run.roll()
+	run.choose(run.problem["answer_index"])
+	check(run.phase == ScrollRun.AWAIT_FIGHT, "the second stone is Blorp")
+	run.resolve_fight(false)
+	check(run.is_looted(int(run.answers[0])), "chest 1 stays empty after a restart")
 	return true
 
 
@@ -105,6 +157,20 @@ func test_save_resume() -> bool:
 	return true
 
 
+## The crossing before guesses (40 fixed stones), for the walk-over rules,
+## which still hold for any area that names its spaces.
+const FIXED := {
+	"id": "fixed_scroll", "type": "scroll", "grades": [1], "length": 40,
+	"chest_gems": {"common": 1, "rare": 2, "rare_in": 6},
+	"spaces": [
+		{"at": 4, "type": "chest"}, {"at": 9, "type": "monster", "monster": "blorp"},
+		{"at": 13, "type": "chest"}, {"at": 18, "type": "chest"},
+		{"at": 22, "type": "monster", "monster": "surtling"}, {"at": 27, "type": "chest"},
+		{"at": 31, "type": "chest"}, {"at": 35, "type": "monster", "monster": "craggy"},
+	],
+}
+
+
 ## Rigs the next move so the right answer is `dist` spaces ahead.
 func _force_move(run: ScrollRun, dist: int) -> int:
 	run.roll()
@@ -115,7 +181,7 @@ func _force_move(run: ScrollRun, dist: int) -> int:
 ## Walking over a chest opens it on the way; walking over a monster stops
 ## there for the fight, and a win finishes the walk.
 func test_walking_over_triggers() -> bool:
-	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 5)
+	var run := ScrollRun.new(FIXED, Content.grades()[1], 5)
 	run.pos = 2
 	run.target = 2
 	var out := run.choose(_force_move(run, 5))  # 3..7 passes the chest on 4
@@ -127,7 +193,7 @@ func test_walking_over_triggers() -> bool:
 	check(out["result"] == "monster" and out["to"] == 9 and run.pos == 9, "stopped at the monster: %s" % str(out))
 	check(run.phase == ScrollRun.AWAIT_FIGHT and run.target == 12, "fight pending, walk not done")
 	var save := run.to_save()
-	var again := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], save["seed"])
+	var again := ScrollRun.new(FIXED, Content.grades()[1], save["seed"])
 	again.restore(save)
 	eq(again.to_save(), save, "resume mid-walk")
 	var won := run.resolve_fight(true)
@@ -139,7 +205,7 @@ func test_walking_over_triggers() -> bool:
 
 
 func test_lost_fight_on_the_way_restarts() -> bool:
-	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 6)
+	var run := ScrollRun.new(FIXED, Content.grades()[1], 6)
 	run.pos = 7
 	run.target = 7
 	run.choose(_force_move(run, 4))

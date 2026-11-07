@@ -67,7 +67,7 @@ func test_gem_items_are_the_lava_items() -> bool:
 func test_gem_prices_fit_the_treasure() -> bool:
 	var area := Content.area("lava_scroll")
 	var chests := 0
-	for s in area["spaces"]:
+	for s in area["steps"]:
 		if s["type"] == "chest":
 			chests += 1
 	var cfg = area["chest_gems"]

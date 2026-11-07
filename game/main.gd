@@ -6,6 +6,7 @@ const InputSetup := preload("res://game/input_setup.gd")
 const Content := preload("res://logic/core/content.gd")
 const AreaRun := preload("res://logic/path/area_run.gd")
 const SaveStore := preload("res://game/save_store.gd")
+const SaveData := preload("res://logic/core/save_data.gd")
 const MapScreen := preload("res://game/map_screen.gd")
 const AreaScreen := preload("res://game/area_screen.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
@@ -96,10 +97,22 @@ func show_map() -> void:
 	m.shop.connect(func():
 		Ellwynn.menu_tap("shop")
 		show_store())
+	m.reset_save.connect(_reset_save)
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
 	Ellwynn.menu_enter(save)
+
+
+## The main menu's Reset, held through its question: a fresh save (gems,
+## purchases, marks, the saved run, Ellwynn's intro), then the menu again.
+func _reset_save() -> void:
+	var fresh := SaveData.new_profile(String(save.get("profile", SaveStore.PROFILE)))
+	save.clear()
+	save.merge(fresh)
+	SaveStore.write(save)
+	Ellwynn.stop_voice()
+	show_map.call_deferred()
 
 
 ## The store, from the map's Shop button; Back returns to the map. The menu

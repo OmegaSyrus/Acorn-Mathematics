@@ -41,11 +41,18 @@ func _ready() -> void:
 	s.choice._select(s.run.problem["answer_index"])
 	await _frames(10)
 	_shot("lava-selected")
+	# a wrong guess: Ellwynn pops up and says the right answer
+	Ellwynn.offset = stage.position
+	Ellwynn.say_answer(int(s.run.problem["answer"]))
+	await _frames(20)
+	_shot("lava-wrong-ellwynn")
+	Ellwynn.stop_voice()
+	Ellwynn._set_mode("off")
 	s.choice.close()
 	var mpos := -1
-	for sp in area["spaces"]:
-		if sp["type"] == "monster":
-			mpos = int(sp["at"])
+	for at in range(1, s.run.length()):
+		if s.run.space_at(at).get("type") == "monster":
+			mpos = at
 			break
 	s._place_hero(mpos)
 	s.revealed = mpos
@@ -74,6 +81,14 @@ func _ready() -> void:
 			await _frames(1)
 		await _frames(20)
 		_shot("combat" if id == "blorp" else "combat-" + id)
+		if id == "blorp":
+			# a wrong shield: the right one lights up and Ellwynn says it
+			var atk = f.fight.attack
+			f.choice.picked.emit((atk.answer_index + 1) % atk.choices.size())
+			await _frames(25)
+			_shot("combat-wrong-ellwynn")
+			Ellwynn.stop_voice()
+			Ellwynn._set_mode("off")
 		f.queue_free()
 		await _frames(2)
 

@@ -69,7 +69,7 @@ def test_scroll_bots(runs):
     for i in range(runs):
         run = ScrollRun(area, grade, 100 + i)
         cleared, _ = play_scroll(run, "perfect", None)
-        check(cleared and run.pos == area["length"], "perfect scroll bot failed seed %d" % (100 + i))
+        check(cleared and run.pos == run.length() and run.rolls == area["guesses"], "perfect scroll bot failed seed %d" % (100 + i))
         lo, hi = chest_range(area["chest_gems"])
         check(lo * len(run.looted) <= run.gems <= hi * len(run.looted), "gems vs looted chests seed %d" % (100 + i))
     rnd = sum(play_scroll(ScrollRun(area, grade, 900 + i), "random", SeededRng(i + 1))[0] for i in range(runs))

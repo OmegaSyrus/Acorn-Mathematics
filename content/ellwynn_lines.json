@@ -2,9 +2,18 @@
   "version": 1,
   "_note": "Ellwynn's lines by cue (docs/ellwynn-lines-sheet.md). A cue with no lines of its own plays one of the placeholders. Terrence and Rachel write the real lines; add each as {\"file\": ..., \"bubble\": ...} under its cue. bubble is a short sight word (3 to 5 letters) or empty.",
   "placeholders": [
-    { "file": "res://audio/voice/ellwynn/placeholder-yay.mp3", "bubble": "Yay!" },
-    { "file": "res://audio/voice/ellwynn/placeholder-woohoo.mp3", "bubble": "Woo!" },
-    { "file": "res://audio/voice/ellwynn/placeholder-letsgo.mp3", "bubble": "Go!" }
+    {
+      "file": "res://audio/voice/ellwynn/placeholder-yay.mp3",
+      "bubble": "Yay!"
+    },
+    {
+      "file": "res://audio/voice/ellwynn/placeholder-woohoo.mp3",
+      "bubble": "Woo!"
+    },
+    {
+      "file": "res://audio/voice/ellwynn/placeholder-letsgo.mp3",
+      "bubble": "Go!"
+    }
   ],
   "cues": {
     "intro": [],
@@ -13,9 +22,21 @@
     "resume": [],
     "shop": [],
     "enemy": [
-      { "file": "res://audio/voice/ellwynn/placeholder-yay.mp3", "bubble": "Yay!" }
+      {
+        "file": "res://audio/voice/ellwynn/placeholder-yay.mp3",
+        "bubble": "Yay!"
+      }
     ],
     "chest": [],
     "boss_win": []
+  },
+  "_answers_note": "Terrence 2026-11-07: after a wrong guess she says the right answer with a cheerful tone. Bubbles, eleven_v4, prompt \"[cheerful] One!\" and so on, one take each (flow PIySvy4jPrU8YluVR9Mo).",
+  "answers": {
+    "1": "res://audio/voice/ellwynn/answer-1.mp3",
+    "2": "res://audio/voice/ellwynn/answer-2.mp3",
+    "3": "res://audio/voice/ellwynn/answer-3.mp3",
+    "4": "res://audio/voice/ellwynn/answer-4.mp3",
+    "5": "res://audio/voice/ellwynn/answer-5.mp3",
+    "6": "res://audio/voice/ellwynn/answer-6.mp3"
   }
 }

@@ -21,6 +21,12 @@ var pos := 0
 var target := 0   # where the current walk ends; > pos while a fight on the way is pending
 var looted := []  # chest spaces already opened; they stay empty after a restart
 var gems := 0
+var rolls := 0    # rolls this attempt (the area's "rolls" [min, max] bounds a clean run)
+## An area with "guesses" (Terrence 2026-11-07: a run is 9 guesses) draws this
+## attempt's right answers up front, one per guess; the crossing is as long as
+## their sum and its "steps" land on the spaces those answers reach.
+var answers := []
+var _length := 0
 var problem := {}
 var phase := AWAIT_ROLL
 var events := []
@@ -32,14 +38,49 @@ func _init(area_data: Dictionary, grade_data: Dictionary, seed_value: int) -> vo
 	grade = grade_data
 	run_seed = seed_value & Rng.MASK
 	rng = Rng.new(run_seed)
-	for s in area["spaces"]:
-		_spaces[int(s["at"])] = s
+	if is_guessed():
+		_new_answers()
+	else:
+		_length = int(area["length"])
+		for s in area["spaces"]:
+			_spaces[int(s["at"])] = s
+
+
+## True for an area whose length comes from its guesses.
+func is_guessed() -> bool:
+	return area.has("guesses")
+
+
+## Draws a fresh set of answers (one rng draw each, 1..max_answer) and lays
+## the crossing out from them: step n sits on the space the first n answers reach.
+func _new_answers() -> void:
+	answers = []
+	var top: int = grade["move"]["max_answer"]
+	for k in int(area["guesses"]):
+		answers.append(rng.randi_range(1, top))
+	_lay_out()
+
+
+func _lay_out() -> void:
+	_spaces = {}
+	var at := 0
+	var landing := {}
+	for k in answers.size():
+		at += int(answers[k])
+		landing[k + 1] = at
+	_length = at
+	for st in area.get("steps", []):
+		var n := int(st["after"])
+		if landing.has(n) and n < answers.size():
+			var sp: Dictionary = st.duplicate()
+			sp["at"] = landing[n]
+			_spaces[int(landing[n])] = sp
 
 
 # --- save and resume -------------------------------------------------------
 
 func to_save() -> Dictionary:
-	return {
+	var d := {
 		"area": area["id"],
 		"grade": grade["id"],
 		"seed": run_seed,
@@ -48,9 +89,13 @@ func to_save() -> Dictionary:
 		"target": target,
 		"looted": looted.duplicate(),
 		"gems": gems,
+		"rolls": rolls,
 		"phase": phase,
 		"rng_state": rng.get_state(),
 	}
+	if is_guessed():
+		d["answers"] = answers.duplicate()
+	return d
 
 
 ## A run saved mid-choice resumes at the roll; the same rng state rolls the
@@ -61,14 +106,41 @@ func restore(data: Dictionary) -> void:
 	target = maxi(pos, int(data.get("target", pos)))
 	looted = data["looted"].duplicate()
 	gems = data["gems"]
+	rolls = int(data.get("rolls", 0))
+	if data["phase"] == AWAIT_CHOICE:
+		rolls = maxi(0, rolls - 1)  # that roll is rolled again
 	phase = AWAIT_ROLL if data["phase"] == AWAIT_CHOICE else data["phase"]
 	rng.set_state(data["rng_state"])
+	if is_guessed():
+		if data.has("answers"):
+			answers = data["answers"].duplicate()
+			_lay_out()
+		else:
+			# a save from before the guesses (fixed 40 stones): a fresh
+			# crossing from the start, gems and attempt kept
+			pos = 0
+			target = 0
+			rolls = 0
+			looted = []
+			problem = {}
+			phase = AWAIT_ROLL
+			_new_answers()
 
 
 # --- queries ---------------------------------------------------------------
 
 func length() -> int:
-	return area["length"]
+	return _length
+
+
+## A chest space already opened. With guesses a chest is known by its step,
+## so it stays empty when a restart lays out a new crossing.
+func is_looted(i: int) -> bool:
+	return looted.has(_loot_key(i))
+
+
+func _loot_key(i: int) -> int:
+	return int(space_at(i).get("after", i))
 
 
 ## The space's entry from the area file, or {} for a plain rock.
@@ -90,9 +162,31 @@ func current_monster() -> String:
 
 func roll() -> Dictionary:
 	assert(phase == AWAIT_ROLL)
-	problem = MoveGen.generate_move(grade, rng, length() - pos)
+	var b := answer_bounds()
+	if is_guessed():
+		var a: int = answers[mini(rolls, answers.size() - 1)]
+		b = [a, a]
+	problem = MoveGen.generate_move(grade, rng, length() - pos, b[0], b[1])
+	rolls += 1
 	phase = AWAIT_CHOICE
 	return problem
+
+
+## The answers this roll may have so a clean crossing takes the area's
+## "rolls" [min, max] (Terrence 2026-11-07: 10 to 12): never so short that
+## the goal comes before the min-th roll, never so long that the goal is out
+## of reach by the max-th. [1, 0] (no limit) when the area sets none.
+func answer_bounds() -> Array:
+	if not area.has("rolls"):
+		return [1, 0]
+	var lo_rolls: int = area["rolls"][0]
+	var hi_rolls: int = area["rolls"][1]
+	var top: int = grade["move"]["max_answer"]
+	var room := length() - pos
+	var left := hi_rolls - rolls - 1        # rolls after this one, at most
+	var lo := maxi(1, room - top * left)
+	var hi := mini(top, room - maxi(0, lo_rolls - rolls - 1))
+	return [lo, maxi(lo, hi)]
 
 
 ## A wrong space sinks and the run starts again from space 0. A right one
@@ -159,9 +253,9 @@ func _walk(out: Dictionary) -> void:
 			out["monster"] = space["monster"]
 			phase = AWAIT_FIGHT
 			break
-		if space.get("type") == "chest" and not looted.has(pos):
+		if space.get("type") == "chest" and not is_looted(pos):
 			var g := chest_draw(area["chest_gems"], rng)
-			looted.append(pos)
+			looted.append(_loot_key(pos))
 			gems += g
 			total += g
 			chests.append({"at": pos, "gems": g})
@@ -202,10 +296,13 @@ static func chest_mean(cfg) -> float:
 
 func _fail() -> void:
 	attempt += 1
+	rolls = 0
 	pos = 0
 	target = 0
 	problem = {}
 	phase = AWAIT_ROLL
+	if is_guessed():
+		_new_answers()
 
 
 func _log(out: Dictionary) -> void:

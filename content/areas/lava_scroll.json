@@ -7,16 +7,17 @@
   "boss": "skeleton_dragon",
   "name": "Lava Caves: the crossing",
   "grades": [1],
-  "length": 40,
+  "_note": "Terrence 2026-11-07: a run is 9 guesses and the crossing has as many stones as the 9 answers add up to. Each attempt draws its answers first; step n is the stone the first n answers land on (the 9th lands on the far shore).",
+  "guesses": 9,
   "chest_gems": { "common": 1, "rare": 2, "rare_in": 6 },
-  "spaces": [
-    { "at": 4, "type": "chest" },
-    { "at": 9, "type": "monster", "monster": "blorp" },
-    { "at": 13, "type": "chest" },
-    { "at": 18, "type": "chest" },
-    { "at": 22, "type": "monster", "monster": "surtling" },
-    { "at": 27, "type": "chest" },
-    { "at": 31, "type": "chest" },
-    { "at": 35, "type": "monster", "monster": "craggy" }
+  "steps": [
+    { "after": 1, "type": "chest" },
+    { "after": 2, "type": "monster", "monster": "blorp" },
+    { "after": 3, "type": "chest" },
+    { "after": 4, "type": "chest" },
+    { "after": 5, "type": "monster", "monster": "surtling" },
+    { "after": 6, "type": "chest" },
+    { "after": 7, "type": "chest" },
+    { "after": 8, "type": "monster", "monster": "craggy" }
   ]
 }

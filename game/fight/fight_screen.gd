@@ -74,7 +74,6 @@ var debug_on := false
 var dice: Array = []
 var choice: ChoiceWidget
 var shields_shown := false
-var hero_shield := false  # raised by a right answer, for the block
 var picked := -1
 var revealed := false
 var monster_state := "idle"
@@ -120,10 +119,9 @@ func _ready() -> void:
 		dice.append(d)
 	choice = ChoiceWidget.new()
 	choice.show_highlight = false
-	# tap a shield to pick it, then the green Select button (Terrence, 2026-11-07)
+	# tap a shield to pick it, then the green Go button, the same as the
+	# crossing's (Terrence, 2026-11-07)
 	choice.confirm = true
-	choice.go_label = "Select"
-	choice.go_size = Vector2(210, 84)
 	choice.go_area = Rect2(132, 0, 696, 540)
 	add_child(choice)
 	if MONSTER_ART.has(fight.monster_id):
@@ -155,6 +153,8 @@ func _loop() -> void:
 			if d.visible:
 				d.show_numeral()
 		_say(str(out["answer"]))
+		if not out["right"]:
+			Ellwynn.say_answer(int(out["answer"]))
 		# a beat to see the right shield light up before anyone moves
 		await _wait(0.5)
 		if out["right"]:
@@ -218,7 +218,6 @@ func _parry() -> void:
 	monster_state = "strike"
 	await _tween_prop("monster_dx", -120.0, 0.18)
 	monster_state = "blocked"
-	hero_shield = true
 	clang = 1.0
 	Beeper.tone(1200.0, 0.08)
 	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
@@ -231,7 +230,6 @@ func _parry() -> void:
 	await _tween_prop("hero_dx", 0.0, 0.25)
 	await breaking
 	await _wait(0.35)
-	hero_shield = false
 	monster_state = "idle"
 
 
@@ -493,10 +491,8 @@ func _draw_hero(base: Vector2) -> void:
 	var size := hero_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
 	var feet := base + Vector2(0, 12)
 	draw_texture_rect(hero_tex, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
-	# the hero's shield: none at the start of an exchange; a right answer
-	# raises it to block the swing (Terrence, 2026-11-07)
-	if hero_shield:
-		draw_texture_rect(SHIELD_TEX, Rect2(base + Vector2(30, -78), SHIELD_TEX.get_size() * 0.55), false)
+	# no shield on the hero (Terrence, 2026-11-07): the numbered shields are
+	# the answers, and the block is the clang
 
 
 func _draw_monster(font: Font) -> void:

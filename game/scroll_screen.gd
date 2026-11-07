@@ -223,7 +223,7 @@ func _loop() -> void:
 		else:
 			stone_from = -1
 			await _hop_along(out["from"], out["to"])
-			await _sink(out["to"])
+			await _sink(out["to"], int(p["answer"]))
 			await _restart()
 		_hide_dice()
 		_save_progress()
@@ -436,13 +436,16 @@ func _happy() -> void:
 
 
 ## A wrong rock: it tips into the lava and the dragon sinks with a blorp.
-func _sink(space: int) -> void:
+## Ellwynn then says the right answer, cheerfully (Terrence 2026-11-07).
+func _sink(space: int, answer := 0) -> void:
 	sink_space = space
 	Beeper.blorp()
 	_say("Oops!")
 	# a worried look first, then down it goes still looking worried
 	await _tween_prop("worried", 1.0, 0.18)
 	await _wait(0.35)
+	if answer > 0:
+		Ellwynn.say_answer(answer)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 1.0, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tw.tween_property(self, "hero_sink", 1.0, 0.9).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -720,7 +723,7 @@ func _event_at(i: int) -> String:
 	var s := run.space_at(i)
 	match s.get("type", ""):
 		"chest":
-			return "" if run.looted.has(i) and i != revealed else "chest"
+			return "" if run.is_looted(i) and i != revealed else "chest"
 		"monster":
 			return "" if beaten.has(i) else "monster"
 	return ""
@@ -876,7 +879,7 @@ func _draw_hud() -> void:
 	for i in range(1, n + 1):
 		var x := BAR.position.x + BAR.size.x * i / n
 		var s := run.space_at(i)
-		if s.get("type") == "chest" and not run.looted.has(i):
+		if s.get("type") == "chest" and not run.is_looted(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.8, 0.2))
 		elif s.get("type") == "monster" and not beaten.has(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(0.9, 0.2, 0.2))

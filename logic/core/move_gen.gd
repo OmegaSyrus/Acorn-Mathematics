@@ -10,23 +10,27 @@ const Rng := preload("res://logic/core/rng.gd")
 ## {kind, grade, op, dice, answer, choices, answer_index}; choices are the
 ## distances 1..m in order (the next m spaces), so answer_index = answer - 1.
 ## The answer is drawn first, then the dice, so every distance is as likely.
-static func generate_move(grade: Dictionary, rng: Rng, room: int) -> Dictionary:
+## lo and hi (when hi > 0) narrow the answer only, to keep a crossing within
+## its roll count (ScrollRun); the choices shown are still 1..m.
+static func generate_move(grade: Dictionary, rng: Rng, room: int, lo := 1, hi := 0) -> Dictionary:
 	var cfg: Dictionary = grade["move"]
 	var m: int = mini(cfg["max_answer"], room)
+	var top: int = m if hi <= 0 else clampi(hi, 1, m)
+	var bottom: int = clampi(lo, 1, top)
 	var ops := []
 	for op in cfg["ops"]:
-		if not (op == "add" and m < 2):
+		if not (op == "add" and top < 2):
 			ops.append(op)
 	var op: String = ops[0] if ops.size() == 1 else ops[rng.randi_range(0, ops.size() - 1)]
 	var answer: int
 	var a: int
 	var b: int
 	if op == "add":
-		answer = rng.randi_range(2, m)
+		answer = rng.randi_range(maxi(2, bottom), top)
 		a = rng.randi_range(1, answer - 1)
 		b = answer - a
 	else:
-		answer = rng.randi_range(1, m)
+		answer = rng.randi_range(bottom, top)
 		a = rng.randi_range(answer + 1, cfg["die_max"])
 		b = a - answer
 	var choices := []
