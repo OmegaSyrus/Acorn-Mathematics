@@ -6,7 +6,12 @@ with the real fail rule.
 
 ## The lava crossing (default area)
 
-`lava_scroll` is the first round at Acorn: 40 rocks in the lava, crossed left to right.
+`lava_scroll` is the first round at Acorn: a run of 9 guesses across rocks in the lava,
+left to right. The crossing has as many rocks as the 9 answers add up to (Terrence,
+2026-11-07), so each run is drawn first and its length follows; a wrong rock starts a new
+run with new answers. Every guess lands on a chest or a monster except the last, which
+reaches the far shore. After a wrong guess Ellwynn says the right answer (1 to 6,
+`audio/voice/ellwynn/answer-*.mp3`) while the music dips; fights do the same.
 Tap the dice tray to roll two dice (add, or subtract with a red die), then tap the rock
 that many spaces ahead (always 1 to 5). A right rock resolves its space: a chest gives 1
 gem (2 one time in 6), a monster starts a fight. A wrong rock sinks the slime with a blorp and the
@@ -26,6 +31,12 @@ the rest show a lock until they are built. Tapping an open world opens its main 
 An area file names its `miniboss` and `boss`; `logic/path/area_flow.gd` orders the steps
 and saves the one in progress as the run (`{"area", "grade", "stage"}`), so closing the
 app after the door opens the duel or boss again from the main menu's Go.
+
+## Reset
+
+The main menu's small grey Reset button (top right) asks "Reset all?". No keeps
+everything; Yes only works when held down for 3 seconds, so a child tapping around
+can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn's intro.
 
 ## The store
 

@@ -38,10 +38,44 @@ class ScrollRun:
         self.problem = None
         self.phase = AWAIT_ROLL
         self.events = []
-        self.spaces = {s["at"]: s for s in area["spaces"]}
+        self.answers = []
+        if self.is_guessed():
+            self._new_answers()
+        else:
+            self._length = area["length"]
+            self.spaces = {s["at"]: s for s in area["spaces"]}
+
+    def is_guessed(self):
+        return "guesses" in self.area
+
+    def _new_answers(self):
+        top = self.grade["move"]["max_answer"]
+        self.answers = [self.rng.randi_range(1, top) for _ in range(self.area["guesses"])]
+        self._lay_out()
+
+    def _lay_out(self):
+        landing, at = {}, 0
+        for k, a in enumerate(self.answers):
+            at += a
+            landing[k + 1] = at
+        self._length = at
+        self.spaces = {}
+        for st in self.area.get("steps", []):
+            n = st["after"]
+            if n in landing and n < len(self.answers):
+                sp = dict(st)
+                sp["at"] = landing[n]
+                self.spaces[landing[n]] = sp
 
     def length(self):
-        return self.area["length"]
+        return self._length
+
+    def _loot_key(self, i):
+        sp = self.space_at(i)
+        return sp["after"] if sp is not None and "after" in sp else i
+
+    def is_looted(self, i):
+        return self._loot_key(i) in self.looted
 
     def space_at(self, i):
         return self.spaces.get(i)
@@ -54,7 +88,8 @@ class ScrollRun:
     def to_save(self):
         return {"area": self.area["id"], "grade": self.grade["id"], "seed": self.seed,
                 "attempt": self.attempt, "pos": self.pos, "target": self.target, "looted": list(self.looted),
-                "gems": self.gems, "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()}
+                "gems": self.gems, "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()} | (
+                    {"answers": list(self.answers)} if self.is_guessed() else {})
 
     @classmethod
     def from_save(cls, area, grade, data):
@@ -66,12 +101,20 @@ class ScrollRun:
         run.gems = data["gems"]
         run.rolls = data.get("rolls", 0)
         run.phase = data["phase"]
+        if data["phase"] == AWAIT_CHOICE:
+            run.rolls = max(0, run.rolls - 1)
+            run.phase = AWAIT_ROLL
         run.rng.set_state(data["rng_state"])
+        if run.is_guessed():
+            run.answers = list(data["answers"])
+            run._lay_out()
         return run
 
     def roll(self):
         assert self.phase == AWAIT_ROLL
         lo, hi = self.answer_bounds()
+        if self.is_guessed():
+            lo = hi = self.answers[min(self.rolls, len(self.answers) - 1)]
         self.problem = generate_move(self.grade, self.rng, self.length() - self.pos, lo, hi)
         self.rolls += 1
         self.phase = AWAIT_CHOICE
@@ -141,9 +184,9 @@ class ScrollRun:
                 out["monster"] = space["monster"]
                 self.phase = AWAIT_FIGHT
                 break
-            if space is not None and space["type"] == "chest" and self.pos not in self.looted:
+            if space is not None and space["type"] == "chest" and not self.is_looted(self.pos):
                 g = chest_draw(self.area["chest_gems"], self.rng)
-                self.looted.append(self.pos)
+                self.looted.append(self._loot_key(self.pos))
                 self.gems += g
                 total += g
                 chests.append({"at": self.pos, "gems": g})
@@ -163,6 +206,8 @@ class ScrollRun:
         self.target = 0
         self.problem = None
         self.phase = AWAIT_ROLL
+        if self.is_guessed():
+            self._new_answers()
 
     def _log(self, out):
         e = {"attempt": self.attempt, "pos": self.pos, "result": out["result"]}

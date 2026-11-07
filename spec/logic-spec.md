@@ -113,7 +113,17 @@ Optional `lo`, `hi` (hi > 0) narrow the answer only (2026-11-07): `top = clamp(h
 `randi_range(max(2, bottom), top)`, sub `randi_range(bottom, top)`. Choices stay `[1 .. m]`.
 
 Run (`logic/path/scroll_run.gd`, reference `tools/ref/scroll_run.py`), phases
-`await_roll`, `await_choice`, `await_fight`, `cleared`:
+`await_roll`, `await_choice`, `await_fight`, `cleared`.
+
+**Guesses (Terrence 2026-11-07, lava_scroll):** an area with `guesses: n` has no fixed
+`length` or `spaces`. When a run is made, and again on every restart, it draws `answers`
+= n times `randi_range(1, max_answer)` (before any other draw of that attempt); `length`
+is their sum. `steps: [{after: k, type, monster?}]` put a chest or monster on the space
+the first k answers reach (k from 1 to n - 1). roll() then uses `lo = hi = answers[rolls]`,
+so a clean run takes exactly n rolls. `looted` holds a chest's `after` (its step), so an
+opened chest stays empty in the next attempt's new layout. The save adds `answers`; a
+guesses save without them (from the fixed 40 stones) starts a fresh attempt at space 0
+with the gems and attempt kept. Areas with `length` and `spaces` work as below.
 
 | input | outcome |
 |---|---|

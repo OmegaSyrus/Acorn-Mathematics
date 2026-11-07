@@ -31,6 +31,9 @@ const BODY_TAP := Rect2(9, 6, 135, 250)
 ## The pop-in portrait: bottom left of the 4:3 band, in a gold frame.
 const POP_POS := Vector2(132, 420)
 const POP_PAD := 4.0
+## The answer pop-in after a wrong guess: higher up on the left, clear of the
+## fight's shields and the crossing's stones, sliding in from the left.
+const ANSWER_POS := Vector2(132, 150)
 ## How often an enemy win brings the pop-in (Terrence 2026-11-07: 1 in 3).
 const POP_CHANCE := 1.0 / 3.0
 ## Chests: a voice line on most, not all, so it stays special.
@@ -45,7 +48,7 @@ const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
 const GOLD := Color(1.0, 0.82, 0.35)
 
-var mode := "off"          # "off", "menu", "pop", "boss"
+var mode := "off"          # "off", "menu", "pop", "answer", "boss"
 var bubble := ""
 var player: AudioStreamPlayer
 var lines: Dictionary = {}
@@ -194,6 +197,25 @@ func boss_beaten() -> void:
 		_set_mode("off")
 
 
+## A wrong guess: she says the right answer, cheerfully, from her portrait in
+## the corner with the numeral in her bubble (Terrence 2026-11-07). The music
+## dips while she talks, like every line. Numbers with no recording (above 6)
+## stay quiet.
+func say_answer(n: int) -> void:
+	var file: String = lines.get("answers", {}).get(str(n), "")
+	if file == "" or not ResourceLoader.exists(file):
+		return
+	stop_voice()
+	_queue = [{"file": file, "bubble": str(n)}]
+	if mode != "menu":
+		_set_mode("answer")
+	_next_line()
+	var g := _gen
+	await get_tree().create_timer(1.8, true, false, true).timeout
+	if g == _gen and mode == "answer":
+		_set_mode("off")
+
+
 ## Plays a cue: the intro plays all its lines in order; any other cue plays
 ## one of its lines at random. A cue with no lines plays a placeholder.
 func say(cue: String) -> void:
@@ -289,7 +311,7 @@ func _process(delta: float) -> void:
 		_blink_in = rng.randf_range(3.0, 5.0)
 	_blinking = maxf(_blinking - delta, 0.0)
 	_hop = maxf(_hop - delta * 3.0, 0.0)
-	if mode == "pop" or mode == "boss":
+	if mode == "pop" or mode == "boss" or mode == "answer":
 		_slide = minf(_slide + delta * 4.0, 1.0)
 	if mode != "off":
 		_fig.queue_redraw()
@@ -323,12 +345,20 @@ func _draw_fig() -> void:
 			_draw_body(Vector2(roundf(x), MENU_POS.y))
 		"pop":
 			var y := lerpf(560.0, POP_POS.y, _ease(_slide))
-			var r := Rect2(Vector2(POP_POS.x, roundf(y)) - Vector2(POP_PAD, POP_PAD), Vector2(96, 96) + Vector2(POP_PAD, POP_PAD) * 2)
-			_fig.draw_rect(r.grow(3), DARK)
-			_fig.draw_rect(r, GOLD)
-			_fig.draw_texture(BUST, r.position + Vector2(POP_PAD, POP_PAD))
-			if bubble != "":
-				_draw_bubble(r.position + Vector2(r.size.x + 8, 10))
+			_draw_portrait(Vector2(POP_POS.x, roundf(y)))
+		"answer":
+			var x := lerpf(-240.0, ANSWER_POS.x, _ease(_slide))
+			_draw_portrait(Vector2(roundf(x), ANSWER_POS.y))
+
+
+## Her 96 px portrait in a gold frame, with her bubble to its right.
+func _draw_portrait(at: Vector2) -> void:
+	var r := Rect2(at - Vector2(POP_PAD, POP_PAD), Vector2(96, 96) + Vector2(POP_PAD, POP_PAD) * 2)
+	_fig.draw_rect(r.grow(3), DARK)
+	_fig.draw_rect(r, GOLD)
+	_fig.draw_texture(BUST, r.position + Vector2(POP_PAD, POP_PAD))
+	if bubble != "":
+		_draw_bubble(r.position + Vector2(r.size.x + 8, 10))
 
 
 func _draw_body(at: Vector2) -> void:

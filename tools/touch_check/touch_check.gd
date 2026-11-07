@@ -124,6 +124,35 @@ func _ready() -> void:
 		waited += 1
 	_check(left[0], "tap an inch beside the door left the crossing")
 
+	# Reset on the main menu: No keeps the save, a quick tap on Yes does
+	# nothing, holding Yes for 3 seconds wipes gems, purchases and progress.
+	done.queue_free()
+	main.show_map()
+	await _frames(10)
+	main.save["gems"] = 7
+	main.save["owned"] = ["bolt_red"]
+	var m: Node2D = main.screen
+	await _tap(m, m.RESET_RECT.get_center())
+	_check(m.asking, "Reset asks first")
+	_shot("8-reset-question")
+	await _tap(m, m.NO_RECT.get_center())
+	_check(not m.asking and int(main.save["gems"]) == 7, "No keeps the save")
+	await _tap(m, m.RESET_RECT.get_center())
+	await _tap(m, m.YES_RECT.get_center())
+	_check(m.asking and int(main.save["gems"]) == 7, "a quick tap on Yes does nothing")
+	var yes_at: Vector2 = get_viewport().get_screen_transform() * m.get_global_transform_with_canvas() * m.YES_RECT.get_center()
+	await _touch(m, m.YES_RECT.get_center(), true)
+	await get_tree().create_timer(1.5).timeout
+	_check(is_instance_valid(m) and m.asking and int(main.save["gems"]) == 7, "half way through the hold nothing is reset")
+	_shot("9-reset-holding")
+	await get_tree().create_timer(1.8).timeout
+	var lift := InputEventScreenTouch.new()
+	lift.position = yes_at
+	Input.parse_input_event(lift)
+	await _frames(10)
+	_check(int(main.save["gems"]) == 0 and main.save["owned"].is_empty() and main.save["run"] == null, "holding Yes reset the save")
+	_check(main.screen != m and main.screen.get_script().resource_path.ends_with("map_screen.gd"), "back on a fresh main menu")
+
 	print("TOUCH CHECK %s (%d failures)" % ["PASS" if failures == 0 else "FAIL", failures])
 	get_tree().quit(1 if failures else 0)
 
@@ -141,6 +170,16 @@ func _tap(ci: CanvasItem, local: Vector2) -> void:
 		e.pressed = pressed
 		Input.parse_input_event(e)
 		await _frames(3)
+
+
+## One finger press (or lift) at a point in `ci`'s local space.
+func _touch(ci: CanvasItem, local: Vector2, pressed: bool) -> void:
+	var e := InputEventScreenTouch.new()
+	e.index = 0
+	e.position = get_viewport().get_screen_transform() * ci.get_global_transform_with_canvas() * local
+	e.pressed = pressed
+	Input.parse_input_event(e)
+	await _frames(3)
 
 
 func _check(ok: bool, what: String) -> void:
