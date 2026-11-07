@@ -87,6 +87,7 @@ var clang := 0.0
 var bubble := ""
 var monster_tex: Texture2D
 var hero_lift := 0.0
+var door_alpha := -1.0  # the boss door after the duel; -1 = not shown
 var _t := 0.0
 ## Hearts as drawn. They lag the fight's count so a heart only goes when the
 ## blow lands, and the one going plays its break (progress 0..1, -1 = none).
@@ -100,13 +101,17 @@ var monster_break_i := 0
 
 ## first_strike: a mimic whose lock was answered right starts one heart down.
 ## duel: the miniboss duel (numerals, restarts itself on a loss).
-func setup(rng, grade: int, monster_id: String, first_strike := false, duel := false, show_debug := false) -> void:
+## hero_hearts: the hearts the hero brings from the crossing (-1 = a fresh 3).
+func setup(rng, grade: int, monster_id: String, first_strike := false, duel := false, show_debug := false,
+		hero_hearts := -1) -> void:
 	is_duel = duel
 	debug_on = show_debug
 	if duel:
 		fight = Duel.new(rng, grade, monster_id, Monsters.hearts_of(monster_id))
 	else:
 		fight = Fight.new(rng, grade, monster_id, Monsters.hearts_of(monster_id), first_strike)
+		if hero_hearts > 0:
+			fight.set_hero_hearts(hero_hearts)
 
 
 func _ready() -> void:
@@ -148,6 +153,7 @@ func _loop() -> void:
 		var pick: int = await choice.picked
 		picked = pick
 		var out: Dictionary = fight.choose(pick)
+		var bashing: bool = out["phase"] == Fight.Phase.BASH
 		revealed = true
 		for d in dice:
 			if d.visible:
@@ -157,13 +163,20 @@ func _loop() -> void:
 			Ellwynn.say_answer(int(out["answer"]))
 		# a beat to see the right shield light up before anyone moves
 		await _wait(0.5)
-		if out["right"]:
+		if bashing and out["right"]:
+			await _happy()
+			await _bash()
+		elif bashing:
+			await _miss()
+		elif out["right"]:
 			await _happy()
 			await _parry()
 		else:
 			await _hit()
 		if out["state"] == Fight.State.WON:
 			await _monster_collapse()
+			if is_duel:
+				await _boss_door()
 			done.emit(true)
 			return
 		if out["state"] == Fight.State.LOST:
@@ -180,14 +193,21 @@ func _loop() -> void:
 		fight.next_exchange()
 
 
-## The monster winds up and its dice tumble in. It holds the wind-up, with
-## no timer, until the child picks.
+## The question's dice tumble in. In the block phase the monster winds up
+## to attack first; in the bash phase the hero gets ready to shield bash.
+## Either way it holds, with no timer, until the child picks.
 func _wind_up() -> void:
 	shields_shown = false
 	picked = -1
 	revealed = false
-	monster_state = "wind_up"
-	await _tween_prop("monster_dx", -18.0, 0.25)
+	var bashing: bool = fight.phase == Fight.Phase.BASH
+	if bashing:
+		_say("Shield bash!")
+		await _tween_prop("hero_dx", -18.0, 0.25)
+	else:
+		_say("Block!")
+		monster_state = "wind_up"
+		await _tween_prop("monster_dx", -18.0, 0.25)
 	var atk = fight.attack
 	var xs := _dice_xs(atk)
 	for i in dice.size():
@@ -209,20 +229,35 @@ func _wind_up() -> void:
 	for i in atk.dice.size():
 		dice[i].countable = true
 	monster_state = "idle"
+	if bashing:
+		hero_dx = 0.0
 	shields_shown = true
-	_say("Block!")
+	_say("Shield bash!" if bashing else "Block!")
 
 
-## Right answer: the shield clangs, the hero strikes back, the monster loses a heart.
+## Right block: the monster swings, the shield clangs and it bounces off.
+## Nobody loses a heart; the hero's shield bash comes next.
 func _parry() -> void:
 	monster_state = "strike"
 	await _tween_prop("monster_dx", -120.0, 0.18)
 	monster_state = "blocked"
 	clang = 1.0
 	Beeper.tone(1200.0, 0.08)
+	_say("Blocked!")
 	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
-	await _tween_prop("monster_dx", 0.0, 0.2)
+	await _tween_prop("monster_dx", 30.0, 0.2)
+	await _tween_prop("monster_dx", 0.0, 0.15)
+	await _wait(0.35)
+	monster_state = "idle"
+
+
+## Right bash: the hero charges in, the shield clangs on the monster and it
+## loses a heart.
+func _bash() -> void:
 	await _tween_prop("hero_dx", 230.0, 0.16)
+	clang = 1.0
+	Beeper.tone(1200.0, 0.08)
+	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
 	monster_state = "hurt"
 	Beeper.good()
 	_blink("monster_flash")
@@ -231,6 +266,19 @@ func _parry() -> void:
 	await breaking
 	await _wait(0.35)
 	monster_state = "idle"
+
+
+## Wrong bash: the hero charges, the monster hops back out of the way. No
+## heart is lost; the monster attacks next.
+func _miss() -> void:
+	# the hop back is quicker than the charge, so it is done when that lands
+	create_tween().tween_property(self, "monster_dx", 70.0, 0.14 * SLOW)
+	await _tween_prop("hero_dx", 200.0, 0.16)
+	_say("Miss!")
+	Beeper.tone(330.0, 0.12)
+	await _tween_prop("hero_dx", 0.0, 0.25)
+	await _tween_prop("monster_dx", 0.0, 0.2)
+	await _wait(0.35)
 
 
 ## A right answer: the hero jumps for joy, twice, before blocking.
@@ -265,6 +313,30 @@ func _monster_collapse() -> void:
 	Beeper.good()
 	Ellwynn.enemy_beaten()
 	await _wait(1.0)
+
+
+## After the miniboss: a door to the boss glows where it stood, with the
+## golden GO! arrow over it, and waits for a tap (Terrence, 2026-11-07).
+func _boss_door() -> void:
+	revealed = false
+	shields_shown = false
+	for d in dice:
+		d.visible = false
+	door_alpha = 0.0
+	await _tween_prop("door_alpha", 1.0, 0.5)
+	_say("Tap the door!")
+	choice.confirm = false
+	choice.present([door_rect().grow(40.0)])
+	await choice.picked
+	Beeper.good()
+	_say("Go!")
+	await _tween_prop("hero_dx", MONSTER_POS.x - HERO_POS.x, 0.6)
+	await _tween_prop("door_alpha", 0.0, 0.3)
+
+
+## The boss door, standing where the miniboss was.
+func door_rect() -> Rect2:
+	return Rect2(MONSTER_POS + Vector2(-50, -150), Vector2(100, 150))
 
 
 func _hero_collapse() -> void:
@@ -365,13 +437,17 @@ func _draw() -> void:
 	draw_texture_rect(BG_TEX, Rect2(0, 0, 960, 540), false)
 	var hero_row := Vector2(140, 30)
 	var monster_row := Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
-	_draw_hearts(hero_row, shown_hero_hearts, Fight.HERO_HEARTS)
-	_draw_hearts(monster_row, shown_monster_hearts, fight.monster_max_hearts)
+	_draw_hearts(hero_row, shown_hero_hearts, fight.hero_max_hearts)
+	if door_alpha < 0.0:
+		_draw_hearts(monster_row, shown_monster_hearts, fight.monster_max_hearts)
 	_draw_target(font)
+	if door_alpha >= 0.0:
+		_draw_door(door_alpha)
 	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0 - hero_lift))
-	_draw_monster(font)
-	# the enemy's name in a fiery box, under it
-	var name := Monsters.name_of(fight.monster_id)
+	if door_alpha < 0.0:
+		_draw_monster(font)
+	# the enemy's name in a fiery box, under it (the door to the boss says Boss)
+	var name := Monsters.name_of(fight.monster_id) if door_alpha < 0.0 else "Boss"
 	var w := font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
 	var nx := minf(MONSTER_POS.x - w / 2.0, NAME_RIGHT - w)
 	var box := Rect2(nx, MONSTER_POS.y + NAME_GAP, w, 34)
@@ -385,7 +461,7 @@ func _draw() -> void:
 	if monster_break >= 0.0:
 		_draw_breaking_heart(monster_row + Vector2(36 * monster_break_i, 0), monster_break)
 	if bubble != "":
-		var b := Rect2(380, 12, 200, 44)
+		var b := Rect2(360, 12, 240, 44)
 		RoundBox.fire(self, b, _t, 16.0)
 		_outlined(font, b.position + Vector2(0, 32), bubble, b.size.x, 28)
 	if debug_on:
@@ -439,6 +515,34 @@ func _draw_shields(font: Font) -> void:
 			draw_string(font, c + Vector2(-60, 22), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 60, Color(0.08, 0.06, 0.05))
 		else:
 			DiceDraw.draw_value(self, c, 44.0 if v <= 6 else 36.0, v)
+
+
+## The glowing way on to the boss (the crossing's door, scroll_screen.gd)
+## and a golden arrow pointing down at it with "GO!" on it.
+func _draw_door(a: float) -> void:
+	var base := MONSTER_POS
+	var dark := Color(0.12, 0.07, 0.12, a)
+	draw_rect(Rect2(base + Vector2(-50, -150), Vector2(100, 150)), dark)
+	draw_arc(base + Vector2(0, -150), 50.0, PI, TAU, 24, dark, 20.0)
+	var pulse := 0.6 + 0.4 * sin(_t * 3.0)
+	draw_rect(Rect2(base + Vector2(-38, -140), Vector2(76, 140)), Color(1.0, 0.85, 0.4, 0.35 * pulse * a))
+	draw_circle(base + Vector2(0, -170), 14.0, Color(1.0, 0.85, 0.3, pulse * a))
+	var tip := base + Vector2(0, -196 + 8.0 * sin(_t * 4.0))
+	var gold := Color(1.0, 0.8, 0.22, a)
+	var light := Color(1.0, 0.94, 0.55, a)
+	var edge := Color(0.42, 0.24, 0.05, a)
+	var pts := PackedVector2Array([
+		tip + Vector2(-58, -70), tip + Vector2(-82, -70), tip,
+		tip + Vector2(82, -70), tip + Vector2(58, -70),
+		tip + Vector2(58, -150), tip + Vector2(-58, -150),
+	])
+	var grown := Geometry2D.offset_polygon(pts, 6.0)
+	draw_colored_polygon(grown[0] if grown.size() > 0 else pts, edge)
+	draw_colored_polygon(pts, gold)
+	var font := ThemeDB.fallback_font
+	var at := tip + Vector2(-58, -92)
+	draw_string_outline(font, at, "GO!", HORIZONTAL_ALIGNMENT_CENTER, 116, 44, 6, light)
+	draw_string(font, at, "GO!", HORIZONTAL_ALIGNMENT_CENTER, 116, 44, edge)
 
 
 ## Light text with a dark outline, for the fiery boxes.

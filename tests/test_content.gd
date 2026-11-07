@@ -71,7 +71,7 @@ func _check_scroll(a: Dictionary) -> void:
 		var at: int = s[key]
 		check(at > 0 and at < top and not seen.has(at), "scroll %s bad %s %d" % [id, key, at])
 		seen[at] = true
-		check(["chest", "monster"].has(s["type"]), "scroll %s unknown space type" % id)
+		check(["chest", "monster", "heart"].has(s["type"]), "scroll %s unknown space type" % id)
 		if s["type"] == "monster":
 			check(str(s.get("monster", "")) != "", "scroll %s monster space without an id" % id)
 

@@ -14,20 +14,21 @@ func _wrong_index(f) -> int:
 	return (f.attack.answer_index + 1) % 4
 
 
-func test_right_answer_parries_and_monster_loses_a_heart() -> bool:
+func test_block_comes_first_and_a_right_block_costs_nothing() -> bool:
 	var f = Fight.new(SeededRng.new(1), SPROUT, "blorp", 3)
 	check(f.state == Fight.State.WIND_UP, "starts in wind-up")
+	check(f.phase == Fight.Phase.BLOCK, "the monster attacks first")
 	check(f.hero_hearts == 3 and f.monster_hearts == 3, "3 hearts each")
 	var out: Dictionary = f.choose(f.attack.answer_index)
-	check(out.right, "right answer reported right")
-	check(out.monster_hearts == 2 and out.hero_hearts == 3, "monster lost one heart")
-	check(f.state == Fight.State.RESOLVING, "resolving after a parry")
+	check(out.right and out.phase == Fight.Phase.BLOCK, "right block reported")
+	check(out.monster_hearts == 3 and out.hero_hearts == 3, "a block takes no heart from anyone")
+	check(f.state == Fight.State.RESOLVING, "resolving after a block")
 	f.next_exchange()
-	check(f.state == Fight.State.WIND_UP, "next exchange winds up")
+	check(f.state == Fight.State.WIND_UP and f.phase == Fight.Phase.BASH, "then the hero's shield bash")
 	return true
 
 
-func test_wrong_answer_lands_the_hit() -> bool:
+func test_wrong_block_costs_a_hero_heart() -> bool:
 	var f = Fight.new(SeededRng.new(2), SPROUT, "blorp", 3)
 	var out: Dictionary = f.choose(_wrong_index(f))
 	check(not out.right, "wrong answer reported wrong")
@@ -36,24 +37,53 @@ func test_wrong_answer_lands_the_hit() -> bool:
 	return true
 
 
-func test_three_wrong_answers_lose_the_fight_and_restart_the_area() -> bool:
+func test_bash_right_costs_a_monster_heart_and_wrong_costs_nothing() -> bool:
 	var f = Fight.new(SeededRng.new(3), SPROUT, "blorp", 3)
-	for i in 3:
+	f.choose(f.attack.answer_index)
+	f.next_exchange()
+	var out: Dictionary = f.choose(_wrong_index(f))
+	check(out.phase == Fight.Phase.BASH and not out.right, "a missed bash")
+	check(out.hero_hearts == 3 and out.monster_hearts == 3, "a missed bash loses no heart")
+	f.next_exchange()
+	check(f.phase == Fight.Phase.BLOCK, "the monster attacks again")
+	f.choose(f.attack.answer_index)
+	f.next_exchange()
+	out = f.choose(f.attack.answer_index)
+	check(out.monster_hearts == 2 and out.hero_hearts == 3, "a right bash costs the monster a heart")
+	return true
+
+
+func test_three_wrong_blocks_lose_the_fight_and_restart_the_area() -> bool:
+	var f = Fight.new(SeededRng.new(3), SPROUT, "blorp", 3)
+	while not f.is_over():
 		f.choose(_wrong_index(f))
-		if i < 2:
+		if not f.is_over():
 			f.next_exchange()
-	check(f.state == Fight.State.LOST, "lost after 3 hits")
+	check(f.state == Fight.State.LOST and f.hero_hearts == 0, "lost after 3 hits")
+	check(f.exchange_count == 5, "3 blocks and 2 missed bashes")
+	check(f.monster_hearts == 3, "missed bashes cost the monster nothing")
 	check(f.on_loss == Fight.OnLoss.RESTART_AREA, "a lost fight restarts the area")
 	return true
 
 
 func test_beating_the_monster_wins() -> bool:
 	var f = Fight.new(SeededRng.new(4), SPROUT, "craggy", 4)
-	for i in 4:
+	for i in 8:
 		f.choose(f.attack.answer_index)
-		if i < 3:
-			f.next_exchange()
-	check(f.state == Fight.State.WON and f.monster_hearts == 0, "won after 4 parries")
+		if f.is_over():
+			break
+		f.next_exchange()
+	check(f.state == Fight.State.WON and f.monster_hearts == 0, "won after 4 blocks and 4 bashes")
+	check(f.exchange_count == 8, "4 blocks + 4 bashes")
+	return true
+
+
+func test_hearts_from_the_crossing_carry_in() -> bool:
+	var f = Fight.new(SeededRng.new(4), SPROUT, "blorp", 3)
+	f.set_hero_hearts(4)
+	check(f.hero_hearts == 4 and f.hero_max_hearts == 4, "a picked-up heart makes 4")
+	f.set_hero_hearts(2)
+	check(f.hero_hearts == 2 and f.hero_max_hearts == 3, "a hurt hero starts with 2 of 3")
 	return true
 
 
@@ -88,17 +118,15 @@ func test_duel_uses_numerals_and_restarts_itself() -> bool:
 	var d = Duel.new(SeededRng.new(7), SPROUT, "lava_miniboss")
 	check(d.choice_style == Fight.ChoiceStyle.NUMERALS, "duel shows numerals")
 	check(d.on_loss == Fight.OnLoss.RESTART_DUEL, "losing the duel restarts the duel only")
-	check(d.monster_hearts == 3 and d.hero_hearts == 3, "3 hearts each")
-	d.choose(d.attack.answer_index)
-	d.next_exchange()
-	for i in 3:
+	check(d.monster_hearts == 5 and d.hero_hearts == 3, "the miniboss has 5 hearts, the hero 3")
+	while not d.is_over():
 		d.choose(_wrong_index(d))
-		if i < 2:
+		if not d.is_over():
 			d.next_exchange()
 	check(d.state == Fight.State.LOST, "duel lost")
 	d.restart()
-	check(d.state == Fight.State.WIND_UP, "duel winds up again")
-	check(d.hero_hearts == 3 and d.monster_hearts == 3, "fresh hearts after restart")
+	check(d.state == Fight.State.WIND_UP and d.phase == Fight.Phase.BLOCK, "duel winds up again, block first")
+	check(d.hero_hearts == 3 and d.monster_hearts == 5, "fresh hearts after restart")
 	return true
 
 
