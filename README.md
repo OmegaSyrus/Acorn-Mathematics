@@ -38,6 +38,27 @@ The main menu's small grey Reset button (top right) asks "Reset all?". No keeps
 everything; Yes only works when held down for 3 seconds, so a child tapping around
 can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn's intro.
 
+### Fights, hearts, menu and map (Terrence, 2026-11-07, version 0.15.0)
+
+- The main menu says "Difficulty: Acorn" (tap the difficulty to step through
+  the open ones) and its Play goes to the map. Tapping an open world plays it;
+  a crossing, duel or boss in progress there picks up again.
+- The map unlocks a world once the one before it is beaten (the lock pops off
+  the first time). An unlocked world with no area yet says "Soon".
+- On the crossing the picked answer goes after the "=": green when right (the
+  dragon jumps 4 times), red when wrong.
+- A heart stone (step 3, the stone just past Blorp) adds a heart. The hero's
+  hearts show under the talk box and carry into and out of each fight, up to
+  5; a restart gives back 3 and the heart stone.
+- Fights take turns: "Block!" first (the monster attacks; a wrong shield
+  costs a hero heart), then "Shield bash!" (a right shield costs the monster a
+  heart; a wrong one is a miss, no heart lost). The duel works the same way.
+- The Surtling Chief has 5 hearts. Beating it leaves a door with a GO! arrow
+  where it stood; tapping the door leads to the boss.
+- The boss fight's aim is a dashed line along the ball's real path up to the
+  first thing it hits (ghost pegs don't stop it).
+- Stills: `res://tools/stills/rework_stills.tscn` (same command as the others).
+
 ## The store
 
 The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and dice

@@ -45,10 +45,26 @@ func test_a_crossing_run_is_not_a_stage_run() -> bool:
 	return true
 
 
-func test_only_lava_is_open() -> bool:
+func test_only_lava_is_open_at_first() -> bool:
+	var save := SaveData.new_profile("t")
+	var worlds := Content.worlds()
 	var open := []
-	for w in Content.worlds():
-		if AreaFlow.world_open(w):
-			open.append(w["id"])
+	for i in worlds.size():
+		if AreaFlow.world_open(save, worlds, i):
+			open.append(worlds[i]["id"])
 	check(open == ["lava_caves"], "open worlds %s" % [open])
+	check(AreaFlow.unlocked_count(save, worlds) == 1, "only the first world unlocked")
+	return true
+
+
+## Terrence 2026-11-07: beating a world unlocks the next one on the map.
+func test_beating_a_world_unlocks_the_next() -> bool:
+	var save := SaveData.new_profile("t")
+	var worlds := Content.worlds()
+	var area := Content.area("lava_scroll")
+	check(not AreaFlow.world_unlocked(save, worlds, 1), "Crystal Mines locked before the boss")
+	AreaFlow.enter(save, area, 1, AreaFlow.MAP)
+	check(AreaFlow.world_unlocked(save, worlds, 1), "Crystal Mines unlocked after the Lava boss")
+	check(not AreaFlow.world_unlocked(save, worlds, 2), "the Bog still locked")
+	check(AreaFlow.unlocked_count(save, worlds) == 2, "two unlocked")
 	return true

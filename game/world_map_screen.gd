@@ -1,8 +1,11 @@
-## The mini map (Terrence, 2026-11-07): after an area's boss, the worlds on
-## a path, left to right in play order (content/worlds.json). The hero stands
-## on the newest open world. Tapping an open world goes to its main menu
-## (grades, Go, Shop); a world that isn't built yet shows a lock, and
-## tapping it shakes the lock. Beaten worlds get a gold star.
+## The map (Terrence, 2026-11-07): the worlds on a path, left to right in
+## play order (content/worlds.json). Play on the main menu opens it, and it
+## follows each area's boss. A world is unlocked when the one before it has
+## been beaten; the lock comes off with a little pop the first time. The
+## hero stands on the newest unlocked world. Tapping an open world plays it
+## (a crossing in progress there picks up again); a locked world shakes its
+## lock, and an unlocked world that isn't built yet says "Soon".
+## Beaten worlds get a gold star.
 extends Node2D
 
 signal open_world(world: Dictionary)
@@ -27,11 +30,14 @@ var worlds: Array = []
 var choice: ChoiceWidget
 var _t := 0.0
 var _shake := {}  # world index -> seconds left
+var fresh_unlock := -1  # a world whose lock just came off (pops on show), -1 = none
+var _unlock := 0.0      # 0..1 the lock popping off
 
 
-func setup(profile: Dictionary, world_list: Array) -> void:
+func setup(profile: Dictionary, world_list: Array, just_unlocked := -1) -> void:
 	save = profile
 	worlds = world_list.slice(0, XS.size())
+	fresh_unlock = just_unlocked
 
 
 func _ready() -> void:
@@ -41,10 +47,14 @@ func _ready() -> void:
 	for i in worlds.size():
 		rects.append(node_rect(i))
 	var here := _hero_at()
+	if fresh_unlock >= 0:
+		await get_tree().create_timer(0.5).timeout
+		Beeper.good()
+		await create_tween().tween_property(self, "_unlock", 1.0, 0.8).finished
 	while true:
 		choice.present(rects, here)
 		var i: int = await choice.picked
-		if AreaFlow.world_open(worlds[i]):
+		if _open(i):
 			Beeper.good()
 			open_world.emit(worlds[i])
 			return
@@ -57,11 +67,19 @@ func node_rect(i: int) -> Rect2:
 	return Rect2(XS[i] - R - 14, YS[i] - R - 14, (R + 14) * 2, (R + 14) * 2 + 60)
 
 
+func _open(i: int) -> bool:
+	return AreaFlow.world_open(save, worlds, i)
+
+
+func _unlocked(i: int) -> bool:
+	return AreaFlow.world_unlocked(save, worlds, i)
+
+
 ## The hero stands on the last open world.
 func _hero_at() -> int:
 	var at := 0
 	for i in worlds.size():
-		if AreaFlow.world_open(worlds[i]):
+		if _open(i):
 			at = i
 	return at
 
@@ -97,7 +115,8 @@ func _draw() -> void:
 
 func _draw_world(font: Font, i: int) -> void:
 	var w: Dictionary = worlds[i]
-	var open := AreaFlow.world_open(w)
+	var open := _unlocked(i)
+	var popping := i == fresh_unlock and _unlock < 1.0
 	var c := Vector2(XS[i], YS[i])
 	if _shake.has(i):
 		c.x += sin(_shake[i] * 60.0) * 6.0 * (_shake[i] / SHAKE_S)
@@ -110,6 +129,9 @@ func _draw_world(font: Font, i: int) -> void:
 	draw_circle(c + Vector2(-R * 0.3, -R * 0.3), R * 0.28, Color(1, 1, 1, 0.25))
 	if not open:
 		_draw_lock(c)
+	elif popping:
+		# the lock lifts off and fades the first time the world is unlocked
+		_draw_lock(c + Vector2(0, -_unlock * 70.0), 1.0 - _unlock)
 	elif AreaFlow.world_beaten(save, w["id"]):
 		_draw_star(c + Vector2(R * 0.78, R * 0.62), 20.0)
 	# the name under the circle, a word per line
@@ -119,13 +141,15 @@ func _draw_world(font: Font, i: int) -> void:
 	for k in words.size():
 		_label(font, Vector2(c.x - 90, c.y + R + 32 + k * 28), 180, words[k], 26,
 				INK if open else Color(0.62, 0.6, 0.62))
+	if open and not w.has("area") and not popping:
+		_label(font, Vector2(c.x - 60, c.y + 9), 120, "Soon", 26, INK)
 
 
 ## A padlock: a dark body and a shackle over it.
-func _draw_lock(c: Vector2) -> void:
-	draw_arc(c + Vector2(0, -6), 14.0, PI, TAU, 16, DARK, 7.0)
-	RoundBox.fill(self, Rect2(c + Vector2(-20, -6), Vector2(40, 30)), DARK, 6.0)
-	draw_circle(c + Vector2(0, 7), 4.0, LOCKED)
+func _draw_lock(c: Vector2, a := 1.0) -> void:
+	draw_arc(c + Vector2(0, -6), 14.0, PI, TAU, 16, Color(DARK, a), 7.0)
+	RoundBox.fill(self, Rect2(c + Vector2(-20, -6), Vector2(40, 30)), Color(DARK, a), 6.0)
+	draw_circle(c + Vector2(0, 7), 4.0, Color(LOCKED, a))
 
 
 func _draw_star(c: Vector2, r: float) -> void:
