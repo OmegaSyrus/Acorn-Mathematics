@@ -21,6 +21,7 @@ var pos := 0
 var target := 0   # where the current walk ends; > pos while a fight on the way is pending
 var looted := []  # chest spaces already opened; they stay empty after a restart
 var gems := 0
+var rolls := 0    # rolls this attempt (the area's "rolls" [min, max] bounds a clean run)
 var problem := {}
 var phase := AWAIT_ROLL
 var events := []
@@ -48,6 +49,7 @@ func to_save() -> Dictionary:
 		"target": target,
 		"looted": looted.duplicate(),
 		"gems": gems,
+		"rolls": rolls,
 		"phase": phase,
 		"rng_state": rng.get_state(),
 	}
@@ -61,6 +63,9 @@ func restore(data: Dictionary) -> void:
 	target = maxi(pos, int(data.get("target", pos)))
 	looted = data["looted"].duplicate()
 	gems = data["gems"]
+	rolls = int(data.get("rolls", 0))
+	if data["phase"] == AWAIT_CHOICE:
+		rolls = maxi(0, rolls - 1)  # that roll is rolled again
 	phase = AWAIT_ROLL if data["phase"] == AWAIT_CHOICE else data["phase"]
 	rng.set_state(data["rng_state"])
 
@@ -90,9 +95,28 @@ func current_monster() -> String:
 
 func roll() -> Dictionary:
 	assert(phase == AWAIT_ROLL)
-	problem = MoveGen.generate_move(grade, rng, length() - pos)
+	var b := answer_bounds()
+	problem = MoveGen.generate_move(grade, rng, length() - pos, b[0], b[1])
+	rolls += 1
 	phase = AWAIT_CHOICE
 	return problem
+
+
+## The answers this roll may have so a clean crossing takes the area's
+## "rolls" [min, max] (Terrence 2026-11-07: 10 to 12): never so short that
+## the goal comes before the min-th roll, never so long that the goal is out
+## of reach by the max-th. [1, 0] (no limit) when the area sets none.
+func answer_bounds() -> Array:
+	if not area.has("rolls"):
+		return [1, 0]
+	var lo_rolls: int = area["rolls"][0]
+	var hi_rolls: int = area["rolls"][1]
+	var top: int = grade["move"]["max_answer"]
+	var room := length() - pos
+	var left := hi_rolls - rolls - 1        # rolls after this one, at most
+	var lo := maxi(1, room - top * left)
+	var hi := mini(top, room - maxi(0, lo_rolls - rolls - 1))
+	return [lo, maxi(lo, hi)]
 
 
 ## A wrong space sinks and the run starts again from space 0. A right one
@@ -202,6 +226,7 @@ static func chest_mean(cfg) -> float:
 
 func _fail() -> void:
 	attempt += 1
+	rolls = 0
 	pos = 0
 	target = 0
 	problem = {}

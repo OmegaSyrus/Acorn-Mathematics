@@ -85,7 +85,31 @@ func test_perfect_player_crosses() -> bool:
 			else:
 				run.roll()
 				run.choose(run.problem["answer_index"])
-		check(run.phase == ScrollRun.CLEARED and run.attempt == 1 and run.pos == 40, "perfect run %d" % i)
+		check(run.phase == ScrollRun.CLEARED and run.attempt == 1 and run.pos == run.length(), "perfect run %d" % i)
+	return true
+
+
+## Terrence 2026-11-07: a clean lava crossing takes 10 to 12 rolls, every
+## count turning up, and wrong guesses start the count again.
+func test_clean_crossing_takes_10_to_12_rolls() -> bool:
+	var seen := {}
+	for i in 600:
+		var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 900 + i)
+		if i % 3 == 0:
+			run.roll()
+			run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+			check(run.rolls == 0, "a sink resets the roll count")
+		var guard := 0
+		while run.phase != ScrollRun.CLEARED and guard < 100:
+			guard += 1
+			if run.phase == ScrollRun.AWAIT_FIGHT:
+				run.resolve_fight(true)
+			else:
+				run.roll()
+				run.choose(run.problem["answer_index"])
+		check(run.rolls >= 10 and run.rolls <= 12, "seed %d took %d rolls" % [900 + i, run.rolls])
+		seen[run.rolls] = true
+	check(seen.has(10) and seen.has(11) and seen.has(12), "roll counts seen %s" % [seen.keys()])
 	return true
 
 

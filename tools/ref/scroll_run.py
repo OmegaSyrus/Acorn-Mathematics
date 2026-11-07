@@ -34,6 +34,7 @@ class ScrollRun:
         self.target = 0
         self.looted = []
         self.gems = 0
+        self.rolls = 0
         self.problem = None
         self.phase = AWAIT_ROLL
         self.events = []
@@ -53,7 +54,7 @@ class ScrollRun:
     def to_save(self):
         return {"area": self.area["id"], "grade": self.grade["id"], "seed": self.seed,
                 "attempt": self.attempt, "pos": self.pos, "target": self.target, "looted": list(self.looted),
-                "gems": self.gems, "phase": self.phase, "rng_state": self.rng.get_state()}
+                "gems": self.gems, "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()}
 
     @classmethod
     def from_save(cls, area, grade, data):
@@ -63,15 +64,29 @@ class ScrollRun:
         run.target = max(run.pos, data.get("target", run.pos))
         run.looted = list(data["looted"])
         run.gems = data["gems"]
+        run.rolls = data.get("rolls", 0)
         run.phase = data["phase"]
         run.rng.set_state(data["rng_state"])
         return run
 
     def roll(self):
         assert self.phase == AWAIT_ROLL
-        self.problem = generate_move(self.grade, self.rng, self.length() - self.pos)
+        lo, hi = self.answer_bounds()
+        self.problem = generate_move(self.grade, self.rng, self.length() - self.pos, lo, hi)
+        self.rolls += 1
         self.phase = AWAIT_CHOICE
         return self.problem
+
+    def answer_bounds(self):
+        if "rolls" not in self.area:
+            return 1, 0
+        lo_rolls, hi_rolls = self.area["rolls"]
+        top = self.grade["move"]["max_answer"]
+        room = self.length() - self.pos
+        left = hi_rolls - self.rolls - 1
+        lo = max(1, room - top * left)
+        hi = min(top, room - max(0, lo_rolls - self.rolls - 1))
+        return lo, max(lo, hi)
 
     def choose(self, index):
         assert self.phase == AWAIT_CHOICE
@@ -143,6 +158,7 @@ class ScrollRun:
 
     def _fail(self):
         self.attempt += 1
+        self.rolls = 0
         self.pos = 0
         self.target = 0
         self.problem = None

@@ -120,10 +120,9 @@ func _ready() -> void:
 		dice.append(d)
 	choice = ChoiceWidget.new()
 	choice.show_highlight = false
-	# tap a shield to pick it, then the green Select button (Terrence, 2026-11-07)
+	# tap a shield to pick it, then the green Go button, the same as the
+	# crossing's (Terrence, 2026-11-07)
 	choice.confirm = true
-	choice.go_label = "Select"
-	choice.go_size = Vector2(210, 84)
 	choice.go_area = Rect2(132, 0, 696, 540)
 	add_child(choice)
 	if MONSTER_ART.has(fight.monster_id):
