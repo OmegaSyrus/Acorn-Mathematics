@@ -1,4 +1,4 @@
-## Standalone root for the Match Bounce graybox until the map links to it:
+## Standalone root for the Match Bounce fight on its own (the game plays it after the miniboss):
 ##   godot --path . res://scenes/bounce.tscn -- --grade=1 --seed=123
 ## Centers the 960x540 design space like game/main.gd and starts a new
 ## fight whenever one ends (win, Try or Map).

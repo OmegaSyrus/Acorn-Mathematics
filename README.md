@@ -16,6 +16,17 @@ frame (`Look.CHAR_PX` in `game/ui/look.gd`). Characters are never scaled; a char
 needs another size gets art made at that size.
 The old ten-task path is still there: `godot --path . -- --area=lava_1`.
 
+### Through the door (Terrence, 2026-11-07)
+
+The door at the end of the crossing leads on: the Surtling Chief miniboss duel (numerals,
+a loss restarts only the duel), then the Skeleton Dragon boss (Match Bounce; a win pours
+the gem bucket, a loss offers Try or Map), then the mini map of the five worlds
+(`content/worlds.json`, `game/world_map_screen.gd`). Only worlds with an area are open;
+the rest show a lock until they are built. Tapping an open world opens its main menu.
+An area file names its `miniboss` and `boss`; `logic/path/area_flow.gd` orders the steps
+and saves the one in progress as the run (`{"area", "grade", "stage"}`), so closing the
+app after the door opens the duel or boss again from the main menu's Go.
+
 ## The store
 
 The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and dice
@@ -66,7 +77,8 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --rendering-driver opengl3
 ```
 
 The crossing demo picks a wrong rock on turn 2 and one wrong shield in the first
-fight; the bounce demo names one wrong face. `tools/demo/find_seed.gd` lists seeds
+fight, then goes through the door, the duel (one wrong shield) and the boss to the mini
+map; `--demo=door` starts at the door. The bounce demo names one wrong face. `tools/demo/find_seed.gd` lists seeds
 whose crossing meets two or more fights. Delete the profile save first for a clean map.
 
 ## Tests
@@ -111,8 +123,8 @@ for crisp shapes; switch to `viewport` with integer scaling when pixel art arriv
 
 ## Not in this phase
 
-Match Bounce is started (`godot --path . res://scenes/bounce.tscn -- --grade=1`) but not
-linked from the map. Real art and voice,
+Match Bounce is played after the miniboss (and on its own with
+`godot --path . res://scenes/bounce.tscn -- --grade=1`). Real art and voice,
 Sapling and Oak generators, the parent area. The die is a real 3D cube projected in 2D
 (`game/ui/die_view.gd`); pre-rendered tumble frames can replace its `_draw` later.
 

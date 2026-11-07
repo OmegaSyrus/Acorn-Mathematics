@@ -12,6 +12,11 @@ const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const ScrollScreen := preload("res://game/scroll_screen.gd")
 const StoreScreen := preload("res://game/store_screen.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
+const AreaFlow := preload("res://logic/path/area_flow.gd")
+const SeededRng := preload("res://logic/core/rng.gd")
+const FightScreen := preload("res://game/fight/fight_screen.gd")
+const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
+const WorldMapScreen := preload("res://game/world_map_screen.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -106,6 +111,9 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	var area := Content.area(area_id)
 	_play_level_music()
 	menu.visible = true
+	if resume and AreaFlow.is_stage_run(save["run"]):
+		_start_stage(area, grade_id, save["run"]["stage"])
+		return
 	if area.get("type") == "scroll":
 		_start_scroll(area, grade_id, resume)
 		return
@@ -153,5 +161,65 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 		SaveStore.write(save)
 	var s := ScrollScreen.new()
 	s.setup(run, save, debug_on)
-	s.finished.connect(show_map)
+	# through the door: the miniboss, then the boss, then the mini map
+	s.finished.connect(func(): _start_stage(area, grade_id, AreaFlow.next_stage(area, "")))
 	_swap.call_deferred(s)
+
+
+## One step after the crossing (AreaFlow): the miniboss duel, the boss fight
+## or the mini map. The step is saved before it starts, so the map's "Go"
+## (after the app closes) opens the same step again.
+func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
+	AreaFlow.enter(save, area, grade_id, stage)
+	SaveStore.write(save)
+	match stage:
+		AreaFlow.DUEL:
+			_start_duel(area, grade_id)
+		AreaFlow.BOSS:
+			_start_boss(area, grade_id)
+		_:
+			show_world_map.call_deferred()
+
+
+## The miniboss duel. A loss restarts the duel by itself (FightScreen), so
+## it only ends in a win, which leads to the boss.
+func _start_duel(area: Dictionary, grade_id: int) -> void:
+	_play_level_music()
+	menu.visible = true
+	var f := FightScreen.new()
+	f.setup(SeededRng.new(_new_seed()), grade_id, area["miniboss"], false, true, debug_on)
+	f.done.connect(func(won: bool):
+		_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.DUEL) if won else AreaFlow.DUEL))
+	_swap.call_deferred(f)
+
+
+## The boss fight (Match Bounce). A win (the gem bucket is banked by the
+## screen) leads to the mini map; on a loss "Try" fights the boss again and
+## "Map" goes to the mini map with the boss still saved for the map's "Go".
+func _start_boss(area: Dictionary, grade_id: int) -> void:
+	_play_level_music()
+	menu.visible = true
+	var b := BounceScreen.new()
+	b.setup(SeededRng.new(_new_seed()), grade_id, debug_on)
+	b.save = save
+	b.done.connect(func(won: bool):
+		if won:
+			_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.BOSS))
+		elif b.to_map:
+			show_world_map.call_deferred()
+		else:
+			_start_boss.call_deferred(area, grade_id))
+	_swap.call_deferred(b)
+
+
+## The mini map of the worlds: tapping an open one goes to its main menu
+## (grades, Go, Shop); the rest show a lock until they are built.
+func show_world_map() -> void:
+	var w := WorldMapScreen.new()
+	w.setup(save, Content.worlds())
+	w.open_world.connect(func(world: Dictionary):
+		area_id = world["area"]
+		show_map())
+	_swap(w)
+	menu.visible = false
+	Music.play_menu()

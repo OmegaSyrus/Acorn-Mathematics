@@ -3,6 +3,8 @@
   "id": "lava_scroll",
   "type": "scroll",
   "world": "lava_caves",
+  "miniboss": "lava_miniboss",
+  "boss": "skeleton_dragon",
   "name": "Lava Caves: the crossing",
   "grades": [1],
   "length": 40,

@@ -37,3 +37,13 @@ static func area_ids() -> Array:
 			ids.append(f.get_basename())
 	ids.sort()
 	return ids
+
+
+const WORLDS_PATH := "res://content/worlds.json"
+
+
+## The worlds in play order, for the mini map. A world with an "area" can be
+## played; one without is shown locked until it is built.
+static func worlds() -> Array:
+	var data = JsonUtil.load_file(WORLDS_PATH)
+	return [] if data == null else data["worlds"]

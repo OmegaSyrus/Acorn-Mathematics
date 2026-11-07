@@ -8,6 +8,7 @@ extends Node2D
 signal finished
 signal rolled
 
+const AreaFlow := preload("res://logic/path/area_flow.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const InputGate := preload("res://logic/core/input_gate.gd")
@@ -302,7 +303,9 @@ func _hide_dice() -> void:
 func _save_progress() -> void:
 	if run.phase == ScrollRun.CLEARED:
 		SaveData.add_mark(save, run.area["id"], run.grade["id"])
-		save["run"] = null
+		# through the door next: the miniboss (or what follows it), saved now
+		# so closing the app at the door still leads on, not back to the start
+		AreaFlow.enter(save, run.area, run.grade["id"], AreaFlow.next_stage(run.area, ""))
 	else:
 		save["run"] = run.to_save()
 	SaveStore.write(save)
@@ -338,7 +341,7 @@ func _fight() -> void:
 
 ## The crossing is done: a golden "GO!" arrow points at the door on the far
 ## shore, and tapping the door (or anywhere within about an inch of it) walks
-## the dragon through it and back to the map.
+## the dragon through it, on to the miniboss (main.gd leads on from there).
 func _cleared() -> void:
 	_save_progress()
 	cleared_banner = true

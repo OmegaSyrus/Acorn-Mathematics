@@ -112,6 +112,8 @@ var ball_pop := 0.0     # 1 when the ball has just taken the boss's roll
 var slow_mo := 0.3      # time scale on the last heart, from tuning.json "screen"
 var peg_tex := {}
 var save: Dictionary = {}  # the profile; empty in the standalone graybox and tests (no gems banked)
+## true when a lost fight ends on Map rather than Try.
+var to_map := false
 var persist := true        # false: stills and tests leave the profile file alone
 var win_gems := 10         # the bucket, from tuning.json "screen" "win_gems"
 var bucket_t := -1.0       # seconds since the bucket appeared; -1 before the win
@@ -269,7 +271,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if fail_buttons.size() == 2 and fail_buttons[0].has_point(p):
 				done.emit(false)   # Try: the owner starts the fight again
 			elif fail_buttons.size() == 2 and fail_buttons[1].has_point(p):
-				done.emit(false)   # Map: no map in this graybox yet
+				to_map = true
+				done.emit(false)   # Map: the owner shows the mini map
 		return
 	if phase != "aiming":
 		return
