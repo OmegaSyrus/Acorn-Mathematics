@@ -1,5 +1,5 @@
 ## The store (2026-11-05, Terrence): spend gems on heroes and dice skins.
-## Two tabs (heroes, dice) of big cards, six by two, all inside what a 4:3
+## Two tabs (heroes, dice) of big cards, seven by two, all inside what a 4:3
 ## tablet shows (x 120..840). Each card: the picture, the price with its
 ## currency's icon, and what a tap does:
 ##   a green "Buy" (enough gems): the first tap picks it and a big Buy
@@ -23,10 +23,10 @@ const GEM_TEX := preload("res://art/lava/gem.png")
 const BACK_RECT := Rect2(136, 10, 150, 80)
 const TAB_RECTS := {"hero": Rect2(302, 10, 150, 80), "dice": Rect2(462, 10, 150, 80)}
 const GEMS_BOX := Rect2(628, 14, 196, 72)
-const COLS := 6
-const CARD := Vector2(108, 205)
-const GAP := 8.0
-const GRID_X := 136.0
+const COLS := 7   # 14 cards a tab (2026-11-06: Red and Green Bolt joined the heroes)
+const CARD := Vector2(96, 205)
+const GAP := 6.0
+const GRID_X := 128.0  # 7 cards end at x 836, inside the 4:3 view
 const GRID_YS := [104.0, 320.0]
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)

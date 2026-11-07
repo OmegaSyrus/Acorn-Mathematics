@@ -7,6 +7,9 @@
 ## a right hop, a wrong hop on purpose (sink and restart), then a clean run
 ## with every chest and fight on the way. --demo=bounce plays one Match
 ## Bounce boss fight (best aim; above Acorn, one wrong name on purpose).
+## Both crossing modes go on through the door: the Surtling Chief duel (one
+## wrong shield), the Skeleton Dragon boss, and the mini map. --demo=door
+## starts at the door (a saved duel, picked up with the map's Go).
 extends Node2D
 
 const InputSetup := preload("res://game/input_setup.gd")
@@ -16,6 +19,9 @@ const BounceSim := preload("res://logic/bounce/bounce_sim.gd")
 const ScrollScreen := preload("res://game/scroll_screen.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const MainScene := preload("res://scenes/main.tscn")
+const WorldMapScreen := preload("res://game/world_map_screen.gd")
+const AreaFlow := preload("res://logic/path/area_flow.gd")
+const Content := preload("res://logic/core/content.gd")
 
 const THINK_S := 0.7      # pause before each tap, like a child looking
 const GLIDE_S := 0.45     # finger travel time
@@ -47,7 +53,7 @@ func _ready() -> void:
 	if mode == "bounce":
 		_bounce()
 	else:
-		_crossing()
+		_crossing(mode == "door")
 
 
 func _process(delta: float) -> void:
@@ -65,21 +71,55 @@ func _draw_finger() -> void:
 
 # --- the lava crossing ------------------------------------------------------
 
-func _crossing() -> void:
+func _crossing(from_door := false) -> void:
 	var main := MainScene.instantiate()
 	add_child(main)
 	move_child(main, 0)
 	await _wait(1.2)
-	# the map: Acorn is the first grade button
 	var map = main.screen
-	await _tap_choice(map.choice, 0)
+	if from_door:
+		# a duel saved at the door; the map's Go picks it up
+		main.save["run"] = AreaFlow.stage_run(Content.area(main.area_id), 1, AreaFlow.DUEL)
+		main.show_map()
+		await _wait(1.0)
+		map = main.screen
+		var go := -1
+		for i in map.buttons.size():
+			if map.buttons[i]["resume"]:
+				go = i
+		await _tap_choice(map.choice, go)
+	else:
+		# the map: Acorn is the first grade button
+		await _tap_choice(map.choice, 0)
 	var turn := 0
 	var first_fight = null
+	var duel_missed := false
 	while true:
 		await get_tree().process_frame
 		var s = main.screen
+		if s is WorldMapScreen:
+			print("DEMO reached the mini map")
+			await _wait(3.0)
+			get_tree().quit()
+			return
+		if s is FightScreen:
+			# the miniboss duel
+			if s.choice.active:
+				await _wait(THINK_S + 0.4)
+				if s.choice.active and main.screen == s:
+					var pick: int = s.fight.attack.answer_index
+					if not duel_missed:
+						duel_missed = true
+						pick = (pick + 1) % s.fight.attack.choices.size()
+					await _tap_choice(s.choice, pick)
+			continue
+		if s is BounceScreen:
+			await _play_bounce(s)
+			if is_instance_valid(s) and s.phase == "lost":
+				await _wait(1.0)
+				await _tap_at(s, s.fail_buttons[0].get_center())  # Try
+			continue
 		if not (s is ScrollScreen):
-			# back on the map after the crossing
 			await _wait(1.5)
 			get_tree().quit()
 			return
@@ -137,9 +177,16 @@ func _bounce() -> void:
 	s.setup(SeededRng.new(seed_value), 1)
 	stage.add_child(s)
 	s.done.connect(func(_won): bounce_over = true)
+	await _play_bounce(s)
+	await _wait(2.0)
+	get_tree().quit()
+
+
+## Plays one Match Bounce fight until it is won or lost.
+func _play_bounce(s) -> void:
 	var shot := 0
 	await _wait(1.0)
-	while not bounce_over and s.phase != "lost":
+	while is_instance_valid(s) and s.is_inside_tree() and s.phase != "lost" and s.phase != "won":
 		await get_tree().process_frame
 		if s.phase == "naming" and s.choice.active:
 			shot += 1
@@ -155,8 +202,10 @@ func _bounce() -> void:
 			# Acorn: the ball took the boss's roll, so go straight to aiming
 			await _wait(THINK_S)
 			await _aim_and_fire(s, _best_aim(s.fight))
-	await _wait(2.0)
-	get_tree().quit()
+	if is_instance_valid(s) and s.phase == "won":
+		# the gem bucket plays, then the screen hands over
+		while is_instance_valid(s) and s.is_inside_tree():
+			await get_tree().process_frame
 
 
 ## Touch the board below the launcher, drag to the aim, let go.

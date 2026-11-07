@@ -21,6 +21,14 @@ const Pointer := preload("res://game/ui/pointer.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
+const SaveData := preload("res://logic/core/save_data.gd")
+const SaveStore := preload("res://game/save_store.gd")
+const GEM_TEX := preload("res://art/lava/gem.png")
+## The gem bucket for beating the dragon (2026-11-06, Terrence): where it
+## lands, and how long the pour takes.
+const BUCKET_AT := Vector2(480, 330)
+const BUCKET_DROP_S := 0.6
+const BUCKET_POUR_S := 1.8
 
 ## Peg colours by face. Acorn uses 1 to 3; the colour helps the eye, the
 ## count is the answer.
@@ -103,11 +111,20 @@ var slow_t := 0.0       # seconds since the last-heart slow-down began
 var ball_pop := 0.0     # 1 when the ball has just taken the boss's roll
 var slow_mo := 0.3      # time scale on the last heart, from tuning.json "screen"
 var peg_tex := {}
+var save: Dictionary = {}  # the profile; empty in the standalone graybox and tests (no gems banked)
+## true when a lost fight ends on Map rather than Try.
+var to_map := false
+var persist := true        # false: stills and tests leave the profile file alone
+var win_gems := 10         # the bucket, from tuning.json "screen" "win_gems"
+var bucket_t := -1.0       # seconds since the bucket appeared; -1 before the win
+var gems_shown := 0        # the bucket's gems counted into the corner so far
 
 
 func setup(rng, grade: int, show_debug := false) -> void:
 	fight = BounceFight.new(rng, grade)
-	slow_mo = float(BounceFight.load_tuning()["screen"]["last_heart_time_scale"])
+	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
+	slow_mo = float(screen_cfg["last_heart_time_scale"])
+	win_gems = int(screen_cfg.get("win_gems", 10))
 	debug_on = show_debug
 
 
@@ -204,7 +221,9 @@ func _on_shot_over() -> void:
 		phase = "won"
 		_say("You win!")
 		Beeper.good()
-		await get_tree().create_timer(2.5).timeout
+		await get_tree().create_timer(1.2).timeout
+		await _gem_bucket()
+		await get_tree().create_timer(1.0).timeout
 		done.emit(true)
 		return
 	if out["state"] == BounceFight.State.LOST:
@@ -218,6 +237,31 @@ func _on_shot_over() -> void:
 	_start_naming()
 
 
+## The dragon's bonus: a bucket of gems drops in from the top, tips over and
+## pours them out, and each one counts into the corner. The gems go into the
+## save at once (and are written), so leaving early can't lose them.
+func _gem_bucket() -> void:
+	if not save.is_empty():
+		SaveData.add_gems(save, win_gems)
+		if persist:
+			SaveStore.write(save)
+	_say("+%d" % win_gems)
+	bucket_t = 0.0
+	Beeper.tone(523.0, 0.1)
+	var counted := 0
+	var end := BUCKET_DROP_S + BUCKET_POUR_S + 0.4
+	while bucket_t < end:
+		await get_tree().process_frame
+		bucket_t += get_process_delta_time()
+		var due := clampi(int(floor((bucket_t - BUCKET_DROP_S - 0.5) / (BUCKET_POUR_S / win_gems))) + 1, 0, win_gems)
+		while counted < due:
+			counted += 1
+			gems_shown = counted
+			Beeper.tone(1046.0 * pow(1.06, counted - 1), 0.07, -12.0)
+	gems_shown = win_gems
+	Beeper.good()
+
+
 # --- input -----------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -227,7 +271,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if fail_buttons.size() == 2 and fail_buttons[0].has_point(p):
 				done.emit(false)   # Try: the owner starts the fight again
 			elif fail_buttons.size() == 2 and fail_buttons[1].has_point(p):
-				done.emit(false)   # Map: no map in this graybox yet
+				to_map = true
+				done.emit(false)   # Map: the owner shows the mini map
 		return
 	if phase != "aiming":
 		return
@@ -402,6 +447,8 @@ func _draw() -> void:
 		RoundBox.fire(self, br, _t, 16.0)
 		_outlined(font, br.position + Vector2(0, 32), bubble, br.size.x, 26)
 	_draw_floaters(font)
+	if bucket_t >= 0.0:
+		_draw_bucket(font)
 	if phase == "lost":
 		_draw_fail(font)
 	if debug_on:
@@ -561,6 +608,52 @@ func _draw_boss(font: Font) -> void:
 	for i in fight.boss_max_hearts:
 		var c := top + Vector2((i % cols) * step, (i / cols) * 26)
 		draw_texture(HEART_TEX if i < fight.boss_hearts else HEART_EMPTY_TEX, c - Vector2(16, 16))
+
+
+## The gem bucket (code drawn: a wooden pail with iron hoops, heaped with
+## gems) and the gems pouring out of it into the counter at the top.
+func _draw_bucket(font: Font) -> void:
+	var t := bucket_t
+	# it drops in with a bounce, then tips toward the corner
+	var drop := clampf(t / BUCKET_DROP_S, 0.0, 1.0)
+	var y := lerpf(-120.0, BUCKET_AT.y, 1.0 - pow(1.0 - drop, 3.0)) - 18.0 * sin(clampf((t - BUCKET_DROP_S) / 0.25, 0.0, 1.0) * PI)
+	var tip := clampf((t - BUCKET_DROP_S - 0.2) / 0.3, 0.0, 1.0) * 0.55
+	var c := Vector2(BUCKET_AT.x, y)
+	draw_set_transform(c, tip, Vector2.ONE)
+	var body := PackedVector2Array([Vector2(-58, -50), Vector2(58, -50), Vector2(44, 52), Vector2(-44, 52)])
+	draw_colored_polygon(body, Color(0.55, 0.33, 0.17))
+	for k in 4:
+		var x := -40.0 + k * 27.0
+		draw_line(Vector2(x, -48), Vector2(x * 0.78, 50), Color(0.38, 0.22, 0.11), 3.0)
+	for hy in [-30.0, 30.0]:
+		var hw := lerpf(56.0, 46.0, (hy + 50.0) / 100.0)
+		draw_line(Vector2(-hw, hy), Vector2(hw, hy), Color(0.3, 0.3, 0.34), 6.0)
+	draw_polyline(body + PackedVector2Array([body[0]]), OUTLINE, 4.0)
+	draw_arc(Vector2(0, -50), 58.0, PI, TAU, 24, Color(0.3, 0.3, 0.34), 5.0)
+	# the heap on top, while it is still full
+	var left := win_gems - gems_shown
+	for k in mini(left, 9):
+		var gx := -44.0 + (k % 5) * 22.0 + (k / 5) * 11.0
+		var gy := -60.0 - (k / 5) * 16.0 + 4.0 * sin(_t * 6.0 + k)
+		draw_texture_rect(GEM_TEX, Rect2(Vector2(gx, gy) - Vector2(14, 14), Vector2(28, 28)), false)
+	draw_set_transform(Vector2.ZERO)
+	# the gems in the air: from the lip to the counter, one after another
+	var lip := c + Vector2(58, -50).rotated(tip)
+	var target := Vector2(560, 40)
+	var step := BUCKET_POUR_S / win_gems
+	for k in win_gems:
+		var u := (t - BUCKET_DROP_S - 0.5 - step * k + 0.5) / 0.5
+		if u <= 0.0 or u >= 1.0:
+			continue
+		var mid := (lip + target) / 2.0 + Vector2(0, -110)
+		var p := lip.lerp(mid, u).lerp(mid.lerp(target, u), u)
+		var w := absf(cos(u * TAU)) * 26.0 + 4.0
+		draw_texture_rect(GEM_TEX, Rect2(p - Vector2(w / 2.0, 15), Vector2(w, 30)), false)
+	# the count, big, by the target
+	var box := Rect2(target - Vector2(70, 30), Vector2(140, 60))
+	RoundBox.fire(self, box, _t, 16.0)
+	draw_texture_rect(GEM_TEX, Rect2(box.position + Vector2(10, 12), Vector2(36, 36)), false)
+	_outlined(font, box.position + Vector2(44, 42), "+%d" % gems_shown, 90, 32)
 
 
 ## Damage numbers: they pop in big, settle, float up and fade.

@@ -38,6 +38,8 @@ func test_catalog_is_well_formed() -> bool:
 				check(it.get("look", {}).has(key), "%s: look.%s" % [it["id"], key])
 	for kind in Store.KINDS:
 		check(Store.default_id(cat, kind) != "", "a free %s to start with" % kind)
+		# the store shows 7 by 2 cards a tab (game/store_screen.gd COLS)
+		check(Store.items(cat, kind).size() <= 14, "%s tab fits the 7 by 2 grid (%d)" % [kind, Store.items(cat, kind).size()])
 	for cid in cat["currencies"]:
 		var c: Dictionary = cat["currencies"][cid]
 		check(c.has("icon") and c["icon"].has("shape"), "currency %s has an icon" % cid)
@@ -46,35 +48,41 @@ func test_catalog_is_well_formed() -> bool:
 	return true
 
 
-## Terrence 2026-11-05: for now only the helmet slime can be bought, with gems.
-func test_only_the_slime_is_buyable_now() -> bool:
+## Terrence 2026-11-06: gems buy three Lava items: Red Bolt, Green Bolt and
+## the helmet slime (two more Lava items, so gems have more to buy).
+func test_gem_items_are_the_lava_items() -> bool:
 	var cat := Store.catalog()
 	var open_priced := []
 	for it in cat["items"]:
 		if it.has("price") and Store.is_open(cat, it["price"]["currency"]):
 			open_priced.append(it["id"])
-	eq(open_priced, ["slime_knight"], "open-currency items")
-	eq(Store.item(cat, "slime_knight")["price"], {"currency": "gems", "amount": 40}, "slime price")
+	eq(open_priced, ["bolt_red", "bolt_green", "slime_knight"], "open-currency items")
+	eq(Store.item(cat, "slime_knight")["price"], {"currency": "gems", "amount": 25}, "slime price")
 	return true
 
 
-## The slime takes about three cleared Acorn crossings: more than two runs can
-## give (bar all-4 chests), no more than three average runs.
-func test_slime_price_is_about_three_runs() -> bool:
+## Chests give 1 gem, 2 one time in 6 (Terrence 2026-11-06: "normally 1, rare
+## 2"), so a cleared crossing banks about 6. Each gem item takes 2 to 5
+## average crossings, and the measured gems per perfect run match the mean.
+func test_gem_prices_fit_the_treasure() -> bool:
 	var area := Content.area("lava_scroll")
 	var chests := 0
 	for s in area["spaces"]:
 		if s["type"] == "chest":
 			chests += 1
-	var lo: int = area["chest_gems"][0]
-	var hi: int = area["chest_gems"][1]
-	var mean_run := chests * (lo + hi) / 2.0
-	var price: int = Store.item(Store.catalog(), "slime_knight")["price"]["amount"]
-	check(price >= 2 * chests * hi, "two runs can't buy it (max %d)" % (2 * chests * hi))
-	check(price <= 3 * mean_run, "three average runs can (%d)" % (3 * mean_run))
-	# measured: a perfect run banks exactly its chests' gems
+	var cfg = area["chest_gems"]
+	eq(ScrollRun.chest_range(cfg), [1, 2], "a chest gives 1 or 2")
+	var mean_run := chests * ScrollRun.chest_mean(cfg)
+	check(absf(mean_run - 35.0 / 6.0) < 0.01, "about 6 gems a crossing (%.2f)" % mean_run)
+	var cat := Store.catalog()
+	for id in ["bolt_red", "bolt_green", "slime_knight"]:
+		var price: int = Store.item(cat, id)["price"]["amount"]
+		var runs := price / mean_run
+		check(runs >= 1.5 and runs <= 5.0, "%s takes %.1f crossings" % [id, runs])
 	var total := 0
 	var n := 400
+	var rare := 0
+	var opened := 0
 	for seed_value in n:
 		var run := ScrollRun.new(area, Content.grades()[1], seed_value + 1)
 		while run.phase != ScrollRun.CLEARED:
@@ -82,10 +90,60 @@ func test_slime_price_is_about_three_runs() -> bool:
 				run.resolve_fight(true)
 				continue
 			var p := run.roll()
-			run.choose(p["answer_index"])
+			var out := run.choose(p["answer_index"])
+			for c in out.get("chests", []):
+				opened += 1
+				if c["gems"] == 2:
+					rare += 1
+				check(c["gems"] == 1 or c["gems"] == 2, "a chest gave %d" % c["gems"])
 		total += run.gems
 	var measured := float(total) / n
-	check(absf(measured - mean_run) < 0.6, "mean gems per run %.2f, expected %.1f" % [measured, mean_run])
+	check(absf(measured - mean_run) < 0.3, "mean gems per run %.2f, expected %.2f" % [measured, mean_run])
+	var share := float(rare) / opened
+	check(share > 0.12 and share < 0.22, "2 gems in %.2f of chests, expected 1 in 6" % share)
+	return true
+
+
+## Red and Green Bolt are the robot dragon recolored in code: same size, the
+## outline and teal eyes kept, the body in the new hue.
+func test_bolt_colors_recolor_the_body_only() -> bool:
+	var Look = load("res://game/ui/look.gd")
+	var base: Image = Look.hero_texture("robodragon").get_image()
+	for id in ["bolt_red", "bolt_green"]:
+		var img: Image = Look.hero_texture(id).get_image()
+		eq(img.get_size(), base.get_size(), "%s same size as Bolt" % id)
+		var changed := 0
+		var kept_teal := true
+		var kept_dark := true
+		for y in base.get_height():
+			for x in base.get_width():
+				var a: Color = base.get_pixel(x, y)
+				var b: Color = img.get_pixel(x, y)
+				if a.a == 0.0:
+					continue
+				if not a.is_equal_approx(b):
+					changed += 1
+				if a.v < 0.16 and not a.is_equal_approx(b):
+					kept_dark = false
+				if a.g > a.r + 0.12 and a.g >= a.b - 0.02 and not a.is_equal_approx(b):
+					kept_teal = false
+		check(changed > 1500, "%s body recolored (%d px)" % [id, changed])
+		check(kept_teal, "%s keeps the teal eyes" % id)
+		check(kept_dark, "%s keeps the outline" % id)
+	var red: Image = Look.hero_texture("bolt_red").get_image()
+	var green: Image = Look.hero_texture("bolt_green").get_image()
+	var rs := Vector3.ZERO
+	var gs := Vector3.ZERO
+	for y in red.get_height():
+		for x in red.get_width():
+			var c: Color = red.get_pixel(x, y)
+			if c.a > 0.0:
+				rs += Vector3(c.r, c.g, c.b)
+			c = green.get_pixel(x, y)
+			if c.a > 0.0:
+				gs += Vector3(c.r, c.g, c.b)
+	check(rs.x > rs.y and rs.x > rs.z, "Red Bolt is red overall %s" % rs)
+	check(gs.y > gs.x and gs.y > gs.z, "Green Bolt is green overall %s" % gs)
 	return true
 
 
@@ -107,14 +165,14 @@ func test_fresh_profile_owns_and_uses_the_defaults() -> bool:
 func test_buy_the_slime() -> bool:
 	var cat := Store.catalog()
 	var s := _fresh()
-	s["gems"] = 39
-	check(not Store.can_afford(cat, s, "slime_knight"), "39 is not enough")
-	check(not Store.buy(cat, s, "slime_knight"), "can't buy at 39")
-	eq(s["gems"], 39, "no gems taken")
+	s["gems"] = 24
+	check(not Store.can_afford(cat, s, "slime_knight"), "24 is not enough")
+	check(not Store.buy(cat, s, "slime_knight"), "can't buy at 24")
+	eq(s["gems"], 24, "no gems taken")
 	SaveData.add_gems(s, 4)
-	eq(Store.state(cat, s, "slime_knight"), Store.BUY, "buyable at 43")
+	eq(Store.state(cat, s, "slime_knight"), Store.BUY, "buyable at 28")
 	check(Store.buy(cat, s, "slime_knight"), "bought")
-	eq(s["gems"], 3, "40 spent")
+	eq(s["gems"], 3, "25 spent")
 	eq(s["owned"], ["slime_knight"], "owned list")
 	eq(Store.state(cat, s, "slime_knight"), Store.OWNED, "owned, not in use yet")
 	check(not Store.buy(cat, s, "slime_knight"), "can't buy twice")
@@ -180,7 +238,7 @@ func test_old_saves_load_with_store_defaults() -> bool:
 	eq(broken["currencies"], {}, "a broken currencies dict resets")
 	eq(broken["gems"], 5, "gems kept")
 	var s2 := _fresh()
-	s2["gems"] = 50
+	s2["gems"] = 35
 	Store.buy(Store.catalog(), s2, "slime_knight")
 	Store.equip(Store.catalog(), s2, "slime_knight")
 	var back := SaveData.from_text(SaveData.to_text(s2), "1")

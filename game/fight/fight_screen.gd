@@ -48,6 +48,16 @@ const SHIELD_TEX := preload("res://art/ui/shield.png")
 const SHIELD_ART_SCALE := 1.1
 const NAME_GAP := 14.0      # from the monster's feet down to its name box
 const NAME_RIGHT := 842.0   # the name box never runs past the safe area
+## Every move and pause in the fight plays this many times slower than it
+## was, so a child can follow who was hit (Terrence 2026-11-05).
+const SLOW := 1.6
+## A lost heart: it swells in two whole-pixel steps (2x, 3x), shakes, flashes,
+## then cracks in two and the halves fall away (Terrence 2026-11-05).
+const BREAK_TIME := 1.5
+## Hit flash: the character blinks red this many times.
+const FLASH_BLINKS := 3
+const FLASH_TIME := 0.9
+const HIT_RED := Color(1.9, 0.35, 0.3)
 const MONSTER_COLORS := {
 	"blorp": Color(0.85, 0.35, 0.12),
 	"craggy": Color(0.5, 0.48, 0.45),
@@ -78,6 +88,14 @@ var bubble := ""
 var monster_tex: Texture2D
 var hero_lift := 0.0
 var _t := 0.0
+## Hearts as drawn. They lag the fight's count so a heart only goes when the
+## blow lands, and the one going plays its break (progress 0..1, -1 = none).
+var shown_hero_hearts := 0
+var shown_monster_hearts := 0
+var hero_break := -1.0
+var hero_break_i := 0
+var monster_break := -1.0
+var monster_break_i := 0
 
 
 ## first_strike: a mimic whose lock was answered right starts one heart down.
@@ -104,7 +122,15 @@ func _ready() -> void:
 	add_child(choice)
 	if MONSTER_ART.has(fight.monster_id):
 		monster_tex = load(MONSTER_ART[fight.monster_id][0])
+	_sync_hearts()
 	_loop()
+
+
+func _sync_hearts() -> void:
+	shown_hero_hearts = fight.hero_hearts
+	shown_monster_hearts = fight.monster_hearts
+	hero_break = -1.0
+	monster_break = -1.0
 
 
 # --- the exchange loop -----------------------------------------------------
@@ -123,6 +149,8 @@ func _loop() -> void:
 			if d.visible:
 				d.show_numeral()
 		_say(str(out["answer"]))
+		# a beat to see the right shield light up before anyone moves
+		await _wait(0.5)
 		if out["right"]:
 			await _happy()
 			await _parry()
@@ -139,6 +167,7 @@ func _loop() -> void:
 				await _wait(0.8)
 				_reset_looks()
 				fight.restart()
+				_sync_hearts()
 				continue
 			done.emit(false)
 			return
@@ -185,14 +214,15 @@ func _parry() -> void:
 	monster_state = "blocked"
 	clang = 1.0
 	Beeper.tone(1200.0, 0.08)
-	create_tween().tween_property(self, "clang", 0.0, 0.4)
+	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
 	await _tween_prop("monster_dx", 0.0, 0.2)
 	await _tween_prop("hero_dx", 230.0, 0.16)
 	monster_state = "hurt"
-	monster_flash = 1.0
 	Beeper.good()
-	create_tween().tween_property(self, "monster_flash", 0.0, 0.5)
+	_blink("monster_flash")
+	var breaking := _break_monster_heart()
 	await _tween_prop("hero_dx", 0.0, 0.25)
+	await breaking
 	await _wait(0.35)
 	monster_state = "idle"
 
@@ -202,7 +232,7 @@ func _happy() -> void:
 	for k in 2:
 		var up := func(t: float) -> void:
 			hero_lift = sin(t * PI) * 40.0
-		await create_tween().tween_method(up, 0.0, 1.0, 0.24).finished
+		await create_tween().tween_method(up, 0.0, 1.0, 0.24 * SLOW).finished
 	hero_lift = 0.0
 
 
@@ -210,12 +240,13 @@ func _happy() -> void:
 func _hit() -> void:
 	monster_state = "strike"
 	await _tween_prop("monster_dx", -260.0, 0.18)
-	hero_flash = 1.0
 	Beeper.bad()
-	create_tween().tween_property(self, "hero_flash", 0.0, 0.5)
+	_blink("hero_flash")
+	var breaking := _break_hero_heart()
 	await _tween_prop("hero_dx", -40.0, 0.1)
 	await _tween_prop("monster_dx", 0.0, 0.25)
 	await _tween_prop("hero_dx", 0.0, 0.2)
+	await breaking
 	await _wait(0.35)
 	monster_state = "idle"
 
@@ -253,11 +284,43 @@ func _on_pip_tapped(count: int) -> void:
 
 
 func _tween_prop(prop: String, to: float, dur: float) -> void:
-	await create_tween().tween_property(self, prop, to, dur).finished
+	await create_tween().tween_property(self, prop, to, dur * SLOW).finished
 
 
 func _wait(s: float) -> void:
-	await get_tree().create_timer(s).timeout
+	await get_tree().create_timer(s * SLOW).timeout
+
+
+## The character blinks red FLASH_BLINKS times (prop is hero_flash or monster_flash).
+func _blink(prop: String) -> void:
+	var f := func(t: float) -> void:
+		var phase := fmod(t * FLASH_BLINKS, 1.0)
+		set(prop, 1.0 if phase < 0.6 and t < 1.0 else 0.0)
+	create_tween().tween_method(f, 0.0, 1.0, FLASH_TIME * SLOW)
+
+
+## The heart that was lost swells and breaks; awaitable.
+func _break_hero_heart() -> Signal:
+	hero_break_i = fight.hero_hearts
+	shown_hero_hearts = fight.hero_hearts
+	hero_break = 0.0
+	return _break_tween("hero_break")
+
+
+func _break_monster_heart() -> Signal:
+	monster_break_i = fight.monster_hearts
+	shown_monster_hearts = fight.monster_hearts
+	monster_break = 0.0
+	return _break_tween("monster_break")
+
+
+func _break_tween(prop: String) -> Signal:
+	var tw := create_tween()
+	tw.tween_property(self, prop, 0.5, BREAK_TIME * SLOW * 0.5)
+	tw.tween_callback(func() -> void: Beeper.tone(220.0, 0.15))  # the crack
+	tw.tween_property(self, prop, 1.0, BREAK_TIME * SLOW * 0.5)
+	tw.tween_callback(func() -> void: set(prop, -1.0))
+	return tw.finished
 
 
 func _process(delta: float) -> void:
@@ -293,8 +356,10 @@ func _draw() -> void:
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.05, 0.03, 0.06))
 	# the lava cave arena, 320x180 pixel art drawn at 3x
 	draw_texture_rect(BG_TEX, Rect2(0, 0, 960, 540), false)
-	_draw_hearts(Vector2(140, 30), fight.hero_hearts, 3)
-	_draw_hearts(Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30), fight.monster_hearts, fight.monster_max_hearts)
+	var hero_row := Vector2(140, 30)
+	var monster_row := Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
+	_draw_hearts(hero_row, shown_hero_hearts, Fight.HERO_HEARTS)
+	_draw_hearts(monster_row, shown_monster_hearts, fight.monster_max_hearts)
 	_draw_target(font)
 	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0 - hero_lift))
 	_draw_monster(font)
@@ -307,6 +372,11 @@ func _draw() -> void:
 	_outlined(font, box.position + Vector2(0, 25), name, box.size.x, 22)
 	if shields_shown or revealed:
 		_draw_shields(font)
+	# a breaking heart draws over everything
+	if hero_break >= 0.0:
+		_draw_breaking_heart(hero_row + Vector2(36 * hero_break_i, 0), hero_break)
+	if monster_break >= 0.0:
+		_draw_breaking_heart(monster_row + Vector2(36 * monster_break_i, 0), monster_break)
 	if bubble != "":
 		var b := Rect2(380, 12, 200, 44)
 		RoundBox.fire(self, b, _t, 16.0)
@@ -377,11 +447,38 @@ func _draw_hearts(at: Vector2, have: int, total: int) -> void:
 		draw_texture(HEART_TEX if i < have else HEART_EMPTY_TEX, c - Vector2(16, 16))
 
 
-## The robot dragon: it breathes while idle, flashes red when hit and
+## A lost heart, p from 0 to 1. Whole-pixel scales only (1x, 2x, 3x), so
+## it stays crisp: swell to 2x, then 3x and shake, a white flash, then it
+## splits down the middle and the halves tip apart and fall, fading.
+func _draw_breaking_heart(slot: Vector2, p: float) -> void:
+	var px := 3 if p >= 0.18 else 2
+	var half := 16.0 * px
+	# grow downward from the row so the big heart stays on screen
+	var c := Vector2(slot.x, maxf(slot.y, half + 4.0)).round()
+	if p < 0.5:
+		if p >= 0.18:
+			c += Vector2(roundf(sin(p * 120.0) * 3.0), 0)
+		var glow := 1.0
+		if p >= 0.42:
+			glow = 2.2
+		draw_texture_rect(HEART_TEX, Rect2(c - Vector2(half, half), Vector2(half, half) * 2.0), false, Color(glow, glow, glow))
+		return
+	var q := (p - 0.5) / 0.5            # 0..1 over the fall
+	var spread := roundf(q * 40.0 + 6.0)
+	var drop := roundf(q * q * 160.0)
+	var a := 1.0 - q
+	var src_l := Rect2(0, 0, 16, 32)
+	var src_r := Rect2(16, 0, 16, 32)
+	var size := Vector2(half, half * 2.0)
+	draw_texture_rect_region(HEART_TEX, Rect2(c + Vector2(-half - spread, -half + drop), size), src_l, Color(1, 1, 1, a))
+	draw_texture_rect_region(HEART_TEX, Rect2(c + Vector2(spread, -half + drop * 1.15), size), src_r, Color(1, 1, 1, a))
+
+
+## The robot dragon: it breathes while idle, blinks red when hit and
 ## squashes down when it collapses.
 func _draw_hero(base: Vector2) -> void:
 	var alpha := 1.0 - hero_sink * 0.7
-	var tint := Color.WHITE.lerp(Color(1.6, 0.5, 0.5), hero_flash)
+	var tint := Color.WHITE.lerp(HIT_RED, hero_flash)
 	tint.a = alpha
 	var breathe := sin(_t * 2.4) * 0.02
 	var size := hero_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
@@ -394,7 +491,7 @@ func _draw_hero(base: Vector2) -> void:
 
 func _draw_monster(font: Font) -> void:
 	var base_col: Color = MONSTER_COLORS.get(fight.monster_id, Color(0.6, 0.2, 0.2))
-	var col := base_col.lerp(Color.WHITE, monster_flash * 0.8)
+	var col := base_col.lerp(Color(1.0, 0.1, 0.1), monster_flash * 0.8)
 	col.a = 1.0 - monster_sink * 0.8
 	var breathe := sin(_t * 2.2) * 4.0 if monster_state == "idle" else 0.0
 	var size := MONSTER_SIZE * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
@@ -405,8 +502,9 @@ func _draw_monster(font: Font) -> void:
 		var ts := monster_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
 		# a mirrored rect spans position .. position + |size|, so this centers it on c
 		var tr := Rect2(c + Vector2(-ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
-		var glow := 1.0 + monster_flash * 2.0
-		draw_texture_rect(monster_tex, tr, false, Color(glow, glow, glow, col.a))
+		var tint := Color.WHITE.lerp(HIT_RED, monster_flash)
+		tint.a = col.a
+		draw_texture_rect(monster_tex, tr, false, tint)
 		if debug_on:
 			draw_string(font, Vector2(c.x - 100, c.y - ts.y + 44), monster_state, HORIZONTAL_ALIGNMENT_CENTER, 200, 18, Color(INK, col.a))
 		return

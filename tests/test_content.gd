@@ -77,3 +77,23 @@ func _json_files(dir: String) -> Array:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_json_files(dir.path_join(d)))
 	return out
+
+
+## The mini map's worlds: the five in order, every playable one points at a
+## real area, and that area's miniboss is a duel fighter.
+func test_worlds() -> bool:
+	const Monsters := preload("res://logic/fight/monsters.gd")
+	var worlds := Content.worlds()
+	var ids := []
+	for w in worlds:
+		ids.append(w["id"])
+	check(ids == ["lava_caves", "crystal_mines", "bog", "mushroom_forest", "space"], "worlds in order: %s" % [ids])
+	for w in worlds:
+		if w.has("area"):
+			var a := Content.area(w["area"])
+			check(not a.is_empty(), "world %s area %s missing" % [w["id"], w["area"]])
+			check(a.get("world") == w["id"], "area %s is not in world %s" % [w["area"], w["id"]])
+			if a.has("miniboss"):
+				check(Monsters.ROSTER.has(a["miniboss"]) and Monsters.ROSTER[a["miniboss"]]["role"] == "miniboss",
+						"area %s miniboss %s" % [w["area"], a["miniboss"]])
+	return true

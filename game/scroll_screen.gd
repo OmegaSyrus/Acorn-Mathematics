@@ -8,6 +8,7 @@ extends Node2D
 signal finished
 signal rolled
 
+const AreaFlow := preload("res://logic/path/area_flow.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const InputGate := preload("res://logic/core/input_gate.gd")
@@ -47,6 +48,11 @@ const OP_X := 450.0
 const EQ_X := 630.0
 const GEMS_Y := 26.0
 const GEMS_FONT := 30
+## The chest gems' animation, in seconds per gem (see _draw_chest_gems).
+const GEM_HANG := 0.45
+const GEM_SWOOP := 0.8
+const GEM_LAND := 1.3
+const GEM_STAGGER := 0.22
 const BAR := Rect2(140, 516, 680, 10)
 const DEBUG_CORNER := Rect2(120, 0, 90, 60)
 const FLICK_PX := 24.0
@@ -116,8 +122,12 @@ var revealed := -1     # the event space the dragon is on, its contents shown
 var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
 var lid_open := false
 var opening := -1      # chest space whose gems are flying
-var gem_fly := 0.0
+var gems_unshown := 0  # gems already banked in the save whose chest hasn't opened on screen yet
+var gem_fly := 0.0     # seconds since the open chest's gems burst out
 var gem_count := 0
+var gems_landed := 0   # of the open chest's gems, how many reached the counter
+var gem_pop := 0.0     # the counter's little jump when a gem lands, 0..1
+var gem_icon := Vector2(800, 46)  # where the counter's gem is drawn (HUD), set by _draw_gems
 var op_sign := ""
 var op_alpha := 0.0
 var bubble := ""
@@ -223,6 +233,14 @@ func _play_walk(w: Dictionary) -> void:
 	var chest_gems := {}
 	for c in w["chests"]:
 		chest_gems[int(c["at"])] = int(c["gems"])
+	# Bank the walk's gems and the run (chests now looted) in one write before
+	# the walk plays, so leaving through the menu mid-walk can't open the same
+	# chest twice on resume. The counter still climbs as each chest opens.
+	if not chest_gems.is_empty():
+		var total := int(w.get("gems", 0))
+		SaveData.add_gems(save, total)
+		gems_unshown += total
+		_save_progress()
 	revealed = -1
 	var from: int = w["from"]
 	for i in range(from + 1, int(w["to"]) + 1):
@@ -285,7 +303,9 @@ func _hide_dice() -> void:
 func _save_progress() -> void:
 	if run.phase == ScrollRun.CLEARED:
 		SaveData.add_mark(save, run.area["id"], run.grade["id"])
-		save["run"] = null
+		# through the door next: the miniboss (or what follows it), saved now
+		# so closing the app at the door still leads on, not back to the start
+		AreaFlow.enter(save, run.area, run.grade["id"], AreaFlow.next_stage(run.area, ""))
 	else:
 		save["run"] = run.to_save()
 	SaveStore.write(save)
@@ -321,7 +341,7 @@ func _fight() -> void:
 
 ## The crossing is done: a golden "GO!" arrow points at the door on the far
 ## shore, and tapping the door (or anywhere within about an inch of it) walks
-## the dragon through it and back to the map.
+## the dragon through it, on to the miniboss (main.gd leads on from there).
 func _cleared() -> void:
 	_save_progress()
 	cleared_banner = true
@@ -454,15 +474,31 @@ func _reveal(space: int) -> void:
 	await _wait(0.25)
 
 
+## The chest's gems (2026-11-06, Terrence: "animate the gems a bit more"):
+## each gem bursts out of the lid in turn, spinning, with sparkles, hangs and
+## twinkles over the chest, then swoops up to the gem counter, which jumps and
+## counts it as it lands.
 func _open_chest(space: int, n: int) -> void:
 	lid_open = true
 	opening = space
 	gem_count = n
 	gem_fly = 0.0
-	SaveData.add_gems(save, n)
+	gems_landed = 0
 	_cheer("+%d" % n)
-	Beeper.gems(n)
-	await _tween_prop("gem_fly", 1.0, 1.1)
+	Beeper.tone(880.0, 0.08, -8.0)
+	var total := GEM_LAND + GEM_STAGGER * (n - 1) + 0.15
+	while gem_fly < total:
+		await get_tree().process_frame
+		gem_fly += get_process_delta_time()
+		var landed := 0
+		for k in n:
+			if gem_fly >= GEM_STAGGER * k + GEM_LAND:
+				landed += 1
+		while gems_landed < landed:
+			gems_landed += 1
+			gems_unshown = maxi(gems_unshown - 1, 0)
+			gem_pop = 1.0
+			Beeper.tone(1046.0 * pow(1.12, gems_landed - 1), 0.09, -10.0)
 	opening = -1
 
 
@@ -515,6 +551,7 @@ func _on_pip_tapped(count: int) -> void:
 func _process(delta: float) -> void:
 	_t += delta
 	cam_x = lerpf(cam_x, _cam_target(), minf(1.0, delta * 6.0))
+	gem_pop = maxf(0.0, gem_pop - delta * 4.0)
 	world.position.x = -roundf(cam_x)
 	if hero_frame.begins_with("idle") or hero_frame == "blink":
 		hero_frame = "idle-1" if fmod(_t, 1.2) > 0.6 else "idle-0"
@@ -639,14 +676,7 @@ func _draw_world() -> void:
 		var size := t.get_size() * CHEST_SCALE * _pop()
 		var c := Vector2(_space_x(revealed) + 46, FEET_Y + 6)
 		world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y), size), false)
-	# gems flying out of an opened chest
-	if opening >= 0:
-		var gem: Texture2D = tex["gem"]
-		for k in gem_count:
-			var spread := (k - (gem_count - 1) / 2.0) * 34.0
-			var e := gem_fly
-			var p := Vector2(_space_x(opening) + 46 + spread * minf(1.0, e * 2.0), FEET_Y - 60 - 120 * sin(minf(1.0, e * 1.4) * PI * 0.5))
-			world.draw_texture(gem, p - gem.get_size() / 2.0, Color(1, 1, 1, 1.0 - maxf(0.0, e - 0.7) / 0.3))
+	# (the gems flying out of an opened chest are drawn on the HUD, _draw_chest_gems)
 
 
 ## The numbers on the rocks ahead: how many spaces away each one is, drawn
@@ -831,6 +861,7 @@ func _draw_hud() -> void:
 		hud.draw_string(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, eq)
 	_draw_bubble(font)
 	_draw_gems(font)
+	_draw_chest_gems()
 	# progress along the crossing: one tick per space
 	var n := run.length()
 	RoundBox.fill(hud, BAR.grow(3), Color(0.1, 0.05, 0.1, 0.8), 8.0)
@@ -860,12 +891,82 @@ func _draw_cleared(font: Font) -> void:
 ## longer number grows to the left.
 func _draw_gems(font: Font) -> void:
 	var gem: Texture2D = tex["gem"]
-	var text := str(save.get("gems", 0))
+	var text := str(int(save.get("gems", 0)) - gems_unshown)
 	var right := GameMenu.button_rect(get_viewport()).position.x - 8.0
 	var x := right - font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT).x
-	hud.draw_texture(gem, Vector2(x - 46, GEMS_Y))
-	hud.draw_string_outline(font, Vector2(x, GEMS_Y + 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT, 6, DARK)
-	hud.draw_string(font, Vector2(x, GEMS_Y + 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT, INK)
+	gem_icon = Vector2(x - 46, GEMS_Y) + gem.get_size() / 2.0
+	# a little jump as each chest gem lands
+	var j := 1.0 + 0.35 * gem_pop
+	var size := gem.get_size() * j
+	hud.draw_texture_rect(gem, Rect2(gem_icon - size / 2.0 - Vector2(0, 6.0 * gem_pop), size), false)
+	var lift := Vector2(0, -6.0 * gem_pop)
+	hud.draw_string_outline(font, Vector2(x, GEMS_Y + 30) + lift, text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT, 6, DARK)
+	hud.draw_string(font, Vector2(x, GEMS_Y + 30) + lift, text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT,
+			INK.lerp(Color(1.0, 0.85, 0.3), gem_pop))
+
+
+## The open chest's gems, in screen space so they can fly up to the counter.
+## Per gem (local time u, each starting GEM_STAGGER after the one before): a
+## burst up out of the lid with a spin and a pop (to GEM_HANG), a twinkling
+## hang, then a swoop to the counter that lands at GEM_LAND.
+func _draw_chest_gems() -> void:
+	if opening < 0:
+		return
+	var gem: Texture2D = tex["gem"]
+	var lid := Vector2(_space_x(opening) + 46 - roundf(cam_x), FEET_Y - 40)
+	for k in gem_count:
+		var u := gem_fly - GEM_STAGGER * k
+		if u < 0.0 or u >= GEM_LAND:
+			continue
+		var side := (k - (gem_count - 1) / 2.0) * 46.0 + (18.0 if gem_count == 1 else 0.0)
+		var top := lid + Vector2(side, -130)
+		var p: Vector2
+		var sc := 1.0
+		var spin := 1.0
+		if u < GEM_HANG:
+			var e := u / GEM_HANG
+			# up and out on an arc that overshoots a little, then settles
+			var rise := sin(e * PI * 0.62) / sin(PI * 0.62)
+			p = lid.lerp(top, rise) + Vector2(0, -14.0 * sin(e * PI))
+			sc = 0.5 + 0.8 * e - 0.3 * maxf(0.0, e - 0.7) / 0.3
+			spin = cos(e * TAU * 1.5)
+			# sparkles thrown out of the lid with it
+			for m in 5:
+				var a := TAU * (m / 5.0) + k
+				var r := 18.0 + 60.0 * e
+				_sparkle(lid + Vector2(cos(a), sin(a) * 0.6 - 0.4) * r, 7.0 * (1.0 - e), 1.0 - e)
+		elif u < GEM_SWOOP:
+			# hanging over the chest, bobbing and turning to catch the light
+			var h := u - GEM_HANG
+			p = top + Vector2(0, -5.0 * sin(h * 14.0))
+			spin = cos(h * 9.0)
+			_sparkle(p + Vector2(16, -14), 6.0 * absf(sin(h * 11.0)), 1.0)
+		else:
+			# swoop to the counter: out to the side first, then in fast
+			var e := (u - GEM_SWOOP) / (GEM_LAND - GEM_SWOOP)
+			var ez := e * e
+			var ctrl := Vector2(top.x + 120.0, top.y - 120.0)
+			p = top.lerp(ctrl, ez).lerp(ctrl.lerp(gem_icon, ez), ez)
+			sc = 1.0 - 0.3 * ez
+			# a short trail of sparkles behind it
+			for m in 3:
+				var back := maxf(0.0, ez - 0.07 * (m + 1))
+				var q := top.lerp(ctrl, back).lerp(ctrl.lerp(gem_icon, back), back)
+				_sparkle(q, 5.0 - m, 0.8 - 0.25 * m)
+		var size := gem.get_size() * sc * 1.5  # bigger than the counter's gem: easy to follow
+		# the spin: the gem narrows and widens as if it turns
+		var w := maxf(0.15, absf(spin)) * size.x
+		hud.draw_texture_rect(gem, Rect2(p - Vector2(w, size.y) / 2.0, Vector2(w, size.y)), false,
+				Color(1, 1, 1) if spin >= 0.0 else Color(0.85, 0.8, 1.0))
+
+
+## A four-pointed twinkle.
+func _sparkle(c: Vector2, r: float, a: float) -> void:
+	if r <= 0.5 or a <= 0.0:
+		return
+	var col := Color(1.0, 0.95, 0.7, a)
+	hud.draw_colored_polygon(PackedVector2Array([c + Vector2(0, -r), c + Vector2(r * 0.25, 0), c + Vector2(0, r), c + Vector2(-r * 0.25, 0)]), col)
+	hud.draw_colored_polygon(PackedVector2Array([c + Vector2(-r, 0), c + Vector2(0, -r * 0.25), c + Vector2(r, 0), c + Vector2(0, r * 0.25)]), col)
 
 
 func _draw_overlay() -> void:
