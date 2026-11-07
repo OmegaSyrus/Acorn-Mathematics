@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "fps": 15,
+  "tracks": {
+    "res://audio/voice/ellwynn/placeholder-letsgo.mp3": "011220002212211110000",
+    "res://audio/voice/ellwynn/placeholder-woohoo.mp3": "00220221221111100000",
+    "res://audio/voice/ellwynn/placeholder-yay.mp3": "0001221221211110000"
+  }
+}

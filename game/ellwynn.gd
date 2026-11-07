@@ -12,6 +12,9 @@ extends CanvasLayer
 const SaveStoreRef := preload("res://game/save_store.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const LINES_PATH := "res://content/ellwynn_lines.json"
+## Mouth tracks made from each voice file by tools/voice/mouth_tracks.py.
+const MOUTH_PATH := "res://content/ellwynn_mouth.json"
+const MOUTH_NAMES := ["closed", "half", "open"]
 const FRAMES := {
 	"closed": preload("res://art/ellwynn/fullbody-closed.png"),
 	"half": preload("res://art/ellwynn/fullbody-mouth-half.png"),
@@ -46,6 +49,12 @@ var mode := "off"          # "off", "menu", "pop", "boss"
 var bubble := ""
 var player: AudioStreamPlayer
 var lines: Dictionary = {}
+var mouth_tracks: Dictionary = {}
+var mouth_fps := 15.0
+var _cur_file := ""
+## Time into the line, kept by us so the mouth moves even with the sound off.
+var _line_t := 0.0
+var _line_len := 0.0
 var rng := RandomNumberGenerator.new()
 
 var _fig: Node2D
@@ -66,11 +75,12 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	rng.randomize()
 	lines = _load_lines()
+	_load_mouth()
 	_setup_bus()
 	player = AudioStreamPlayer.new()
 	player.bus = "Voice"
 	add_child(player)
-	player.finished.connect(_next_line)
+	player.finished.connect(_on_finished)
 	_fig = Node2D.new()
 	_fig.draw.connect(_draw_fig)
 	add_child(_fig)
@@ -82,6 +92,37 @@ func _load_lines() -> Dictionary:
 		return {"placeholders": [], "cues": {}}
 	var data = JSON.parse_string(f.get_as_text())
 	return data if data is Dictionary else {"placeholders": [], "cues": {}}
+
+
+func _load_mouth() -> void:
+	var f := FileAccess.open(MOUTH_PATH, FileAccess.READ)
+	if f == null:
+		return
+	var data = JSON.parse_string(f.get_as_text())
+	if data is Dictionary:
+		mouth_tracks = data.get("tracks", {})
+		mouth_fps = float(data.get("fps", 15))
+
+
+## The mouth frame for now: from the line's track when it has one, otherwise
+## from the live loudness of her bus.
+func _mouth_now() -> String:
+	if not is_talking():
+		return "closed"
+	var tr: String = mouth_tracks.get(_cur_file, "")
+	if tr != "":
+		var pos := _line_t
+		var i := int(pos * mouth_fps)
+		if i >= 0 and i < tr.length():
+			return MOUTH_NAMES[int(tr[i])]
+		return "closed"
+	if player.playing and _analyzer != null:
+		var mag := _analyzer.get_magnitude_for_frequency_range(150.0, 4000.0).length()
+		if mag > OPEN_AT:
+			return "open"
+		if mag > HALF_AT:
+			return "half"
+	return "closed"
 
 
 ## Her own bus, so the mouth can follow her voice alone.
@@ -175,13 +216,14 @@ func say(cue: String) -> void:
 
 func stop_voice() -> void:
 	_queue.clear()
+	_line_len = 0.0
 	player.stop()
 	bubble = ""
 	_unduck()
 
 
 func is_talking() -> bool:
-	return player.playing
+	return player.playing or _line_t < _line_len
 
 
 # --- internals --------------------------------------------------------------
@@ -193,6 +235,12 @@ func _set_mode(m: String) -> void:
 	if m == "off":
 		bubble = ""
 	_fig.queue_redraw()
+
+
+func _on_finished() -> void:
+	if _line_t >= _line_len - 0.1:
+		_line_len = 0.0
+		_next_line()
 
 
 func _next_line() -> void:
@@ -207,7 +255,10 @@ func _next_line() -> void:
 		_next_line()
 		return
 	bubble = String(line.get("bubble", ""))
+	_cur_file = String(line.get("file", ""))
 	player.stream = stream
+	_line_t = 0.0
+	_line_len = stream.get_length()
 	player.play()
 	_duck()
 
@@ -224,13 +275,13 @@ func _unduck() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	var m := "closed"
-	if player.playing and _analyzer != null:
-		var mag := _analyzer.get_magnitude_for_frequency_range(150.0, 4000.0).length()
-		if mag > OPEN_AT:
-			m = "open"
-		elif mag > HALF_AT:
-			m = "half"
+	if _line_len > 0.0:
+		_line_t += delta
+		# no sound (muted or no audio device): move on when the line's time is up
+		if _line_t >= _line_len and not player.playing:
+			_line_len = 0.0
+			_next_line()
+	var m := _mouth_now()
 	_mouth = m
 	_blink_in -= delta
 	if _blink_in <= 0.0:
