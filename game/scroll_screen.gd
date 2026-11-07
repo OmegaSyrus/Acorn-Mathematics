@@ -486,6 +486,7 @@ func _open_chest(space: int, n: int) -> void:
 	gems_landed = 0
 	_cheer("+%d" % n)
 	Beeper.tone(880.0, 0.08, -8.0)
+	Ellwynn.chest_opened()
 	var total := GEM_LAND + GEM_STAGGER * (n - 1) + 0.15
 	while gem_fly < total:
 		await get_tree().process_frame

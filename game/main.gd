@@ -61,6 +61,7 @@ func _area_from_args() -> String:
 func _layout() -> void:
 	var shown := get_viewport_rect().size
 	stage.position = ((shown - DESIGN) / 2.0).round()
+	Ellwynn.offset = stage.position
 
 
 func _process(_delta: float) -> void:
@@ -75,6 +76,8 @@ func _swap(next: Node2D) -> void:
 			debug_on = screen.get("debug_on")
 		screen.queue_free()
 	screen = next
+	if not (next is MapScreen):
+		Ellwynn.menu_leave()
 	stage.add_child(screen)
 	stage.move_child(menu, -1)
 
@@ -90,10 +93,13 @@ func show_map() -> void:
 	var m := MapScreen.new()
 	m.setup(save, shown, area_id)
 	m.start.connect(_on_start)
-	m.shop.connect(show_store)
+	m.shop.connect(func():
+		Ellwynn.menu_tap("shop")
+		show_store())
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
+	Ellwynn.menu_enter(save)
 
 
 ## The store, from the map's Shop button; Back returns to the map. The menu
@@ -108,6 +114,7 @@ func show_store() -> void:
 
 
 func _on_start(grade_id: int, resume: bool) -> void:
+	Ellwynn.menu_tap("resume" if resume else "play")
 	var area := Content.area(area_id)
 	_play_level_music()
 	menu.visible = true

@@ -257,6 +257,7 @@ func _monster_collapse() -> void:
 	await _tween_prop("monster_sink", 1.0, 0.8)
 	_say("Yes!")
 	Beeper.good()
+	Ellwynn.enemy_beaten()
 	await _wait(1.0)
 
 

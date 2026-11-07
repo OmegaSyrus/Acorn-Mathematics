@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "_note": "Ellwynn's lines by cue (docs/ellwynn-lines-sheet.md). A cue with no lines of its own plays one of the placeholders. Terrence and Rachel write the real lines; add each as {\"file\": ..., \"bubble\": ...} under its cue. bubble is a short sight word (3 to 5 letters) or empty.",
+  "placeholders": [
+    { "file": "res://audio/voice/ellwynn/placeholder-yay.mp3", "bubble": "Yay!" },
+    { "file": "res://audio/voice/ellwynn/placeholder-woohoo.mp3", "bubble": "Woo!" },
+    { "file": "res://audio/voice/ellwynn/placeholder-letsgo.mp3", "bubble": "Go!" }
+  ],
+  "cues": {
+    "intro": [],
+    "welcome": [],
+    "play": [],
+    "resume": [],
+    "shop": [],
+    "enemy": [
+      { "file": "res://audio/voice/ellwynn/placeholder-yay.mp3", "bubble": "Yay!" }
+    ],
+    "chest": [],
+    "boss_win": []
+  }
+}

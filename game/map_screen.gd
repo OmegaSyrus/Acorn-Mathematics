@@ -73,7 +73,7 @@ func _draw() -> void:
 				r.size.x, 32, Color(0.96, 0.94, 0.9))
 		if not b["resume"] and SaveData.has_mark(save, area_id, b["grade"]):
 			draw_circle(r.position + Vector2(r.size.x - 14, 14), 10.0, Color(1.0, 0.8, 0.2))
-	draw_string(font, Vector2(120, 520), "stickers: %d" % save["stickers"].size(), HORIZONTAL_ALIGNMENT_LEFT,
+	draw_string(font, Vector2(330, 520), "stickers: %d" % save["stickers"].size(), HORIZONTAL_ALIGNMENT_LEFT,
 			-1, 16, Color(0.6, 0.55, 0.5))
 
 

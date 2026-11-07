@@ -221,6 +221,7 @@ func _on_shot_over() -> void:
 		phase = "won"
 		_say("You win!")
 		Beeper.good()
+		Ellwynn.boss_beaten()
 		await get_tree().create_timer(1.2).timeout
 		await _gem_bucket()
 		await get_tree().create_timer(1.0).timeout
