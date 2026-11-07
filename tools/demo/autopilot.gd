@@ -111,7 +111,7 @@ func _crossing(from_door := false) -> void:
 					if not duel_missed:
 						duel_missed = true
 						pick = (pick + 1) % s.fight.attack.choices.size()
-					await _tap_choice(s.choice, pick)
+					await _pick_with_go(s.choice, pick)
 			continue
 		if s is BounceScreen:
 			await _play_bounce(s)
@@ -133,7 +133,7 @@ func _crossing(from_door := false) -> void:
 						# one wrong shield in the first fight, to show a hit
 						first_fight = fight
 						pick = (pick + 1) % fight.fight.attack.choices.size()
-					await _tap_choice(fight.choice, pick)
+					await _pick_with_go(fight.choice, pick)
 			continue
 		if s.tray_waiting:
 			await _wait(THINK_S)
@@ -239,6 +239,14 @@ func _best_aim(fight) -> int:
 
 
 # --- fingers ----------------------------------------------------------------
+
+## A confirm-mode pick: tap the target, then its green button (Go / Select).
+func _pick_with_go(choice, index: int) -> void:
+	await _tap_choice(choice, index)
+	await _wait(0.4)
+	if choice.active:
+		await _tap_at(choice, choice.go_rect().get_center())
+
 
 func _tap_choice(choice, index: int) -> void:
 	var r: Rect2 = choice.rects[index]

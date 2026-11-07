@@ -202,6 +202,9 @@ func _loop() -> void:
 		stone_from = run.pos
 		_ask("Roll!")
 		await _wait_for_roll()
+		# no small "Roll!" box while the dice tumble; it comes back with the question
+		question = ""
+		_say("")
 		var p := run.roll()
 		await _roll_dice(p)
 		_ask("Which stone\nis safe?")
@@ -589,7 +592,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if tray_waiting and TRAY.has_point(pos) and tray_gate.accepts(Time.get_ticks_msec()):
 			_tray_down = true
 			_tray_down_at = pos
-		elif BUBBLE.has_point(pos) and question != "":
+		elif BUBBLE.has_point(pos) and question != "" and not tray_waiting:
 			_say(question)
 		elif DEBUG_CORNER.has_point(pos):
 			_corner_down_ms = Time.get_ticks_msec()
@@ -824,8 +827,10 @@ func _grow_poly(pts: PackedVector2Array, px: float) -> PackedVector2Array:
 
 
 ## Short words sit on one big line; a longer question wraps onto two.
+## Hidden while the dice wait to be rolled: the big dice box with "Roll" is
+## the only box until then (Terrence, 2026-11-07).
 func _draw_bubble(font: Font) -> void:
-	if bubble == "":
+	if bubble == "" or tray_waiting:
 		return
 	RoundBox.fire(hud, BUBBLE, _t, 18.0)
 	var w := BUBBLE.size.x - 8.0

@@ -27,6 +27,9 @@ var show_highlight := true
 ## true: select first, then tap Go (stones on the crossing; Terrence
 ## 2026-11-05). The highlight shows only on the selected target.
 var confirm := false
+## The green button's word and size ("Go" on the crossing, "Select" in fights).
+var go_label := "Go"
+var go_size := GO_SIZE
 ## Where the Go button's middle sits, from the selected target's middle.
 var go_offset := Vector2(0, -175)
 ## The Go button is kept inside this (local coordinates); empty for no limit.
@@ -100,7 +103,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func go_rect() -> Rect2:
 	if chosen < 0:
 		return Rect2()
-	var r := Rect2(_rect(chosen).get_center() + go_offset - GO_SIZE / 2.0, GO_SIZE)
+	var r := Rect2(_rect(chosen).get_center() + go_offset - go_size / 2.0, go_size)
 	if go_area.has_area():
 		r.position.x = clampf(r.position.x, go_area.position.x, go_area.end.x - r.size.x)
 	return r
@@ -187,8 +190,8 @@ func _draw_go() -> void:
 	RoundBox.fill(self, r, GO_GREEN, 18.0)
 	var font := ThemeDB.fallback_font
 	var at := Vector2(r.position.x, r.get_center().y + GO_FONT * 0.36)
-	draw_string_outline(font, at, "Go", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, GO_FONT, 8, DARK)
-	draw_string(font, at, "Go", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, GO_FONT, INK)
+	draw_string_outline(font, at, go_label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, GO_FONT, 8, DARK)
+	draw_string(font, at, go_label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, GO_FONT, INK)
 
 
 func _rect(i: int) -> Rect2:
