@@ -18,6 +18,7 @@ const SeededRng := preload("res://logic/core/rng.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
 const WorldMapScreen := preload("res://game/world_map_screen.gd")
+const DebugScreen := preload("res://game/debug_screen.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -100,6 +101,7 @@ func show_map() -> void:
 		Ellwynn.menu_tap("shop")
 		show_store())
 	m.reset_save.connect(_reset_save)
+	m.debug.connect(show_debug)
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
@@ -115,6 +117,37 @@ func _reset_save() -> void:
 	SaveStore.write(save)
 	Ellwynn.stop_voice()
 	show_map.call_deferred()
+
+
+## The Debug screen, from the main menu's Debug button: jump straight to any
+## world's crossing, miniboss or boss at any level, or open every world on
+## the map. Back returns to the main menu.
+func show_debug() -> void:
+	var d := DebugScreen.new()
+	d.setup(save, Content.worlds())
+	d.back.connect(func():
+		SaveStore.write(save)
+		show_map.call_deferred())
+	d.jump.connect(_debug_jump)
+	_swap.call_deferred(d)
+	menu.visible = false
+
+
+## A Debug jump: a fresh crossing, duel or boss in that world at that level
+## number (any saved run is dropped). What follows plays as usual.
+func _debug_jump(to_area: String, level: int, stage: String) -> void:
+	area_id = to_area
+	play_grade = level
+	save["difficulty"] = level
+	save["run"] = null
+	var area := Content.area(area_id)
+	var grade_id := Content.level_id(str(area.get("world", "lava_caves")), level)
+	if stage == "":
+		_on_start(grade_id, false)
+	else:
+		_play_level_music()
+		menu.visible = true
+		_start_stage(area, grade_id, stage)
 
 
 ## The store, from the map's Shop button; Back returns to the map. The menu

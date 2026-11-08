@@ -54,7 +54,10 @@ static func enter(save: Dictionary, area: Dictionary, grade_id: int, stage: Stri
 ## A world on the mini map is unlocked once the world before it has been
 ## beaten (Terrence 2026-11-07: the map unlocks the next area when the
 ## previous one is complete). The first world is always unlocked.
+## The Debug screen's "Map: all open" (save["debug_unlock"]) unlocks them all.
 static func world_unlocked(save: Dictionary, worlds: Array, i: int) -> bool:
+	if bool(save.get("debug_unlock", false)) and i < worlds.size():
+		return true
 	return i == 0 or (i < worlds.size() and world_beaten(save, String(worlds[i - 1]["id"])))
 
 

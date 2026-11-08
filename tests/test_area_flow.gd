@@ -68,3 +68,16 @@ func test_beating_a_world_unlocks_the_next() -> bool:
 	check(not AreaFlow.world_unlocked(save, worlds, 2), "the Bog still locked")
 	check(AreaFlow.unlocked_count(save, worlds) == 2, "two unlocked")
 	return true
+
+
+## Terrence 2026-11-08: the Debug screen's "Map: all open" unlocks every world.
+func test_debug_unlock_opens_every_built_world() -> bool:
+	var save := SaveData.new_profile("t")
+	var worlds := Content.worlds()
+	save["debug_unlock"] = true
+	check(AreaFlow.unlocked_count(save, worlds) == worlds.size(), "all unlocked")
+	for i in worlds.size():
+		check(AreaFlow.world_open(save, worlds, i) == worlds[i].has("area"), "built worlds open (%d)" % i)
+	save["debug_unlock"] = false
+	check(AreaFlow.unlocked_count(save, worlds) == 1, "off again: only the first")
+	return true
