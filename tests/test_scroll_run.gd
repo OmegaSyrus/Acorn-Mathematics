@@ -64,13 +64,21 @@ func test_move_fuzz() -> bool:
 	return true
 
 
-func test_wrong_space_sinks_and_restarts() -> bool:
+## Terrence 2026-11-08: 3 lives. A wrong stone costs a heart and the same
+## guess is rolled again; losing the last heart sinks and restarts.
+func test_wrong_space_costs_a_heart_then_restarts() -> bool:
 	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 7)
+	var answer: int = run.roll()["answer"]
+	var out := run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+	check(out["result"] == "miss" and not out["restarted"], "first wrong stone is a miss")
+	check(run.hearts == 2 and run.pos == 0 and run.attempt == 1 and run.phase == ScrollRun.AWAIT_ROLL, "a heart lost, roll again")
+	check(int(run.roll()["answer"]) == answer, "the same guess is asked again")
+	run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+	check(run.hearts == 1, "second miss")
 	run.roll()
-	var wrong: int = (run.problem["answer_index"] + 1) % run.problem["choices"].size()
-	var out := run.choose(wrong)
-	check(out["result"] == "sink" and out["restarted"], "wrong space should sink and restart")
-	check(run.pos == 0 and run.attempt == 2 and run.phase == ScrollRun.AWAIT_ROLL, "restart state")
+	out = run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+	check(out["result"] == "sink" and out["restarted"], "the last heart sinks and restarts")
+	check(run.pos == 0 and run.attempt == 2 and run.hearts == 3, "restart with 3 hearts")
 	return true
 
 
@@ -97,8 +105,9 @@ func test_run_is_9_guesses() -> bool:
 	for i in 600:
 		var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 900 + i)
 		if i % 3 == 0:
-			run.roll()
-			run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+			for k in ScrollRun.HERO_HEARTS:  # every heart lost: a sink
+				run.roll()
+				run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
 			check(run.rolls == 0 and run.answers.size() == 9, "a sink starts a new run of 9")
 		var answers: Array = run.answers.duplicate()
 		var total := 0
@@ -244,7 +253,9 @@ func test_heart_stone_and_hearts_carry() -> bool:
 	var again := ScrollRun.new(area, Content.grades()[1], 11)
 	again.restore(saved)
 	check(again.hearts == 3 and again.is_heart_taken(heart_at), "hearts survive a save")
-	var p2 := run.roll()
-	run.choose((p2["answer_index"] + 1) % p2["choices"].size())
+	for k in 3:
+		var p2 := run.roll()
+		run.choose((p2["answer_index"] + 1) % p2["choices"].size())
+	check(run.attempt == 2, "three misses sink")
 	check(run.hearts == 3 and run.hearts_taken.is_empty(), "a restart: 3 hearts and the heart stone back")
 	return true

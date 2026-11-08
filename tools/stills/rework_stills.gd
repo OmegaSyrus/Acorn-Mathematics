@@ -32,6 +32,7 @@ func _ready() -> void:
 	stage.position = ((get_viewport_rect().size - Vector2(960, 540)) / 2.0).round()
 	Ellwynn.offset = stage.position
 	await _crossing()
+	await _miss()
 	await _fight()
 	await _duel_door()
 	await _map()
@@ -69,6 +70,36 @@ func _crossing() -> void:
 	_shot("3-crossing-heart-flying")
 	await _frames(90)
 	_shot("4-crossing-heart-got")
+	s.queue_free()
+	await _frames(2)
+
+
+## 3 lives (2026-11-08): a wrong stone, the dragon starts to sink, hops back
+## and a heart breaks; then the same guess is rolled again.
+func _miss() -> void:
+	var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 5)
+	var s := ScrollScreen.new()
+	s.setup(run, SaveData.new_profile("stills"), false)
+	stage.add_child(s)
+	await _frames(20)
+	s.rolled.emit()
+	while not s.choice.active:
+		await _frames(1)
+	await _frames(20)
+	s.choice.close()
+	s.choice.picked.emit((run.problem["answer_index"] + 1) % run.problem["choices"].size())
+	while s.rock_sink < 0.3:
+		await _frames(1)
+	_shot("4a-miss-sinking")
+	while s.heart_break < 0.3:
+		await _frames(1)
+	_shot("4b-miss-heart-breaks")
+	while not s.tray_waiting:
+		await _frames(1)
+	await _frames(10)
+	_shot("4c-miss-roll-again")
+	Ellwynn.stop_voice()
+	Ellwynn._set_mode("off")
 	s.queue_free()
 	await _frames(2)
 

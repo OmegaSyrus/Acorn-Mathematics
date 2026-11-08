@@ -57,6 +57,11 @@ can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn
   where it stood; tapping the door leads to the boss.
 - The boss fight's aim is a dashed line along the ball's real path up to the
   first thing it hits (ghost pegs don't stop it).
+- 3 lives on the crossing (Terrence 2026-11-08, 0.15.1): a wrong stone costs a
+  heart. The dragon hops onto it, starts to sink, hops back, a heart breaks, and
+  the same guess is rolled again with new dice. Losing the last heart sinks it
+  and the crossing starts over with 3. The hearts are bottom left, above the
+  progress bar, and are the same hearts the fights use.
 - Stills: `res://tools/stills/rework_stills.tscn` (same command as the others).
 
 ## The store

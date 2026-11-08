@@ -52,8 +52,9 @@ const RIGHT_GREEN := Color(0.35, 0.95, 0.4)
 const WRONG_RED := Color(1.0, 0.3, 0.25)
 ## A right answer: the dragon jumps for joy this many times (it was 2).
 const HAPPY_JUMPS := 4
-## The hero's hearts, under the talk box (Terrence 2026-11-07: a heart pickup).
-const HEARTS_AT := Vector2(146, 152)
+## The hero's hearts (3 lives), bottom left over the lava above the progress
+## bar, clear of Ellwynn's pop-in under the talk box.
+const HEARTS_AT := Vector2(150, 490)
 const HEART_GAP := 36.0
 const GEMS_Y := 26.0
 const GEMS_FONT := 30
@@ -144,6 +145,8 @@ var answer_right := false
 var hearts_unshown := 0  # hearts picked up on this walk that haven't flown to the row yet
 var heart_fly := -1.0    # 0..1 a picked-up heart flying up to the row, -1 = none
 var heart_from := Vector2.ZERO
+var hearts_owed := 0     # hearts already lost in the run but still drawn full until they break
+var heart_break := -1.0  # 0..1 the lost heart swelling and falling away, -1 = none
 var op_sign := ""
 var op_alpha := 0.0
 var bubble := ""
@@ -239,6 +242,13 @@ func _loop() -> void:
 			await _happy(HAPPY_JUMPS)
 			stone_from = -1
 			await _play_walk(out)
+		elif out["result"] == "miss":
+			# 3 lives (Terrence 2026-11-08): hop to the wrong rock, start to
+			# sink, hop back, lose a heart, and roll the same guess again
+			stone_from = -1
+			hearts_owed = 1
+			await _hop_along(out["from"], out["to"])
+			await _slip_back(out["to"], out["from"], int(p["answer"]))
 		else:
 			stone_from = -1
 			await _hop_along(out["from"], out["to"])
@@ -479,12 +489,44 @@ func _sink(space: int, answer := 0) -> void:
 	await _wait(0.6)
 
 
+## A wrong rock with hearts left: the rock dips and the dragon starts to sink,
+## worried, then scrambles back to the rock it came from; a heart breaks.
+func _slip_back(space: int, back_to: int, answer := 0) -> void:
+	sink_space = space
+	Beeper.blorp()
+	_say("Oops!")
+	await _tween_prop("worried", 1.0, 0.18)
+	if answer > 0:
+		Ellwynn.say_answer(answer)
+	var tw := create_tween().set_parallel()
+	tw.tween_property(self, "rock_sink", 0.35, 0.45).set_ease(Tween.EASE_IN)
+	tw.tween_property(self, "hero_sink", 0.3, 0.5).set_ease(Tween.EASE_IN)
+	await tw.finished
+	await _wait(0.25)
+	# the jump back pulls it out of the lava
+	create_tween().tween_property(self, "hero_sink", 0.0, HOP_S * 0.5)
+	await _hop(_space_x(space), _space_x(back_to))
+	create_tween().tween_property(self, "rock_sink", 0.0, 0.3)
+	await _bounce()
+	worried = 0.0
+	sink_space = -1
+	# the heart swells and falls away
+	heart_break = 0.0
+	Beeper.tone(220.0, 0.15)
+	await _tween_prop("heart_break", 1.0, 0.9)
+	heart_break = -1.0
+	hearts_owed = 0
+	_say("Roll again!")
+	await _wait(0.4)
+
+
 ## The fail rule: back to the start of the crossing.
 func _restart() -> void:
 	await _fade_to(1.0)
 	_hide_dice()
 	beaten.clear()
 	hearts_unshown = 0
+	hearts_owed = 0
 	revealed = -1
 	sink_space = -1
 	rock_sink = 0.0
@@ -948,11 +990,24 @@ func _draw_hud() -> void:
 
 ## The hero's hearts under the talk box, and a picked-up heart flying to them.
 func _draw_hearts() -> void:
-	var have := run.hearts - hearts_unshown
-	var slots := maxi(ScrollRun.HERO_HEARTS, run.hearts)
+	var have := run.hearts - hearts_unshown + hearts_owed
+	var slots := maxi(ScrollRun.HERO_HEARTS, run.hearts + hearts_owed)
 	for i in slots:
 		var c := HEARTS_AT + Vector2(HEART_GAP * i, 0)
-		hud.draw_texture(HEART_TEX if i < have else HEART_EMPTY_TEX, c - Vector2(16, 16))
+		var full := i < have
+		if heart_break >= 0.0 and i == have - 1:
+			full = false  # drawn breaking below
+		hud.draw_texture(HEART_TEX if full else HEART_EMPTY_TEX, c - Vector2(16, 16))
+	if heart_break >= 0.0 and have > 0:
+		var c := HEARTS_AT + Vector2(HEART_GAP * (have - 1), 0)
+		var q := heart_break
+		var k := 2.0 if q < 0.15 else 3.0
+		var shake := roundf(sin(q * 90.0) * 3.0) if q < 0.5 else 0.0
+		var drop := 0.0 if q < 0.5 else roundf((q - 0.5) * (q - 0.5) * 480.0)
+		var a := 1.0 if q < 0.5 else 1.0 - (q - 0.5) * 2.0
+		var hs := HEART_TEX.get_size() * k
+		var at := Vector2(c.x + shake, maxf(c.y, hs.y / 2.0 + 4.0) + drop)
+		hud.draw_texture_rect(HEART_TEX, Rect2(at - hs / 2.0, hs), false, Color(1, 1, 1, a))
 	if heart_fly >= 0.0:
 		var to := HEARTS_AT + Vector2(HEART_GAP * have, 0)
 		var q := heart_fly

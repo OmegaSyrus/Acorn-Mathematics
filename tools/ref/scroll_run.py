@@ -149,6 +149,15 @@ class ScrollRun:
         out = {"result": "", "right": right, "pick": index, "from": self.pos,
                "to": self.pos + dist, "restarted": False}
         if not right:
+            self.hearts -= 1
+            if self.hearts > 0:
+                out["result"] = "miss"
+                self._log(out)
+                self.rolls = max(0, self.rolls - 1)
+                self.problem = None
+                self.phase = AWAIT_ROLL
+                out["hearts_left"] = self.hearts
+                return out
             out["result"] = "sink"
             self._log(out)
             self._fail()

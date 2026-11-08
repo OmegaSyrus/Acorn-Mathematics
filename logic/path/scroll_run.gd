@@ -11,9 +11,10 @@ const AWAIT_ROLL := "await_roll"
 const AWAIT_CHOICE := "await_choice"
 const AWAIT_FIGHT := "await_fight"
 const CLEARED := "cleared"
-## The hero's hearts on the crossing (Terrence, 2026-11-07: a heart pickup on
-## a stone). They carry into each fight and back out of it; a heart space adds
-## one, up to MAX_HEARTS. A restart gives the 3 back.
+## The hero's hearts on the crossing: 3 lives (Terrence, 2026-11-07). A wrong
+## stone costs one and the same guess is rolled again; the last one lost starts
+## the crossing over. They carry into each fight and back out of it; a heart
+## space adds one, up to MAX_HEARTS. A restart gives the 3 back.
 const HERO_HEARTS := 3
 const MAX_HEARTS := 5
 
@@ -207,7 +208,9 @@ func answer_bounds() -> Array:
 	return [lo, maxi(lo, hi)]
 
 
-## A wrong space sinks and the run starts again from space 0. A right one
+## A wrong space costs a heart: the hero hops back ("miss") and the same
+## guess is rolled again with new dice. With no hearts left it sinks ("sink")
+## and the run starts again from space 0. A right one
 ## walks there space by space, and everything walked onto triggers: an
 ## unopened chest gives gems on the way, a monster stops the walk for a fight
 ## (the rest of the walk follows a win), the last space clears the area.
@@ -218,6 +221,15 @@ func choose(index: int) -> Dictionary:
 	var right: bool = index == problem["answer_index"]
 	var out := {"result": "", "right": right, "pick": index, "from": pos, "to": pos + dist, "restarted": false}
 	if not right:
+		hearts -= 1
+		if hearts > 0:
+			out["result"] = "miss"
+			_log(out)
+			rolls = maxi(0, rolls - 1)  # this guess again
+			problem = {}
+			phase = AWAIT_ROLL
+			out["hearts_left"] = hearts
+			return out
 		out["result"] = "sink"
 		_log(out)
 		_fail()
