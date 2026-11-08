@@ -47,3 +47,39 @@ const WORLDS_PATH := "res://content/worlds.json"
 static func worlds() -> Array:
 	var data = JsonUtil.load_file(WORLDS_PATH)
 	return [] if data == null else data["worlds"]
+
+
+const LEVELS_PATH := "res://content/levels.json"
+
+
+## Level id -> level (content/levels.json): the world's crossing math by level
+## number. A "mix" level gets its parts' move configs as move.part_moves.
+static func levels() -> Dictionary:
+	var out := {}
+	var data = JsonUtil.load_file(LEVELS_PATH)
+	if data == null:
+		return out
+	for l in data["levels"]:
+		out[int(l["id"])] = l
+	for id in out:
+		var mv: Dictionary = out[id]["move"]
+		if mv["draw"] == "mix":
+			var parts := []
+			for pid in mv["parts"]:
+				parts.append(out[int(pid)]["move"])
+			mv["part_moves"] = parts
+	return out
+
+
+static func bands() -> Dictionary:
+	var data = JsonUtil.load_file(LEVELS_PATH)
+	return {} if data == null else data["bands"]
+
+
+## The level id for a world's level number: Lava 1 keeps id 1 (the old Acorn
+## grade, so saves carry over); the rest are world x 10 + number.
+static func level_id(world_id: String, num: int) -> int:
+	for l in levels().values():
+		if l["world"] == world_id and int(l["num"]) == num:
+			return int(l["id"])
+	return 1

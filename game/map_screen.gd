@@ -206,7 +206,7 @@ func _draw_difficulty(font: Font, r: Rect2) -> void:
 	var gname: String = grades[grade_id]["name"] if grades.has(grade_id) else "?"
 	draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), gname, HORIZONTAL_ALIGNMENT_CENTER,
 			r.size.x, 34, ink)
-	if SaveData.has_mark(save, area_id, grade_id):
+	if SaveData.has_mark(save, "lava_caves", 1 if grade_id == 1 else 10 + grade_id):
 		draw_circle(r.position + Vector2(r.size.x - 14, 14), 10.0, Color(1.0, 0.8, 0.2))
 
 

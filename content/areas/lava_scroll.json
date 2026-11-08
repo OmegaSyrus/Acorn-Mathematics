@@ -6,7 +6,7 @@
   "miniboss": "lava_miniboss",
   "boss": "skeleton_dragon",
   "name": "Lava Caves: the crossing",
-  "grades": [1],
+  "grades": [1, 12, 13, 14, 15, 16],
   "_note": "Terrence 2026-11-07: a run is 9 guesses and the crossing has as many stones as the 9 answers add up to. Each attempt draws its answers first; step n is the stone the first n answers land on (the 9th lands on the far shore). A heart step (after the first 2 right answers, so the stone just past Blorp) gives back a heart for the fights.",
   "guesses": 9,
   "chest_gems": { "common": 1, "rare": 2, "rare_in": 6 },

@@ -6,6 +6,7 @@ extends RefCounted
 
 const Rng := preload("res://logic/core/rng.gd")
 const MoveGen := preload("res://logic/core/move_gen.gd")
+const LevelGen := preload("res://logic/core/level_gen.gd")
 
 const AWAIT_ROLL := "await_roll"
 const AWAIT_CHOICE := "await_choice"
@@ -65,8 +66,16 @@ func _new_answers() -> void:
 	answers = []
 	var top: int = grade["move"]["max_answer"]
 	for k in int(area["guesses"]):
-		answers.append(rng.randi_range(1, top))
+		if is_level():
+			answers.append(LevelGen.draw_answer(grade["move"], rng))
+		else:
+			answers.append(rng.randi_range(1, top))
 	_lay_out()
+
+
+## A level after Lava 1 (content/levels.json): generator v1.2 draws its rolls.
+func is_level() -> bool:
+	return grade.get("move", {}).get("draw", "op_first") != "op_first"
 
 
 func _lay_out() -> void:
@@ -185,7 +194,11 @@ func roll() -> Dictionary:
 	if is_guessed():
 		var a: int = answers[mini(rolls, answers.size() - 1)]
 		b = [a, a]
-	problem = MoveGen.generate_move(grade, rng, length() - pos, b[0], b[1])
+	if is_level():
+		var m := mini(int(grade["move"]["max_answer"]), length() - pos)
+		problem = LevelGen.generate_for(grade, rng, b[0], m)
+	else:
+		problem = MoveGen.generate_move(grade, rng, length() - pos, b[0], b[1])
 	rolls += 1
 	phase = AWAIT_CHOICE
 	return problem

@@ -50,8 +50,12 @@ func test_areas_have_6_to_10_tasks() -> bool:
 ## grades that have a "move" config.
 func _check_scroll(a: Dictionary) -> void:
 	var id: String = a["id"]
+	var levels := Content.levels()
 	for gid in a["grades"]:
-		check(Content.grades()[int(gid)].has("move"), "scroll %s grade %d has no move config" % [id, gid])
+		var g: Dictionary = levels.get(int(gid), Content.grades().get(int(gid), {}))
+		check(g.has("move"), "scroll %s grade %d has no move config" % [id, gid])
+		if levels.has(int(gid)) and a.has("world"):
+			check(levels[int(gid)]["world"] == a["world"], "scroll %s level %d is another world's" % [id, gid])
 	var entries: Array
 	var key: String
 	var top: int

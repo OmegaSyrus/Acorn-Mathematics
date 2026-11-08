@@ -6,9 +6,7 @@
   "miniboss": "crystal_miniboss",
   "boss": "knocker_king",
   "name": "Crystal Mines: the crossing",
-  "grades": [
-    1
-  ],
+  "grades": [21, 22, 23, 24, 25, 26],
   "_note": "Terrence 2026-11-08: the Crystal Mines are playable. Same run as the Lava crossing (9 guesses, stones = the answers added up); the stones are stalagmites, a wrong one collapses. Knocker, Svartalf, Gem Dwarf, then the Svartalf Lantern Lord and the Knocker King.",
   "guesses": 9,
   "chest_gems": {
