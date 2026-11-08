@@ -6,6 +6,8 @@ AWAIT_ROLL = "await_roll"
 AWAIT_CHOICE = "await_choice"
 AWAIT_FIGHT = "await_fight"
 CLEARED = "cleared"
+HERO_HEARTS = 3
+MAX_HEARTS = 5
 
 
 def chest_draw(cfg, rng):
@@ -34,6 +36,8 @@ class ScrollRun:
         self.target = 0
         self.looted = []
         self.gems = 0
+        self.hearts = HERO_HEARTS
+        self.hearts_taken = []
         self.rolls = 0
         self.problem = None
         self.phase = AWAIT_ROLL
@@ -74,6 +78,9 @@ class ScrollRun:
         sp = self.space_at(i)
         return sp["after"] if sp is not None and "after" in sp else i
 
+    def is_heart_taken(self, i):
+        return self._loot_key(i) in self.hearts_taken
+
     def is_looted(self, i):
         return self._loot_key(i) in self.looted
 
@@ -88,7 +95,7 @@ class ScrollRun:
     def to_save(self):
         return {"area": self.area["id"], "grade": self.grade["id"], "seed": self.seed,
                 "attempt": self.attempt, "pos": self.pos, "target": self.target, "looted": list(self.looted),
-                "gems": self.gems, "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()} | (
+                "gems": self.gems, "hearts": self.hearts, "hearts_taken": list(self.hearts_taken), "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()} | (
                     {"answers": list(self.answers)} if self.is_guessed() else {})
 
     @classmethod
@@ -99,6 +106,8 @@ class ScrollRun:
         run.target = max(run.pos, data.get("target", run.pos))
         run.looted = list(data["looted"])
         run.gems = data["gems"]
+        run.hearts = max(1, min(data.get("hearts", HERO_HEARTS), MAX_HEARTS))
+        run.hearts_taken = list(data.get("hearts_taken", []))
         run.rolls = data.get("rolls", 0)
         run.phase = data["phase"]
         if data["phase"] == AWAIT_CHOICE:
@@ -140,6 +149,15 @@ class ScrollRun:
         out = {"result": "", "right": right, "pick": index, "from": self.pos,
                "to": self.pos + dist, "restarted": False}
         if not right:
+            self.hearts -= 1
+            if self.hearts > 0:
+                out["result"] = "miss"
+                self._log(out)
+                self.rolls = max(0, self.rolls - 1)
+                self.problem = None
+                self.phase = AWAIT_ROLL
+                out["hearts_left"] = self.hearts
+                return out
             out["result"] = "sink"
             self._log(out)
             self._fail()
@@ -151,7 +169,7 @@ class ScrollRun:
         self.problem = None
         return out
 
-    def resolve_fight(self, won):
+    def resolve_fight(self, won, hearts_left=-1):
         assert self.phase == AWAIT_FIGHT
         out = {"result": "fight_won" if won else "fight_lost", "restarted": False}
         self._log(out)
@@ -159,6 +177,8 @@ class ScrollRun:
             self._fail()
             out["restarted"] = True
             return out
+        if hearts_left > 0:
+            self.hearts = min(hearts_left, MAX_HEARTS)
         self.phase = AWAIT_ROLL
         if self.target > self.pos:
             w = {"result": "", "from": self.pos, "to": self.target}
@@ -169,6 +189,7 @@ class ScrollRun:
 
     def _walk(self, out):
         chests = []
+        got_hearts = []
         total = 0
         self.phase = AWAIT_ROLL
         out["result"] = "hop"
@@ -192,10 +213,17 @@ class ScrollRun:
                 chests.append({"at": self.pos, "gems": g})
                 if self.pos == self.target:
                     out["result"] = "chest"
+            if space is not None and space["type"] == "heart" and not self.is_heart_taken(self.pos):
+                self.hearts_taken.append(self._loot_key(self.pos))
+                self.hearts = min(self.hearts + 1, MAX_HEARTS)
+                got_hearts.append(self.pos)
+                if self.pos == self.target:
+                    out["result"] = "heart"
         if self.phase != AWAIT_FIGHT:
             self.target = self.pos
         out["to"] = self.pos
         out["chests"] = chests
+        out["hearts"] = got_hearts
         if chests:
             out["gems"] = total
 
@@ -204,6 +232,8 @@ class ScrollRun:
         self.rolls = 0
         self.pos = 0
         self.target = 0
+        self.hearts = HERO_HEARTS
+        self.hearts_taken = []
         self.problem = None
         self.phase = AWAIT_ROLL
         if self.is_guessed():

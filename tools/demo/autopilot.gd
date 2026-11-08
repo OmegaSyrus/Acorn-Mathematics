@@ -78,19 +78,16 @@ func _crossing(from_door := false) -> void:
 	await _wait(1.2)
 	var map = main.screen
 	if from_door:
-		# a duel saved at the door; the map's Go picks it up
+		# a duel saved at the door; Lava Caves on the map picks it up
 		main.save["run"] = AreaFlow.stage_run(Content.area(main.area_id), 1, AreaFlow.DUEL)
 		main.show_map()
 		await _wait(1.0)
 		map = main.screen
-		var go := -1
-		for i in map.buttons.size():
-			if map.buttons[i]["resume"]:
-				go = i
-		await _tap_choice(map.choice, go)
-	else:
-		# the map: Acorn is the first grade button
-		await _tap_choice(map.choice, 0)
+	# the main menu: Play (difficulty Acorn), then Lava Caves on the map
+	await _tap_choice(map.choice, 0)
+	await _wait(1.2)
+	if main.screen is WorldMapScreen:
+		await _tap_choice(main.screen.choice, 0)
 	var turn := 0
 	var first_fight = null
 	var duel_missed := false

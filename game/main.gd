@@ -29,6 +29,7 @@ var save: Dictionary
 var grades: Dictionary
 var debug_on := false
 var area_id := DEFAULT_AREA
+var play_grade := 1  # the main menu's difficulty, for the next area picked on the map
 
 
 func _ready() -> void:
@@ -45,6 +46,7 @@ func _ready() -> void:
 	area_id = _area_from_args()
 	grades = Content.grades()
 	save = SaveStore.read()
+	play_grade = int(save.get("difficulty", 1))
 	show_map()
 
 
@@ -93,7 +95,7 @@ func show_map() -> void:
 			shown[int(gid)] = grades[int(gid)]
 	var m := MapScreen.new()
 	m.setup(save, shown, area_id)
-	m.start.connect(_on_start)
+	m.start.connect(_on_play)
 	m.shop.connect(func():
 		Ellwynn.menu_tap("shop")
 		show_store())
@@ -126,8 +128,31 @@ func show_store() -> void:
 	Music.play_menu()
 
 
+## The main menu's Play: on to the map with the difficulty picked there
+## (Terrence 2026-11-07).
+func _on_play(grade_id: int, _resume: bool) -> void:
+	Ellwynn.menu_tap("play")
+	play_grade = grade_id
+	SaveStore.write(save)
+	show_world_map()
+
+
+## A world tapped on the map: its saved run picks up again (the crossing, or
+## the duel or boss after its door), else a new run at the menu's difficulty
+## (or the area's first grade, if it isn't built for that one).
+func _enter_area() -> void:
+	var saved = save.get("run")
+	if saved is Dictionary and saved.get("area") == area_id:
+		_on_start(int(saved["grade"]), true)
+		return
+	var area := Content.area(area_id)
+	var grade_id := play_grade
+	if area.has("grades") and not area["grades"].has(grade_id) and not area["grades"].is_empty():
+		grade_id = int(area["grades"][0])
+	_on_start(grade_id, false)
+
+
 func _on_start(grade_id: int, resume: bool) -> void:
-	Ellwynn.menu_tap("resume" if resume else "play")
 	var area := Content.area(area_id)
 	_play_level_music()
 	menu.visible = true
@@ -190,6 +215,7 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 ## or the mini map. The step is saved before it starts, so the map's "Go"
 ## (after the app closes) opens the same step again.
 func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
+	_unlocked_before = AreaFlow.unlocked_count(save, Content.worlds())
 	AreaFlow.enter(save, area, grade_id, stage)
 	SaveStore.write(save)
 	match stage:
@@ -198,7 +224,7 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 		AreaFlow.BOSS:
 			_start_boss(area, grade_id)
 		_:
-			show_world_map.call_deferred()
+			show_world_map.call_deferred(_newly_unlocked(area))
 
 
 ## The miniboss duel. A loss restarts the duel by itself (FightScreen), so
@@ -226,20 +252,30 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 		if won:
 			_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.BOSS))
 		elif b.to_map:
-			show_world_map.call_deferred()
+			show_world_map.call_deferred(-1)
 		else:
 			_start_boss.call_deferred(area, grade_id))
 	_swap.call_deferred(b)
 
 
-## The mini map of the worlds: tapping an open one goes to its main menu
-## (grades, Go, Shop); the rest show a lock until they are built.
-func show_world_map() -> void:
+var _unlocked_before := 0
+
+
+## The world the boss just unlocked (its lock pops off on the map), or -1.
+func _newly_unlocked(_area: Dictionary) -> int:
+	var now := AreaFlow.unlocked_count(save, Content.worlds())
+	return now - 1 if now > _unlocked_before else -1
+
+
+## The map of the worlds: Play on the main menu opens it, and it follows each
+## boss. Tapping an open world plays it; locked worlds wait for the one
+## before them to be beaten. The menu button leads back to the main menu.
+func show_world_map(just_unlocked := -1) -> void:
 	var w := WorldMapScreen.new()
-	w.setup(save, Content.worlds())
+	w.setup(save, Content.worlds(), just_unlocked)
 	w.open_world.connect(func(world: Dictionary):
 		area_id = world["area"]
-		show_map())
+		_enter_area())
 	_swap(w)
-	menu.visible = false
+	menu.visible = true
 	Music.play_menu()

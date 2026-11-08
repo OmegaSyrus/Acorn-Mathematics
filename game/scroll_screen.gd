@@ -32,10 +32,11 @@ const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
 const CHEST_SCALE := 0.7
-## The dice box: die, sign, die, "=", each die with its numeral under it.
-## 20 units narrower on the right (2026-11-05) to make room for the gems
-## beside the menu button on a 4:3 tablet.
-const TRAY := Rect2(300, 8, 390, 160)
+## The dice box: die, sign, die, "=", the answer, each die with its numeral
+## under it. Its right edge stays left of the gems beside the menu button on
+## a 4:3 tablet (2026-11-05). The picked answer goes after the "=", green when
+## right and red when wrong (Terrence, 2026-11-07).
+const TRAY := Rect2(292, 8, 404, 160)
 ## The small talk box left of the dice box: the question, and the count when
 ## a die's pips are tapped (back by Terrence's request 2026-11-05; tap it to
 ## hear the question again).
@@ -43,9 +44,18 @@ const BUBBLE := Rect2(124, 20, 168, 112)
 const BUBBLE_FONT := 34
 const BUBBLE_FONT_SMALL := 24
 const DICE_Y := 64.0
-const DICE_XS := [370.0, 530.0]
-const OP_X := 450.0
-const EQ_X := 630.0
+const DICE_XS := [350.0, 494.0]
+const OP_X := 422.0
+const EQ_X := 568.0
+const ANSWER_X := 640.0
+const RIGHT_GREEN := Color(0.35, 0.95, 0.4)
+const WRONG_RED := Color(1.0, 0.3, 0.25)
+## A right answer: the dragon jumps for joy this many times (it was 2).
+const HAPPY_JUMPS := 4
+## The hero's hearts (3 lives), bottom left over the lava above the progress
+## bar, clear of Ellwynn's pop-in under the talk box.
+const HEARTS_AT := Vector2(150, 490)
+const HEART_GAP := 36.0
 const GEMS_Y := 26.0
 const GEMS_FONT := 30
 ## The chest gems' animation, in seconds per gem (see _draw_chest_gems).
@@ -95,6 +105,8 @@ const GOAL_DX := 200.0
 ## tall, so 100 units is about 1 inch (a smaller 8 inch tablet makes it about
 ## 0.8 inch). The exit door's tap area is the door plus this all round.
 const INCH := 100.0
+const HEART_TEX := preload("res://art/ui/heart.png")
+const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 
 var run: ScrollRun
 var save: Dictionary
@@ -128,6 +140,13 @@ var gem_count := 0
 var gems_landed := 0   # of the open chest's gems, how many reached the counter
 var gem_pop := 0.0     # the counter's little jump when a gem lands, 0..1
 var gem_icon := Vector2(800, 46)  # where the counter's gem is drawn (HUD), set by _draw_gems
+var answer_shown := -1   # the picked answer after the "=", -1 = "?"
+var answer_right := false
+var hearts_unshown := 0  # hearts picked up on this walk that haven't flown to the row yet
+var heart_fly := -1.0    # 0..1 a picked-up heart flying up to the row, -1 = none
+var heart_from := Vector2.ZERO
+var hearts_owed := 0     # hearts already lost in the run but still drawn full until they break
+var heart_break := -1.0  # 0..1 the lost heart swelling and falling away, -1 = none
 var op_sign := ""
 var op_alpha := 0.0
 var bubble := ""
@@ -216,10 +235,20 @@ func _loop() -> void:
 		choice.present(rects, 0)
 		var pick: int = await choice.picked
 		var out := run.choose(pick)
+		# the answer goes after the "=": green when right, red when wrong
+		answer_shown = int(p["choices"][pick])
+		answer_right = out["right"]
 		if out["right"]:
-			await _happy()
+			await _happy(HAPPY_JUMPS)
 			stone_from = -1
 			await _play_walk(out)
+		elif out["result"] == "miss":
+			# 3 lives (Terrence 2026-11-08): hop to the wrong rock, start to
+			# sink, hop back, lose a heart, and roll the same guess again
+			stone_from = -1
+			hearts_owed = 1
+			await _hop_along(out["from"], out["to"])
+			await _slip_back(out["to"], out["from"], int(p["answer"]))
 		else:
 			stone_from = -1
 			await _hop_along(out["from"], out["to"])
@@ -244,6 +273,8 @@ func _play_walk(w: Dictionary) -> void:
 		SaveData.add_gems(save, total)
 		gems_unshown += total
 		_save_progress()
+	var heart_spaces: Array = w.get("hearts", [])
+	hearts_unshown = heart_spaces.size()
 	revealed = -1
 	var from: int = w["from"]
 	for i in range(from + 1, int(w["to"]) + 1):
@@ -255,6 +286,9 @@ func _play_walk(w: Dictionary) -> void:
 			await _bounce()
 			await _reveal(i)
 			await _open_chest(i, chest_gems[i])
+		if heart_spaces.has(i):
+			await _bounce()
+			await _take_heart(i)
 	await _bounce()
 	match w["result"]:
 		"monster":
@@ -297,6 +331,7 @@ func _roll_dice(p: Dictionary) -> void:
 
 
 func _hide_dice() -> void:
+	answer_shown = -1
 	for d in dice:
 		d.visible = false
 		d.countable = false
@@ -321,7 +356,7 @@ func _fight() -> void:
 	_hide_dice()
 	_ask("")
 	var f := FightScreen.new()
-	f.setup(run.rng, run.grade["id"], run.current_monster(), false, false, debug_on)
+	f.setup(run.rng, run.grade["id"], run.current_monster(), false, false, debug_on, run.hearts)
 	await _fade_to(1.0)
 	add_child(f)
 	await _fade_to(0.0)
@@ -330,7 +365,7 @@ func _fight() -> void:
 	await _fade_to(1.0)
 	f.queue_free()
 	var at := run.pos
-	var out := run.resolve_fight(won)
+	var out := run.resolve_fight(won, f.fight.hero_hearts)
 	if out["restarted"]:
 		await _restart()
 	else:
@@ -418,10 +453,11 @@ func _bounce() -> void:
 	hero_frame = "idle-0"
 
 
-## A right answer: the dragon jumps for joy, twice, on the spot.
-func _happy() -> void:
+## A right answer: the dragon jumps for joy on the spot (a few times on the
+## crossing, Terrence 2026-11-07; twice after a fight).
+func _happy(jumps := 2) -> void:
 	Beeper.good()
-	for k in 2:
+	for k in jumps:
 		hero_frame = "hop-squash"
 		await _wait(0.06)
 		hero_frame = "hop-stretch"
@@ -453,11 +489,44 @@ func _sink(space: int, answer := 0) -> void:
 	await _wait(0.6)
 
 
+## A wrong rock with hearts left: the rock dips and the dragon starts to sink,
+## worried, then scrambles back to the rock it came from; a heart breaks.
+func _slip_back(space: int, back_to: int, answer := 0) -> void:
+	sink_space = space
+	Beeper.blorp()
+	_say("Oops!")
+	await _tween_prop("worried", 1.0, 0.18)
+	if answer > 0:
+		Ellwynn.say_answer(answer)
+	var tw := create_tween().set_parallel()
+	tw.tween_property(self, "rock_sink", 0.35, 0.45).set_ease(Tween.EASE_IN)
+	tw.tween_property(self, "hero_sink", 0.3, 0.5).set_ease(Tween.EASE_IN)
+	await tw.finished
+	await _wait(0.25)
+	# the jump back pulls it out of the lava
+	create_tween().tween_property(self, "hero_sink", 0.0, HOP_S * 0.5)
+	await _hop(_space_x(space), _space_x(back_to))
+	create_tween().tween_property(self, "rock_sink", 0.0, 0.3)
+	await _bounce()
+	worried = 0.0
+	sink_space = -1
+	# the heart swells and falls away
+	heart_break = 0.0
+	Beeper.tone(220.0, 0.15)
+	await _tween_prop("heart_break", 1.0, 0.9)
+	heart_break = -1.0
+	hearts_owed = 0
+	_say("Roll again!")
+	await _wait(0.4)
+
+
 ## The fail rule: back to the start of the crossing.
 func _restart() -> void:
 	await _fade_to(1.0)
 	_hide_dice()
 	beaten.clear()
+	hearts_unshown = 0
+	hearts_owed = 0
 	revealed = -1
 	sink_space = -1
 	rock_sink = 0.0
@@ -507,6 +576,22 @@ func _open_chest(space: int, n: int) -> void:
 			gem_pop = 1.0
 			Beeper.tone(1046.0 * pow(1.12, gems_landed - 1), 0.09, -10.0)
 	opening = -1
+
+
+## A heart stone: the heart over it pops, then flies up to the hearts row
+## under the talk box, which gains it as it lands.
+func _take_heart(space: int) -> void:
+	revealed = space
+	heart_from = Vector2(_space_x(space) - roundf(cam_x), MARKER_Y)
+	heart_fly = 0.0
+	_cheer("+1")
+	Beeper.tone(660.0, 0.08)
+	Beeper.tone(990.0, 0.14)
+	await _tween_prop("heart_fly", 1.0, 0.9)
+	heart_fly = -1.0
+	hearts_unshown = maxi(hearts_unshown - 1, 0)
+	Beeper.tone(1320.0, 0.1, -8.0)
+	await _wait(0.2)
 
 
 func _place_hero(space: int) -> void:
@@ -657,8 +742,13 @@ func _draw_world() -> void:
 		var kind := _event_at(i)
 		if kind == "" or i == revealed or not MARKERS_AHEAD or i == sink_space:
 			continue
-		var m: Texture2D = tex["marker-treasure" if kind == "chest" else "marker-enemy"]
 		var bob := sin(_t * 2.5 + i * 0.7) * 3.0
+		if kind == "heart":
+			# a heart floats over a heart stone (2x, whole pixels), gently pulsing
+			var hs := HEART_TEX.get_size() * (2.0 if fmod(_t, 1.2) > 0.15 else 2.25)
+			world.draw_texture_rect(HEART_TEX, Rect2(Vector2(_space_x(i), MARKER_Y + bob) - hs / 2.0, hs), false)
+			continue
+		var m: Texture2D = tex["marker-treasure" if kind == "chest" else "marker-enemy"]
 		var ms := m.get_size() * MARKER_SCALE
 		world.draw_texture_rect(m, Rect2(Vector2(_space_x(i), MARKER_Y + bob) - ms / 2.0, ms), false)
 	_draw_stone_numbers()
@@ -717,7 +807,7 @@ func _draw_name(text: String, center: Vector2, alpha: float) -> void:
 	world.draw_string(font, box.position + Vector2(0, 26), text, HORIZONTAL_ALIGNMENT_CENTER, w, 22, INK)
 
 
-## "chest" or "monster" while that space still holds something, else "".
+## "chest", "monster" or "heart" while that space still holds something, else "".
 ## An opened chest is empty for good; a beaten monster is gone this attempt.
 func _event_at(i: int) -> String:
 	var s := run.space_at(i)
@@ -726,6 +816,8 @@ func _event_at(i: int) -> String:
 			return "" if run.is_looted(i) and i != revealed else "chest"
 		"monster":
 			return "" if beaten.has(i) else "monster"
+		"heart":
+			return "" if run.is_heart_taken(i) else "heart"
 	return ""
 
 
@@ -868,7 +960,16 @@ func _draw_hud() -> void:
 		var eq := Color(INK, op_alpha)
 		hud.draw_string_outline(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8, Color(DARK, op_alpha))
 		hud.draw_string(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, eq)
+		# then the answer: a faint "?" until a stone is picked
+		var ans := "?" if answer_shown < 0 else str(answer_shown)
+		var col := Color(INK, op_alpha * 0.45)
+		if answer_shown >= 0:
+			col = RIGHT_GREEN if answer_right else WRONG_RED
+		hud.draw_string_outline(font, Vector2(ANSWER_X - 40, DICE_Y + 26), ans, HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8,
+				Color(DARK, op_alpha))
+		hud.draw_string(font, Vector2(ANSWER_X - 40, DICE_Y + 26), ans, HORIZONTAL_ALIGNMENT_CENTER, 80, 72, col)
 	_draw_bubble(font)
+	_draw_hearts()
 	_draw_gems(font)
 	_draw_chest_gems()
 	# progress along the crossing: one tick per space
@@ -883,6 +984,37 @@ func _draw_hud() -> void:
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.8, 0.2))
 		elif s.get("type") == "monster" and not beaten.has(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(0.9, 0.2, 0.2))
+		elif s.get("type") == "heart" and not run.is_heart_taken(i):
+			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.45, 0.6))
+
+
+## The hero's hearts under the talk box, and a picked-up heart flying to them.
+func _draw_hearts() -> void:
+	var have := run.hearts - hearts_unshown + hearts_owed
+	var slots := maxi(ScrollRun.HERO_HEARTS, run.hearts + hearts_owed)
+	for i in slots:
+		var c := HEARTS_AT + Vector2(HEART_GAP * i, 0)
+		var full := i < have
+		if heart_break >= 0.0 and i == have - 1:
+			full = false  # drawn breaking below
+		hud.draw_texture(HEART_TEX if full else HEART_EMPTY_TEX, c - Vector2(16, 16))
+	if heart_break >= 0.0 and have > 0:
+		var c := HEARTS_AT + Vector2(HEART_GAP * (have - 1), 0)
+		var q := heart_break
+		var k := 2.0 if q < 0.15 else 3.0
+		var shake := roundf(sin(q * 90.0) * 3.0) if q < 0.5 else 0.0
+		var drop := 0.0 if q < 0.5 else roundf((q - 0.5) * (q - 0.5) * 480.0)
+		var a := 1.0 if q < 0.5 else 1.0 - (q - 0.5) * 2.0
+		var hs := HEART_TEX.get_size() * k
+		var at := Vector2(c.x + shake, maxf(c.y, hs.y / 2.0 + 4.0) + drop)
+		hud.draw_texture_rect(HEART_TEX, Rect2(at - hs / 2.0, hs), false, Color(1, 1, 1, a))
+	if heart_fly >= 0.0:
+		var to := HEARTS_AT + Vector2(HEART_GAP * have, 0)
+		var q := heart_fly
+		var p := heart_from.lerp(to, q * q) + Vector2(0, -sin(q * PI) * 90.0)
+		var k := 2.0 if q < 0.7 else 1.0
+		var hs := HEART_TEX.get_size() * k
+		hud.draw_texture_rect(HEART_TEX, Rect2(p.round() - hs / 2.0, hs), false)
 
 
 ## The crossing done: the area's name in a box to the right of the door,

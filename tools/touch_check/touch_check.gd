@@ -24,17 +24,23 @@ func _ready() -> void:
 	await _frames(30)
 	_shot("1-map")
 
-	# The map: tap the first grade box.
+	# The main menu: "Difficulty: Acorn" and Play, which opens the map.
 	var map: Node2D = main.screen
-	_check(map.get_script().resource_path.ends_with("map_screen.gd"), "map is showing")
+	_check(map.get_script().resource_path.ends_with("map_screen.gd"), "main menu is showing")
+	_check(map.buttons[0].get("play", false), "first button is Play")
 	await _tap(map, (map.buttons[0]["rect"] as Rect2).get_center())
+	await _frames(30)
+	var wmap: Node2D = main.screen
+	_check(wmap.get_script().resource_path.ends_with("world_map_screen.gd"), "Play opened the map")
+	_shot("1b-world-map")
+	await _tap(wmap, wmap.node_rect(0).get_center())
 	await _frames(30)
 	var scroll: Node2D = main.screen
 	if not scroll.get_script().resource_path.ends_with("scroll_screen.gd"):
-		_check(false, "tap on map opened the crossing")
+		_check(false, "tap on Lava Caves opened the crossing")
 		get_tree().quit(1)
 		return
-	_check(true, "tap on map opened the crossing")
+	_check(true, "tap on Lava Caves opened the crossing")
 	_shot("2-crossing")
 
 	# The crossing: wait for the Roll box, tap it.

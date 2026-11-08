@@ -51,9 +51,24 @@ static func enter(save: Dictionary, area: Dictionary, grade_id: int, stage: Stri
 		save["run"] = stage_run(area, grade_id, stage)
 
 
-## A world on the mini map can be played once it has an area.
-static func world_open(world: Dictionary) -> bool:
-	return world.has("area")
+## A world on the mini map is unlocked once the world before it has been
+## beaten (Terrence 2026-11-07: the map unlocks the next area when the
+## previous one is complete). The first world is always unlocked.
+static func world_unlocked(save: Dictionary, worlds: Array, i: int) -> bool:
+	return i == 0 or (i < worlds.size() and world_beaten(save, String(worlds[i - 1]["id"])))
+
+
+## An unlocked world can be played once it has an area built.
+static func world_open(save: Dictionary, worlds: Array, i: int) -> bool:
+	return world_unlocked(save, worlds, i) and worlds[i].has("area")
+
+
+## How many worlds are unlocked, counting from the first.
+static func unlocked_count(save: Dictionary, worlds: Array) -> int:
+	var n := 0
+	while n < worlds.size() and world_unlocked(save, worlds, n):
+		n += 1
+	return n
 
 
 ## The world has been beaten (boss and all) at some grade.

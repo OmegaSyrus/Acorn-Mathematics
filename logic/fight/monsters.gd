@@ -22,7 +22,7 @@ const ROSTER := {
 	"craggy": {"name": "Craggy the Stone Troll", "hearts": 4, "role": "monster"},
 	"surtling": {"name": "Surtling", "hearts": 3, "role": "monster"},
 	"mimic": {"name": "Mimic", "hearts": 3, "role": "mimic"},
-	"lava_miniboss": {"name": "Surtling Chief", "hearts": 3, "role": "miniboss"},
+	"lava_miniboss": {"name": "Surtling Chief", "hearts": 5, "role": "miniboss"},
 }
 
 

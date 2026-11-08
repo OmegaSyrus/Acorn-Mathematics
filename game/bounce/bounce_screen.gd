@@ -6,8 +6,10 @@
 ## Each shot starts with the boss's turn: it spits its number out as rolled
 ## dice (the same tumble as the crossing dice), and the choices open when they
 ## land. Then: tap the peg face that matches the boss's number (left column),
-## then touch the board and drag to aim; let go to fire. A short stub shows
-## the direction only. The flight steps the logic at a fixed 120 Hz.
+## then touch the board and drag to aim; let go to fire. A dashed line shows
+## the ball's path up to where it first hits something (Terrence 2026-11-07),
+## worked out with the same sim the shot uses. The flight steps the logic at
+## a fixed 120 Hz.
 ## Controller: d-pad names, left/right aims, A fires.
 extends Node2D
 
@@ -79,6 +81,10 @@ const CHOICE_SIZE := 76.0
 const CHOICE_GAP := 96.0
 const BOSS_POS := Vector2(820, 96)   # the skull
 const STUB_LENGTH := 70.0
+## The aim line: dashes this long with gaps between, up to the first hit.
+const DASH := 14.0
+const DASH_GAP := 10.0
+const AIM_MAX_STEPS := 600  # 5 s of flight at 120 Hz
 const AIM_KEY_SPEED := 600.0   # tenths of a degree per second
 const BOSS_DIE_SCALE := 1.0    # full 96 px dice
 const BOSS_DIE_AT := Vector2(822, 400)  # two dice side by side still end at SAFE_RIGHT
@@ -94,6 +100,9 @@ var choice: ChoiceWidget
 
 var phase := "naming"   # naming, aiming, flying, won, lost
 var aim := 0
+var _aim_path := PackedVector2Array()  # the dashed line's points, for _aim_path_for
+var _aim_path_for := 99999            # the aim (decidegrees) and shot it was worked out for
+var _aim_path_shot := -1
 var aiming_touch := false
 var _acc := 0.0
 var slow := false
@@ -515,9 +524,57 @@ func _draw_launcher(font: Font) -> void:
 	var l := BounceSim.launcher(fight.board)
 	draw_circle(l, 22.0, Color(0.35, 0.3, 0.28))
 	if phase == "aiming":
-		var dir := BounceSim.aim_dir(aim, fight.phys)
-		# The fixed stub: the same length every time, never reaching a peg.
-		draw_line(l + dir * 24.0, l + dir * (24.0 + STUB_LENGTH), Color(1, 0.95, 0.6, 0.8), 6.0)
+		_draw_aim_line()
+
+
+## The ball's path from the launcher to the first thing it hits (a wall, a
+## bumper, a ±1 peg or a peg that pops; it passes through ghost pegs), in
+## dashes, with a ring where it hits.
+func _draw_aim_line() -> void:
+	var shot_key: int = fight.balls_left * 1000 + fight.live_count()
+	if aim != _aim_path_for or shot_key != _aim_path_shot:
+		_aim_path_for = aim
+		_aim_path_shot = shot_key
+		_aim_path = _first_hit_path(aim)
+	var col := Color(1, 0.95, 0.6, 0.9)
+	var on := true
+	var left := DASH
+	for k in range(1, _aim_path.size()):
+		var a := _aim_path[k - 1]
+		var b := _aim_path[k]
+		var seg := a.distance_to(b)
+		var at := 0.0
+		while at < seg:
+			var run := minf(left, seg - at)
+			var p0 := a.lerp(b, at / seg)
+			var p1 := a.lerp(b, (at + run) / seg)
+			if on:
+				draw_line(p0, p1, col, 5.0)
+			at += run
+			left -= run
+			if left <= 0.0:
+				on = not on
+				left = DASH if on else DASH_GAP
+	if _aim_path.size() > 1:
+		var end := _aim_path[_aim_path.size() - 1]
+		draw_arc(end, 13.0, 0.0, TAU, 24, col, 4.0)
+
+
+func _first_hit_path(aim_decideg: int) -> PackedVector2Array:
+	var sim = fight.preview_sim(aim_decideg)
+	var pts := PackedVector2Array([sim.pos])
+	for i in AIM_MAX_STEPS:
+		var events: Array = sim.step()
+		if i % 3 == 0:
+			pts.append(sim.pos)
+		var hit := false
+		for e in events:
+			if e["type"] in ["bounce", "pop", "mod", "end"]:
+				hit = true
+		if hit:
+			pts.append(sim.pos)
+			break
+	return pts
 
 
 func _draw_ball() -> void:

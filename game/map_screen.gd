@@ -1,5 +1,7 @@
-## Graybox map: pick a grade for the area, or resume its saved run.
-## Marks show which grades this area has been beaten at.
+## The main menu (Terrence 2026-11-07): "Difficulty: Acorn" (tap the
+## difficulty to change it, when more than one is open), a big Play that goes
+## to the map of the worlds, the Shop and the grown-up Reset. A crossing in
+## progress picks up again from its world on the map.
 extends Node2D
 
 signal start(grade_id: int, resume: bool)
@@ -16,6 +18,9 @@ const Look := preload("res://game/ui/look.gd")
 ## The store button, bottom right (inside the 4:3 band, x 120..840), with
 ## the gem count on it.
 const SHOP_RECT := Rect2(624, 392, 200, 120)
+## Right of Ellwynn (bottom left, x 150..310): buttons stay right of x 380.
+const DIFF_RECT := Rect2(604, 196, 200, 96)
+const PLAY_RECT := Rect2(396, 392, 200, 120)
 const GEM_TEX := preload("res://art/lava/gem.png")
 const Pointer := preload("res://game/ui/pointer.gd")
 
@@ -31,6 +36,8 @@ const HOLD_S := 3.0
 var save: Dictionary
 var area_id := "lava_1"
 var grades: Dictionary
+var available: Array = []  # the grade ids that can be picked, in order
+var grade_id := 1          # the difficulty picked (kept in the save as "difficulty")
 var buttons: Array = []  # [{rect, label, grade, resume}]
 var choice: ChoiceWidget
 var asking := false      # the reset question is up
@@ -46,21 +53,16 @@ func setup(profile: Dictionary, grade_table: Dictionary, area: String) -> void:
 
 
 func _ready() -> void:
-	var available := []
 	for gid in grades:
 		if grades[gid]["available"]:
 			available.append(gid)
 	available.sort()
-	var x0 := 480.0 - available.size() * 100.0
-	for i in available.size():
-		var gid: int = available[i]
-		buttons.append({"rect": Rect2(x0 + i * 200 + 20, 230, 160, 96), "label": grades[gid]["name"],
-				"grade": gid, "resume": false})
-	var saved_run = save.get("run")
-	if saved_run is Dictionary and saved_run.get("area") == area_id:
-		buttons.append({"rect": Rect2(400, 370, 160, 84), "label": "Go", "grade": saved_run["grade"],
-				"resume": true})
-	var first := buttons.size() - 1
+	grade_id = int(save.get("difficulty", available[0] if not available.is_empty() else 1))
+	if not available.has(grade_id) and not available.is_empty():
+		grade_id = available[0]
+	buttons.append({"rect": PLAY_RECT, "label": "Play", "play": true, "grade": grade_id, "resume": false})
+	buttons.append({"rect": DIFF_RECT, "label": "", "difficulty": true, "resume": false})
+	var first := 0
 	buttons.append({"rect": SHOP_RECT, "label": "Shop", "shop": true, "resume": false})
 	buttons.append({"rect": RESET_RECT, "label": "Reset", "reset": true, "resume": false})
 	choice = ChoiceWidget.new()
@@ -79,8 +81,24 @@ func _ready() -> void:
 		if buttons[i].get("shop", false):
 			shop.emit()
 			return
-		start.emit(buttons[i]["grade"], buttons[i]["resume"])
+		if buttons[i].get("difficulty", false):
+			_next_difficulty()
+			first = i
+			continue
+		save["difficulty"] = grade_id
+		start.emit(grade_id, false)
 		return
+
+
+## Tapping the difficulty steps to the next open one (round again after the last).
+func _next_difficulty() -> void:
+	if available.size() < 2:
+		Beeper.tone(330.0, 0.08)
+		return
+	grade_id = available[(available.find(grade_id) + 1) % available.size()]
+	save["difficulty"] = grade_id
+	Beeper.tone(660.0, 0.08)
+	queue_redraw()
 
 
 ## The reset question. True once "Yes" has been held down long enough;
@@ -131,9 +149,18 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.13, 0.09, 0.08))
-	draw_string(font, Vector2(120, 140), "Lava Caves", HORIZONTAL_ALIGNMENT_CENTER, 720, 52, Color(1.0, 0.6, 0.25))
+	draw_string(font, Vector2(120, 140), "Acorn Math", HORIZONTAL_ALIGNMENT_CENTER, 720, 52, Color(1.0, 0.6, 0.25))
 	for b in buttons:
 		var r: Rect2 = b["rect"]
+		if b.get("difficulty", false):
+			_draw_difficulty(font, r)
+			continue
+		if b.get("play", false):
+			RoundBox.fill(self, r, Color(0.2, 0.62, 0.3), 18.0)
+			RoundBox.frame(self, r, Color(1.0, 0.82, 0.35), 3.0, 18.0)
+			draw_string(font, r.position + Vector2(0, r.size.y / 2 + 16), "Play", HORIZONTAL_ALIGNMENT_CENTER,
+					r.size.x, 48, Color(0.96, 0.94, 0.9))
+			continue
 		if b.get("shop", false):
 			_draw_shop(font, r)
 			continue
@@ -142,11 +169,6 @@ func _draw() -> void:
 			draw_string(font, r.position + Vector2(0, 35), "Reset", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
 					Color(0.8, 0.76, 0.72))
 			continue
-		RoundBox.fill(self, r, Color(0.3, 0.5, 0.32) if b["resume"] else Color(0.42, 0.36, 0.33), 18.0)
-		draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), b["label"], HORIZONTAL_ALIGNMENT_CENTER,
-				r.size.x, 32, Color(0.96, 0.94, 0.9))
-		if not b["resume"] and SaveData.has_mark(save, area_id, b["grade"]):
-			draw_circle(r.position + Vector2(r.size.x - 14, 14), 10.0, Color(1.0, 0.8, 0.2))
 	draw_string(font, Vector2(330, 520), "stickers: %d" % save["stickers"].size(), HORIZONTAL_ALIGNMENT_LEFT,
 			-1, 16, Color(0.6, 0.55, 0.5))
 	if asking:
@@ -172,6 +194,20 @@ func _draw_reset_question(font: Font) -> void:
 	if holding:
 		var c := YES_RECT.get_center()
 		draw_arc(c, 62.0, -PI / 2.0, -PI / 2.0 + TAU * clampf(hold_t / HOLD_S, 0.0, 1.0), 48, Color(1.0, 0.82, 0.35), 8.0)
+
+
+## "Difficulty:" and the difficulty's name in a box after it; a gold dot
+## when an area has been beaten at it.
+func _draw_difficulty(font: Font, r: Rect2) -> void:
+	var ink := Color(0.96, 0.94, 0.9)
+	draw_string(font, Vector2(r.position.x - 224, r.position.y + r.size.y / 2 + 12), "Difficulty:",
+			HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
+	RoundBox.fill(self, r, Color(0.42, 0.36, 0.33), 18.0)
+	var gname: String = grades[grade_id]["name"] if grades.has(grade_id) else "?"
+	draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), gname, HORIZONTAL_ALIGNMENT_CENTER,
+			r.size.x, 34, ink)
+	if SaveData.has_mark(save, area_id, grade_id):
+		draw_circle(r.position + Vector2(r.size.x - 14, 14), 10.0, Color(1.0, 0.8, 0.2))
 
 
 ## The Shop button: a gem-purple box, "Shop", and the gems to spend.

@@ -11,6 +11,12 @@ const AWAIT_ROLL := "await_roll"
 const AWAIT_CHOICE := "await_choice"
 const AWAIT_FIGHT := "await_fight"
 const CLEARED := "cleared"
+## The hero's hearts on the crossing: 3 lives (Terrence, 2026-11-07). A wrong
+## stone costs one and the same guess is rolled again; the last one lost starts
+## the crossing over. They carry into each fight and back out of it; a heart
+## space adds one, up to MAX_HEARTS. A restart gives the 3 back.
+const HERO_HEARTS := 3
+const MAX_HEARTS := 5
 
 var area: Dictionary
 var grade: Dictionary
@@ -21,6 +27,8 @@ var pos := 0
 var target := 0   # where the current walk ends; > pos while a fight on the way is pending
 var looted := []  # chest spaces already opened; they stay empty after a restart
 var gems := 0
+var hearts := HERO_HEARTS
+var hearts_taken := []  # heart spaces (by step) picked up this attempt; back after a restart
 var rolls := 0    # rolls this attempt (the area's "rolls" [min, max] bounds a clean run)
 ## An area with "guesses" (Terrence 2026-11-07: a run is 9 guesses) draws this
 ## attempt's right answers up front, one per guess; the crossing is as long as
@@ -89,6 +97,8 @@ func to_save() -> Dictionary:
 		"target": target,
 		"looted": looted.duplicate(),
 		"gems": gems,
+		"hearts": hearts,
+		"hearts_taken": hearts_taken.duplicate(),
 		"rolls": rolls,
 		"phase": phase,
 		"rng_state": rng.get_state(),
@@ -106,6 +116,8 @@ func restore(data: Dictionary) -> void:
 	target = maxi(pos, int(data.get("target", pos)))
 	looted = data["looted"].duplicate()
 	gems = data["gems"]
+	hearts = clampi(int(data.get("hearts", HERO_HEARTS)), 1, MAX_HEARTS)
+	hearts_taken = data.get("hearts_taken", []).duplicate()
 	rolls = int(data.get("rolls", 0))
 	if data["phase"] == AWAIT_CHOICE:
 		rolls = maxi(0, rolls - 1)  # that roll is rolled again
@@ -122,6 +134,8 @@ func restore(data: Dictionary) -> void:
 			target = 0
 			rolls = 0
 			looted = []
+			hearts = HERO_HEARTS
+			hearts_taken = []
 			problem = {}
 			phase = AWAIT_ROLL
 			_new_answers()
@@ -131,6 +145,11 @@ func restore(data: Dictionary) -> void:
 
 func length() -> int:
 	return _length
+
+
+## A heart space already picked up this attempt.
+func is_heart_taken(i: int) -> bool:
+	return hearts_taken.has(_loot_key(i))
 
 
 ## A chest space already opened. With guesses a chest is known by its step,
@@ -189,7 +208,9 @@ func answer_bounds() -> Array:
 	return [lo, maxi(lo, hi)]
 
 
-## A wrong space sinks and the run starts again from space 0. A right one
+## A wrong space costs a heart: the hero hops back ("miss") and the same
+## guess is rolled again with new dice. With no hearts left it sinks ("sink")
+## and the run starts again from space 0. A right one
 ## walks there space by space, and everything walked onto triggers: an
 ## unopened chest gives gems on the way, a monster stops the walk for a fight
 ## (the rest of the walk follows a win), the last space clears the area.
@@ -200,6 +221,15 @@ func choose(index: int) -> Dictionary:
 	var right: bool = index == problem["answer_index"]
 	var out := {"result": "", "right": right, "pick": index, "from": pos, "to": pos + dist, "restarted": false}
 	if not right:
+		hearts -= 1
+		if hearts > 0:
+			out["result"] = "miss"
+			_log(out)
+			rolls = maxi(0, rolls - 1)  # this guess again
+			problem = {}
+			phase = AWAIT_ROLL
+			out["hearts_left"] = hearts
+			return out
 		out["result"] = "sink"
 		_log(out)
 		_fail()
@@ -214,7 +244,9 @@ func choose(index: int) -> Dictionary:
 
 ## The fight layer reports the result. A lost fight restarts like a sink. A
 ## won fight met on the way finishes the walk: its outcome is under "walk".
-func resolve_fight(won: bool) -> Dictionary:
+## hearts_left: the hero's hearts when the fight ended (-1 = unchanged); they
+## carry on along the crossing.
+func resolve_fight(won: bool, hearts_left := -1) -> Dictionary:
 	assert(phase == AWAIT_FIGHT)
 	var out := {"result": "fight_won" if won else "fight_lost", "restarted": false}
 	_log(out)
@@ -222,6 +254,8 @@ func resolve_fight(won: bool) -> Dictionary:
 		_fail()
 		out["restarted"] = true
 		return out
+	if hearts_left > 0:
+		hearts = mini(hearts_left, MAX_HEARTS)
 	phase = AWAIT_ROLL
 	if target > pos:
 		var w := {"result": "", "from": pos, "to": target}
@@ -234,10 +268,12 @@ func resolve_fight(won: bool) -> Dictionary:
 # --- internals -------------------------------------------------------------
 
 ## Steps from pos toward target. Fills out: result (where it stopped: goal,
-## monster, chest or hop), to (that space), chests ([{at, gems}] opened on the
-## way, in order) and gems (their total, when any).
+## monster, chest, heart or hop), to (that space), chests ([{at, gems}] opened
+## on the way, in order), gems (their total, when any) and hearts (the heart
+## spaces picked up on the way).
 func _walk(out: Dictionary) -> void:
 	var chests := []
+	var got_hearts := []
 	var total := 0
 	phase = AWAIT_ROLL
 	out["result"] = "hop"
@@ -261,10 +297,17 @@ func _walk(out: Dictionary) -> void:
 			chests.append({"at": pos, "gems": g})
 			if pos == target:
 				out["result"] = "chest"
+		if space.get("type") == "heart" and not is_heart_taken(pos):
+			hearts_taken.append(_loot_key(pos))
+			hearts = mini(hearts + 1, MAX_HEARTS)
+			got_hearts.append(pos)
+			if pos == target:
+				out["result"] = "heart"
 	if phase != AWAIT_FIGHT:
 		target = pos
 	out["to"] = pos
 	out["chests"] = chests
+	out["hearts"] = got_hearts
 	if not chests.is_empty():
 		out["gems"] = total
 
@@ -299,6 +342,8 @@ func _fail() -> void:
 	rolls = 0
 	pos = 0
 	target = 0
+	hearts = HERO_HEARTS
+	hearts_taken = []
 	problem = {}
 	phase = AWAIT_ROLL
 	if is_guessed():
