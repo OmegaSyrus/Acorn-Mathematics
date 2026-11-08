@@ -51,7 +51,7 @@ Same kit in every world. About 30 generations per world at 2 takes.
 | Piece | Size | Lava (done) | Crystal Mines | The Bog | Mushroom Forest | Space |
 |---|---|---|---|---|---|---|
 | Crossing strip | 1920x180 (3x) | lava cave | mine tunnel, timber props, crystal veins | fen at dusk, black water, mist | greenwood, dappled light | indigo sky, Yggdrasil branches |
-| Path stones x3 | 136x76 | basalt rocks | rail stops on minecart track | tussock, sunken log, peat stone | mushroom caps | star platforms |
+| Path stones x3 | 136x76 | basalt rocks | stalagmites (tops at the hop line) + stalactite ceiling pieces 240x148 | tussock, sunken log, peat stone | mushroom caps | star platforms |
 | Small monster | ~90-120 | Surtling | knocker | wispling, nixie | pixie, hobgoblin with acorn shield | Ratatoskr squirrel, moon hobgoblin |
 | Big monster | ~150-180 | Blorp, Craggy | Gem Dwarf, Svartalf lantern-bearer | bog-draugr, Tiddy Mun | boggart | Fenrir's pup |
 | Miniboss | ~170-190 | Surtling Chief | Svartalf Lantern Lord | Wisp King and Queen (two) | the Hedley Kow | Ratatoskr |

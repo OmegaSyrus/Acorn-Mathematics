@@ -5,7 +5,11 @@ mocks are in the project folder at sum-dungeon/art-crystal-mines/. Grid and look
 docs/art-style-guide.md.
 
 Not drawn by any screen yet: the Crystal Mines levels are milestone 5 of
-docs/difficulty-plan.md. Characters are 1 art px = 1 unit; fight-bg, treasure-room
-(320x180) and strip (1920x180) draw at 3x like the Lava ones. The strip's rail top is at
-art y 143 (screen y 429): the hero hops along the track from one stop sleeper
-(stop-sleeper.png) to the next. rail-stop.png is the other stop choice.
+docs/difficulty-plan.md. Characters are 1 art px = 1 unit; fight-bg, treasure-room and
+cave-bg (320x180) draw at 3x like the Lava ones.
+
+The crossing: the hero hops on stalagmites (stalagmite-1, stalagmite-wide, stalagmite-0
+cycled), each with its top at the hop line and its foot off the bottom of the screen. A
+wrong pick collapses its stalagmite (code: break into pieces and drop); right ones stay
+stable. Ceiling pieces ceiling-0..3 (240x148, two stops wide) hang from the top of the
+screen and scroll with the stalagmites, cycled in order. Strict side view, no perspective.
