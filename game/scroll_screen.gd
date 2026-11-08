@@ -562,14 +562,14 @@ func _happy(jumps := 2) -> void:
 
 ## A wrong rock: it tips into the lava and the dragon sinks with a blorp.
 ## Ellwynn then says the right answer, cheerfully (Terrence 2026-11-07).
-func _sink(space: int, answer := 0) -> void:
+func _sink(space: int, answer := -1) -> void:
 	sink_space = space
 	Beeper.blorp()
 	_say("Oops!")
 	# a worried look first, then down it goes still looking worried
 	await _tween_prop("worried", 1.0, 0.18)
 	await _wait(0.35)
-	if answer > 0:
+	if answer >= 0:
 		Ellwynn.say_answer(answer)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 1.0, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -580,12 +580,12 @@ func _sink(space: int, answer := 0) -> void:
 
 ## A wrong rock with hearts left: the rock dips and the dragon starts to sink,
 ## worried, then scrambles back to the rock it came from; a heart breaks.
-func _slip_back(space: int, back_to: int, answer := 0) -> void:
+func _slip_back(space: int, back_to: int, answer := -1) -> void:
 	sink_space = space
 	Beeper.blorp()
 	_say("Oops!")
 	await _tween_prop("worried", 1.0, 0.18)
-	if answer > 0:
+	if answer >= 0:
 		Ellwynn.say_answer(answer)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 0.35, 0.45).set_ease(Tween.EASE_IN)

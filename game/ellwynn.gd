@@ -40,6 +40,10 @@ const POP_CHANCE := 1.0 / 3.0
 const CHEST_CHANCE := 2.0 / 3.0
 ## Music dips by this much while she talks.
 const DUCK_DB := 10.0
+## The right answer after a wrong guess: said this long after the guess, with
+## the music dipped this much (it must be heard over the game).
+const ANSWER_DELAY := 1.0
+const ANSWER_DUCK_DB := 18.0
 ## Loudness (linear magnitude) for the half and open mouth.
 const HALF_AT := 0.012
 const OPEN_AT := 0.035
@@ -71,6 +75,7 @@ var _hop := 0.0
 var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _save: Dictionary = {}
 var _gen := 0              # bumps when a show ends, so old timers do nothing
+var _answer_token := 0     # bumps on every stop, so a waiting answer is dropped
 
 
 func _ready() -> void:
@@ -198,18 +203,27 @@ func boss_beaten() -> void:
 
 
 ## A wrong guess: she says the right answer, cheerfully, from her portrait in
-## the corner with the numeral in her bubble (Terrence 2026-11-07). The music
-## dips while she talks, like every line. Recorded 0 to 18 (2026-11-08); a number
-## with no recording stays quiet.
+## the corner with the numeral in her bubble (Terrence 2026-11-07). Recorded
+## 0 to 18 (2026-11-08); a number with no recording stays quiet.
+## She waits ANSWER_DELAY first (Terrence 2026-11-08: 1 second later), so the
+## "Oops!" blorp is over and she is heard on her own; the music dips further
+## than for her other lines while she says it.
 func say_answer(n: int) -> void:
 	var file: String = lines.get("answers", {}).get(str(n), "")
 	if file == "" or not ResourceLoader.exists(file):
+		push_warning("Ellwynn: no answer line for %d" % n)
 		return
 	stop_voice()
+	var token := _answer_token
+	await get_tree().create_timer(ANSWER_DELAY, true, false, true).timeout
+	# a newer line (or a stop) came in while she waited
+	if token != _answer_token:
+		return
 	_queue = [{"file": file, "bubble": str(n)}]
 	if mode != "menu":
 		_set_mode("answer")
 	_next_line()
+	_duck(ANSWER_DUCK_DB)
 	var g := _gen
 	await get_tree().create_timer(1.8, true, false, true).timeout
 	if g == _gen and mode == "answer":
@@ -237,6 +251,7 @@ func say(cue: String) -> void:
 
 
 func stop_voice() -> void:
+	_answer_token += 1
 	_queue.clear()
 	_line_len = 0.0
 	player.stop()
@@ -285,9 +300,9 @@ func _next_line() -> void:
 	_duck()
 
 
-func _duck() -> void:
+func _duck(db := DUCK_DB) -> void:
 	if get_node_or_null("/root/Music") != null:
-		Music.player.volume_db = Music.VOLUME_DB - DUCK_DB
+		Music.player.volume_db = Music.VOLUME_DB - db
 
 
 func _unduck() -> void:
