@@ -49,6 +49,8 @@ var phase: int = Phase.BLOCK
 ## crossing carries into the fight.
 var hero_max_hearts: int = HERO_HEARTS
 var attack
+## A level's fight top (docs/difficulty-plan.md 1.5), 0 = the grade's own.
+var top := 0
 var exchange_count: int = 0
 var right_count: int = 0
 var wrong_count: int = 0
@@ -127,6 +129,13 @@ func is_over() -> bool:
 	return state == State.WON or state == State.LOST
 
 
+## Caps the answers at a level's fight top and draws the first swing again.
+func set_top(t: int) -> void:
+	top = t
+	if state == State.WIND_UP:
+		_wind_up()
+
+
 func _wind_up() -> void:
-	attack = AttackGen.generate(rng, grade)
+	attack = AttackGen.generate(rng, grade, top)
 	state = State.WIND_UP

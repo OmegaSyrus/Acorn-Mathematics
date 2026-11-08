@@ -53,8 +53,6 @@ const PEG_ART := {
 }
 const PEG_ART_SCALE := 1.25    # 32 px gems drawn to fill a 40 px peg
 const BUMPER_ART_SCALE := 1.375
-const DRAGON_TEX := preload("res://art/boss/skeleton-dragon.png")
-const TREASURE_TEX := preload("res://art/boss/treasure-cave.png")
 const BOARD_TEX := preload("res://art/boss/board.png")
 const BUMPER_TEX := preload("res://art/boss/bumper.png")
 const BALL_TEX := preload("res://art/ui/ball.png")
@@ -63,11 +61,10 @@ const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 ## The Skeleton Dragon fills the top right: its skull sits right of the
 ## board and its neck curls down and off the screen to the right. Drawn on
 ## the one character grid (Look.CHAR_PX), 400 px art, nothing scaled.
-const DRAGON_AT := Vector2(716, -34)
+## (DRAGON_AT, per world: see _load_theme)
 ## Its bony arm comes in from the body off screen right, and the claw at its
 ## end grips the right wall of the board, under the skull.
-const ARM_TEX := preload("res://art/boss/bone-arm.png")
-const ARM_AT := Vector2(700, 196)
+## (ARM_AT, per world: see _load_theme)
 ## The player's robot dragon watches from the bottom left.
 const INK := Color(0.96, 0.94, 0.9)
 ## The right edge everything readable stays left of: the 1340x800 tablet
@@ -129,6 +126,30 @@ var bucket_t := -1.0       # seconds since the bucket appeared; -1 before the wi
 var gems_shown := 0        # the bucket's gems counted into the corner so far
 
 
+## The boss's world (Terrence 2026-11-08): its head, arm, treasure room and
+## board tint come from game/ui/world_theme.gd. Set before the screen is added.
+const WorldTheme := preload("res://game/ui/world_theme.gd")
+var world_id := WorldTheme.DEFAULT
+var DRAGON_TEX: Texture2D
+var ARM_TEX: Texture2D
+var TREASURE_TEX: Texture2D
+var DRAGON_AT := Vector2(716, -34)
+var ARM_AT := Vector2(700, 196)
+var board_tint := Color(1, 1, 1, 0.9)
+var boss_label := "Dragon"
+
+
+func _load_theme() -> void:
+	var th := WorldTheme.get_theme(world_id)
+	DRAGON_TEX = load(th["boss_head"])
+	ARM_TEX = load(th["boss_arm"])
+	TREASURE_TEX = load(th["treasure"])
+	DRAGON_AT = th["head_at"]
+	ARM_AT = th["arm_at"]
+	board_tint = th["board_tint"]
+	boss_label = th["boss_label"]
+
+
 func setup(rng, grade: int, show_debug := false) -> void:
 	fight = BounceFight.new(rng, grade)
 	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
@@ -138,6 +159,7 @@ func setup(rng, grade: int, show_debug := false) -> void:
 
 
 func _ready() -> void:
+	_load_theme()
 	for c in ["blue", "green", "orange", "purple"]:
 		peg_tex[c] = load("res://art/boss/peg-%s.png" % c)
 	for i in 2:
@@ -431,7 +453,7 @@ func _draw() -> void:
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.06, 0.04, 0.05))
 	# the dragon's hoard: gold and jewels heaped left, right and behind
 	draw_texture_rect(TREASURE_TEX, Rect2(0, 0, 960, 540), false)
-	draw_texture_rect(BOARD_TEX, _board_rect(), false, Color(1, 1, 1, 0.9))
+	draw_texture_rect(BOARD_TEX, _board_rect(), false, board_tint)
 	_draw_claw()   # behind the skull: the arm comes from the body behind it
 	_draw_dragon()
 	_draw_hero()
@@ -662,7 +684,7 @@ func _draw_boss(font: Font) -> void:
 	var cols := ceili(fight.boss_max_hearts / 2.0)
 	var step := minf(36.0, (hp.size.x - 22.0) / cols)
 	var top := hp.position + Vector2(hp.size.x / 2.0 - (cols - 1) * step / 2.0, 46)
-	_outlined(font, hp.position + Vector2(0, 23), "Dragon", hp.size.x, 20)
+	_outlined(font, hp.position + Vector2(0, 23), boss_label, hp.size.x, 20)
 	for i in fight.boss_max_hearts:
 		var c := top + Vector2((i % cols) * step, (i / cols) * 26)
 		draw_texture(HEART_TEX if i < fight.boss_hearts else HEART_EMPTY_TEX, c - Vector2(16, 16))

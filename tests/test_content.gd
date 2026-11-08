@@ -50,8 +50,12 @@ func test_areas_have_6_to_10_tasks() -> bool:
 ## grades that have a "move" config.
 func _check_scroll(a: Dictionary) -> void:
 	var id: String = a["id"]
+	var levels := Content.levels()
 	for gid in a["grades"]:
-		check(Content.grades()[int(gid)].has("move"), "scroll %s grade %d has no move config" % [id, gid])
+		var g: Dictionary = levels.get(int(gid), Content.grades().get(int(gid), {}))
+		check(g.has("move"), "scroll %s grade %d has no move config" % [id, gid])
+		if levels.has(int(gid)) and a.has("world"):
+			check(levels[int(gid)]["world"] == a["world"], "scroll %s level %d is another world's" % [id, gid])
 	var entries: Array
 	var key: String
 	var top: int
@@ -108,4 +112,15 @@ func test_worlds() -> bool:
 			if a.has("miniboss"):
 				check(Monsters.ROSTER.has(a["miniboss"]) and Monsters.ROSTER[a["miniboss"]]["role"] == "miniboss",
 						"area %s miniboss %s" % [w["area"], a["miniboss"]])
+	return true
+
+
+## Ellwynn says the right answer after a wrong guess (Terrence 2026-11-08: she
+## went quiet above 6). Every answer from 0 up to three dice (18) has a voice.
+func test_ellwynn_says_every_answer() -> bool:
+	var lines = JsonUtil.load_file("res://content/ellwynn_lines.json")
+	var answers: Dictionary = lines.get("answers", {})
+	for n in range(0, 19):
+		var file: String = answers.get(str(n), "")
+		check(file != "" and ResourceLoader.exists(file), "no Ellwynn voice for %d" % n)
 	return true

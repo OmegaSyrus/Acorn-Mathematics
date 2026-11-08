@@ -22,9 +22,12 @@ const Look := preload("res://game/ui/look.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
+const WorldTheme := preload("res://game/ui/world_theme.gd")
 
 const ART := "res://art/lava/"
 const STRIP_SCALE := 3.0
+## The crossing's world is 1920 art pixels wide at 3x in every world.
+const WORLD_W := 5760.0
 const SPACE0_X := 190.0
 const STEP := 120.0
 const WATER_Y := 452.0      # where the rocks meet the lava
@@ -70,12 +73,9 @@ const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
 const PALE := Color(0.82, 0.9, 1.05)  # the worried dragon goes a little pale
-## Monster art on the crossing, drawn on the one character grid (Look.CHAR_PX).
-const MONSTER_ART := {
-	"blorp": ["blorp-idle"],
-	"craggy": ["craggy"],
-	"surtling": ["surtling"],
-}
+## Monster art on the crossing comes from game/ui/world_theme.gd, drawn on
+## the one character grid (Look.CHAR_PX). So do the backdrop, the stones and
+## (in the Crystal Mines) the stalactite ceiling: the area file names its world.
 ## The hero is the robot dragon (2026-10-29: it replaced the slime). It has
 ## one sprite; the hop is squash, stretch and tilt done here, per frame
 ## name: [scale x, scale y, tilt in radians].
@@ -119,8 +119,29 @@ var choice: ChoiceWidget
 var hud_choice: ChoiceWidget
 var dice: Array = []
 var tex := {}
+var theme: Dictionary
+var stone_tex: Array = []
+var ceiling_tex: Array = []
+var backdrop_tex: Texture2D  # a 320x180 tile at 3x, or null for the Lava strip
 
 var cam_x := 0.0
+## The level's view (docs/difficulty-plan.md 3.2): 1 at Lava 1, else half size,
+## smoothed, with the stones spread to fill the screen (step per level).
+var zoom := 1.0
+var step := STEP
+var hero_screen_x := HERO_SCREEN_X
+var world_y := 0.0      # the world's screen y (244 at half size)
+var rails := false      # Crystal Mines: only 1, 5, 10, 15 and the far shore numbered
+## Drag to scroll (3.3): while the stones are offered, a drag moves the
+## camera; it never picks. drag_off is in world units on top of the follow.
+var drag_off := 0.0
+var dragged := false    # a drag happened this crossing (the edge arrow fades)
+var offering := false   # the stones are offered (choice active)
+var offered := 0        # how many stones are offered
+var stone_rects_world: Array = []
+var hidden_place := -1  # the face-down die (Bog), -1 = none
+var hidden_total := 0
+var signs := ""
 var hero_x := SPACE0_X
 var hero_lift := 0.0
 var hero_frame := "idle-0"
@@ -169,12 +190,31 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 
 func _ready() -> void:
-	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
-			"blorp-idle", "craggy", "surtling"]:
+	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "chest-closed", "chest-open", "gem"]:
 		tex[f] = load(ART + f + ".png")
+	theme = WorldTheme.get_theme(str(run.area.get("world", WorldTheme.DEFAULT)))
+	for p in theme["stones"]:
+		stone_tex.append(load(p))
+	for p in theme["ceiling"]:
+		ceiling_tex.append(load(p))
+	if theme["backdrop"] != "strip":
+		backdrop_tex = load(theme["backdrop"])
 	tex["hero"] = Look.hero_texture()  # the robot dragon or the store hero in use
+	zoom = float(run.grade.get("zoom", 0.5 if run.is_level() else 1.0))
+	rails = bool(run.grade.get("rails", false))
+	if zoom < 1.0:
+		var most := mini(int(run.grade["move"]["max_answer"]), 11)
+		var screen_step := clampf(floorf(660.0 / most), 60.0, 110.0)
+		step = screen_step / zoom
+		hero_screen_x = 150.0
+		world_y = 244.0
 	world = Node2D.new()
 	world.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	world.scale = Vector2(zoom, zoom)
+	world.position.y = world_y
+	if zoom < 1.0:
+		# half size is smoothed (Terrence 2026-11-06)
+		world.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	add_child(world)
 	world.draw.connect(_draw_world)
 	choice = ChoiceWidget.new()
@@ -182,12 +222,12 @@ func _ready() -> void:
 	# select a stone, then tap Go (Terrence 2026-11-05)
 	choice.confirm = true
 	choice.selected.connect(_on_stone_selected)
-	world.add_child(choice)
+	add_child(choice)
 	hud = Node2D.new()
 	hud.z_index = 2
 	add_child(hud)
 	hud.draw.connect(_draw_hud)
-	for i in 2:
+	for i in 4:
 		var d := DieView.new()
 		d.visible = false
 		hud.add_child(d)
@@ -227,14 +267,25 @@ func _loop() -> void:
 		var p := run.roll()
 		await _roll_dice(p)
 		_ask("Which stone\nis safe?")
-		var rects := []
+		stone_rects_world = []
 		for d in p["choices"]:
-			rects.append(_rock_rect(run.pos + d))
+			stone_rects_world.append(run.pos + d)
+		offered = p["choices"].size()
+		drag_off = 0.0
 		# keep the Go button inside what a 4:3 tablet shows (x 120..840)
-		choice.go_area = Rect2(_cam_target() + 132, 0, 690, 540)
-		choice.present(rects, 0)
+		choice.go_area = Rect2(132, 0, 690, 540)
+		offering = true
+		choice.present(_stone_rects(), 0)
 		var pick: int = await choice.picked
+		offering = false
+		drag_off = 0.0
 		var out := run.choose(pick)
+		if hidden_place >= 0:
+			# the face-down die turns over: its face is the stone picked right
+			var hd: DieView = dice[hidden_place]
+			hd.visible = true
+			hd.show_still(int(p["answer"]))
+			hd.show_numeral()
 		# the answer goes after the "=": green when right, red when wrong
 		answer_shown = int(p["choices"][pick])
 		answer_right = out["right"]
@@ -315,23 +366,58 @@ func _roll_dice(p: Dictionary) -> void:
 	Beeper.roll()
 	op_sign = "+" if p["op"] == "add" else "-"
 	op_alpha = 0.0
-	var xs := DICE_XS
-	for i in 2:
+	var n: int = p["dice"].size()
+	signs = str(p.get("signs", "+" + ("-" if p["op"] == "sub" else "+")))
+	hidden_place = int(p.get("hidden", -1))
+	hidden_total = int(p.get("total", 0))
+	var lay := tray_layout(n)
+	for i in dice.size():
 		var d: DieView = dice[i]
-		var red: bool = i == 1 and p["op"] == "sub"
-		d.slip = red
-		d.position = Vector2(xs[i], DICE_Y)
+		d.visible = false
+		if i >= n:
+			continue
+		d.slip = signs[i] == "-"
+		d.position = Vector2(lay["xs"][i], DICE_Y)
+		d.scale = Vector2(lay["scale"], lay["scale"])
+		if i == hidden_place:
+			continue  # face down: drawn as a "?" die by the HUD
 		d.roll_to(p["dice"][i], 0.12 * i)
-	while not (dice[0].face_on and dice[1].face_on):
+	var landed := false
+	while not landed:
+		landed = true
+		for i in n:
+			if i != hidden_place and not dice[i].face_on:
+				landed = false
 		await get_tree().process_frame
-	for d in dice:
-		d.show_numeral()
-		d.countable = true
+	for i in n:
+		if i == hidden_place:
+			continue
+		dice[i].show_numeral()
+		dice[i].countable = true
 	await _tween_prop("op_alpha", 1.0, 0.2)
+
+
+## Where the dice, signs, "=" and answer sit in the tray for n dice (plan 3.4,
+## kept inside the tray, x 292 to 696). Two dice are today's layout.
+func tray_layout(n: int) -> Dictionary:
+	if n <= 2:
+		return {"scale": 1.0, "xs": DICE_XS, "ops": [OP_X], "eq": EQ_X, "ans": ANSWER_X, "font": 72}
+	var sc := 0.75 if n == 3 else 0.6
+	var g := 144.0 * sc
+	var x0 := 300.0 + 48.0 * sc + 2.0
+	var xs := []
+	var ops := []
+	for i in n:
+		xs.append(x0 + g * i)
+		if i > 0:
+			ops.append(x0 + g * (i - 0.5))
+	var eq: float = xs[n - 1] + g * 0.51
+	return {"scale": sc, "xs": xs, "ops": ops, "eq": eq, "ans": eq + 62.0 * sc + 6.0, "font": 56}
 
 
 func _hide_dice() -> void:
 	answer_shown = -1
+	hidden_place = -1
 	for d in dice:
 		d.visible = false
 		d.countable = false
@@ -356,7 +442,9 @@ func _fight() -> void:
 	_hide_dice()
 	_ask("")
 	var f := FightScreen.new()
-	f.setup(run.rng, run.grade["id"], run.current_monster(), false, false, debug_on, run.hearts)
+	var fg: Dictionary = run.grade.get("fight", {"grade": run.grade["id"], "top": 0})
+	f.setup(run.rng, int(fg["grade"]), run.current_monster(), false, false, debug_on, run.hearts)
+	f.fight.set_top(int(fg["top"]))
 	await _fade_to(1.0)
 	add_child(f)
 	await _fade_to(0.0)
@@ -397,9 +485,10 @@ func _cleared() -> void:
 
 ## The door's tap area in screen (HUD) space, once the camera has settled.
 func exit_rect() -> Rect2:
-	var r := _door_rect().grow(INCH)
-	r.position.x -= _cam_target()
-	return r
+	var d := _door_rect()
+	var a := _to_screen(d.position, _cam_target())
+	var b := _to_screen(d.end, _cam_target())
+	return Rect2(a, b - a).grow(INCH)
 
 
 ## The door in world space: the frame and the arch over it.
@@ -582,7 +671,7 @@ func _open_chest(space: int, n: int) -> void:
 ## under the talk box, which gains it as it lands.
 func _take_heart(space: int) -> void:
 	revealed = space
-	heart_from = Vector2(_space_x(space) - roundf(cam_x), MARKER_Y)
+	heart_from = _to_screen(Vector2(_space_x(space), MARKER_Y))
 	heart_fly = 0.0
 	_cheer("+1")
 	Beeper.tone(660.0, 0.08)
@@ -644,7 +733,9 @@ func _process(delta: float) -> void:
 	_t += delta
 	cam_x = lerpf(cam_x, _cam_target(), minf(1.0, delta * 6.0))
 	gem_pop = maxf(0.0, gem_pop - delta * 4.0)
-	world.position.x = -roundf(cam_x)
+	world.position.x = -roundf(cam_x * zoom)
+	if offering and choice.active:
+		choice.rects = _stone_rects()
 	if hero_frame.begins_with("idle") or hero_frame == "blink":
 		hero_frame = "idle-1" if fmod(_t, 1.2) > 0.6 else "idle-0"
 		if _t > _blink_at:
@@ -672,6 +763,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not (press or release or drag):
 		return
 	var pos := Pointer.local_pos(self, event)
+	if drag and offering and _can_drag():
+		var rel: Vector2 = event.relative if "relative" in event else Vector2.ZERO
+		drag_off = clampf(drag_off - rel.x / zoom, _drag_min(), _drag_max())
+		cam_x = _cam_target()
+		if absf(rel.x) > 0.0:
+			dragged = true
+		return
 	if drag:
 		if _tray_down and pos.distance_to(_tray_down_at) >= FLICK_PX:
 			_tray_down = false
@@ -696,45 +794,133 @@ func _unhandled_input(event: InputEvent) -> void:
 # --- layout ----------------------------------------------------------------
 
 func _space_x(i: int) -> float:
-	return SPACE0_X + STEP * i
+	return SPACE0_X + step * i
 
 
+## Long crossings run past the 5760 strip: the backdrop repeats.
 func _world_w() -> float:
-	return tex["strip"].get_width() * STRIP_SCALE
+	return maxf(WORLD_W, _space_x(run.length()) + GOAL_DX + 960.0 / zoom + 400.0)
 
 
-## Keeps the dragon near the left so the next five rocks are on screen.
+## Keeps the dragon near the left so the next rocks are on screen; a drag
+## while the stones are offered moves on from there.
 func _cam_target() -> float:
-	return clampf(hero_x - HERO_SCREEN_X, 0.0, _world_w() - 960.0)
+	var lo := 0.0 if zoom >= 1.0 else SPACE0_X - hero_screen_x / zoom
+	return clampf(hero_x - hero_screen_x / zoom + drag_off, lo, _world_w() - 960.0 / zoom)
+
+
+## World to screen, through the camera (and the half-size view).
+func _to_screen(w: Vector2, cx := INF) -> Vector2:
+	if cx == INF:
+		cx = roundf(cam_x * zoom) / zoom
+	return Vector2((w.x - cx) * zoom, w.y * zoom + world_y)
 
 
 func _rock_rect(i: int) -> Rect2:
 	return Rect2(_space_x(i) - 58, WATER_Y - 62, 116, 80)
 
 
+## The offered stones' tap areas on screen: at half size a step wide and
+## 86 tall, so text and touch stay full size.
+func _stone_rects() -> Array:
+	var out := []
+	for i in stone_rects_world:
+		var r := _rock_rect(i)
+		if zoom >= 1.0:
+			r.position.x -= roundf(cam_x)
+			out.append(r)
+			continue
+		var c := _to_screen(r.get_center())
+		var w := minf(step * zoom, 116.0)
+		out.append(Rect2(c - Vector2(w / 2.0, 43.0), Vector2(w, 86.0)))
+	return out
+
+
+## The last offered stone runs past the visible right edge: drag to see it.
+func _can_drag() -> bool:
+	return offered > 0 and _space_x(run.pos + offered) > _drag_min_edge()
+
+
+func _drag_min_edge() -> float:
+	return hero_x - hero_screen_x / zoom + 800.0 / zoom
+
+
+func _drag_min() -> float:
+	return 0.0
+
+
+## Far enough right that the last offered stone sits at screen x 780.
+func _drag_max() -> float:
+	return maxf(0.0, _space_x(run.pos + offered) - 780.0 / zoom - (hero_x - hero_screen_x / zoom))
+
+
 # --- drawing ---------------------------------------------------------------
 
 func _draw_world() -> void:
-	var strip: Texture2D = tex["strip"]
-	world.draw_texture_rect(strip, Rect2(Vector2.ZERO, strip.get_size() * STRIP_SCALE), false)
-	# a little shimmer on the lava
-	var glow := 0.05 + 0.05 * sin(_t * 2.2)
-	world.draw_rect(Rect2(0, 380, _world_w(), 160), Color(1.0, 0.7, 0.2, glow))
+	if zoom < 1.0:
+		# above the strip at half size: dark cave rock fading into it
+		var roof := Rect2(-2000, -world_y / zoom - 20, _world_w() + 4000, world_y / zoom + 20)
+		var lt: Color = theme["ledge_tint"]
+		world.draw_texture_rect(tex["tile-wall-basalt"], roof, true, Color(lt.r * 0.42, lt.g * 0.42, lt.b * 0.42))
+		# a soft dark edge where the roof meets the backdrop
+		for k in 6:
+			world.draw_rect(Rect2(roof.position.x, -24.0 + k * 4.0, roof.size.x, 4.0), Color(0, 0, 0, 0.5 - k * 0.08))
+		world.draw_rect(Rect2(-2000, 540, _world_w() + 4000, 200), Color(0.06, 0.04, 0.07))
+	if backdrop_tex == null:
+		var strip: Texture2D = tex["strip"]
+		var sw := strip.get_width() * STRIP_SCALE
+		var k := -1 if zoom < 1.0 else 0
+		while k * sw < _world_w():
+			# every other copy mirrored so the seam matches
+			if k % 2 == 0:
+				world.draw_texture_rect(strip, Rect2(Vector2(k * sw, 0), strip.get_size() * STRIP_SCALE), false)
+			else:
+				world.draw_set_transform(Vector2((k + 1) * sw, 0), 0.0, Vector2(-1, 1))
+				world.draw_texture_rect(strip, Rect2(Vector2.ZERO, strip.get_size() * STRIP_SCALE), false)
+				world.draw_set_transform(Vector2.ZERO)
+			k += 1
+	else:
+		# a seamless 320x180 backdrop, tiled along the crossing at 3x
+		world.draw_set_transform(Vector2.ZERO, 0.0, Vector2(STRIP_SCALE, STRIP_SCALE))
+		world.draw_texture_rect(backdrop_tex, Rect2(-1920 / STRIP_SCALE, 0, (_world_w() + 1920) / STRIP_SCALE, 180), true)
+		world.draw_set_transform(Vector2.ZERO)
+	if theme["glow"]:
+		# a little shimmer on the lava
+		var glow := 0.05 + 0.05 * sin(_t * 2.2)
+		world.draw_rect(Rect2(0, 380, _world_w(), 160), Color(1.0, 0.7, 0.2, glow))
+	# stalactites hanging from the ceiling, scrolling with the stones
+	if not ceiling_tex.is_empty():
+		var step: float = theme["ceiling_step"]
+		var k := 0
+		var x := SPACE0_X - step / 2.0
+		while x < _world_w():
+			world.draw_texture(ceiling_tex[k % ceiling_tex.size()], Vector2(x, 0))
+			x += step
+			k += 1
 	# the ledges at the start and the far shore
 	var wall: Texture2D = tex["tile-wall-basalt"]
-	var start_ledge := Rect2(-40, FEET_Y, SPACE0_X + 56, 200)
+	var start_ledge := Rect2(-40 - (1200.0 if zoom < 1.0 else 0.0), FEET_Y, SPACE0_X + 56 + (1200.0 if zoom < 1.0 else 0.0), 200)
 	var end_ledge := Rect2(_space_x(run.length()) - 56, FEET_Y, 1200, 200)
 	for r in [start_ledge, end_ledge]:
-		world.draw_texture_rect(wall, r, true)
+		world.draw_texture_rect(wall, r, true, theme["ledge_tint"])
 		world.draw_rect(Rect2(r.position, Vector2(r.size.x, 4)), Color(0.45, 0.3, 0.5))
 	_draw_goal(Vector2(_goal_x(), FEET_Y))
 	# rocks
 	for i in range(1, run.length()):
-		var rock: Texture2D = tex["rock-%d" % (i % 3 + 1)]
-		var p := Vector2(_space_x(i) - rock.get_width() / 2.0, WATER_Y - ROCK_WATERLINE)
+		var rock: Texture2D = stone_tex[i % stone_tex.size()]
+		var p := Vector2(_space_x(i) - rock.get_width() / 2.0, WATER_Y - float(theme["waterline"]))
+		if theme["stone_top"]:
+			p.y = FEET_Y - 4.0  # a stalagmite: the hero stands on its top
 		if i == sink_space:
-			p.y += rock_sink * 46.0
-			_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
+			var depth: float = theme["sink_depth"]
+			if theme["stone_top"]:
+				# the stalagmite cracks and collapses into the dark
+				p.x += sin(_t * 60.0) * 3.0 * minf(1.0, rock_sink * 4.0)
+				p.y += rock_sink * depth
+				_draw_clipped(rock, p, 560.0, 1.0 - rock_sink * 0.3)
+			else:
+				p.y += rock_sink * depth
+				_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
 		else:
 			world.draw_texture(rock, p)
 	# markers on event rocks not reached yet
@@ -757,8 +943,7 @@ func _draw_world() -> void:
 	# the monster on the rock just reached, beside the dragon and facing it
 	if revealed >= 0 and _event_at(revealed) == "monster":
 		var s := run.space_at(revealed)
-		var art: Array = MONSTER_ART.get(s["monster"], MONSTER_ART["blorp"])
-		var t: Texture2D = tex[art[0]]
+		var t: Texture2D = _monster_tex(str(s["monster"]))
 		var size: Vector2 = t.get_size() * Look.CHAR_PX * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
@@ -783,28 +968,43 @@ func _draw_stone_numbers() -> void:
 		return
 	var font := ThemeDB.fallback_font
 	var m := mini(int(run.grade["move"]["max_answer"]), run.length() - stone_from)
+	# at half size the numbers stay big on screen (font 40, landmarks 48)
+	var k := 1.0 if zoom >= 1.0 else 40.0 / 48.0 / zoom
 	for d in range(1, m + 1):
 		var i := stone_from + d
 		if i == sink_space:
 			continue
+		var shore := i >= run.length()
+		var landmark := zoom < 1.0 and d % 5 == 0
+		if rails and not (d == 1 or landmark or shore):
+			continue  # a blank rail stop: count on from 1, 5, 10, 15
 		var c := Vector2(_space_x(i), STONE_NUM_Y)
-		if i >= run.length():
+		if shore:
 			c.y = FEET_Y + 40.0  # the far shore: on the ledge face
-		world.draw_string_outline(font, c + Vector2(-50, 17), str(d), HORIZONTAL_ALIGNMENT_CENTER, 100, 48, 6,
-				Color(1, 0.95, 0.85))
-		world.draw_string(font, c + Vector2(-50, 17), str(d), HORIZONTAL_ALIGNMENT_CENTER, 100, 48,
-				Color(0.08, 0.06, 0.05))
+		var fs := int(48.0 * k * (1.2 if landmark else 1.0))
+		var w := 100.0 * k * 1.4
+		var at := c + Vector2(-w / 2.0, fs * 0.36)
+		var ink := Color(0.08, 0.06, 0.05)
+		var rim := Color(1, 0.95, 0.85)
+		if landmark:
+			world.draw_arc(Vector2(c.x, WATER_Y - 14.0), 46.0 * k, 0.0, TAU, 32, Color(1.0, 0.8, 0.2, 0.8), 5.0 * k)
+			ink = Color(0.35, 0.22, 0.0)
+			rim = Color(1.0, 0.85, 0.3)
+		world.draw_string_outline(font, at, str(d), HORIZONTAL_ALIGNMENT_CENTER, w, fs, int(6 * k), rim)
+		world.draw_string(font, at, str(d), HORIZONTAL_ALIGNMENT_CENTER, w, fs, ink)
 
 
 func _draw_name(text: String, center: Vector2, alpha: float) -> void:
 	if alpha <= 0.0:
 		return
 	var font := ThemeDB.fallback_font
-	var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
-	var box := Rect2(center.x - w / 2.0, center.y, w, 36)
-	RoundBox.fire(world, box, _t, 12.0)
-	world.draw_string_outline(font, box.position + Vector2(0, 26), text, HORIZONTAL_ALIGNMENT_CENTER, w, 22, 6, DARK)
-	world.draw_string(font, box.position + Vector2(0, 26), text, HORIZONTAL_ALIGNMENT_CENTER, w, 22, INK)
+	var k := 1.0 / zoom  # the same size on screen at half size
+	var fs := int(22 * k)
+	var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + 32.0 * k
+	var box := Rect2(center.x - w / 2.0, center.y, w, 36 * k)
+	RoundBox.fire(world, box, _t, 12.0 * k)
+	world.draw_string_outline(font, box.position + Vector2(0, 26 * k), text, HORIZONTAL_ALIGNMENT_CENTER, w, fs, int(6 * k), DARK)
+	world.draw_string(font, box.position + Vector2(0, 26 * k), text, HORIZONTAL_ALIGNMENT_CENTER, w, fs, INK)
 
 
 ## "chest", "monster" or "heart" while that space still holds something, else "".
@@ -828,16 +1028,18 @@ func _pop() -> float:
 
 func _draw_hero() -> void:
 	var t: Texture2D = tex["hero"]
-	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * 120.0)
+	var falls: bool = theme["stone_top"]  # no water: the dragon drops with the stalagmite
+	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * (theme["sink_depth"] if falls else 120.0))
 	var pos := feet - Vector2(t.get_width() / 2.0, t.get_height())
+	var line := 600.0 if falls else WATER_Y - 4.0
 	if hero_sink > 0.0:
-		_draw_clipped(t, pos, WATER_Y - 4.0, 1.0, PALE)
-		_draw_worried(pos, WATER_Y - 4.0)
+		_draw_clipped(t, pos, line, 1.0, PALE)
+		_draw_worried(pos, line)
 		# bubbles where it went under
-		for k in 4:
+		for k in (0 if falls else 4):
 			var ph := fmod(_t * 1.7 + k * 0.27, 1.0)
 			world.draw_circle(Vector2(hero_x - 30 + k * 20, WATER_Y - 6 - ph * 22.0), 5.0 * (1.0 - ph) + 1.0,
-					Color(1.0, 0.85, 0.4, (1.0 - ph) * minf(1.0, hero_sink * 3.0)))
+					Color(theme.get("bubble", Color(1.0, 0.85, 0.4)), (1.0 - ph) * minf(1.0, hero_sink * 3.0)))
 	else:
 		world.draw_circle(Vector2(hero_x, FEET_Y + 2), 30.0 - hero_lift * 0.25, Color(0, 0, 0, 0.25))
 		# squash, stretch and tilt about the feet
@@ -954,21 +1156,34 @@ func _draw_hud() -> void:
 		RoundBox.frame(hud, TRAY.grow(3), Color(1.0, 0.92, 0.3, a), 4.0, 20.0)
 		hud.draw_string_outline(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, 8, DARK)
 		hud.draw_string(font, TRAY.position + Vector2(0, 90), "Roll", HORIZONTAL_ALIGNMENT_CENTER, TRAY.size.x, 40, INK)
+	if hidden_place >= 0 and not dice[hidden_place].visible and signs.length() > hidden_place:
+		_draw_hidden_die(font)
 	if op_alpha > 0.0:
 		# plus or minus between the dice, coloured and gently pulsing, then "="
-		DiceDraw.draw_op(hud, Vector2(OP_X, DICE_Y), op_sign, 44.0, _t, op_alpha)
+		var lay := tray_layout(signs.length())
+		var fs: int = lay["font"]
+		for k in lay["ops"].size():
+			var sg := "+" if signs[k + 1] == "+" else "-"
+			DiceDraw.draw_op(hud, Vector2(lay["ops"][k], DICE_Y), sg, 44.0 * lay["scale"], _t, op_alpha)
 		var eq := Color(INK, op_alpha)
-		hud.draw_string_outline(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8, Color(DARK, op_alpha))
-		hud.draw_string(font, Vector2(EQ_X - 40, DICE_Y + 22), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, 72, eq)
-		# then the answer: a faint "?" until a stone is picked
+		var eq_x: float = lay["eq"]
+		hud.draw_string_outline(font, Vector2(eq_x - 40, DICE_Y + fs * 0.3), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, fs, 8, Color(DARK, op_alpha))
+		hud.draw_string(font, Vector2(eq_x - 40, DICE_Y + fs * 0.3), "=", HORIZONTAL_ALIGNMENT_CENTER, 80, fs, eq)
+		# then the answer: a faint "?" until a stone is picked; with a
+		# face-down die the total is known and the die is the question
 		var ans := "?" if answer_shown < 0 else str(answer_shown)
 		var col := Color(INK, op_alpha * 0.45)
-		if answer_shown >= 0:
+		if hidden_place >= 0:
+			ans = str(hidden_total)
+			col = eq
+		elif answer_shown >= 0:
 			col = RIGHT_GREEN if answer_right else WRONG_RED
-		hud.draw_string_outline(font, Vector2(ANSWER_X - 40, DICE_Y + 26), ans, HORIZONTAL_ALIGNMENT_CENTER, 80, 72, 8,
+		var ans_x: float = lay["ans"]
+		hud.draw_string_outline(font, Vector2(ans_x - 40, DICE_Y + fs * 0.36), ans, HORIZONTAL_ALIGNMENT_CENTER, 80, fs, 8,
 				Color(DARK, op_alpha))
-		hud.draw_string(font, Vector2(ANSWER_X - 40, DICE_Y + 26), ans, HORIZONTAL_ALIGNMENT_CENTER, 80, 72, col)
+		hud.draw_string(font, Vector2(ans_x - 40, DICE_Y + fs * 0.36), ans, HORIZONTAL_ALIGNMENT_CENTER, 80, fs, col)
 	_draw_bubble(font)
+	_draw_drag_arrows()
 	_draw_hearts()
 	_draw_gems(font)
 	_draw_chest_gems()
@@ -986,6 +1201,44 @@ func _draw_hud() -> void:
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(0.9, 0.2, 0.2))
 		elif s.get("type") == "heart" and not run.is_heart_taken(i):
 			hud.draw_circle(Vector2(x, BAR.get_center().y), 5.0, Color(1.0, 0.45, 0.6))
+
+
+## The face-down die (Bog, plan 3.4): a die-sized tile with a "?", red when
+## it is a take-away die; it turns over once the right stone is picked.
+func _draw_hidden_die(font: Font) -> void:
+	var lay := tray_layout(signs.length())
+	var sz: float = 96.0 * lay["scale"]
+	var c := Vector2(lay["xs"][hidden_place], DICE_Y)
+	var r := Rect2(c - Vector2(sz, sz) / 2.0, Vector2(sz, sz))
+	var red := signs[hidden_place] == "-"
+	var wob := sin(_t * 3.0) * 2.0
+	r.position.y += wob
+	RoundBox.fill(hud, r.grow(4), DARK, sz * 0.2)
+	RoundBox.fill(hud, r, Color(0.75, 0.2, 0.18) if red else Color(0.55, 0.38, 0.22), sz * 0.18)
+	RoundBox.fill(hud, r.grow(-sz * 0.1), Color(0.62, 0.25, 0.22) if red else Color(0.64, 0.46, 0.28), sz * 0.14)
+	var fs := int(sz * 0.7)
+	var at := Vector2(r.position.x, r.get_center().y + fs * 0.36)
+	hud.draw_string_outline(font, at, "?", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, 8, DARK)
+	hud.draw_string(font, at, "?", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, INK)
+
+
+## While stones are off to the right: a soft chevron at the right edge; after
+## a drag, a back chevron at the left while the hero is off screen.
+func _draw_drag_arrows() -> void:
+	if not offering or not _can_drag():
+		return
+	var a := 0.55 + 0.35 * sin(_t * 4.0)
+	var last_x := _to_screen(Vector2(_space_x(run.pos + offered), 0)).x
+	if last_x > 812.0:
+		_chevron(Vector2(822, 498), 1.0, a * (0.5 if dragged else 1.0))
+	if _to_screen(Vector2(hero_x, 0)).x < 128.0:
+		_chevron(Vector2(138, 498), -1.0, a)
+
+
+func _chevron(c: Vector2, dir: float, a: float) -> void:
+	var pts := PackedVector2Array([c + Vector2(-10 * dir, -18), c + Vector2(10 * dir, 0), c + Vector2(-10 * dir, 18)])
+	hud.draw_polyline(pts, Color(DARK, a), 12.0)
+	hud.draw_polyline(pts, Color(1.0, 0.92, 0.3, a), 6.0)
 
 
 ## The hero's hearts under the talk box, and a picked-up heart flying to them.
@@ -1054,7 +1307,7 @@ func _draw_chest_gems() -> void:
 	if opening < 0:
 		return
 	var gem: Texture2D = tex["gem"]
-	var lid := Vector2(_space_x(opening) + 46 - roundf(cam_x), FEET_Y - 40)
+	var lid := _to_screen(Vector2(_space_x(opening) + 46, FEET_Y - 40))
 	for k in gem_count:
 		var u := gem_fly - GEM_STAGGER * k
 		if u < 0.0 or u >= GEM_LAND:
@@ -1126,3 +1379,11 @@ func _draw_overlay() -> void:
 	for i in lines.size():
 		overlay.draw_rect(Rect2(124, 140 + i * 20, 712, 20), Color(0, 0, 0, 0.7))
 		overlay.draw_string(font, Vector2(128, 155 + i * 20), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.6, 1, 0.6))
+
+
+var _monster_cache := {}
+
+func _monster_tex(id: String) -> Texture2D:
+	if not _monster_cache.has(id):
+		_monster_cache[id] = WorldTheme.monster_texture(id)
+	return _monster_cache[id]

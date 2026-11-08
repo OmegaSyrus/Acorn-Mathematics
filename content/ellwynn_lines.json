@@ -30,13 +30,26 @@
     "chest": [],
     "boss_win": []
   },
-  "_answers_note": "Terrence 2026-11-07: after a wrong guess she says the right answer with a cheerful tone. Bubbles, eleven_v4, prompt \"[cheerful] One!\" and so on, one take each (flow PIySvy4jPrU8YluVR9Mo).",
+  "_answers_note": "Terrence 2026-11-07: after a wrong guess she says the right answer with a cheerful tone. Bubbles, eleven_v4, prompt \"[cheerful] One!\" and so on, one take each (flow PIySvy4jPrU8YluVR9Mo). 2026-11-08: added 0 and 7-18 (same voice, model and prompt style, one take each) so answers above 6 are spoken too.",
   "answers": {
+    "0": "res://audio/voice/ellwynn/answer-0.mp3",
     "1": "res://audio/voice/ellwynn/answer-1.mp3",
     "2": "res://audio/voice/ellwynn/answer-2.mp3",
     "3": "res://audio/voice/ellwynn/answer-3.mp3",
     "4": "res://audio/voice/ellwynn/answer-4.mp3",
     "5": "res://audio/voice/ellwynn/answer-5.mp3",
-    "6": "res://audio/voice/ellwynn/answer-6.mp3"
+    "6": "res://audio/voice/ellwynn/answer-6.mp3",
+    "7": "res://audio/voice/ellwynn/answer-7.mp3",
+    "8": "res://audio/voice/ellwynn/answer-8.mp3",
+    "9": "res://audio/voice/ellwynn/answer-9.mp3",
+    "10": "res://audio/voice/ellwynn/answer-10.mp3",
+    "11": "res://audio/voice/ellwynn/answer-11.mp3",
+    "12": "res://audio/voice/ellwynn/answer-12.mp3",
+    "13": "res://audio/voice/ellwynn/answer-13.mp3",
+    "14": "res://audio/voice/ellwynn/answer-14.mp3",
+    "15": "res://audio/voice/ellwynn/answer-15.mp3",
+    "16": "res://audio/voice/ellwynn/answer-16.mp3",
+    "17": "res://audio/voice/ellwynn/answer-17.mp3",
+    "18": "res://audio/voice/ellwynn/answer-18.mp3"
   }
 }

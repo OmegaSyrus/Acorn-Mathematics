@@ -17,6 +17,8 @@ var dice: Array[int] = []
 ## Sapling only: the number the die must reach. 0 otherwise.
 var target: int = 0
 var answer: int
+## The level's fight top (answers and choices at most this), 0 = the grade's own.
+var top: int = 0
 ## Four values in display order. Exactly one equals answer.
 var choices: Array[int] = []
 var answer_index: int

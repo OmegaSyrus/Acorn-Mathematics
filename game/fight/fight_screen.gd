@@ -33,15 +33,9 @@ const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
 ## Monster art and the scale it is drawn at.
-const MONSTER_ART := {
-	"blorp": ["res://art/lava/blorp-idle.png"],
-	"craggy": ["res://art/lava/craggy.png"],
-	"surtling": ["res://art/lava/surtling.png"],
-	"mimic": ["res://art/lava/mimic.png"],
-	"lava_miniboss": ["res://art/lava/surtling-chief.png"],
-}
+## (by monster id in game/ui/world_theme.gd, with the fight room of its world)
+const WorldTheme := preload("res://game/ui/world_theme.gd")
 ## The hero: the robot dragon, facing the monster on the right.
-const BG_TEX := preload("res://art/lava/fight-bg.png")
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 const SHIELD_TEX := preload("res://art/ui/shield.png")
@@ -86,6 +80,7 @@ var hero_sink := 0.0
 var clang := 0.0
 var bubble := ""
 var monster_tex: Texture2D
+var bg_tex: Texture2D = preload("res://art/lava/fight-bg.png")
 var hero_lift := 0.0
 var door_alpha := -1.0  # the boss door after the duel; -1 = not shown
 var _t := 0.0
@@ -129,8 +124,9 @@ func _ready() -> void:
 	choice.confirm = true
 	choice.go_area = Rect2(132, 0, 696, 540)
 	add_child(choice)
-	if MONSTER_ART.has(fight.monster_id):
-		monster_tex = load(MONSTER_ART[fight.monster_id][0])
+	if WorldTheme.MONSTER_ART.has(fight.monster_id):
+		monster_tex = WorldTheme.monster_texture(fight.monster_id)
+	bg_tex = load(WorldTheme.get_theme(WorldTheme.world_of_monster(fight.monster_id))["fight_bg"])
 	_sync_hearts()
 	_loop()
 
@@ -434,7 +430,7 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.05, 0.03, 0.06))
 	# the lava cave arena, 320x180 pixel art drawn at 3x
-	draw_texture_rect(BG_TEX, Rect2(0, 0, 960, 540), false)
+	draw_texture_rect(bg_tex, Rect2(0, 0, 960, 540), false)
 	var hero_row := Vector2(140, 30)
 	var monster_row := Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
 	_draw_hearts(hero_row, shown_hero_hearts, fight.hero_max_hearts)

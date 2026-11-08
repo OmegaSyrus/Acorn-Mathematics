@@ -29,7 +29,8 @@ var save: Dictionary
 var grades: Dictionary
 var debug_on := false
 var area_id := DEFAULT_AREA
-var play_grade := 1  # the main menu's difficulty, for the next area picked on the map
+var play_grade := 1  # the main menu's difficulty (level 1 to 6), for the next area picked on the map
+var levels: Dictionary
 
 
 func _ready() -> void:
@@ -45,8 +46,9 @@ func _ready() -> void:
 	_layout()
 	area_id = _area_from_args()
 	grades = Content.grades()
+	levels = Content.levels()
 	save = SaveStore.read()
-	play_grade = int(save.get("difficulty", 1))
+	play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
 	show_map()
 
 
@@ -87,12 +89,10 @@ func _swap(next: Node2D) -> void:
 
 func show_map() -> void:
 	# A scroll area lists the grades it is built for.
-	var area := Content.area(area_id)
-	var shown := grades
-	if area.has("grades"):
-		shown = {}
-		for gid in area["grades"]:
-			shown[int(gid)] = grades[int(gid)]
+	# the menu's difficulty is the level number, 1 to 6, in every world
+	var shown := {}
+	for n in range(1, 7):
+		shown[n] = {"id": n, "name": "Level %d" % n, "available": true}
 	var m := MapScreen.new()
 	m.setup(save, shown, area_id)
 	m.start.connect(_on_play)
@@ -147,9 +147,22 @@ func _enter_area() -> void:
 		return
 	var area := Content.area(area_id)
 	var grade_id := play_grade
+	if area.has("world") and levels.size() > 0:
+		# the menu's level number in this world (Lava 1 keeps id 1)
+		grade_id = Content.level_id(str(area["world"]), play_grade)
 	if area.has("grades") and not area["grades"].has(grade_id) and not area["grades"].is_empty():
 		grade_id = int(area["grades"][0])
 	_on_start(grade_id, false)
+
+
+## A level (content/levels.json) or an old graybox grade.
+func _grade(id: int) -> Dictionary:
+	return levels.get(id, grades.get(id, grades[1]))
+
+
+## The fight rule and top for a level: its "fight" entry, else the grade itself.
+func _fight_of(id: int) -> Dictionary:
+	return _grade(id).get("fight", {"grade": id, "top": 0})
 
 
 func _on_start(grade_id: int, resume: bool) -> void:
@@ -178,12 +191,10 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	_swap.call_deferred(a)
 
 
-## Every area so far is in the Lava Caves; other worlds get their own songs.
+## The level songs (the lava ones) play in every world until the Crystal
+## Mines and the Bog get songs of their own.
 func _play_level_music() -> void:
-	if area_id.begins_with("lava"):
-		Music.play_lava()
-	else:
-		Music.stop()
+	Music.play_lava()
 
 
 ## `-- --seed=123` makes new runs repeatable (demos, bug reports).
@@ -198,10 +209,10 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 	var run: ScrollRun
 	if resume:
 		var data: Dictionary = save["run"]
-		run = ScrollRun.new(area, grades[grade_id], data["seed"])
+		run = ScrollRun.new(area, _grade(grade_id), data["seed"])
 		run.restore(data)
 	else:
-		run = ScrollRun.new(area, grades[grade_id], _new_seed())
+		run = ScrollRun.new(area, _grade(grade_id), _new_seed())
 		save["run"] = run.to_save()
 		SaveStore.write(save)
 	var s := ScrollScreen.new()
@@ -233,7 +244,9 @@ func _start_duel(area: Dictionary, grade_id: int) -> void:
 	_play_level_music()
 	menu.visible = true
 	var f := FightScreen.new()
-	f.setup(SeededRng.new(_new_seed()), grade_id, area["miniboss"], false, true, debug_on)
+	var fg := _fight_of(grade_id)
+	f.setup(SeededRng.new(_new_seed()), int(fg["grade"]), area["miniboss"], false, true, debug_on)
+	f.fight.set_top(int(fg["top"]))
 	f.done.connect(func(won: bool):
 		_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.DUEL) if won else AreaFlow.DUEL))
 	_swap.call_deferred(f)
@@ -246,7 +259,8 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 	_play_level_music()
 	menu.visible = true
 	var b := BounceScreen.new()
-	b.setup(SeededRng.new(_new_seed()), grade_id, debug_on)
+	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
+	b.world_id = str(area.get("world", "lava_caves"))
 	b.save = save
 	b.done.connect(func(won: bool):
 		if won:
