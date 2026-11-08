@@ -8,6 +8,8 @@ signal start(grade_id: int, resume: bool)
 signal shop
 ## The grown-up reset, confirmed: main.gd wipes the save and opens the map again.
 signal reset_save
+## The grown-up Debug button, beside Reset: main.gd opens the debug screen.
+signal debug
 signal _answered(yes: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
@@ -28,6 +30,8 @@ const Pointer := preload("res://game/ui/pointer.gd")
 ## question, and "Yes" only works if held down for HOLD_S seconds, so a child
 ## tapping around can't wipe the save by accident.
 const RESET_RECT := Rect2(712, 20, 112, 52)
+## Debug (Terrence 2026-11-08): the same small grey button, left of Reset.
+const DEBUG_RECT := Rect2(588, 20, 112, 52)
 const PANEL := Rect2(310, 120, 520, 320)  # right of Ellwynn (x 130..290)
 const NO_RECT := Rect2(345, 300, 200, 100)
 const YES_RECT := Rect2(595, 300, 200, 100)
@@ -65,6 +69,7 @@ func _ready() -> void:
 	var first := 0
 	buttons.append({"rect": SHOP_RECT, "label": "Shop", "shop": true, "resume": false})
 	buttons.append({"rect": RESET_RECT, "label": "Reset", "reset": true, "resume": false})
+	buttons.append({"rect": DEBUG_RECT, "label": "Debug", "debug": true, "resume": false})
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	var rects := []
@@ -78,6 +83,9 @@ func _ready() -> void:
 				reset_save.emit()
 				return
 			continue
+		if buttons[i].get("debug", false):
+			debug.emit()
+			return
 		if buttons[i].get("shop", false):
 			shop.emit()
 			return
@@ -163,6 +171,11 @@ func _draw() -> void:
 			continue
 		if b.get("shop", false):
 			_draw_shop(font, r)
+			continue
+		if b.get("debug", false):
+			RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
+			draw_string(font, r.position + Vector2(0, 35), "Debug", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
+					Color(0.8, 0.76, 0.72))
 			continue
 		if b.get("reset", false):
 			RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
