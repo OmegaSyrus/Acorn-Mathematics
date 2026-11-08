@@ -178,12 +178,10 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	_swap.call_deferred(a)
 
 
-## Every area so far is in the Lava Caves; other worlds get their own songs.
+## The level songs (the lava ones) play in every world until the Crystal
+## Mines and the Bog get songs of their own.
 func _play_level_music() -> void:
-	if area_id.begins_with("lava"):
-		Music.play_lava()
-	else:
-		Music.stop()
+	Music.play_lava()
 
 
 ## `-- --seed=123` makes new runs repeatable (demos, bug reports).
@@ -247,6 +245,7 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 	menu.visible = true
 	var b := BounceScreen.new()
 	b.setup(SeededRng.new(_new_seed()), grade_id, debug_on)
+	b.world_id = str(area.get("world", "lava_caves"))
 	b.save = save
 	b.done.connect(func(won: bool):
 		if won:

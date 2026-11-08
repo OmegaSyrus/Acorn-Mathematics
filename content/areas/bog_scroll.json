@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "id": "bog_scroll",
+  "type": "scroll",
+  "world": "bog",
+  "miniboss": "bog_miniboss",
+  "boss": "jenny_greenteeth",
+  "name": "The Bog: the crossing",
+  "grades": [
+    1
+  ],
+  "_note": "Terrence 2026-11-08: the Bog is playable. Same run as the Lava crossing; the stones are tussocks, sunken logs and peat. Wispling, Nixie, Tiddy Mun (in place of a chest), Bog-draugr, then the Wisp King and Queen and Jenny Greenteeth.",
+  "guesses": 9,
+  "chest_gems": {
+    "common": 1,
+    "rare": 2,
+    "rare_in": 6
+  },
+  "steps": [
+    {
+      "after": 1,
+      "type": "chest"
+    },
+    {
+      "after": 2,
+      "type": "monster",
+      "monster": "wispling"
+    },
+    {
+      "after": 3,
+      "type": "heart"
+    },
+    {
+      "after": 4,
+      "type": "chest"
+    },
+    {
+      "after": 5,
+      "type": "monster",
+      "monster": "nixie"
+    },
+    {
+      "after": 6,
+      "type": "monster",
+      "monster": "tiddy_mun"
+    },
+    {
+      "after": 7,
+      "type": "chest"
+    },
+    {
+      "after": 8,
+      "type": "monster",
+      "monster": "draugr"
+    }
+  ]
+}

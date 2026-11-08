@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "id": "crystal_scroll",
+  "type": "scroll",
+  "world": "crystal_mines",
+  "miniboss": "crystal_miniboss",
+  "boss": "knocker_king",
+  "name": "Crystal Mines: the crossing",
+  "grades": [
+    1
+  ],
+  "_note": "Terrence 2026-11-08: the Crystal Mines are playable. Same run as the Lava crossing (9 guesses, stones = the answers added up); the stones are stalagmites, a wrong one collapses. Knocker, Svartalf, Gem Dwarf, then the Svartalf Lantern Lord and the Knocker King.",
+  "guesses": 9,
+  "chest_gems": {
+    "common": 1,
+    "rare": 2,
+    "rare_in": 6
+  },
+  "steps": [
+    {
+      "after": 1,
+      "type": "chest"
+    },
+    {
+      "after": 2,
+      "type": "monster",
+      "monster": "knocker"
+    },
+    {
+      "after": 3,
+      "type": "heart"
+    },
+    {
+      "after": 4,
+      "type": "chest"
+    },
+    {
+      "after": 5,
+      "type": "monster",
+      "monster": "svartalf"
+    },
+    {
+      "after": 6,
+      "type": "chest"
+    },
+    {
+      "after": 7,
+      "type": "chest"
+    },
+    {
+      "after": 8,
+      "type": "monster",
+      "monster": "gem_dwarf"
+    }
+  ]
+}

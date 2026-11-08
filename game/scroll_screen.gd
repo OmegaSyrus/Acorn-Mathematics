@@ -22,9 +22,12 @@ const Look := preload("res://game/ui/look.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
+const WorldTheme := preload("res://game/ui/world_theme.gd")
 
 const ART := "res://art/lava/"
 const STRIP_SCALE := 3.0
+## The crossing's world is 1920 art pixels wide at 3x in every world.
+const WORLD_W := 5760.0
 const SPACE0_X := 190.0
 const STEP := 120.0
 const WATER_Y := 452.0      # where the rocks meet the lava
@@ -70,12 +73,9 @@ const HOP_S := 0.34
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
 const PALE := Color(0.82, 0.9, 1.05)  # the worried dragon goes a little pale
-## Monster art on the crossing, drawn on the one character grid (Look.CHAR_PX).
-const MONSTER_ART := {
-	"blorp": ["blorp-idle"],
-	"craggy": ["craggy"],
-	"surtling": ["surtling"],
-}
+## Monster art on the crossing comes from game/ui/world_theme.gd, drawn on
+## the one character grid (Look.CHAR_PX). So do the backdrop, the stones and
+## (in the Crystal Mines) the stalactite ceiling: the area file names its world.
 ## The hero is the robot dragon (2026-10-29: it replaced the slime). It has
 ## one sprite; the hop is squash, stretch and tilt done here, per frame
 ## name: [scale x, scale y, tilt in radians].
@@ -119,6 +119,10 @@ var choice: ChoiceWidget
 var hud_choice: ChoiceWidget
 var dice: Array = []
 var tex := {}
+var theme: Dictionary
+var stone_tex: Array = []
+var ceiling_tex: Array = []
+var backdrop_tex: Texture2D  # a 320x180 tile at 3x, or null for the Lava strip
 
 var cam_x := 0.0
 var hero_x := SPACE0_X
@@ -169,9 +173,15 @@ func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void
 
 
 func _ready() -> void:
-	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "rock-1", "rock-2", "rock-3", "chest-closed", "chest-open", "gem",
-			"blorp-idle", "craggy", "surtling"]:
+	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "chest-closed", "chest-open", "gem"]:
 		tex[f] = load(ART + f + ".png")
+	theme = WorldTheme.get_theme(str(run.area.get("world", WorldTheme.DEFAULT)))
+	for p in theme["stones"]:
+		stone_tex.append(load(p))
+	for p in theme["ceiling"]:
+		ceiling_tex.append(load(p))
+	if theme["backdrop"] != "strip":
+		backdrop_tex = load(theme["backdrop"])
 	tex["hero"] = Look.hero_texture()  # the robot dragon or the store hero in use
 	world = Node2D.new()
 	world.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
@@ -700,7 +710,7 @@ func _space_x(i: int) -> float:
 
 
 func _world_w() -> float:
-	return tex["strip"].get_width() * STRIP_SCALE
+	return WORLD_W
 
 
 ## Keeps the dragon near the left so the next five rocks are on screen.
@@ -715,26 +725,51 @@ func _rock_rect(i: int) -> Rect2:
 # --- drawing ---------------------------------------------------------------
 
 func _draw_world() -> void:
-	var strip: Texture2D = tex["strip"]
-	world.draw_texture_rect(strip, Rect2(Vector2.ZERO, strip.get_size() * STRIP_SCALE), false)
-	# a little shimmer on the lava
-	var glow := 0.05 + 0.05 * sin(_t * 2.2)
-	world.draw_rect(Rect2(0, 380, _world_w(), 160), Color(1.0, 0.7, 0.2, glow))
+	if backdrop_tex == null:
+		var strip: Texture2D = tex["strip"]
+		world.draw_texture_rect(strip, Rect2(Vector2.ZERO, strip.get_size() * STRIP_SCALE), false)
+	else:
+		# a seamless 320x180 backdrop, tiled along the crossing at 3x
+		world.draw_set_transform(Vector2.ZERO, 0.0, Vector2(STRIP_SCALE, STRIP_SCALE))
+		world.draw_texture_rect(backdrop_tex, Rect2(0, 0, _world_w() / STRIP_SCALE, 180), true)
+		world.draw_set_transform(Vector2.ZERO)
+	if theme["glow"]:
+		# a little shimmer on the lava
+		var glow := 0.05 + 0.05 * sin(_t * 2.2)
+		world.draw_rect(Rect2(0, 380, _world_w(), 160), Color(1.0, 0.7, 0.2, glow))
+	# stalactites hanging from the ceiling, scrolling with the stones
+	if not ceiling_tex.is_empty():
+		var step: float = theme["ceiling_step"]
+		var k := 0
+		var x := SPACE0_X - step / 2.0
+		while x < _world_w():
+			world.draw_texture(ceiling_tex[k % ceiling_tex.size()], Vector2(x, 0))
+			x += step
+			k += 1
 	# the ledges at the start and the far shore
 	var wall: Texture2D = tex["tile-wall-basalt"]
 	var start_ledge := Rect2(-40, FEET_Y, SPACE0_X + 56, 200)
 	var end_ledge := Rect2(_space_x(run.length()) - 56, FEET_Y, 1200, 200)
 	for r in [start_ledge, end_ledge]:
-		world.draw_texture_rect(wall, r, true)
+		world.draw_texture_rect(wall, r, true, theme["ledge_tint"])
 		world.draw_rect(Rect2(r.position, Vector2(r.size.x, 4)), Color(0.45, 0.3, 0.5))
 	_draw_goal(Vector2(_goal_x(), FEET_Y))
 	# rocks
 	for i in range(1, run.length()):
-		var rock: Texture2D = tex["rock-%d" % (i % 3 + 1)]
-		var p := Vector2(_space_x(i) - rock.get_width() / 2.0, WATER_Y - ROCK_WATERLINE)
+		var rock: Texture2D = stone_tex[i % stone_tex.size()]
+		var p := Vector2(_space_x(i) - rock.get_width() / 2.0, WATER_Y - float(theme["waterline"]))
+		if theme["stone_top"]:
+			p.y = FEET_Y - 4.0  # a stalagmite: the hero stands on its top
 		if i == sink_space:
-			p.y += rock_sink * 46.0
-			_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
+			var depth: float = theme["sink_depth"]
+			if theme["stone_top"]:
+				# the stalagmite cracks and collapses into the dark
+				p.x += sin(_t * 60.0) * 3.0 * minf(1.0, rock_sink * 4.0)
+				p.y += rock_sink * depth
+				_draw_clipped(rock, p, 560.0, 1.0 - rock_sink * 0.3)
+			else:
+				p.y += rock_sink * depth
+				_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
 		else:
 			world.draw_texture(rock, p)
 	# markers on event rocks not reached yet
@@ -757,8 +792,7 @@ func _draw_world() -> void:
 	# the monster on the rock just reached, beside the dragon and facing it
 	if revealed >= 0 and _event_at(revealed) == "monster":
 		var s := run.space_at(revealed)
-		var art: Array = MONSTER_ART.get(s["monster"], MONSTER_ART["blorp"])
-		var t: Texture2D = tex[art[0]]
+		var t: Texture2D = _monster_tex(str(s["monster"]))
 		var size: Vector2 = t.get_size() * Look.CHAR_PX * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
@@ -828,16 +862,18 @@ func _pop() -> float:
 
 func _draw_hero() -> void:
 	var t: Texture2D = tex["hero"]
-	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * 120.0)
+	var falls: bool = theme["stone_top"]  # no water: the dragon drops with the stalagmite
+	var feet := Vector2(hero_x, FEET_Y - hero_lift + hero_sink * (theme["sink_depth"] if falls else 120.0))
 	var pos := feet - Vector2(t.get_width() / 2.0, t.get_height())
+	var line := 600.0 if falls else WATER_Y - 4.0
 	if hero_sink > 0.0:
-		_draw_clipped(t, pos, WATER_Y - 4.0, 1.0, PALE)
-		_draw_worried(pos, WATER_Y - 4.0)
+		_draw_clipped(t, pos, line, 1.0, PALE)
+		_draw_worried(pos, line)
 		# bubbles where it went under
-		for k in 4:
+		for k in (0 if falls else 4):
 			var ph := fmod(_t * 1.7 + k * 0.27, 1.0)
 			world.draw_circle(Vector2(hero_x - 30 + k * 20, WATER_Y - 6 - ph * 22.0), 5.0 * (1.0 - ph) + 1.0,
-					Color(1.0, 0.85, 0.4, (1.0 - ph) * minf(1.0, hero_sink * 3.0)))
+					Color(theme.get("bubble", Color(1.0, 0.85, 0.4)), (1.0 - ph) * minf(1.0, hero_sink * 3.0)))
 	else:
 		world.draw_circle(Vector2(hero_x, FEET_Y + 2), 30.0 - hero_lift * 0.25, Color(0, 0, 0, 0.25))
 		# squash, stretch and tilt about the feet
@@ -1126,3 +1162,11 @@ func _draw_overlay() -> void:
 	for i in lines.size():
 		overlay.draw_rect(Rect2(124, 140 + i * 20, 712, 20), Color(0, 0, 0, 0.7))
 		overlay.draw_string(font, Vector2(128, 155 + i * 20), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.6, 1, 0.6))
+
+
+var _monster_cache := {}
+
+func _monster_tex(id: String) -> Texture2D:
+	if not _monster_cache.has(id):
+		_monster_cache[id] = WorldTheme.monster_texture(id)
+	return _monster_cache[id]

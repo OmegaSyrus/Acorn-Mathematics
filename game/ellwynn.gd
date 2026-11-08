@@ -199,8 +199,8 @@ func boss_beaten() -> void:
 
 ## A wrong guess: she says the right answer, cheerfully, from her portrait in
 ## the corner with the numeral in her bubble (Terrence 2026-11-07). The music
-## dips while she talks, like every line. Numbers with no recording (above 6)
-## stay quiet.
+## dips while she talks, like every line. Recorded 0 to 18 (2026-11-08); a number
+## with no recording stays quiet.
 func say_answer(n: int) -> void:
 	var file: String = lines.get("answers", {}).get(str(n), "")
 	if file == "" or not ResourceLoader.exists(file):

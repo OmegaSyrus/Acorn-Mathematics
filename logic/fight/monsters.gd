@@ -23,6 +23,17 @@ const ROSTER := {
 	"surtling": {"name": "Surtling", "hearts": 3, "role": "monster"},
 	"mimic": {"name": "Mimic", "hearts": 3, "role": "mimic"},
 	"lava_miniboss": {"name": "Surtling Chief", "hearts": 5, "role": "miniboss"},
+	# Crystal Mines (2026-11-08)
+	"knocker": {"name": "Knocker", "hearts": 3, "role": "monster"},
+	"gem_dwarf": {"name": "Gem Dwarf", "hearts": 4, "role": "monster"},
+	"svartalf": {"name": "Svartalf", "hearts": 3, "role": "monster"},
+	"crystal_miniboss": {"name": "Svartalf Lantern Lord", "hearts": 5, "role": "miniboss"},
+	# The Bog (2026-11-08)
+	"wispling": {"name": "Wispling", "hearts": 3, "role": "monster"},
+	"nixie": {"name": "Nixie", "hearts": 3, "role": "monster"},
+	"tiddy_mun": {"name": "Tiddy Mun", "hearts": 3, "role": "monster"},
+	"draugr": {"name": "Bog-draugr", "hearts": 4, "role": "monster"},
+	"bog_miniboss": {"name": "Wisp King and Queen", "hearts": 5, "role": "miniboss"},
 }
 
 
