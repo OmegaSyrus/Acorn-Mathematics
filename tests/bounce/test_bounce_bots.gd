@@ -10,6 +10,7 @@ const SeededRng = preload("res://logic/core/rng.gd")
 
 const FIGHTS := 120
 const BEST_AIM_FIGHTS := 15
+const NAMING_FIGHTS := 150
 
 
 func test_gate_3_bots() -> bool:
@@ -57,3 +58,29 @@ func _best_aim(fight) -> int:
 			best_damage = s.damage
 			best = a
 	return best
+
+
+## Naming wins the boss (2026-11-12): a reviewer's bot that names every ball
+## right and aims at random beat the Lava boss about 28 times in 100 but the
+## others about 3. Every world's boss (each boss_grade in content/levels.json)
+## now falls to that bot 60 to 80% of the time, while a bot that names at
+## random still mostly loses.
+func test_naming_right_wins_most_boss_fights() -> bool:
+	var Content = load("res://logic/core/content.gd")
+	var by_grade := {}
+	for lv in Content.levels().values():
+		var g := int(lv.get("boss_grade", 1))
+		if not by_grade.has(g):
+			by_grade[g] = []
+		if not by_grade[g].has(lv["world"]):
+			by_grade[g].append(lv["world"])
+	var grades := by_grade.keys()
+	grades.sort()
+	for g in grades:
+		var right := _play(g, NAMING_FIGHTS, 7000, "random_aim")
+		var wrong := _play(g, NAMING_FIGHTS, 8000, "random_name")
+		notes.append("boss grade %d (%s): right name, random aim wins %d%%; random name wins %d%%" % [
+			g, ", ".join(by_grade[g]), right.win_pct, wrong.win_pct])
+		check(right.win_pct >= 60 and right.win_pct <= 80, "boss grade %d: naming right wins %d%% (want 60 to 80%%)" % [g, right.win_pct])
+		check(wrong.win_pct <= 15, "boss grade %d: random naming wins %d%% (want 15%% or less)" % [g, wrong.win_pct])
+	return true
