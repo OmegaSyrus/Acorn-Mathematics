@@ -30,7 +30,7 @@ is a ghost: nothing pops and the boss laughs. The ball is spent either way.
 - Damage = pegs popped + 1 for each ±1 peg followed by a pop.
 - The needed face is drawn only from faces with at least `min_live` pegs left; when no
   face has enough, the board fills up again ("New pegs!").
-- Balls: 8 at Acorn, 6 above. Out of balls with hearts left is the fail screen (Try, Map).
+- Balls and boss hearts: 8 balls at every grade; the boss has 8 hearts at Acorn, 6 above (2026-11-12, see the bots below). Out of balls with hearts left is the fail screen (Try, Map).
 - The last heart: `fight.is_lethal()` turns true mid-flight; the screen slows to 30% (`screen.last_heart_time_scale` in tuning.json) and the ball and pegs warble.
 
 Draw order per shot (the C++ port must match): refill check, needed face
@@ -62,17 +62,19 @@ right aim, A fires. Not linked from the map yet.
 
 ## Gate 3 bots (tests/bounce/test_bounce_bots.gd)
 
-At the current tuning (2026-10-26):
+At the current tuning (2026-11-12; before it, 10 hearts at Acorn and 6 balls and 12
+hearts above, the right-name random-aim bot won about 28% at Acorn and 3% above):
 
-| | Acorn (10 hearts, 8 balls) | Sprout (12 hearts, 6 balls) |
+| | Acorn (8 hearts, 8 balls) | Sum and difference (6 hearts, 8 balls) |
 |---|---|---|
-| random name, random aim | wins 0% | wins 0% |
-| right name, random aim | about 1.0 pops a ball, wins about 25% | about 0.8 pops a ball, wins about 3% |
-| right name, best of 27 aims | about 3.5 pops a ball, wins 100% | about 2.4 pops a ball, wins 100% |
+| random name, random aim | wins about 5% | wins about 7 to 13% |
+| right name, random aim | about 1.1 pops a ball, wins about 65% | about 0.8 pops a ball, wins 65 to 75% |
+| right name, best of 27 aims | wins 100% | wins 100% |
 
-The gate wants the right-name random-aim bot at 1 to 2 pops a ball; Acorn sits at the
-bottom edge and Sprout just under. Tune with ball speed, clusters and ball count in
-play, never with hints.
+Naming right should win most fights even with poor aim, and naming at random should
+still lose: `test_naming_right_wins_most_boss_fights` keeps every boss grade the levels
+use at 60 to 80% for the right-name random-aim bot and 15% or under for random naming.
+Tune with balls and boss hearts per grade in `content/bounce/tuning.json`.
 
 ## Not done yet
 

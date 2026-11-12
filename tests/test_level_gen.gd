@@ -112,7 +112,7 @@ func test_crystal_ramp_steps_up_along_the_crossing() -> bool:
 			var k := 0
 			while run.phase != ScrollRun.CLEARED and k < 40:
 				if run.phase == ScrollRun.AWAIT_FIGHT:
-					check(run.fight_now() == run.stage(run.rolls - 1)["fight"], "fight stage")
+					check(run.fight_now() == run.stage(run.rolls - 1)["monster_fight"], "fight stage")
 					run.resolve_fight(true)
 					continue
 				var st := run.stage(run.rolls)
@@ -151,7 +151,7 @@ func test_mushroom_ramp_steps_up_along_the_crossing() -> bool:
 			var k := 0
 			while run.phase != ScrollRun.CLEARED and k < 40:
 				if run.phase == ScrollRun.AWAIT_FIGHT:
-					check(run.fight_now() == run.stage(run.rolls - 1)["fight"], "fight stage")
+					check(run.fight_now() == run.stage(run.rolls - 1)["monster_fight"], "fight stage")
 					run.resolve_fight(true)
 					continue
 				var st := run.stage(run.rolls)
@@ -206,4 +206,99 @@ func test_space_ramp_and_track() -> bool:
 				run.choose(p["answer_index"])
 				k += 1
 			check(run.phase == ScrollRun.CLEARED, "Space %d seed %d clears" % [num, seed_value])
+	return true
+
+
+## Fights ask the step before (Terrence, 2026-11-12): along the level path
+## (Lava 1 to 6, Crystal 1 to 6, Bog, Mushroom, Space) a monster fight asks
+## the previous level's fight, never more than the stones around it; Lava 1
+## keeps its own; the duel keeps the level's own fight.
+func test_fights_ask_the_step_before() -> bool:
+	var levels := Content.levels()
+	var path := Content.level_path(levels)
+	check(path.size() == levels.size(), "every level is on the path")
+	check(path[0]["name"] == "Lava 1" and path[6]["name"] == "Crystal 1" and path[12]["name"] == "Bog 1"
+			and path[18]["name"] == "Mushroom 1" and path[24]["name"] == "Space 1", "path order")
+	eq(path[0]["monster_fight"], path[0]["fight"], "Lava 1 keeps its fight")
+	eq(levels[12]["monster_fight"], levels[1]["fight"], "Lava 2 fights ask Lava 1 (one die)")
+	eq(levels[13]["monster_fight"], levels[12]["fight"], "Lava 3 fights ask Lava 2")
+	eq(levels[33]["monster_fight"], levels[32]["fight"], "Bog 3 fights ask Bog 2 (two dice, not the missing die)")
+	eq(levels[41]["monster_fight"], levels[36]["fight"], "Mushroom 1 picks up where the Bog ended")
+	for i in range(1, path.size()):
+		var lv: Dictionary = path[i]
+		var before: Dictionary = path[i - 1]["fight"]
+		var stages: Array = lv.get("ramp", [])
+		stages = stages + [lv]
+		for st in stages:
+			var mf: Dictionary = st["monster_fight"]
+			check(int(mf["grade"]) == int(before["grade"]), "%s: fight rule is not the step before's" % lv["name"])
+			check(int(mf["top"]) <= int(before["top"]), "%s: fight top above the step before's" % lv["name"])
+			check(mf == before or mf == st["fight"], "%s: fight is neither the step before's nor its own" % lv["name"])
+	# the run uses it: every monster met at Lava 3 asks Lava 2's fight
+	var area := Content.area("lava_scroll")
+	for seed_value in range(1, 30):
+		var run := ScrollRun.new(area, levels[13], seed_value)
+		while run.phase != ScrollRun.CLEARED:
+			if run.phase == ScrollRun.AWAIT_FIGHT:
+				eq(run.fight_now(), {"grade": 2, "top": 8}, "Lava 3 monster fight")
+				run.resolve_fight(true)
+				continue
+			run.choose(run.roll()["answer_index"])
+	return true
+
+
+func _signs_of(mv: Dictionary) -> Array:
+	return _allowed_signs(mv)
+
+
+## Bog ramp (2026-11-12): every Bog level opens at the step before's math in
+## 3 stages of 3 guesses and ends on its own; Lava 2 to 6 open with 2 of their
+## 7 guesses at the Lava level before's math.
+func test_bog_and_lava_warm_ups() -> bool:
+	var levels := Content.levels()
+	var path := Content.level_path(levels)
+	var at := {}
+	for i in path.size():
+		at[int(path[i]["id"])] = i
+	for world in ["bog", "lava_caves"]:
+		var area := Content.area("bog_scroll" if world == "bog" else "lava_scroll")
+		for num in range(1 if world == "bog" else 2, 7):
+			var lv: Dictionary = levels[Content.level_id(world, num)]
+			var r: Array = lv.get("ramp", [])
+			var before: Dictionary = path[at[int(lv["id"])] - 1]
+			check(r.size() == (3 if world == "bog" else 2), "%s ramp stages" % lv["name"])
+			if r.is_empty():
+				continue
+			var total := 0
+			for st in r:
+				total += int(st["guesses"])
+				check(not LevelGen.answers(st["move"]).is_empty(), "%s stage can make an answer" % lv["name"])
+				check(int(st["move"]["max_answer"]) <= maxi(int(lv["move"]["max_answer"]), 6), "%s stage offers more stones than the level" % lv["name"])
+			check(total == int(area["guesses"]), "%s ramp covers %d guesses" % [lv["name"], total])
+			check(r[r.size() - 1]["move"] == lv["move"] and r[r.size() - 1]["fight"] == lv["fight"], "%s ends on its own math" % lv["name"])
+			if world == "lava_caves":
+				check(int(r[0]["guesses"]) == 2, "%s warms up for 2 guesses" % lv["name"])
+			# the opening uses only the step before's signs (Lava 1's op-first draw is two dice)
+			var old: Array = ["++", "+-"] if int(before["id"]) == 1 else _signs_of(before["move"])
+			for sg in _signs_of(r[0]["move"]):
+				check(old.has(sg), "%s opens with %s, not the step before's" % [lv["name"], sg])
+			for seed_value in range(1, 40):
+				var run := ScrollRun.new(area, lv, seed_value)
+				var k := 0
+				while run.phase != ScrollRun.CLEARED and k < 40:
+					if run.phase == ScrollRun.AWAIT_FIGHT:
+						run.resolve_fight(true)
+						continue
+					var st := run.stage(run.rolls)
+					var p := run.roll()
+					check(_signs_of(st["move"]).has(p["signs"]), "%s roll signs %s not in its stage" % [lv["name"], p["signs"]])
+					check(p["answer"] <= int(st["move"]["max_answer"]), "%s answer above its stage" % lv["name"])
+					run.choose(p["answer_index"])
+					k += 1
+				check(run.phase == ScrollRun.CLEARED, "%s seed %d clears" % [lv["name"], seed_value])
+	# the Bog's second heart stone
+	var hearts := 0
+	for s in Content.area("bog_scroll")["steps"]:
+		hearts += 1 if s["type"] == "heart" else 0
+	check(hearts == 2, "the Bog has two heart stones")
 	return true
