@@ -13,6 +13,7 @@ const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const InputGate := preload("res://logic/core/input_gate.gd")
 const SaveStore := preload("res://game/save_store.gd")
+const PlayLog := preload("res://game/play_log.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
@@ -278,10 +279,17 @@ func _loop() -> void:
 		choice.go_area = Rect2(132, 0, 690, 540)
 		offering = true
 		choice.present(_stone_rects(), 0)
+		var asked_ms := Time.get_ticks_msec()
 		var pick: int = await choice.picked
 		offering = false
 		drag_off = 0.0
 		var out := run.choose(pick)
+		PlayLog.answer("stone", PlayLog.stone_shown(p), int(p["answer"]), int(p["choices"][pick]),
+				(Time.get_ticks_msec() - asked_ms) / 1000.0)
+		if out["result"] == "miss":
+			PlayLog.event("heart_lost", {"where": "stone", "hearts_left": run.hearts})
+		elif out["result"] == "sink":
+			PlayLog.event("restart", {"why": "fall", "attempt": run.attempt})
 		if hidden_place >= 0:
 			# the face-down die turns over: its face is the stone picked right
 			var hd: DieView = dice[hidden_place]
@@ -457,6 +465,7 @@ func _fight() -> void:
 	var at := run.pos
 	var out := run.resolve_fight(won, f.fight.hero_hearts)
 	if out["restarted"]:
+		PlayLog.event("restart", {"why": "fight_lost", "attempt": run.attempt})
 		await _restart()
 	else:
 		beaten[at] = true
@@ -472,6 +481,7 @@ func _fight() -> void:
 ## the dragon through it, on to the miniboss (main.gd leads on from there).
 func _cleared() -> void:
 	_save_progress()
+	PlayLog.event("level_cleared", {"attempt": run.attempt, "gems": run.gems})
 	cleared_banner = true
 	_cheer("Yes!")
 	await _wait(0.5)

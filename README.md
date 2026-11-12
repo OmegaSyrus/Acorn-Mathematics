@@ -181,6 +181,17 @@ for crisp shapes; switch to `viewport` with integer scaling when pixel art arriv
 - Add `*.json` to "Filters to export non-resource files" in each export preset, or the
   content files are left out of the build.
 - Android/iOS: landscape (sensor) is set; renderer is GL Compatibility for older tablets.
+- The Android back gesture never quits (`application/config/quit_on_go_back=false`)
+  and does nothing on any screen. When the app goes to the background the save is
+  written and the music held; it plays on when the app comes back (`game/app_life.gd`).
+
+## Play log
+
+`game/play_log.gd` appends one JSON line per answered question (stone, fight, duel,
+boss: the question as shown, the right answer, the pick, right or wrong, seconds) and
+per run event (run start, heart lost, restart, level cleared, fights and boss won or
+lost, app paused and resumed) to `user://play_log.jsonl`. At about 1 MB it moves to
+`play_log.1.jsonl`. It stays on the tablet; a parent report will read it later.
 
 ## Not in this phase
 

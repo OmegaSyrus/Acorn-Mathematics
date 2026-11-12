@@ -46,6 +46,19 @@ func stop() -> void:
 	player.stop()
 
 
+## The app went to the background (game/app_life.gd): hold the song.
+func pause() -> void:
+	player.stream_paused = true
+
+
+## Back from the background: the held song plays on, or the list starts
+## again if the song was lost while away.
+func resume() -> void:
+	player.stream_paused = false
+	if playlist != "" and not player.playing:
+		_next()
+
+
 ## Already playing this list: carry on with the song that is on.
 func _start(list_name: String, tracks: Array) -> void:
 	if playlist == list_name and player.playing:
