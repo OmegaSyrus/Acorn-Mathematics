@@ -123,12 +123,15 @@ func _ready() -> void:
 	await _frames(20)
 	_shot("7-exit")
 	var ex: Rect2 = done.exit_rect()
-	await _tap(done.hud, Vector2(ex.position.x + 20, ex.get_center().y))
+	_check(ex.has_point(Vector2(ex.position.x + 20, ex.get_center().y)), "an inch beside the door is in the tap area")
+	# Terrence 2026-11-12: the GO! arrow over the door leads on too
+	var arrow: Vector2 = done._to_screen(done._go_arrow_rect().get_center(), done._cam_target())
+	await _tap(done.hud, arrow)
 	waited = 0
 	while not left[0] and waited < 300:
 		await _frames(1)
 		waited += 1
-	_check(left[0], "tap an inch beside the door left the crossing")
+	_check(left[0], "tap on the GO! arrow left the crossing")
 
 	# Reset on the main menu: No keeps the save, a quick tap on Yes does
 	# nothing, holding Yes for 3 seconds wipes gems, purchases and progress.

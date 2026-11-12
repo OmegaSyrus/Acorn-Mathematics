@@ -64,6 +64,14 @@ can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn
   progress bar, and are the same hearts the fights use.
 - Stills: `res://tools/stills/rework_stills.tscn` (same command as the others).
 
+### Top bar and the dragon's shield (Terrence, 2026-11-12, 0.18.2)
+
+- The crossing's talk box is a long thin box above the dice ("Roll") box.
+  The hearts are in the upper left, and Ellwynn's answer pop-in sits just
+  below them, on the crossing and in fights.
+- In fights the dragon holds his shield again: low at his side, raised out
+  in front to block a swing and to shield bash.
+
 ## The store
 
 The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and dice

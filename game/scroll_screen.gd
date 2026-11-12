@@ -39,14 +39,15 @@ const CHEST_SCALE := 0.7
 ## under it. Its right edge stays left of the gems beside the menu button on
 ## a 4:3 tablet (2026-11-05). The picked answer goes after the "=", green when
 ## right and red when wrong (Terrence, 2026-11-07).
-const TRAY := Rect2(292, 8, 404, 160)
-## The small talk box left of the dice box: the question, and the count when
-## a die's pips are tapped (back by Terrence's request 2026-11-05; tap it to
-## hear the question again).
-const BUBBLE := Rect2(124, 20, 168, 112)
-const BUBBLE_FONT := 34
-const BUBBLE_FONT_SMALL := 24
-const DICE_Y := 64.0
+## It sits under the talk box (Terrence 2026-11-12).
+const TRAY := Rect2(292, 58, 404, 160)
+## The talk box: a long thin box above the dice box (Terrence 2026-11-12; it
+## was a small box to its left). The question, and the count when a die's pips
+## are tapped; tap it to hear the question again.
+const BUBBLE := Rect2(292, 6, 404, 46)
+const BUBBLE_FONT := 30
+const BUBBLE_FONT_SMALL := 22
+const DICE_Y := 114.0
 const DICE_XS := [350.0, 494.0]
 const OP_X := 422.0
 const EQ_X := 568.0
@@ -55,10 +56,10 @@ const RIGHT_GREEN := Color(0.35, 0.95, 0.4)
 const WRONG_RED := Color(1.0, 0.3, 0.25)
 ## A right answer: the dragon jumps for joy this many times (it was 2).
 const HAPPY_JUMPS := 4
-## The hero's hearts (3 lives), bottom left over the lava above the progress
-## bar, clear of Ellwynn's pop-in under the talk box.
-const HEARTS_AT := Vector2(150, 490)
-const HEART_GAP := 36.0
+## The hero's hearts (3 lives) in the upper left (Terrence 2026-11-12);
+## Ellwynn's answer pop-in sits just below them. Up to 5 fit left of the boxes.
+const HEARTS_AT := Vector2(144, 30)
+const HEART_GAP := 34.0
 const GEMS_Y := 26.0
 const GEMS_FONT := 30
 ## The chest gems' animation, in seconds per gem (see _draw_chest_gems).
@@ -484,8 +485,10 @@ func _cleared() -> void:
 
 
 ## The door's tap area in screen (HUD) space, once the camera has settled.
+## The door and the GO! arrow over it both lead on (Terrence 2026-11-12),
+## plus about an inch all round.
 func exit_rect() -> Rect2:
-	var d := _door_rect()
+	var d := _door_rect().merge(_go_arrow_rect())
 	var a := _to_screen(d.position, _cam_target())
 	var b := _to_screen(d.end, _cam_target())
 	return Rect2(a, b - a).grow(INCH)
@@ -494,6 +497,12 @@ func exit_rect() -> Rect2:
 ## The door in world space: the frame and the arch over it.
 func _door_rect() -> Rect2:
 	return Rect2(_goal_x() - 50, FEET_Y - 200, 100, 200)
+
+
+## The GO! arrow in world space, with its bob and dark edge (_draw_goal).
+func _go_arrow_rect() -> Rect2:
+	var tip := Vector2(_goal_x(), FEET_Y - 212.0)
+	return Rect2(tip + Vector2(-88, -164), Vector2(176, 178))
 
 
 func _goal_x() -> float:
@@ -1133,16 +1142,17 @@ func _draw_bubble(font: Font) -> void:
 		return
 	RoundBox.fire(hud, BUBBLE, _t, 18.0)
 	var w := BUBBLE.size.x - 8.0
-	if font.get_string_size(bubble, HORIZONTAL_ALIGNMENT_LEFT, -1, BUBBLE_FONT).x <= w:
+	var line := bubble.replace("\n", " ")  # one line in the long box
+	if font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, BUBBLE_FONT).x <= w:
 		var at := BUBBLE.position + Vector2(4, BUBBLE.size.y / 2.0 + BUBBLE_FONT * 0.36)
-		hud.draw_string_outline(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT, 7, DARK)
-		hud.draw_string(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT, INK)
+		hud.draw_string_outline(font, at, line, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT, 7, DARK)
+		hud.draw_string(font, at, line, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT, INK)
 		return
-	var lines := font.get_multiline_string_size(bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL).y
+	var lines := font.get_multiline_string_size(line, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL).y
 	var top := BUBBLE.position.y + (BUBBLE.size.y - lines) / 2.0 + font.get_ascent(BUBBLE_FONT_SMALL)
 	var at := Vector2(BUBBLE.position.x + 4, top)
-	hud.draw_multiline_string_outline(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL, 3, 7, DARK)
-	hud.draw_multiline_string(font, at, bubble, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL, 3, INK)
+	hud.draw_multiline_string_outline(font, at, line, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL, 3, 7, DARK)
+	hud.draw_multiline_string(font, at, line, HORIZONTAL_ALIGNMENT_CENTER, w, BUBBLE_FONT_SMALL, 3, INK)
 
 
 func _draw_hud() -> void:

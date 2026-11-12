@@ -7,17 +7,15 @@
   "boss": "skeleton_dragon",
   "name": "Lava Caves: the crossing",
   "grades": [1, 12, 13, 14, 15, 16],
-  "_note": "Terrence 2026-11-07: a run is 9 guesses and the crossing has as many stones as the 9 answers add up to. Each attempt draws its answers first; step n is the stone the first n answers land on (the 9th lands on the far shore). A heart step (after the first 2 right answers, so the stone just past Blorp) gives back a heart for the fights.",
-  "guesses": 9,
+  "_note": "Terrence 2026-11-07: the crossing has as many stones as its answers add up to; each attempt draws its answers first and step n is the stone the first n answers land on (the last lands on the far shore). 2026-11-12: shorter, 7 guesses (was 9). The heart step is the stone just past Blorp.",
+  "guesses": 7,
   "chest_gems": { "common": 1, "rare": 2, "rare_in": 6 },
   "steps": [
     { "after": 1, "type": "chest" },
     { "after": 2, "type": "monster", "monster": "blorp" },
     { "after": 3, "type": "heart" },
-    { "after": 4, "type": "chest" },
-    { "after": 5, "type": "monster", "monster": "surtling" },
-    { "after": 6, "type": "chest" },
-    { "after": 7, "type": "chest" },
-    { "after": 8, "type": "monster", "monster": "craggy" }
+    { "after": 4, "type": "monster", "monster": "surtling" },
+    { "after": 5, "type": "chest" },
+    { "after": 6, "type": "monster", "monster": "craggy" }
   ]
 }

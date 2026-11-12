@@ -73,13 +73,13 @@ func test_gem_prices_fit_the_treasure() -> bool:
 	var cfg = area["chest_gems"]
 	eq(ScrollRun.chest_range(cfg), [1, 2], "a chest gives 1 or 2")
 	var mean_run := chests * ScrollRun.chest_mean(cfg)
-	# 4 chests since a heart took the third step's stone (2026-11-07): about 4.7
-	check(absf(mean_run - 28.0 / 6.0) < 0.01, "about 4.7 gems a crossing (%.2f)" % mean_run)
+	# 2 chests since the crossing went to 7 guesses (2026-11-12): about 2.3
+	check(absf(mean_run - 14.0 / 6.0) < 0.01, "about 2.3 gems a crossing (%.2f)" % mean_run)
 	var cat := Store.catalog()
 	for id in ["bolt_red", "bolt_green", "slime_knight"]:
 		var price: int = Store.item(cat, id)["price"]["amount"]
 		var runs := price / mean_run
-		check(runs >= 1.5 and runs <= 6.0, "%s takes %.1f crossings" % [id, runs])
+		check(runs >= 1.5 and runs <= 12.0, "%s takes %.1f crossings" % [id, runs])
 	var total := 0
 	var n := 400
 	var rare := 0
