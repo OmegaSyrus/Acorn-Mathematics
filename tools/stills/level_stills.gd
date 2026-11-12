@@ -9,7 +9,7 @@ const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const ScrollScreen := preload("res://game/scroll_screen.gd")
 const InputSetup := preload("res://game/input_setup.gd")
 
-const AREAS := {"lava_caves": "lava_scroll", "crystal_mines": "crystal_scroll", "bog": "bog_scroll"}
+const AREAS := {"lava_caves": "lava_scroll", "crystal_mines": "crystal_scroll", "bog": "bog_scroll", "space": "space_scroll"}
 
 var out_dir := "/tmp"
 var only := -1

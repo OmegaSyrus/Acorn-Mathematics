@@ -6,6 +6,7 @@
 extends Node
 
 const MainScene := preload("res://scenes/main.tscn")
+const Content := preload("res://logic/core/content.gd")
 
 var out_dir := "/tmp"
 var main: Node2D
@@ -24,7 +25,7 @@ func _ready() -> void:
 	await _shot("0-menu")
 	var stage_names := {"": "scroll_screen.gd", "duel": "fight_screen.gd", "boss": "bounce_screen.gd"}
 	var first := true
-	for row in 3:
+	for row in Content.worlds().filter(func(w): return w.has("area")).size():
 		for st in ["", "duel", "boss"]:
 			m = main.screen
 			_check(m.get_script().resource_path.ends_with("map_screen.gd"), "main menu showing")

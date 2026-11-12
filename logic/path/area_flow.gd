@@ -55,10 +55,20 @@ static func enter(save: Dictionary, area: Dictionary, grade_id: int, stage: Stri
 ## beaten (Terrence 2026-11-07: the map unlocks the next area when the
 ## previous one is complete). The first world is always unlocked.
 ## The Debug screen's "Map: all open" (save["debug_unlock"]) unlocks them all.
+## A world that isn't built yet (no "area") can't be beaten, so the world
+## after it looks back past it to the last built one (2026-11-12: Space
+## opens after the Bog until the Mushroom Forest is in).
 static func world_unlocked(save: Dictionary, worlds: Array, i: int) -> bool:
 	if bool(save.get("debug_unlock", false)) and i < worlds.size():
 		return true
-	return i == 0 or (i < worlds.size() and world_beaten(save, String(worlds[i - 1]["id"])))
+	if i == 0:
+		return true
+	if i >= worlds.size():
+		return false
+	var before := i - 1
+	while before > 0 and not worlds[before].has("area"):
+		before -= 1
+	return world_beaten(save, String(worlds[before]["id"]))
 
 
 ## An unlocked world can be played once it has an area built.

@@ -870,10 +870,14 @@ func _draw_world() -> void:
 		# above the strip at half size: dark cave rock fading into it
 		var roof := Rect2(-2000, -world_y / zoom - 20, _world_w() + 4000, world_y / zoom + 20)
 		var lt: Color = theme["ledge_tint"]
-		world.draw_texture_rect(tex["tile-wall-basalt"], roof, true, Color(lt.r * 0.42, lt.g * 0.42, lt.b * 0.42))
-		# a soft dark edge where the roof meets the backdrop
-		for k in 6:
-			world.draw_rect(Rect2(roof.position.x, -24.0 + k * 4.0, roof.size.x, 4.0), Color(0, 0, 0, 0.5 - k * 0.08))
+		if theme.has("sky"):
+			# Space: open night sky above the backdrop, no cave roof
+			world.draw_rect(roof, theme["sky"])
+		else:
+			world.draw_texture_rect(tex["tile-wall-basalt"], roof, true, Color(lt.r * 0.42, lt.g * 0.42, lt.b * 0.42))
+			# a soft dark edge where the roof meets the backdrop
+			for k in 6:
+				world.draw_rect(Rect2(roof.position.x, -24.0 + k * 4.0, roof.size.x, 4.0), Color(0, 0, 0, 0.5 - k * 0.08))
 		world.draw_rect(Rect2(-2000, 540, _world_w() + 4000, 200), Color(0.06, 0.04, 0.07))
 	if backdrop_tex == null:
 		var strip: Texture2D = tex["strip"]
@@ -893,6 +897,8 @@ func _draw_world() -> void:
 		world.draw_set_transform(Vector2.ZERO, 0.0, Vector2(STRIP_SCALE, STRIP_SCALE))
 		world.draw_texture_rect(backdrop_tex, Rect2(-1920 / STRIP_SCALE, 0, (_world_w() + 1920) / STRIP_SCALE, 180), true)
 		world.draw_set_transform(Vector2.ZERO)
+	if theme.get("stars", false):
+		_draw_stars()
 	if theme["glow"]:
 		# a little shimmer on the lava
 		var glow := 0.05 + 0.05 * sin(_t * 2.2)
@@ -970,38 +976,81 @@ func _draw_world() -> void:
 	# (the gems flying out of an opened chest are drawn on the HUD, _draw_chest_gems)
 
 
+## Space: small stars twinkling over the sky, only the ones in view (their
+## places come from a hash of the cell, so they stay put as the view scrolls).
+func _draw_stars() -> void:
+	var top := -world_y / zoom if zoom < 1.0 else 0.0
+	var x0 := cam_x - 40.0
+	var x1 := cam_x + 960.0 / zoom + 40.0
+	var cell := 96.0
+	for cx in range(int(floorf(x0 / cell)), int(ceilf(x1 / cell))):
+		for cy in range(int(floorf(top / cell)), 4):
+			var h := absi(hash(Vector2i(cx, cy)))
+			var p := Vector2((cx + (h % 97) / 97.0) * cell, (cy + ((h / 97) % 89) / 89.0) * cell)
+			var tw := 0.5 + 0.5 * sin(_t * (1.2 + (h % 7) * 0.35) + (h % 31))
+			var r := (2.0 if h % 5 == 0 else 1.0) / zoom * (0.75 if zoom < 1.0 else 1.0)
+			var col := Color(1.0, 0.94, 0.66, 0.25 + 0.65 * tw)
+			world.draw_rect(Rect2(p - Vector2(r, r), Vector2(r, r) * 2.0), col)
+			if h % 11 == 0:
+				# a few bigger ones glint in a small cross
+				world.draw_rect(Rect2(p - Vector2(r * 3.0, r * 0.5), Vector2(r * 6.0, r)), Color(col, col.a * tw))
+				world.draw_rect(Rect2(p - Vector2(r * 0.5, r * 3.0), Vector2(r, r * 6.0)), Color(col, col.a * tw))
+
+
 ## The numbers on the rocks ahead: how many spaces away each one is, drawn
 ## like the numerals on the fight shields (dark with a light outline).
+## On a "track" level (Space) each star stone shows its place on the track
+## instead, and so does the stone the hero stands on: "I'm on 23, the dice
+## make 7, which stone is 30?" The landmarks are places 10, 20, 30...
 func _draw_stone_numbers() -> void:
 	if stone_from < 0:
 		return
 	var font := ThemeDB.fallback_font
+	var track := bool(run.grade.get("track", false))
 	var m := mini(run.max_answer_now(), run.length() - stone_from)
 	var rails_on := bool(run.stage_now().get("rails", false))
 	# at half size the numbers stay big on screen (font 40, landmarks 48)
 	var k := 1.0 if zoom >= 1.0 else 40.0 / 48.0 / zoom
-	for d in range(1, m + 1):
+	for d in range(0 if track and stone_from > 0 else 1, m + 1):
 		var i := stone_from + d
 		if i == sink_space:
 			continue
 		var shore := i >= run.length()
 		var landmark := zoom < 1.0 and d % 5 == 0
+		var label := str(d)
+		if track:
+			label = str(i)
+			landmark = zoom < 1.0 and i % 10 == 0
 		if rails_on and not (d == 1 or landmark or shore):
 			continue  # a blank rail stop: count on from 1, 5, 10, 15
 		var c := Vector2(_space_x(i), STONE_NUM_Y)
 		if shore:
 			c.y = FEET_Y + 40.0  # the far shore: on the ledge face
 		var fs := int(48.0 * k * (1.2 if landmark else 1.0))
+		if track:
+			# under the star stone (the hero covers its top), smaller past 99
+			c.y = FEET_Y + 78.0 if not shore else c.y
+			# two digits side by side at 60 a step: a little smaller, landmarks
+			# marked by their ring and gold ink, not by size
+			fs = int(48.0 * k * (0.84 if label.length() == 2 else 1.0))
+			if label.length() > 2:
+				fs = int(48.0 * k * 0.6)
+			if d == 0:
+				fs = int(fs * 0.85)
 		var w := 100.0 * k * 1.4
 		var at := c + Vector2(-w / 2.0, fs * 0.36)
 		var ink := Color(0.08, 0.06, 0.05)
 		var rim := Color(1, 0.95, 0.85)
 		if landmark:
-			world.draw_arc(Vector2(c.x, WATER_Y - 14.0), 46.0 * k, 0.0, TAU, 32, Color(1.0, 0.8, 0.2, 0.8), 5.0 * k)
+			world.draw_arc(Vector2(c.x, c.y if track else WATER_Y - 14.0), (36.0 if track else 46.0) * k, 0.0, TAU, 32, Color(1.0, 0.8, 0.2, 0.8), 5.0 * k)
 			ink = Color(0.35, 0.22, 0.0)
 			rim = Color(1.0, 0.85, 0.3)
-		world.draw_string_outline(font, at, str(d), HORIZONTAL_ALIGNMENT_CENTER, w, fs, int(6 * k), rim)
-		world.draw_string(font, at, str(d), HORIZONTAL_ALIGNMENT_CENTER, w, fs, ink)
+		if track and d == 0:
+			# the hero's own stone: gold, so "I'm on 23" reads at a glance
+			ink = Color(0.25, 0.14, 0.0)
+			rim = Color(1.0, 0.85, 0.3)
+		world.draw_string_outline(font, at, label, HORIZONTAL_ALIGNMENT_CENTER, w, fs, int(6 * k), rim)
+		world.draw_string(font, at, label, HORIZONTAL_ALIGNMENT_CENTER, w, fs, ink)
 
 
 func _draw_name(text: String, center: Vector2, alpha: float) -> void:

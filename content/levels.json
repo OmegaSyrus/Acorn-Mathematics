@@ -1,6 +1,6 @@
 {
  "version": 1,
- "_note": "Levels by world (docs/difficulty-plan.md section 1.3, built 2026-11-08 for Lava, the Crystal Mines and the Bog). The main menu's Difficulty picks the level number; the world map picks the world. Move draws per section 4.2. Fights use the approved fight rules (grade 1 one die, 2 two-dice sum, 3 die + ? = target) with answers capped at fight.top; the boss uses boss_grade's board (1 match, 2 sum). zoom 1.0 = today's 1x crossing, else half size. A level with \"ramp\" (Crystal Mines, 2026-11-12: Terrence found Crystal 1 too big a jump from Lava 1) splits its guesses into stages, each with its own move, fight and rails; the crossing starts at the matching Lava level's math and steps up. The level's own move, fight and rails are the last stage (the miniboss duel uses that fight).",
+ "_note": "Levels by world (docs/difficulty-plan.md section 1.3, built 2026-11-08 for Lava, the Crystal Mines and the Bog). The main menu's Difficulty picks the level number; the world map picks the world. Move draws per section 4.2. Fights use the approved fight rules (grade 1 one die, 2 two-dice sum, 3 die + ? = target) with answers capped at fight.top; the boss uses boss_grade's board (1 match, 2 sum). zoom 1.0 = today's 1x crossing, else half size. A level with \"ramp\" (Crystal Mines, 2026-11-12: Terrence found Crystal 1 too big a jump from Lava 1) splits its guesses into stages, each with its own move, fight and rails; the crossing starts at the matching Lava level's math and steps up. The level's own move, fight and rails are the last stage (the miniboss duel uses that fight). Space (2026-11-12): every level ramps in 3 stages from Bog-sized math up to its own, and \"track\": true numbers the star stones by their place on the track (the hero's stone too), so the child adds onto a bigger number. Boss: sum at Space 1 and 2, difference (boss_grade 4) from Space 3.",
  "bands": {
   "acorn": {
    "name": "Acorn",
@@ -27,6 +27,15 @@
     0.4,
     0.75,
     0.9
+   ]
+  },
+  "oak": {
+   "name": "Oak",
+   "age": "age 7 to 8",
+   "color": [
+    0.75,
+    0.6,
+    0.95
    ]
   }
  },
@@ -733,6 +742,502 @@
     "top": 12
    },
    "boss_grade": 2
+  },
+  {
+   "id": 51,
+   "world": "space",
+   "num": 1,
+   "name": "Space 1",
+   "band": "oak",
+   "move": {
+    "draw": "patterns",
+    "patterns": [
+     "+++",
+     "++-",
+     "+--",
+     "++++",
+     "+++-",
+     "++--"
+    ],
+    "min_answer": 1,
+    "max_answer": 20
+   },
+   "fight": {
+    "grade": 2,
+    "top": 12
+   },
+   "boss_grade": 2,
+   "track": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 11
+     },
+     "fight": {
+      "grade": 2,
+      "top": 10
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-",
+       "+--"
+      ],
+      "min_answer": 1,
+      "max_answer": 18
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-",
+       "+--",
+       "++++",
+       "+++-",
+       "++--"
+      ],
+      "min_answer": 1,
+      "max_answer": 20
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
+  },
+  {
+   "id": 52,
+   "world": "space",
+   "num": 2,
+   "name": "Space 2",
+   "band": "oak",
+   "move": {
+    "draw": "hidden",
+    "options": [
+     [
+      "+++-",
+      "any"
+     ]
+    ],
+    "min_answer": 1,
+    "max_answer": 6
+   },
+   "fight": {
+    "grade": 3,
+    "top": 12
+   },
+   "boss_grade": 2,
+   "track": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 10
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+++",
+        "any"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+++-",
+        "any"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
+  },
+  {
+   "id": 53,
+   "world": "space",
+   "num": 3,
+   "name": "Space 3",
+   "band": "oak",
+   "move": {
+    "draw": "patterns",
+    "patterns": [
+     "++++",
+     "+++-",
+     "++--"
+    ],
+    "min_answer": 1,
+    "max_answer": 20,
+    "constraint": "ten_pair"
+   },
+   "fight": {
+    "grade": 2,
+    "top": 12
+   },
+   "boss_grade": 4,
+   "track": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 14,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 10
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++++",
+       "+++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 17,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++++",
+       "+++-",
+       "++--"
+      ],
+      "min_answer": 1,
+      "max_answer": 20,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
+  },
+  {
+   "id": 54,
+   "world": "space",
+   "num": 4,
+   "name": "Space 4",
+   "band": "oak",
+   "move": {
+    "draw": "hidden",
+    "options": [
+     [
+      "++--",
+      "any"
+     ]
+    ],
+    "min_answer": 1,
+    "max_answer": 6
+   },
+   "fight": {
+    "grade": 3,
+    "top": 12
+   },
+   "boss_grade": 4,
+   "track": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++",
+        "last"
+       ],
+       [
+        "+-",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 10
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+++-",
+        "any"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++--",
+        "any"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
+  },
+  {
+   "id": 55,
+   "world": "space",
+   "num": 5,
+   "name": "Space 5",
+   "band": "oak",
+   "move": {
+    "draw": "patterns",
+    "patterns": [
+     "++-",
+     "+++-",
+     "++--"
+    ],
+    "min_answer": 1,
+    "max_answer": 9,
+    "constraint": "across_ten"
+   },
+   "fight": {
+    "grade": 3,
+    "top": 9
+   },
+   "boss_grade": 4,
+   "track": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 9
+     },
+     "fight": {
+      "grade": 2,
+      "top": 9
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++-",
+       "+++-"
+      ],
+      "min_answer": 5,
+      "max_answer": 9,
+      "constraint": "across_ten"
+     },
+     "fight": {
+      "grade": 3,
+      "top": 9
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++-",
+       "+++-",
+       "++--"
+      ],
+      "min_answer": 1,
+      "max_answer": 9,
+      "constraint": "across_ten"
+     },
+     "fight": {
+      "grade": 3,
+      "top": 9
+     },
+     "rails": false
+    }
+   ]
+  },
+  {
+   "id": 56,
+   "world": "space",
+   "num": 6,
+   "name": "Space 6",
+   "band": "oak",
+   "move": {
+    "draw": "mix",
+    "parts": [
+     51,
+     52,
+     53,
+     54,
+     55
+    ],
+    "min_answer": 1,
+    "max_answer": 20
+   },
+   "fight": {
+    "grade": 3,
+    "top": 12
+   },
+   "boss_grade": 4,
+   "track": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "mix",
+      "parts": [
+       51,
+       52
+      ],
+      "min_answer": 1,
+      "max_answer": 20
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "mix",
+      "parts": [
+       51,
+       52,
+       53,
+       54
+      ],
+      "min_answer": 1,
+      "max_answer": 20
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "mix",
+      "parts": [
+       51,
+       52,
+       53,
+       54,
+       55
+      ],
+      "min_answer": 1,
+      "max_answer": 20
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   }
  ]
 }

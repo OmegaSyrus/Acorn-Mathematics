@@ -25,13 +25,14 @@ const UNLOCK_RECT := Rect2(560, 20, 280, 60)
 const LEVEL_X := 300.0
 const LEVEL_Y := 100.0
 const LEVEL_SIZE := Vector2(80, 64)
-const ROW_Y := [190.0, 300.0, 410.0]
+## one row per built world, up to all five (2026-11-12: Space is built)
+const ROW_Y := [176.0, 246.0, 316.0, 386.0, 456.0]
 const STAGES := [["Walk", ""], ["Mini", "duel"], ["Boss", "boss"]]
 const STAGE_X := [310.0, 490.0, 670.0]
-const STAGE_SIZE := Vector2(160, 84)
+const STAGE_SIZE := Vector2(160, 60)
 
 var save: Dictionary
-var worlds: Array = []   # the built worlds (with an area), at most 3 rows
+var worlds: Array = []   # the built worlds (with an area), one row each
 var level := 1
 var buttons: Array = []  # [{rect, kind, ...}]
 var choice: ChoiceWidget
@@ -109,11 +110,11 @@ func _draw() -> void:
 					col = Color(0.55, 0.35, 0.15)
 				elif b["stage"] == "boss":
 					col = Color(0.62, 0.2, 0.18)
-				_button(font, r, STAGES[["", "duel", "boss"].find(b["stage"])][0], col, 34)
+				_button(font, r, STAGES[["", "duel", "boss"].find(b["stage"])][0], col, 30)
 	for r in worlds.size():
 		var w: Dictionary = worlds[r]
 		var c: Array = w.get("color", [1, 1, 1])
-		draw_string(font, Vector2(120, ROW_Y[r] + 54), str(w["name"]), HORIZONTAL_ALIGNMENT_LEFT, 185, 26,
+		draw_string(font, Vector2(120, ROW_Y[r] + 40), str(w["name"]), HORIZONTAL_ALIGNMENT_LEFT, 185, 26,
 				Color(c[0], c[1], c[2]))
 	draw_string(font, Vector2(120, 528), "Each jump starts fresh at the picked level.", HORIZONTAL_ALIGNMENT_LEFT,
 			-1, 18, DIM)

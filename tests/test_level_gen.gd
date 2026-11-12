@@ -67,7 +67,7 @@ func test_every_level_roll_reads_to_its_answer() -> bool:
 
 func test_a_perfect_run_clears_every_level() -> bool:
 	var levels := Content.levels()
-	for world in ["lava_caves", "crystal_mines", "bog"]:
+	for world in ["lava_caves", "crystal_mines", "bog", "space"]:
 		var area := {}
 		for aid in Content.area_ids():
 			var a := Content.area(aid)

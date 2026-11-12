@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "id": "space_scroll",
+  "type": "scroll",
+  "world": "space",
+  "miniboss": "space_miniboss",
+  "boss": "fenrir",
+  "name": "Space: the star track",
+  "grades": [
+    51,
+    52,
+    53,
+    54,
+    55,
+    56
+  ],
+  "_note": "2026-11-12: Space is playable (world 5, the last). Same run as the other crossings (9 guesses); the stones are star stones numbered by their place on the track, a wrong one falls away into the dark. Star Squirrel, Moon Hobgoblin, Fenrir's Pup, then Ratatoskr and Fenrir.",
+  "guesses": 9,
+  "chest_gems": {
+    "common": 1,
+    "rare": 2,
+    "rare_in": 6
+  },
+  "steps": [
+    {
+      "after": 1,
+      "type": "chest"
+    },
+    {
+      "after": 2,
+      "type": "monster",
+      "monster": "star_squirrel"
+    },
+    {
+      "after": 3,
+      "type": "heart"
+    },
+    {
+      "after": 4,
+      "type": "chest"
+    },
+    {
+      "after": 5,
+      "type": "monster",
+      "monster": "moon_hobgoblin"
+    },
+    {
+      "after": 6,
+      "type": "chest"
+    },
+    {
+      "after": 7,
+      "type": "chest"
+    },
+    {
+      "after": 8,
+      "type": "monster",
+      "monster": "fenrir_pup"
+    }
+  ]
+}
