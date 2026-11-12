@@ -30,6 +30,9 @@ var looted := []  # chest spaces already opened; they stay empty after a restart
 var gems := 0
 var hearts := HERO_HEARTS
 var hearts_taken := []  # heart spaces (by step) picked up this attempt; back after a restart
+## A heart was lost on this crossing (a wrong stone, a fight, a restart). A
+## crossing cleared without one earns the level's star (SaveData.add_star).
+var hurt := false
 var rolls := 0    # rolls this attempt (the area's "rolls" [min, max] bounds a clean run)
 ## An area with "guesses" (Terrence 2026-11-07: a run is 9 guesses) draws this
 ## attempt's right answers up front, one per guess; the crossing is as long as
@@ -142,6 +145,7 @@ func to_save() -> Dictionary:
 		"gems": gems,
 		"hearts": hearts,
 		"hearts_taken": hearts_taken.duplicate(),
+		"hurt": hurt,
 		"rolls": rolls,
 		"phase": phase,
 		"rng_state": rng.get_state(),
@@ -161,6 +165,8 @@ func restore(data: Dictionary) -> void:
 	gems = data["gems"]
 	hearts = clampi(int(data.get("hearts", HERO_HEARTS)), 1, MAX_HEARTS)
 	hearts_taken = data.get("hearts_taken", []).duplicate()
+	# a save from before the star: a restart already cost hearts
+	hurt = bool(data.get("hurt", int(data["attempt"]) > 1))
 	rolls = int(data.get("rolls", 0))
 	if data["phase"] == AWAIT_CHOICE:
 		rolls = maxi(0, rolls - 1)  # that roll is rolled again
@@ -273,6 +279,7 @@ func choose(index: int) -> Dictionary:
 	var right: bool = index == problem["answer_index"]
 	var out := {"result": "", "right": right, "pick": index, "from": pos, "to": pos + dist, "restarted": false}
 	if not right:
+		hurt = true
 		hearts -= 1
 		if hearts > 0:
 			out["result"] = "miss"
@@ -307,6 +314,8 @@ func resolve_fight(won: bool, hearts_left := -1) -> Dictionary:
 		out["restarted"] = true
 		return out
 	if hearts_left > 0:
+		if hearts_left < hearts:
+			hurt = true
 		hearts = mini(hearts_left, MAX_HEARTS)
 	phase = AWAIT_ROLL
 	if target > pos:
@@ -390,6 +399,7 @@ static func chest_mean(cfg) -> float:
 
 
 func _fail() -> void:
+	hurt = true
 	attempt += 1
 	rolls = 0
 	pos = 0

@@ -38,6 +38,7 @@ class ScrollRun:
         self.gems = 0
         self.hearts = HERO_HEARTS
         self.hearts_taken = []
+        self.hurt = False  # a heart was lost on this crossing (no star)
         self.rolls = 0
         self.problem = None
         self.phase = AWAIT_ROLL
@@ -95,7 +96,7 @@ class ScrollRun:
     def to_save(self):
         return {"area": self.area["id"], "grade": self.grade["id"], "seed": self.seed,
                 "attempt": self.attempt, "pos": self.pos, "target": self.target, "looted": list(self.looted),
-                "gems": self.gems, "hearts": self.hearts, "hearts_taken": list(self.hearts_taken), "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()} | (
+                "gems": self.gems, "hearts": self.hearts, "hearts_taken": list(self.hearts_taken), "hurt": self.hurt, "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()} | (
                     {"answers": list(self.answers)} if self.is_guessed() else {})
 
     @classmethod
@@ -108,6 +109,7 @@ class ScrollRun:
         run.gems = data["gems"]
         run.hearts = max(1, min(data.get("hearts", HERO_HEARTS), MAX_HEARTS))
         run.hearts_taken = list(data.get("hearts_taken", []))
+        run.hurt = bool(data.get("hurt", data["attempt"] > 1))
         run.rolls = data.get("rolls", 0)
         run.phase = data["phase"]
         if data["phase"] == AWAIT_CHOICE:
@@ -149,6 +151,7 @@ class ScrollRun:
         out = {"result": "", "right": right, "pick": index, "from": self.pos,
                "to": self.pos + dist, "restarted": False}
         if not right:
+            self.hurt = True
             self.hearts -= 1
             if self.hearts > 0:
                 out["result"] = "miss"
@@ -178,6 +181,8 @@ class ScrollRun:
             out["restarted"] = True
             return out
         if hearts_left > 0:
+            if hearts_left < self.hearts:
+                self.hurt = True
             self.hearts = min(hearts_left, MAX_HEARTS)
         self.phase = AWAIT_ROLL
         if self.target > self.pos:
@@ -228,6 +233,7 @@ class ScrollRun:
             out["gems"] = total
 
     def _fail(self):
+        self.hurt = True
         self.attempt += 1
         self.rolls = 0
         self.pos = 0

@@ -38,6 +38,22 @@ The main menu's small grey Reset button (top right) asks "Reset all?". No keeps
 everything; Yes only works when held down for 3 seconds, so a child tapping around
 can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn's intro.
 
+## Grown-ups and level marks (Terrence, 2026-11-12)
+
+- "Parent unlocks and child picks": the main menu's small grey Grown-ups
+  button (left of Debug) does nothing on a tap; held down for 3 seconds (a bar
+  fills after the first second) it opens the Grown-ups panel
+  (`game/grownups_screen.gd`). Each world there is "Open by play" or toggles
+  Locked/Open (`save["parent_open"]`); the child picks any open world on the
+  map. Beating a boss still opens the next world. Reset clears the opens too.
+- Every world records a gold mark per level beaten (boss and all,
+  `save["marks"]`) and a bright star when that level's crossing was cleared
+  without losing a heart (`save["stars"]`, from `ScrollRun.hurt`). The map
+  shows six marks under each world (levels 1-3 over 4-6, the menu's level
+  framed); the main menu shows each world's mark at the picked level under
+  the difficulty (`game/ui/marks.gd`).
+- Stills: `res://tools/stills/marks_stills.tscn` (same command as the others).
+
 ### Fights, hearts, menu and map (Terrence, 2026-11-07, version 0.15.0)
 
 - The main menu says "Difficulty: Acorn" (tap the difficulty to step through
