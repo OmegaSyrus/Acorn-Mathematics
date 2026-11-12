@@ -17,6 +17,7 @@ const Monsters := preload("res://logic/fight/monsters.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
+const Ambient := preload("res://game/ui/ambient.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
 
@@ -451,6 +452,7 @@ func _draw() -> void:
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.05, 0.03, 0.06))
 	# the lava cave arena, 320x180 pixel art drawn at 3x
 	draw_texture_rect(bg_tex, Rect2(0, 0, 960, 540), false)
+	Ambient.room(self, bg_tex.resource_path, _t)  # embers, glints, mist: behind everything
 	var hero_row := Vector2(140, 30)
 	var monster_row := Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
 	_draw_hearts(hero_row, shown_hero_hearts, fight.hero_max_hearts)

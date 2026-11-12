@@ -23,6 +23,7 @@ const FightScreen := preload("res://game/fight/fight_screen.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
 const WorldTheme := preload("res://game/ui/world_theme.gd")
+const Ambient := preload("res://game/ui/ambient.gd")
 
 const ART := "res://art/lava/"
 const STRIP_SCALE := 3.0
@@ -903,6 +904,12 @@ func _draw_world() -> void:
 		# a little shimmer on the lava
 		var glow := 0.05 + 0.05 * sin(_t * 2.2)
 		world.draw_rect(Rect2(0, 380, _world_w(), 160), Color(1.0, 0.7, 0.2, glow))
+	# the world's little moving details (bubbles, glints, mist), behind
+	# everything else so no stone, number or character is ever covered
+	var view_l := roundf(cam_x * zoom) / zoom - 60.0
+	var view_r := view_l + 960.0 / zoom + 120.0
+	Ambient.crossing(world, str(run.area.get("world", WorldTheme.DEFAULT)), _t, view_l, view_r,
+			str(theme["backdrop"]), -1920.0, zoom)
 	# stalactites hanging from the ceiling, scrolling with the stones
 	if not ceiling_tex.is_empty():
 		var step: float = theme["ceiling_step"]
@@ -912,6 +919,7 @@ func _draw_world() -> void:
 			world.draw_texture(ceiling_tex[k % ceiling_tex.size()], Vector2(x, 0))
 			x += step
 			k += 1
+		Ambient.ceiling_drips(world, _t, view_l, view_r, theme["ceiling"], SPACE0_X - step / 2.0, step, zoom)
 	# the ledges at the start and the far shore
 	var wall: Texture2D = tex["tile-wall-basalt"]
 	var start_ledge := Rect2(-40 - (1200.0 if zoom < 1.0 else 0.0), FEET_Y, SPACE0_X + 56 + (1200.0 if zoom < 1.0 else 0.0), 200)

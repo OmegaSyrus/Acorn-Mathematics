@@ -19,6 +19,7 @@ const BounceFight := preload("res://logic/bounce/bounce_fight.gd")
 const BounceSim := preload("res://logic/bounce/bounce_sim.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
+const Ambient := preload("res://game/ui/ambient.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
@@ -453,6 +454,7 @@ func _draw() -> void:
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.06, 0.04, 0.05))
 	# the dragon's hoard: gold and jewels heaped left, right and behind
 	draw_texture_rect(TREASURE_TEX, Rect2(0, 0, 960, 540), false)
+	Ambient.room(self, TREASURE_TEX.resource_path, _t, _board_rect().grow(8.0))  # the hoard glints, not under the board
 	draw_texture_rect(BOARD_TEX, _board_rect(), false, board_tint)
 	_draw_claw()   # behind the skull: the arm comes from the body behind it
 	_draw_dragon()
