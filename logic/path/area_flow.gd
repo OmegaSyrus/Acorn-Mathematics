@@ -58,8 +58,12 @@ static func enter(save: Dictionary, area: Dictionary, grade_id: int, stage: Stri
 ## A world that isn't built yet (no "area") can't be beaten, so the world
 ## after it looks back past it to the last built one (2026-11-12: Space
 ## opens after the Bog until the Mushroom Forest is in).
+## A grown-up can open any world from the main menu's Grown-ups panel
+## (Terrence 2026-11-12: "parent unlocks and child picks"), save["parent_open"].
 static func world_unlocked(save: Dictionary, worlds: Array, i: int) -> bool:
 	if bool(save.get("debug_unlock", false)) and i < worlds.size():
+		return true
+	if i > 0 and i < worlds.size() and save.get("parent_open", []).has(String(worlds[i]["id"])):
 		return true
 	if i == 0:
 		return true
@@ -71,9 +75,27 @@ static func world_unlocked(save: Dictionary, worlds: Array, i: int) -> bool:
 	return world_beaten(save, String(worlds[before]["id"]))
 
 
+## Unlocked by play alone (the first world, or the one before it beaten),
+## leaving out the Grown-ups panel and the Debug "Map: all open".
+static func world_unlocked_by_play(save: Dictionary, worlds: Array, i: int) -> bool:
+	var plain := save.duplicate()
+	plain["parent_open"] = []
+	plain["debug_unlock"] = false
+	return world_unlocked(plain, worlds, i)
+
+
 ## An unlocked world can be played once it has an area built.
 static func world_open(save: Dictionary, worlds: Array, i: int) -> bool:
 	return world_unlocked(save, worlds, i) and worlds[i].has("area")
+
+
+## The indexes of every unlocked world (a grown-up can open one past a lock).
+static func unlocked_list(save: Dictionary, worlds: Array) -> Array:
+	var out := []
+	for i in worlds.size():
+		if world_unlocked(save, worlds, i):
+			out.append(i)
+	return out
 
 
 ## How many worlds are unlocked, counting from the first.

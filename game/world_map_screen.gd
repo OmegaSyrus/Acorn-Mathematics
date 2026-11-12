@@ -6,6 +6,10 @@
 ## (a crossing in progress there picks up again); a locked world shakes its
 ## lock, and an unlocked world that isn't built yet says "Soon".
 ## Beaten worlds get a gold star.
+## Under each world's name, six marks (two rows of three), one per level (2026-11-12):
+## gold once that level is beaten, with a bright star beside it when its
+## crossing was cleared without losing a heart (game/ui/marks.gd). The menu's
+## level is framed.
 extends Node2D
 
 signal open_world(world: Dictionary)
@@ -14,6 +18,15 @@ const AreaFlow := preload("res://logic/path/area_flow.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
+const Marks := preload("res://game/ui/marks.gd")
+const SaveData := preload("res://logic/core/save_data.gd")
+const Content := preload("res://logic/core/content.gd")
+## One level's mark and star, left to right, six to a world in two rows of
+## three (levels 1-3 over 4-6), so the edge worlds stay inside the 4:3 band.
+const MARK_STEP := 30
+const ROW_STEP := 18
+const PER_ROW := 3
+const LEVELS := 6
 
 ## Node middles, inside the 4:3 band (x 120..840) a tablet shows.
 const XS := [180.0, 330.0, 480.0, 630.0, 780.0]
@@ -32,12 +45,17 @@ var _t := 0.0
 var _shake := {}  # world index -> seconds left
 var fresh_unlock := -1  # a world whose lock just came off (pops on show), -1 = none
 var _unlock := 0.0      # 0..1 the lock popping off
+var level := 1          # the main menu's level number, framed in each row of marks
+var _ids := {}          # world id -> its level ids by number (Content.level_ids)
 
 
-func setup(profile: Dictionary, world_list: Array, just_unlocked := -1) -> void:
+func setup(profile: Dictionary, world_list: Array, just_unlocked := -1, menu_level := 1) -> void:
 	save = profile
 	worlds = world_list.slice(0, XS.size())
 	fresh_unlock = just_unlocked
+	level = clampi(menu_level, 1, LEVELS)
+	for w in worlds:
+		_ids[String(w["id"])] = Content.level_ids(String(w["id"]), LEVELS)
 
 
 func _ready() -> void:
@@ -143,6 +161,21 @@ func _draw_world(font: Font, i: int) -> void:
 				INK if open else Color(0.62, 0.6, 0.62))
 	if open and not w.has("area") and not popping:
 		_label(font, Vector2(c.x - 60, c.y + 9), 120, "Soon", 26, INK)
+	if w.has("area"):
+		_draw_marks(String(w["id"]), Vector2(c.x, c.y + R + 32 + (words.size() - 1) * 28 + 14))
+
+
+## The six level marks of a world, centered under its name (top at `top`).
+func _draw_marks(world_id: String, top: Vector2) -> void:
+	var ids: Array = _ids.get(world_id, [])
+	var x0 := roundf(top.x - (MARK_STEP * (PER_ROW - 1) + Marks.pair_width()) / 2.0)
+	for n in ids.size():
+		var at := Vector2(x0 + (n % PER_ROW) * MARK_STEP, top.y + (n / PER_ROW) * ROW_STEP)
+		var id: int = ids[n]
+		if n + 1 == level:
+			draw_rect(Rect2(at - Vector2(2, 2), Vector2(Marks.SIZE + 4, Marks.SIZE + 4)), INK)
+		Marks.draw_pair(self, at, id > 0 and SaveData.has_mark(save, world_id, id),
+				id > 0 and SaveData.has_star(save, world_id, id))
 
 
 ## A padlock: a dark body and a shackle over it.

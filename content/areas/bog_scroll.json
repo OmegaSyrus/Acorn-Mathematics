@@ -7,7 +7,7 @@
   "boss": "jenny_greenteeth",
   "name": "The Bog: the crossing",
   "grades": [31, 32, 33, 34, 35, 36],
-  "_note": "Terrence 2026-11-08: the Bog is playable. Same run as the Lava crossing; the stones are tussocks, sunken logs and peat. Wispling, Nixie, Tiddy Mun (in place of a chest), Bog-draugr, then the Wisp King and Queen and Jenny Greenteeth.",
+  "_note": "Terrence 2026-11-08: the Bog is playable. Same run as the Lava crossing; the stones are tussocks, sunken logs and peat. Wispling, Nixie, Tiddy Mun (in place of a chest), Bog-draugr, then the Wisp King and Queen and Jenny Greenteeth. 2026-11-12: a second heart stone (step 7, the stone just past Tiddy Mun, was a chest): the Bog asks more questions that can cost a heart than the other crossings (four monsters).",
   "guesses": 9,
   "chest_gems": {
     "common": 1,
@@ -44,7 +44,7 @@
     },
     {
       "after": 7,
-      "type": "chest"
+      "type": "heart"
     },
     {
       "after": 8,

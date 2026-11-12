@@ -1,6 +1,6 @@
 {
  "version": 1,
- "_note": "Levels by world (docs/difficulty-plan.md section 1.3, built 2026-11-08 for Lava, the Crystal Mines and the Bog). The main menu's Difficulty picks the level number; the world map picks the world. Move draws per section 4.2. Fights use the approved fight rules (grade 1 one die, 2 two-dice sum, 3 die + ? = target) with answers capped at fight.top; the boss uses boss_grade's board (1 match, 2 sum). zoom 1.0 = today's 1x crossing, else half size. A level with \"ramp\" (Crystal Mines, 2026-11-12: Terrence found Crystal 1 too big a jump from Lava 1) splits its guesses into stages, each with its own move, fight and rails; the crossing starts at the matching Lava level's math and steps up. The level's own move, fight and rails are the last stage (the miniboss duel uses that fight). Mushroom Forest (2026-11-12) ramps the same way: Mushroom N opens at Lava N's math (two dice), steps up and ends on its own (four dice in pairs, red dice among four, the hidden die among three and four, take away across ten); the plan's Mushroom 7 is the last stage of Mushroom 6. Space (2026-11-12): every level ramps in 3 stages from Bog-sized math up to its own, and \"track\": true numbers the star stones by their place on the track (the hero's stone too), so the child adds onto a bigger number. Boss: sum at Space 1 and 2, difference (boss_grade 4) from Space 3.",
+ "_note": "Levels by world (docs/difficulty-plan.md section 1.3, built 2026-11-08 for Lava, the Crystal Mines and the Bog). The main menu's Difficulty picks the level number; the world map picks the world. Move draws per section 4.2. Fights use the approved fight rules (grade 1 one die, 2 two-dice sum, 3 die + ? = target) with answers capped at fight.top; the boss uses boss_grade's board (1 match, 2 sum). zoom 1.0 = today's 1x crossing, else half size. A level with \"ramp\" (Crystal Mines, 2026-11-12: Terrence found Crystal 1 too big a jump from Lava 1) splits its guesses into stages, each with its own move, fight and rails; the crossing starts at the matching Lava level's math and steps up. The level's own move, fight and rails are the last stage (the miniboss duel uses that fight). Mushroom Forest (2026-11-12) ramps the same way: Mushroom N opens at Lava N's math (two dice), steps up and ends on its own (four dice in pairs, red dice among four, the hidden die among three and four, take away across ten); the plan's Mushroom 7 is the last stage of Mushroom 6. Space (2026-11-12): every level ramps in 3 stages from Bog-sized math up to its own, and \"track\": true numbers the star stones by their place on the track (the hero's stone too), so the child adds onto a bigger number. Boss: sum at Space 1 and 2, difference (boss_grade 4) from Space 3. Lava 2 to 6 (2026-11-12) open with 2 of their 7 guesses at the Lava level before's math (Lava 2 at Lava 1's: two dice to 5; Lava 5 keeps Lava 4's to its 9 stones), then their own. The Bog (2026-11-12) ramps in 3 stages like the Crystal Mines: Bog N opens at the step before's math (Bog 1 at Crystal 6's, kept to 11; Bog 3 at Bog 2's signs, kept to its six stones), steps up and ends on its own. Fights ask the step before (Terrence, 2026-11-12): a monster fight asks the previous level's fight along the level path (Lava 1-6, Crystal 1-6, Bog 1-6, Mushroom 1-6, Space 1-6; Lava 1 keeps its own); a ramp stage whose own fight is the same rule with a lower top keeps it. logic/core/content.gd works this out as monster_fight; fight stays the level's own and the miniboss duel uses it.",
  "bands": {
   "acorn": {
    "name": "Acorn",
@@ -81,7 +81,43 @@
     "grade": 2,
     "top": 8
    },
-   "boss_grade": 1
+   "boss_grade": 1,
+   "ramp": [
+    {
+     "guesses": 2,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 5
+     },
+     "fight": {
+      "grade": 1,
+      "top": 6
+     },
+     "rails": false
+    },
+    {
+     "guesses": 5,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 8
+     },
+     "fight": {
+      "grade": 2,
+      "top": 8
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 13,
@@ -102,7 +138,43 @@
     "grade": 2,
     "top": 10
    },
-   "boss_grade": 1
+   "boss_grade": 1,
+   "ramp": [
+    {
+     "guesses": 2,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 8
+     },
+     "fight": {
+      "grade": 2,
+      "top": 8
+     },
+     "rails": false
+    },
+    {
+     "guesses": 5,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 10
+     },
+     "fight": {
+      "grade": 2,
+      "top": 10
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 14,
@@ -123,7 +195,43 @@
     "grade": 2,
     "top": 12
    },
-   "boss_grade": 1
+   "boss_grade": 1,
+   "ramp": [
+    {
+     "guesses": 2,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 10
+     },
+     "fight": {
+      "grade": 2,
+      "top": 10
+     },
+     "rails": false
+    },
+    {
+     "guesses": 5,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 12
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 15,
@@ -143,7 +251,42 @@
     "grade": 2,
     "top": 9
    },
-   "boss_grade": 1
+   "boss_grade": 1,
+   "ramp": [
+    {
+     "guesses": 2,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 9
+     },
+     "fight": {
+      "grade": 2,
+      "top": 9
+     },
+     "rails": false
+    },
+    {
+     "guesses": 5,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 9
+     },
+     "fight": {
+      "grade": 2,
+      "top": 9
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 16,
@@ -163,7 +306,41 @@
     "grade": 2,
     "top": 11
    },
-   "boss_grade": 1
+   "boss_grade": 1,
+   "ramp": [
+    {
+     "guesses": 2,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 9
+     },
+     "fight": {
+      "grade": 2,
+      "top": 9
+     },
+     "rails": false
+    },
+    {
+     "guesses": 5,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 11
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 21,
@@ -624,7 +801,63 @@
     "grade": 2,
     "top": 12
    },
-   "boss_grade": 2
+   "boss_grade": 2,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 11,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 14,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 18,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 32,
@@ -647,7 +880,64 @@
     "grade": 2,
     "top": 12
    },
-   "boss_grade": 2
+   "boss_grade": 2,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 11,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++-",
+       "+--"
+      ],
+      "min_answer": 1,
+      "max_answer": 11,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-",
+       "+--"
+      ],
+      "min_answer": 1,
+      "max_answer": 18,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 33,
@@ -670,7 +960,64 @@
     "grade": 3,
     "top": 12
    },
-   "boss_grade": 2
+   "boss_grade": 2,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-",
+       "+--"
+      ],
+      "min_answer": 1,
+      "max_answer": 6,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 34,
@@ -697,7 +1044,70 @@
     "grade": 3,
     "top": 12
    },
-   "boss_grade": 2
+   "boss_grade": 2,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+-",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++",
+        "last"
+       ],
+       [
+        "+-",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 35,
@@ -720,7 +1130,70 @@
     "grade": 3,
     "top": 12
    },
-   "boss_grade": 2
+   "boss_grade": 2,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "++",
+        "last"
+       ],
+       [
+        "+-",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+++",
+        "last"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+++",
+        "any"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 36,
@@ -741,7 +1214,64 @@
     "grade": 2,
     "top": 12
    },
-   "boss_grade": 2
+   "boss_grade": 2,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "hidden",
+      "options": [
+       [
+        "+++",
+        "any"
+       ]
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 3,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-",
+       "+--"
+      ],
+      "min_answer": 1,
+      "max_answer": 18,
+      "constraint": "red_heavy"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "mix",
+      "parts": [
+       32,
+       34
+      ],
+      "min_answer": 1,
+      "max_answer": 18
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": false
+    }
+   ]
   },
   {
    "id": 41,

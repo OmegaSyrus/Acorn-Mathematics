@@ -3598,6 +3598,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 330319623,
@@ -3865,6 +3866,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 3141170346,
@@ -4158,6 +4160,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 1643606233,
@@ -4425,6 +4428,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 4073947074,
@@ -4718,6 +4722,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 3942103278,
@@ -4985,6 +4990,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 730955532,
@@ -5265,6 +5271,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 2310174675,
@@ -5532,6 +5539,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 1654994992,
@@ -5824,6 +5832,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 992704321,
@@ -6097,6 +6106,7 @@
     "hearts_taken": [
      3
     ],
+    "hurt": true,
     "rolls": 7,
     "phase": "cleared",
     "rng_state": 1229292942,

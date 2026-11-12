@@ -38,6 +38,22 @@ The main menu's small grey Reset button (top right) asks "Reset all?". No keeps
 everything; Yes only works when held down for 3 seconds, so a child tapping around
 can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn's intro.
 
+## Grown-ups and level marks (Terrence, 2026-11-12)
+
+- "Parent unlocks and child picks": the main menu's small grey Grown-ups
+  button (left of Debug) does nothing on a tap; held down for 3 seconds (a bar
+  fills after the first second) it opens the Grown-ups panel
+  (`game/grownups_screen.gd`). Each world there is "Open by play" or toggles
+  Locked/Open (`save["parent_open"]`); the child picks any open world on the
+  map. Beating a boss still opens the next world. Reset clears the opens too.
+- Every world records a gold mark per level beaten (boss and all,
+  `save["marks"]`) and a bright star when that level's crossing was cleared
+  without losing a heart (`save["stars"]`, from `ScrollRun.hurt`). The map
+  shows six marks under each world (levels 1-3 over 4-6, the menu's level
+  framed); the main menu shows each world's mark at the picked level under
+  the difficulty (`game/ui/marks.gd`).
+- Stills: `res://tools/stills/marks_stills.tscn` (same command as the others).
+
 ### Fights, hearts, menu and map (Terrence, 2026-11-07, version 0.15.0)
 
 - The main menu says "Difficulty: Acorn" (tap the difficulty to step through
@@ -71,6 +87,20 @@ can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn
   below them, on the crossing and in fights.
 - In fights the dragon holds his shield again: low at his side, raised out
   in front to block a swing and to shield bash.
+
+### The difficulty curve (Terrence, 2026-11-12)
+
+- Fights ask the step before: a monster fight asks the previous level's fight
+  along the level path (Lava 1 to 6, Crystal, Bog, Mushroom, Space), so new
+  ideas only come on the stones. Lava 1 keeps its own; the duel keeps the level's.
+  `Content.levels()` works it out as `monster_fight`.
+- Lava 2 to 6 play their first 2 of 7 guesses at the Lava level before's math;
+  every Bog level ramps in 3 stages like the Crystal Mines.
+- The Bog has a second heart stone (step 7, just past Tiddy Mun).
+- Boss: 8 balls everywhere, 8 boss hearts at Acorn and 6 above, so naming right
+  wins most fights even with poor aim (`logic/bounce/README.md`).
+- `tests/test_clear_chance.gd` prints how often a player who is right 85% of the
+  time clears each level's crossing in one try.
 
 ## The store
 
@@ -165,6 +195,17 @@ for crisp shapes; switch to `viewport` with integer scaling when pixel art arriv
 - Add `*.json` to "Filters to export non-resource files" in each export preset, or the
   content files are left out of the build.
 - Android/iOS: landscape (sensor) is set; renderer is GL Compatibility for older tablets.
+- The Android back gesture never quits (`application/config/quit_on_go_back=false`)
+  and does nothing on any screen. When the app goes to the background the save is
+  written and the music held; it plays on when the app comes back (`game/app_life.gd`).
+
+## Play log
+
+`game/play_log.gd` appends one JSON line per answered question (stone, fight, duel,
+boss: the question as shown, the right answer, the pick, right or wrong, seconds) and
+per run event (run start, heart lost, restart, level cleared, fights and boss won or
+lost, app paused and resumed) to `user://play_log.jsonl`. At about 1 MB it moves to
+`play_log.1.jsonl`. It stays on the tablet; a parent report will read it later.
 
 ## Not in this phase
 

@@ -260,8 +260,8 @@ at most two digits. Monsters: 3 under 70 spaces, 4 from 70. Chests: always 5.
   is a new board file with six peg faces (data only); "sum" is ball + peg = target from
   the Crystal Mines on [decided: the Sprout boss is sum]; "difference" is
   ball - peg = target for the Oak levels (v0.19). Balls and boss hearts as
-  `content/bounce/tuning.json` has them: match boards 8 balls and 10 hearts, the rest 6
-  balls and 12 hearts.
+  `content/bounce/tuning.json` has them: 8 balls everywhere, the boss 8 hearts on match
+  boards and 6 on the rest (2026-11-12: naming right with random aim wins 60 to 80%).
 - **Walk time**: every walk, the wrong-stone hop-along and the door hop take
   `hop_s = clamp(3.4 / d, 0.17, 0.34)` seconds per hop for d hops: up to 10 hops keep
   today's pace and 20 hops take 3.4 s. `Beeper.count` has 14 rising tones; hops 15 to 20

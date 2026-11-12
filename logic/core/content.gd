@@ -72,7 +72,47 @@ static func levels() -> Dictionary:
 				for pid in mv["parts"]:
 					parts.append(out[int(pid)]["move"])
 				mv["part_moves"] = parts
+	_step_back_fights(out)
 	return out
+
+
+## The levels in play order (the level path): the worlds as the map orders
+## them, each world's levels by number. Each world picks up where the last
+## one ended.
+static func level_path(levels_by_id: Dictionary) -> Array:
+	var order := []
+	for w in worlds():
+		var ls := []
+		for l in levels_by_id.values():
+			if l["world"] == w["id"]:
+				ls.append(l)
+		ls.sort_custom(func(a, b): return int(a["num"]) < int(b["num"]))
+		order.append_array(ls)
+	return order
+
+
+## Fights ask the step before (Terrence, 2026-11-12): a monster fight in a
+## level asks the previous level's fight (its own "fight", the last stage's)
+## along the level path, so the new ideas stay on the stones. The first level
+## (Lava 1) keeps its own. A ramp stage already opening below that (same
+## rule, a lower top) keeps its own top. Each level and ramp stage gets the
+## result as "monster_fight"; "fight" stays the level's own (the duel).
+static func _step_back_fights(levels_by_id: Dictionary) -> void:
+	var path := level_path(levels_by_id)
+	for i in path.size():
+		var lv: Dictionary = path[i]
+		var before: Dictionary = lv["fight"] if i == 0 else path[i - 1]["fight"]
+		lv["monster_fight"] = step_back_fight(before, lv["fight"])
+		for st in lv.get("ramp", []):
+			st["monster_fight"] = step_back_fight(before, st["fight"])
+
+
+## The fight a monster asks: the step before's, or `own` when it is the
+## same rule with a lower top (never more than the stones around it ask).
+static func step_back_fight(before: Dictionary, own: Dictionary) -> Dictionary:
+	if int(own["grade"]) == int(before["grade"]) and int(own["top"]) < int(before["top"]):
+		return own.duplicate()
+	return before.duplicate()
 
 
 static func bands() -> Dictionary:
@@ -87,3 +127,16 @@ static func level_id(world_id: String, num: int) -> int:
 		if l["world"] == world_id and int(l["num"]) == num:
 			return int(l["id"])
 	return 1
+
+
+## A world's level ids by number: [level 1 id, ..., level 6 id] (0 where the
+## world has no such level). Reads levels.json once, for drawing the marks.
+static func level_ids(world_id: String, count := 6) -> Array:
+	var out := []
+	out.resize(count)
+	out.fill(0)
+	for l in levels().values():
+		var n := int(l["num"])
+		if l["world"] == world_id and n >= 1 and n <= count:
+			out[n - 1] = int(l["id"])
+	return out
