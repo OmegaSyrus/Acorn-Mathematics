@@ -15,6 +15,7 @@ const InputSetup := preload("res://game/input_setup.gd")
 const WORLDS := {
 	"crystal": ["crystal_scroll", "crystal_mines", ["knocker", "svartalf", "gem_dwarf", "crystal_miniboss"]],
 	"bog": ["bog_scroll", "bog", ["wispling", "nixie", "tiddy_mun", "draugr", "bog_miniboss"]],
+	"mushroom": ["mushroom_scroll", "mushroom_forest", ["pixie", "hobgoblin", "boggart", "mushroom_miniboss"]],
 }
 
 var out_dir := "/tmp"
@@ -29,7 +30,13 @@ func _ready() -> void:
 	var stage := Node2D.new()
 	add_child(stage)
 	stage.position = ((get_viewport_rect().size - Vector2(960, 540)) / 2.0).round()
+	var only := ""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--world="):
+			only = arg.substr(8)
 	for key in WORLDS:
+		if only != "" and key != only:
+			continue
 		var w: Array = WORLDS[key]
 		var run := ScrollRun.new(Content.area(w[0]), Content.grades()[1], 2)
 		var s := ScrollScreen.new()
