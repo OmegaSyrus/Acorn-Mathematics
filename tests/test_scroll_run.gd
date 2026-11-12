@@ -103,7 +103,7 @@ func test_perfect_player_crosses() -> bool:
 func test_run_is_9_guesses() -> bool:
 	var lengths := {}
 	for i in 600:
-		var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 900 + i)
+		var run := ScrollRun.new(Content.area("crystal_scroll"), Content.grades()[1], 900 + i)
 		if i % 3 == 0:
 			for k in ScrollRun.HERO_HEARTS:  # every heart lost: a sink
 				run.roll()
@@ -135,7 +135,7 @@ func test_steps_land_on_the_answers() -> bool:
 	var area := Content.area("lava_scroll")
 	var run := ScrollRun.new(area, Content.grades()[1], 31)
 	var at := 0
-	for k in 8:
+	for k in area["steps"].size():
 		at += int(run.answers[k])
 		var st: Dictionary = area["steps"][k]
 		check(run.space_at(at).get("type") == st["type"], "step %d on stone %d" % [k + 1, at])
@@ -258,4 +258,20 @@ func test_heart_stone_and_hearts_carry() -> bool:
 		run.choose((p2["answer_index"] + 1) % p2["choices"].size())
 	check(run.attempt == 2, "three misses sink")
 	check(run.hearts == 3 and run.hearts_taken.is_empty(), "a restart: 3 hearts and the heart stone back")
+	return true
+
+
+## Terrence 2026-11-12: the lava crossing is shorter, 7 guesses.
+func test_lava_is_7_guesses() -> bool:
+	for i in 100:
+		var run := ScrollRun.new(Content.area("lava_scroll"), Content.grades()[1], 300 + i)
+		var guard := 0
+		while run.phase != ScrollRun.CLEARED and guard < 100:
+			guard += 1
+			if run.phase == ScrollRun.AWAIT_FIGHT:
+				run.resolve_fight(true)
+			else:
+				run.roll()
+				run.choose(run.problem["answer_index"])
+		check(run.rolls == 7 and run.phase == ScrollRun.CLEARED, "seed %d took %d rolls" % [300 + i, run.rolls])
 	return true

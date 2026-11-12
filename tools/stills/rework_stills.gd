@@ -112,6 +112,12 @@ func _fight() -> void:
 		await _frames(1)
 	await _frames(20)
 	_shot("5-fight-block")
+	f.shield_up = 1.0
+	f.hero_dx = 120.0
+	await _frames(3)
+	_shot("5b-fight-shield-raised")
+	f.shield_up = 0.0
+	f.hero_dx = 0.0
 	f.choice.close()
 	f.choice.picked.emit(f.fight.attack.answer_index)
 	await _secs(1.4)

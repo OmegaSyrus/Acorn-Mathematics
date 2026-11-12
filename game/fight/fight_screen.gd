@@ -32,6 +32,8 @@ const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
+## The miniboss duel's retry button, after a loss.
+const RETRY_RECT := Rect2(330, 240, 300, 96)
 ## Monster art and the scale it is drawn at.
 ## (by monster id in game/ui/world_theme.gd, with the fight room of its world)
 const WorldTheme := preload("res://game/ui/world_theme.gd")
@@ -68,6 +70,7 @@ var debug_on := false
 var dice: Array = []
 var choice: ChoiceWidget
 var shields_shown := false
+var retry_shown := false
 var picked := -1
 var revealed := false
 var monster_state := "idle"
@@ -82,6 +85,9 @@ var bubble := ""
 var monster_tex: Texture2D
 var bg_tex: Texture2D = preload("res://art/lava/fight-bg.png")
 var hero_lift := 0.0
+## The dragon's own shield (Terrence 2026-11-12: he blocks and shield-bashes
+## with it): 0 held at his side, 1 raised in front.
+var shield_up := 0.0
 var door_alpha := -1.0  # the boss door after the duel; -1 = not shown
 var _t := 0.0
 ## Hearts as drawn. They lag the fight's count so a heart only goes when the
@@ -178,8 +184,16 @@ func _loop() -> void:
 		if out["state"] == Fight.State.LOST:
 			await _hero_collapse()
 			if fight.on_loss == Fight.OnLoss.RESTART_DUEL:
-				_say("Again!")
-				await _wait(0.8)
+				# a green "Try again" button starts the duel over (Terrence 2026-11-12)
+				_say("")
+				await _wait(0.5)
+				retry_shown = true
+				choice.confirm = false
+				choice.present([RETRY_RECT])
+				await choice.picked
+				choice.confirm = true
+				retry_shown = false
+				Beeper.good()
 				_reset_looks()
 				fight.restart()
 				_sync_hearts()
@@ -235,6 +249,7 @@ func _wind_up() -> void:
 ## Nobody loses a heart; the hero's shield bash comes next.
 func _parry() -> void:
 	monster_state = "strike"
+	create_tween().tween_property(self, "shield_up", 1.0, 0.12 * SLOW)
 	await _tween_prop("monster_dx", -120.0, 0.18)
 	monster_state = "blocked"
 	clang = 1.0
@@ -243,13 +258,15 @@ func _parry() -> void:
 	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
 	await _tween_prop("monster_dx", 30.0, 0.2)
 	await _tween_prop("monster_dx", 0.0, 0.15)
-	await _wait(0.35)
+	await _tween_prop("shield_up", 0.0, 0.2)
+	await _wait(0.2)
 	monster_state = "idle"
 
 
 ## Right bash: the hero charges in, the shield clangs on the monster and it
 ## loses a heart.
 func _bash() -> void:
+	await _tween_prop("shield_up", 1.0, 0.12)
 	await _tween_prop("hero_dx", 230.0, 0.16)
 	clang = 1.0
 	Beeper.tone(1200.0, 0.08)
@@ -259,6 +276,7 @@ func _bash() -> void:
 	_blink("monster_flash")
 	var breaking := _break_monster_heart()
 	await _tween_prop("hero_dx", 0.0, 0.25)
+	create_tween().tween_property(self, "shield_up", 0.0, 0.2 * SLOW)
 	await breaking
 	await _wait(0.35)
 	monster_state = "idle"
@@ -268,11 +286,13 @@ func _bash() -> void:
 ## heart is lost; the monster attacks next.
 func _miss() -> void:
 	# the hop back is quicker than the charge, so it is done when that lands
+	await _tween_prop("shield_up", 1.0, 0.12)
 	create_tween().tween_property(self, "monster_dx", 70.0, 0.14 * SLOW)
 	await _tween_prop("hero_dx", 200.0, 0.16)
 	_say("Miss!")
 	Beeper.tone(330.0, 0.12)
 	await _tween_prop("hero_dx", 0.0, 0.25)
+	create_tween().tween_property(self, "shield_up", 0.0, 0.2 * SLOW)
 	await _tween_prop("monster_dx", 0.0, 0.2)
 	await _wait(0.35)
 
@@ -460,6 +480,10 @@ func _draw() -> void:
 		var b := Rect2(360, 12, 240, 44)
 		RoundBox.fire(self, b, _t, 16.0)
 		_outlined(font, b.position + Vector2(0, 32), bubble, b.size.x, 28)
+	if retry_shown:
+		RoundBox.fill(self, RETRY_RECT, Color(0.2, 0.62, 0.3), 18.0)
+		RoundBox.frame(self, RETRY_RECT, Color(0.07, 0.04, 0.08), 4.0, 18.0)
+		_outlined(font, RETRY_RECT.position + Vector2(0, 64), "Try again", RETRY_RECT.size.x, 46)
 	if debug_on:
 		var atk = fight.attack
 		var line := "dice %s target %d answer %d choices %s  hearts %d/%d" % [str(atk.dice), atk.target, atk.answer,
@@ -591,8 +615,15 @@ func _draw_hero(base: Vector2) -> void:
 	var size := hero_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
 	var feet := base + Vector2(0, 12)
 	draw_texture_rect(hero_tex, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
-	# no shield on the hero (Terrence, 2026-11-07): the numbered shields are
-	# the answers, and the block is the clang
+	# his shield (Terrence 2026-11-12): held low at his side, raised out in
+	# front to block a swing and to shield bash; it flashes on the clang
+	var low := Vector2(24, -22)
+	var high := Vector2(44, -42)
+	var sc := lerpf(0.3, 0.4, shield_up)
+	var ssize := (SHIELD_TEX.get_size() * sc).round()
+	var c := (base + low.lerp(high, shield_up)).round()
+	var stint := tint.lerp(Color(2.0, 2.0, 2.0, alpha), clang * shield_up)
+	draw_texture_rect(SHIELD_TEX, Rect2(c - ssize / 2.0, ssize), false, stint)
 
 
 func _draw_monster(font: Font) -> void:
