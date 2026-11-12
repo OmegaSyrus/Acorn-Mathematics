@@ -85,8 +85,11 @@ func is_level() -> bool:
 func stage(k: int) -> Dictionary:
 	var r: Array = grade.get("ramp", [])
 	if r.is_empty():
-		return {"move": grade.get("move", {}), "fight": grade.get("fight", {"grade": grade["id"], "top": 0}),
+		var st := {"move": grade.get("move", {}), "fight": grade.get("fight", {"grade": grade["id"], "top": 0}),
 				"rails": bool(grade.get("rails", false))}
+		if grade.has("monster_fight"):
+			st["monster_fight"] = grade["monster_fight"]
+		return st
 	var left := k
 	for s in r:
 		if left < int(s["guesses"]):
@@ -107,9 +110,11 @@ func max_answer_now() -> int:
 
 
 ## The fight for a monster met now: the stage of the guess that walked
-## into it.
+## into it. A level asks the step before's fight ("monster_fight", set by
+## Content.levels(): fights ask the previous level's math, 2026-11-12).
 func fight_now() -> Dictionary:
-	return stage(maxi(0, rolls - 1))["fight"]
+	var st := stage(maxi(0, rolls - 1))
+	return st.get("monster_fight", st["fight"])
 
 
 func _lay_out() -> void:
