@@ -19,6 +19,8 @@ const FightScreen := preload("res://game/fight/fight_screen.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
 const WorldMapScreen := preload("res://game/world_map_screen.gd")
 const DebugScreen := preload("res://game/debug_screen.gd")
+const PlayLog := preload("res://game/play_log.gd")
+const AppLife := preload("res://game/app_life.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -50,7 +52,18 @@ func _ready() -> void:
 	levels = Content.levels()
 	save = SaveStore.read()
 	play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
+	PlayLog.set_profile(str(save.get("profile", SaveStore.PROFILE)))
+	var life := AppLife.new()
+	life.save_now = func(): SaveStore.write(save)
+	life.pause_music = Music.pause
+	life.resume_music = Music.resume
+	add_child(life)
 	show_map()
+
+
+## The play log's place: this area at this level (game/play_log.gd).
+func _log_place(area: Dictionary, grade_id: int) -> void:
+	PlayLog.set_place(area, grade_id, int(_grade(grade_id).get("num", grade_id)))
 
 
 ## `godot --path . -- --area=lava_1_fights` plays another area file.
@@ -200,6 +213,8 @@ func _fight_of(id: int) -> Dictionary:
 
 func _on_start(grade_id: int, resume: bool) -> void:
 	var area := Content.area(area_id)
+	_log_place(area, grade_id)
+	PlayLog.event("run_resume" if resume else "run_start")
 	_play_level_music()
 	menu.visible = true
 	if resume and AreaFlow.is_stage_run(save["run"]):
@@ -260,6 +275,9 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 ## (after the app closes) opens the same step again.
 func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 	_unlocked_before = AreaFlow.unlocked_count(save, Content.worlds())
+	_log_place(area, grade_id)
+	if stage != AreaFlow.MAP:
+		PlayLog.event(stage + "_start")
 	AreaFlow.enter(save, area, grade_id, stage)
 	SaveStore.write(save)
 	match stage:

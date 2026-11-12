@@ -26,6 +26,7 @@ const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const SaveStore := preload("res://game/save_store.gd")
+const PlayLog := preload("res://game/play_log.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
 ## The gem bucket for beating the dragon (2026-11-06, Terrence): where it
 ## lands, and how long the pour takes.
@@ -188,6 +189,7 @@ func _start_naming() -> void:
 		await _ball_takes_roll()
 	else:
 		choice.present(_choice_rects())
+		_asked_ms = Time.get_ticks_msec()
 
 
 ## Acorn: no naming step. The boss's dots jump onto the ball, which swells
@@ -229,8 +231,13 @@ func _all_pegs_back() -> bool:
 	return not fight.peg_alive.has(false)
 
 
+var _asked_ms := 0
+
+
 func _on_named(index: int) -> void:
+	var shown := PlayLog.boss_shown(fight)
 	fight.name_peg(index)
+	PlayLog.answer("boss", shown, fight.answer_face, fight.named_face, (Time.get_ticks_msec() - _asked_ms) / 1000.0)
 	Beeper.count(fight.named_face)
 	phase = "aiming"
 
@@ -251,6 +258,7 @@ func _on_shot_over() -> void:
 	slow = false
 	if out["state"] == BounceFight.State.WON:
 		phase = "won"
+		PlayLog.event("boss_won", {"shots": fight.shot_count})
 		_say("You win!")
 		Beeper.good()
 		Ellwynn.boss_beaten()
@@ -261,6 +269,7 @@ func _on_shot_over() -> void:
 		return
 	if out["state"] == BounceFight.State.LOST:
 		phase = "lost"
+		PlayLog.event("boss_lost", {"shots": fight.shot_count, "boss_hearts": fight.boss_hearts})
 		for d in boss_dice:
 			d.visible = false
 		Beeper.bad()

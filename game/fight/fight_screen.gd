@@ -20,6 +20,7 @@ const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Ambient := preload("res://game/ui/ambient.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
+const PlayLog := preload("res://game/play_log.gd")
 
 ## Feet a little higher than before and the shields a little lower, so the
 ## monster's name fits under it (Terrence 2026-11-04). The monster's middle
@@ -153,9 +154,17 @@ func _loop() -> void:
 	while true:
 		await _wind_up()
 		choice.present(_shield_rects())
+		var asked_ms := Time.get_ticks_msec()
+		var shown := PlayLog.fight_shown(fight.attack, "bash" if fight.phase == Fight.Phase.BASH else "block")
+		shown["monster"] = fight.monster_id
 		var pick: int = await choice.picked
 		picked = pick
 		var out: Dictionary = fight.choose(pick)
+		var where := "duel" if is_duel else "fight"
+		PlayLog.answer(where, shown, int(out["answer"]), int(fight.attack.choices[pick]),
+				(Time.get_ticks_msec() - asked_ms) / 1000.0)
+		if not out["right"] and out["phase"] == Fight.Phase.BLOCK:
+			PlayLog.event("heart_lost", {"where": where, "hearts_left": fight.hero_hearts})
 		var bashing: bool = out["phase"] == Fight.Phase.BASH
 		revealed = true
 		for d in dice:
@@ -176,6 +185,9 @@ func _loop() -> void:
 			await _parry()
 		else:
 			await _hit()
+		if out["state"] != Fight.State.RESOLVING:
+			PlayLog.event(("%s_won" if out["state"] == Fight.State.WON else "%s_lost") % where,
+					{"monster": fight.monster_id})
 		if out["state"] == Fight.State.WON:
 			await _monster_collapse()
 			if is_duel:

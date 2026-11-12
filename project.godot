@@ -9,6 +9,7 @@ config/name="Acorn Mathematics (graybox)"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://art/icon/icon.png"
+config/quit_on_go_back=false
 
 [autoload]
 
