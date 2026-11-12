@@ -15,6 +15,7 @@ const InputSetup := preload("res://game/input_setup.gd")
 const WORLDS := {
 	"crystal": ["crystal_scroll", "crystal_mines", ["knocker", "svartalf", "gem_dwarf", "crystal_miniboss"]],
 	"bog": ["bog_scroll", "bog", ["wispling", "nixie", "tiddy_mun", "draugr", "bog_miniboss"]],
+	"mushroom": ["mushroom_scroll", "mushroom_forest", ["pixie", "hobgoblin", "boggart", "mushroom_miniboss"]],
 	"space": ["space_scroll", "space", ["star_squirrel", "moon_hobgoblin", "fenrir_pup", "space_miniboss"]],
 }
 
@@ -32,8 +33,8 @@ func _ready() -> void:
 	stage.position = ((get_viewport_rect().size - Vector2(960, 540)) / 2.0).round()
 	var only := ""
 	for arg in OS.get_cmdline_user_args():
-		if arg.begins_with("--only="):
-			only = arg.substr(7)
+		if arg.begins_with("--world="):
+			only = arg.substr(8)
 	for key in WORLDS:
 		if only != "" and key != only:
 			continue

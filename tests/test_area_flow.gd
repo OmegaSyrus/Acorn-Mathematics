@@ -81,3 +81,15 @@ func test_debug_unlock_opens_every_built_world() -> bool:
 	save["debug_unlock"] = false
 	check(AreaFlow.unlocked_count(save, worlds) == 1, "off again: only the first")
 	return true
+
+
+## A world that isn't built yet can't be beaten, so the next built world
+## opens once the last built one before it is beaten.
+func test_unlock_looks_past_unbuilt_worlds() -> bool:
+	var worlds := [{"id": "a", "area": "x"}, {"id": "b"}, {"id": "c", "area": "y"}]
+	var save := SaveData.new_profile("t")
+	check(not AreaFlow.world_unlocked(save, worlds, 2), "c locked before a is beaten")
+	SaveData.add_mark(save, "a", 1)
+	check(AreaFlow.world_unlocked(save, worlds, 2), "c opens after a, past unbuilt b")
+	check(AreaFlow.world_open(save, worlds, 2) and not AreaFlow.world_open(save, worlds, 1), "b has no area to play")
+	return true

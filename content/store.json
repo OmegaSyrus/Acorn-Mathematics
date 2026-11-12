@@ -17,7 +17,7 @@
       "icon": { "shape": "gem", "color": "#f07a2a", "light": "#ffd27a" } },
     "crystals": { "name": "Crystals", "from": "Crystal Mines", "open": false,
       "icon": { "shape": "crystal", "color": "#4fb4ff", "light": "#d4f0ff" } },
-    "leaves": { "name": "Leaves", "from": "Mossy Woods", "open": false,
+    "leaves": { "name": "Leaves", "from": "Mushroom Forest", "open": false,
       "icon": { "shape": "leaf", "color": "#4cb84a", "light": "#b8f08a" } },
     "feathers": { "name": "Feathers", "from": "Cloud Tops", "open": false,
       "icon": { "shape": "feather", "color": "#9ec8ff", "light": "#ffffff" } },

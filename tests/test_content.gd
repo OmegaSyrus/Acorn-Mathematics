@@ -116,11 +116,11 @@ func test_worlds() -> bool:
 
 
 ## Ellwynn says the right answer after a wrong guess (Terrence 2026-11-08: she
-## went quiet above 6). Every answer from 0 up to three dice (18) has a voice.
+## went quiet above 6). Every answer from 0 up to the Mushroom Forest's 20 has a voice.
 func test_ellwynn_says_every_answer() -> bool:
 	var lines = JsonUtil.load_file("res://content/ellwynn_lines.json")
 	var answers: Dictionary = lines.get("answers", {})
-	for n in range(0, 19):
+	for n in range(0, 21):
 		var file: String = answers.get(str(n), "")
 		check(file != "" and ResourceLoader.exists(file), "no Ellwynn voice for %d" % n)
 	return true
