@@ -23,6 +23,10 @@ const MONSTER_ART := {
 	"draugr": "res://art/bog/draugr.png",
 	"tiddy_mun": "res://art/bog/tiddy-mun.png",
 	"bog_miniboss": "res://art/bog/wisp-pair.png",
+	"pixie": "res://art/mushroom/pixie.png",
+	"hobgoblin": "res://art/mushroom/hobgoblin.png",
+	"boggart": "res://art/mushroom/boggart.png",
+	"mushroom_miniboss": "res://art/mushroom/hedley-kow.png",
 }
 
 ## Per world:
@@ -80,6 +84,22 @@ const THEMES := {
 		"treasure": "res://art/bog/treasure-room.png", "boss_label": "Jenny",
 		"board_tint": Color(0.75, 0.95, 0.7, 0.9),
 		"bubble": Color(0.65, 0.8, 0.5),
+	},
+	# Mushroom Forest (2026-11-12): giant mushroom caps seen side-on, the
+	# stems running off the bottom; a wrong cap drops into the leaf litter.
+	"mushroom_forest": {
+		"backdrop": "res://art/mushroom/forest-bg.png",
+		"stones": ["res://art/mushroom/cap-rose.png", "res://art/mushroom/cap-brown.png", "res://art/mushroom/cap-red.png"],
+		"stone_top": true, "waterline": 0.0, "sink_depth": 150.0,
+		"ceiling": [], "ceiling_step": 0.0,
+		"glow": false, "ledge_tint": Color(0.55, 0.7, 0.4),
+		"monsters": ["pixie", "hobgoblin", "boggart", "mushroom_miniboss"],
+		"fight_bg": "res://art/mushroom/fight-bg.png",
+		"boss_head": "res://art/mushroom/green-man.png", "head_at": Vector2(690, -40),
+		"boss_arm": "res://art/mushroom/branch-arm.png", "arm_at": Vector2(712, 285),
+		"treasure": "res://art/mushroom/treasure-room.png", "boss_label": "Green Man",
+		"board_tint": Color(0.8, 1.0, 0.65, 0.9),
+		"bubble": Color(0.95, 0.9, 0.7),
 	},
 }
 

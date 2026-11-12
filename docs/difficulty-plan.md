@@ -149,6 +149,23 @@ numbered again.
 | Mushroom 6 | 7 | `++-`, `+++-`, across ten | 5 to 9 | 9 | half, 73 | take away across ten: the plain dice make 11 or more |
 | Mushroom 7 | 7 to 8 | `++-`, `+++-`, `++--`, across ten | 1 to 9 | 9 | half, 73 | across ten with two red dice |
 
+**Ramp [built 2026-11-12]**: the Mushroom Forest is playable with six levels (the main
+menu's Level 1 to 6), each in three stages of three guesses like the Crystal Mines.
+Mushroom N opens at Lava N's two-dice math and ends on its own; the plan's Mushroom 7 is
+the last stage of Mushroom 6. Level 1 stops at 12 so four dice arrive gently.
+
+| Level | Guesses 1 to 3 | Guesses 4 to 6 | Guesses 7 to 9 | Fights top |
+|---|---|---|---|---|
+| Mushroom 1 | `++`, `+-` to 6 | `+++` 3 to 9 | `++++` pairs, 4 to 12 | 6, 9, 12 |
+| Mushroom 2 | `++`, `+-` to 8 | `+++` 3 to 11 | `++++` pairs, 4 to 14 | 8, 11, 12 |
+| Mushroom 3 | `++`, `+-` to 10 | `++++` pairs, 4 to 14 | `++++`, `+++-` pairs, 1 to 16 | 10, 12, 12 |
+| Mushroom 4 | `++`, `+-` to 12 | `++++`, `+++-` pairs, 1 to 18 | `++++`, `+++-`, `++--` pairs, 1 to 20 | 12 |
+| Mushroom 5 | `++`, second die hidden | `++-`, any die hidden | `++++`, any die hidden | missing die, 12 |
+| Mushroom 6 | `+++` 3 to 11 | `++-`, `+++-` across ten, 5 to 9 | `++-`, `+++-`, `++--` across ten, 1 to 9 | 11, 12, 12 |
+
+Monsters: Pixie, Hobgoblin, Boggart; miniboss the Hedley Kow; boss the Green Man (sum
+board). Ellwynn says 19 and 20 too.
+
 **Space: the star track, within 20** (Oak). On every Space level
 the star stones show their place on the track, not how far away they are (section 2).
 

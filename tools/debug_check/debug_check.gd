@@ -24,7 +24,7 @@ func _ready() -> void:
 	await _shot("0-menu")
 	var stage_names := {"": "scroll_screen.gd", "duel": "fight_screen.gd", "boss": "bounce_screen.gd"}
 	var first := true
-	for row in 3:
+	for row in 4:  # Lava, Crystal Mines, the Bog, Mushroom Forest
 		for st in ["", "duel", "boss"]:
 			m = main.screen
 			_check(m.get_script().resource_path.ends_with("map_screen.gd"), "main menu showing")
