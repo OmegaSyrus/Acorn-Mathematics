@@ -30,7 +30,7 @@
     "chest": [],
     "boss_win": []
   },
-  "_answers_note": "Terrence 2026-11-07: after a wrong guess she says the right answer with a cheerful tone. Bubbles, eleven_v4, prompt \"[cheerful] One!\" and so on, one take each (flow PIySvy4jPrU8YluVR9Mo). 2026-11-08: added 0 and 7-18 (same voice, model and prompt style, one take each) so answers above 6 are spoken too.",
+  "_answers_note": "Terrence 2026-11-07: after a wrong guess she says the right answer with a cheerful tone. Bubbles, eleven_v4, prompt \"[cheerful] One!\" and so on, one take each (flow PIySvy4jPrU8YluVR9Mo). 2026-11-08: added 0 and 7-18 (same voice, model and prompt style, one take each) so answers above 6 are spoken too. 2026-11-12: added 19 and 20 for the Mushroom Forest's four dice.",
   "answers": {
     "0": "res://audio/voice/ellwynn/answer-0.mp3",
     "1": "res://audio/voice/ellwynn/answer-1.mp3",
@@ -50,6 +50,8 @@
     "15": "res://audio/voice/ellwynn/answer-15.mp3",
     "16": "res://audio/voice/ellwynn/answer-16.mp3",
     "17": "res://audio/voice/ellwynn/answer-17.mp3",
-    "18": "res://audio/voice/ellwynn/answer-18.mp3"
+    "18": "res://audio/voice/ellwynn/answer-18.mp3",
+    "19": "res://audio/voice/ellwynn/answer-19.mp3",
+    "20": "res://audio/voice/ellwynn/answer-20.mp3"
   }
 }

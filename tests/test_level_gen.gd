@@ -67,7 +67,7 @@ func test_every_level_roll_reads_to_its_answer() -> bool:
 
 func test_a_perfect_run_clears_every_level() -> bool:
 	var levels := Content.levels()
-	for world in ["lava_caves", "crystal_mines", "bog"]:
+	for world in ["lava_caves", "crystal_mines", "bog", "mushroom_forest"]:
 		var area := {}
 		for aid in Content.area_ids():
 			var a := Content.area(aid)
@@ -127,4 +127,47 @@ func test_crystal_ramp_steps_up_along_the_crossing() -> bool:
 	var c1: Array = levels[Content.level_id("crystal_mines", 1)]["ramp"]
 	check(not c1[0]["rails"] and c1[1]["rails"], "Crystal 1 rails come in on stage 2")
 	check(int(c1[0]["move"]["max_answer"]) <= 6 and c1[0]["move"]["patterns"].size() == 2, "Crystal 1 opens with two dice")
+	return true
+
+
+## Mushroom Forest ramp (2026-11-12): Mushroom N opens at Lava N's math or
+## easier, each roll uses its stage's math, and four dice only come in later.
+func test_mushroom_ramp_steps_up_along_the_crossing() -> bool:
+	var levels := Content.levels()
+	var area := Content.area("mushroom_scroll")
+	for num in range(1, 7):
+		var lv: Dictionary = levels[Content.level_id("mushroom_forest", num)]
+		check(lv.has("ramp"), "Mushroom %d has no ramp" % num)
+		var r: Array = lv["ramp"]
+		check(r[r.size() - 1]["move"] == lv["move"], "Mushroom %d ends on its own math" % num)
+		var lava: Dictionary = levels[Content.level_id("lava_caves", num)]
+		check(int(r[0]["move"]["max_answer"]) <= int(lava["move"]["max_answer"]) + 1,
+				"Mushroom %d starts above Lava %d" % [num, num])
+		var first: Dictionary = r[0]["move"]
+		for pt in first.get("patterns", []) + first.get("options", []).map(func(o): return o[0]):
+			check(str(pt).length() <= 3, "Mushroom %d opens with four dice" % num)
+		for seed_value in range(1, 60):
+			var run := ScrollRun.new(area, lv, seed_value)
+			var k := 0
+			while run.phase != ScrollRun.CLEARED and k < 40:
+				if run.phase == ScrollRun.AWAIT_FIGHT:
+					check(run.fight_now() == run.stage(run.rolls - 1)["fight"], "fight stage")
+					run.resolve_fight(true)
+					continue
+				var st := run.stage(run.rolls)
+				var p := run.roll()
+				var mv: Dictionary = st["move"]
+				var allowed: Array = mv.get("patterns", []) + mv.get("options", []).map(func(o): return o[0])
+				check(allowed.has(p["signs"]), "Mushroom %d roll %d signs %s not in its stage" % [num, run.rolls, p["signs"]])
+				check(p["answer"] <= int(mv["max_answer"]), "Mushroom %d answer above its stage" % num)
+				check(p["dice"].size() <= 4, "more than four dice")
+				if mv.get("constraint", "") == "across_ten":
+					var plain := 0
+					for i in p["signs"].length():
+						if p["signs"][i] == "+":
+							plain += int(p["dice"][i])
+					check(plain >= 11, "Mushroom %d across ten: plain dice make %d" % [num, plain])
+				run.choose(p["answer_index"])
+				k += 1
+			check(run.phase == ScrollRun.CLEARED, "Mushroom %d seed %d did not clear" % [num, seed_value])
 	return true
