@@ -32,6 +32,8 @@ const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
+## The miniboss duel's retry button, after a loss.
+const RETRY_RECT := Rect2(330, 240, 300, 96)
 ## Monster art and the scale it is drawn at.
 ## (by monster id in game/ui/world_theme.gd, with the fight room of its world)
 const WorldTheme := preload("res://game/ui/world_theme.gd")
@@ -68,6 +70,7 @@ var debug_on := false
 var dice: Array = []
 var choice: ChoiceWidget
 var shields_shown := false
+var retry_shown := false
 var picked := -1
 var revealed := false
 var monster_state := "idle"
@@ -178,8 +181,16 @@ func _loop() -> void:
 		if out["state"] == Fight.State.LOST:
 			await _hero_collapse()
 			if fight.on_loss == Fight.OnLoss.RESTART_DUEL:
-				_say("Again!")
-				await _wait(0.8)
+				# a green "Try again" button starts the duel over (Terrence 2026-11-12)
+				_say("")
+				await _wait(0.5)
+				retry_shown = true
+				choice.confirm = false
+				choice.present([RETRY_RECT])
+				await choice.picked
+				choice.confirm = true
+				retry_shown = false
+				Beeper.good()
 				_reset_looks()
 				fight.restart()
 				_sync_hearts()
@@ -460,6 +471,10 @@ func _draw() -> void:
 		var b := Rect2(360, 12, 240, 44)
 		RoundBox.fire(self, b, _t, 16.0)
 		_outlined(font, b.position + Vector2(0, 32), bubble, b.size.x, 28)
+	if retry_shown:
+		RoundBox.fill(self, RETRY_RECT, Color(0.2, 0.62, 0.3), 18.0)
+		RoundBox.frame(self, RETRY_RECT, Color(0.07, 0.04, 0.08), 4.0, 18.0)
+		_outlined(font, RETRY_RECT.position + Vector2(0, 64), "Try again", RETRY_RECT.size.x, 46)
 	if debug_on:
 		var atk = fight.attack
 		var line := "dice %s target %d answer %d choices %s  hearts %d/%d" % [str(atk.dice), atk.target, atk.answer,

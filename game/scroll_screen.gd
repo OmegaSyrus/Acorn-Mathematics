@@ -484,8 +484,10 @@ func _cleared() -> void:
 
 
 ## The door's tap area in screen (HUD) space, once the camera has settled.
+## The door and the GO! arrow over it both lead on (Terrence 2026-11-12),
+## plus about an inch all round.
 func exit_rect() -> Rect2:
-	var d := _door_rect()
+	var d := _door_rect().merge(_go_arrow_rect())
 	var a := _to_screen(d.position, _cam_target())
 	var b := _to_screen(d.end, _cam_target())
 	return Rect2(a, b - a).grow(INCH)
@@ -494,6 +496,12 @@ func exit_rect() -> Rect2:
 ## The door in world space: the frame and the arch over it.
 func _door_rect() -> Rect2:
 	return Rect2(_goal_x() - 50, FEET_Y - 200, 100, 200)
+
+
+## The GO! arrow in world space, with its bob and dark edge (_draw_goal).
+func _go_arrow_rect() -> Rect2:
+	var tip := Vector2(_goal_x(), FEET_Y - 212.0)
+	return Rect2(tip + Vector2(-88, -164), Vector2(176, 178))
 
 
 func _goal_x() -> float:
