@@ -10,6 +10,9 @@ signal shop
 signal reset_save
 ## The grown-up Debug button, beside Reset: main.gd opens the debug screen.
 signal debug
+## The Grown-ups button held down for HOLD_S seconds: main.gd opens the
+## Grown-ups panel (open any world on the map).
+signal grown_ups
 signal _answered(yes: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
@@ -27,6 +30,8 @@ const GEM_TEX := preload("res://art/lava/gem.png")
 const Pointer := preload("res://game/ui/pointer.gd")
 ## The oak on the hill, birds and wandering animals (drawn behind the buttons).
 const MenuScene := preload("res://game/ui/menu_scene.gd")
+const Marks := preload("res://game/ui/marks.gd")
+const Content := preload("res://logic/core/content.gd")
 
 ## Reset (Terrence 2026-11-07): a small grey button top right; it opens a
 ## question, and "Yes" only works if held down for HOLD_S seconds, so a child
@@ -34,6 +39,12 @@ const MenuScene := preload("res://game/ui/menu_scene.gd")
 const RESET_RECT := Rect2(712, 20, 112, 52)
 ## Debug (Terrence 2026-11-08): the same small grey button, left of Reset.
 const DEBUG_RECT := Rect2(588, 20, 112, 52)
+## Grown-ups (Terrence 2026-11-12: "parent unlocks and child picks"): the
+## same small grey button, left of Debug. A tap does nothing; it opens only
+## when held down for HOLD_S seconds (a bar fills after the first second),
+## so a child tapping around never gets in. Kept clear of Debug's tap pad.
+const GATE_RECT := Rect2(416, 20, 152, 52)
+const GATE_RING_AFTER := 1.0
 const PANEL := Rect2(310, 120, 520, 320)  # right of Ellwynn (x 130..290)
 const NO_RECT := Rect2(345, 300, 200, 100)
 const YES_RECT := Rect2(595, 300, 200, 100)
@@ -50,6 +61,9 @@ var choice: ChoiceWidget
 var asking := false      # the reset question is up
 var holding := false     # a finger is down on "Yes"
 var hold_t := 0.0
+var gate_holding := false  # a finger is down on Grown-ups
+var gate_t := 0.0
+var _mark_worlds: Array = []  # [{id, color, ids}] the built worlds, for the marks under the difficulty
 
 
 func setup(profile: Dictionary, grade_table: Dictionary, area: String) -> void:
@@ -57,6 +71,10 @@ func setup(profile: Dictionary, grade_table: Dictionary, area: String) -> void:
 	grades = grade_table
 	area_id = area
 	Look.apply(save)  # the store's hero and dice, for the screens to come
+	for w in Content.worlds():
+		if w.has("area"):
+			_mark_worlds.append({"id": String(w["id"]), "color": w.get("color", [0.8, 0.6, 0.4]),
+					"ids": Content.level_ids(String(w["id"]))})
 
 
 func _ready() -> void:
@@ -129,6 +147,7 @@ func _ask_reset() -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not asking:
+		_gate_input(event)
 		return
 	var p := Pointer.local_pos(self, event) if (Pointer.is_press(event) or Pointer.is_release(event) or Pointer.is_drag(event)) else Vector2(-1, -1)
 	if Pointer.is_press(event):
@@ -146,8 +165,36 @@ func _unhandled_input(event: InputEvent) -> void:
 		hold_t = 0.0
 
 
+## The Grown-ups button: held, not tapped. Sliding off or lifting the
+## finger early starts over.
+func _gate_input(event: InputEvent) -> void:
+	var p := Pointer.local_pos(self, event) if (Pointer.is_press(event) or Pointer.is_release(event) or Pointer.is_drag(event)) else Vector2(-1, -1)
+	if Pointer.is_press(event) and GATE_RECT.has_point(p):
+		get_viewport().set_input_as_handled()
+		gate_holding = true
+		gate_t = 0.0
+	elif Pointer.is_drag(event) and gate_holding and not GATE_RECT.grow(30).has_point(p):
+		gate_holding = false
+		gate_t = 0.0
+		queue_redraw()
+	elif Pointer.is_release(event) and gate_holding:
+		gate_holding = false
+		gate_t = 0.0
+		queue_redraw()
+
+
 func _process(delta: float) -> void:
 	if not asking:
+		if gate_holding:
+			gate_t += delta
+			if gate_t >= HOLD_S:
+				gate_holding = false
+				set_process_unhandled_input(false)
+				choice.close()
+				Beeper.good()
+				grown_ups.emit()
+				return
+			queue_redraw()
 		return
 	if holding:
 		hold_t += delta
@@ -187,6 +234,7 @@ func _draw() -> void:
 			draw_string(font, r.position + Vector2(0, 35), "Reset", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
 					Color(0.8, 0.76, 0.72))
 			continue
+	_draw_gate(font)
 	var stickers := "stickers: %d" % save["stickers"].size()
 	draw_string_outline(font, Vector2(330, 520), stickers, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, TITLE_EDGE)
 	draw_string(font, Vector2(330, 520), stickers, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.85, 0.82, 0.76))
@@ -226,8 +274,48 @@ func _draw_difficulty(font: Font, r: Rect2) -> void:
 	var gname: String = grades[grade_id]["name"] if grades.has(grade_id) else "?"
 	draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), gname, HORIZONTAL_ALIGNMENT_CENTER,
 			r.size.x, 34, ink)
-	if SaveData.has_mark(save, "lava_caves", 1 if grade_id == 1 else 10 + grade_id):
-		draw_circle(r.position + Vector2(r.size.x - 14, 14), 10.0, Color(1.0, 0.8, 0.2))
+	_draw_level_marks(r)
+
+
+## Under the difficulty: one mark per built world at this level, in the
+## world's color until it is beaten (then gold), with the no-heart-lost star
+## beside it (game/ui/marks.gd).
+func _draw_level_marks(r: Rect2) -> void:
+	var step := Marks.pair_width() + 10
+	var n := _mark_worlds.size()
+	if n == 0:
+		return
+	var x0 := roundf(r.get_center().x - (step * (n - 1) + Marks.pair_width()) / 2.0)
+	var y := r.end.y + 12.0
+	RoundBox.fill(self, Rect2(x0 - 8, y - 6, step * (n - 1) + Marks.pair_width() + 16, Marks.SIZE + 12),
+			Color(0.07, 0.04, 0.08, 0.55), 6.0)
+	for k in n:
+		var w: Dictionary = _mark_worlds[k]
+		var ids: Array = w["ids"]
+		var id: int = ids[grade_id - 1] if grade_id >= 1 and grade_id <= ids.size() else 0
+		var rgb: Array = w["color"]
+		var tint := Color(rgb[0], rgb[1], rgb[2]).darkened(0.25)
+		Marks.draw_pair(self, Vector2(x0 + k * step, y), id > 0 and SaveData.has_mark(save, w["id"], id),
+				id > 0 and SaveData.has_star(save, w["id"], id), tint)
+
+
+## The Grown-ups button (grey, like Debug and Reset): a small padlock and
+## "Grown-ups"; while held, a bar fills along its foot (shown after the first second).
+func _draw_gate(font: Font) -> void:
+	var r := GATE_RECT
+	RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
+	var dim := Color(0.8, 0.76, 0.72)
+	var lock := (r.position + Vector2(14, 16)).round()
+	draw_rect(Rect2(lock + Vector2(2, 0), Vector2(10, 2)), dim)
+	draw_rect(Rect2(lock + Vector2(2, 0), Vector2(2, 8)), dim)
+	draw_rect(Rect2(lock + Vector2(10, 0), Vector2(2, 8)), dim)
+	draw_rect(Rect2(lock + Vector2(0, 8), Vector2(14, 12)), dim)
+	draw_rect(Rect2(lock + Vector2(6, 12), Vector2(2, 4)), Color(0.3, 0.27, 0.26))
+	draw_string(font, r.position + Vector2(34, 34), "Grown-ups", HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 36, 20, dim)
+	if gate_holding and gate_t >= GATE_RING_AFTER:
+		var q := clampf((gate_t - GATE_RING_AFTER) / (HOLD_S - GATE_RING_AFTER), 0.0, 1.0)
+		draw_rect(Rect2(r.position + Vector2(10, r.size.y - 9), Vector2(roundf((r.size.x - 20) * q), 4)),
+				Color(1.0, 0.82, 0.35))
 
 
 ## The Shop button: a gem-purple box, "Shop", and the gems to spend.

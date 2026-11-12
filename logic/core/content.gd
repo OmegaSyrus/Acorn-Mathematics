@@ -87,3 +87,16 @@ static func level_id(world_id: String, num: int) -> int:
 		if l["world"] == world_id and int(l["num"]) == num:
 			return int(l["id"])
 	return 1
+
+
+## A world's level ids by number: [level 1 id, ..., level 6 id] (0 where the
+## world has no such level). Reads levels.json once, for drawing the marks.
+static func level_ids(world_id: String, count := 6) -> Array:
+	var out := []
+	out.resize(count)
+	out.fill(0)
+	for l in levels().values():
+		var n := int(l["num"])
+		if l["world"] == world_id and n >= 1 and n <= count:
+			out[n - 1] = int(l["id"])
+	return out

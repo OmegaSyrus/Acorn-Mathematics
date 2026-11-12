@@ -19,6 +19,7 @@ const FightScreen := preload("res://game/fight/fight_screen.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
 const WorldMapScreen := preload("res://game/world_map_screen.gd")
 const DebugScreen := preload("res://game/debug_screen.gd")
+const GrownUpsScreen := preload("res://game/grownups_screen.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -102,6 +103,7 @@ func show_map() -> void:
 		show_store())
 	m.reset_save.connect(_reset_save)
 	m.debug.connect(show_debug)
+	m.grown_ups.connect(show_grown_ups)
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
@@ -148,6 +150,19 @@ func _debug_jump(to_area: String, level: int, stage: String) -> void:
 		_play_level_music()
 		menu.visible = true
 		_start_stage(area, grade_id, stage)
+
+
+## The Grown-ups panel, from the main menu's Grown-ups button held for 3 s:
+## a grown-up opens any world on the map (saved in the profile), and the
+## child picks from the open ones. Back returns to the main menu.
+func show_grown_ups() -> void:
+	var g := GrownUpsScreen.new()
+	g.setup(save, Content.worlds())
+	g.back.connect(func():
+		SaveStore.write(save)
+		show_map.call_deferred())
+	_swap.call_deferred(g)
+	menu.visible = false
 
 
 ## The store, from the map's Shop button; Back returns to the map. The menu
@@ -251,7 +266,11 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 	var s := ScrollScreen.new()
 	s.setup(run, save, debug_on)
 	# through the door: the miniboss, then the boss, then the mini map
-	s.finished.connect(func(): _start_stage(area, grade_id, AreaFlow.next_stage(area, "")))
+	s.finished.connect(func():
+		# no heart lost on the way: the level's star (beside its clear mark)
+		if not run.hurt:
+			SaveData.add_star(save, str(area.get("world", area["id"])), grade_id)
+		_start_stage(area, grade_id, AreaFlow.next_stage(area, "")))
 	_swap.call_deferred(s)
 
 
@@ -259,7 +278,7 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 ## or the mini map. The step is saved before it starts, so the map's "Go"
 ## (after the app closes) opens the same step again.
 func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
-	_unlocked_before = AreaFlow.unlocked_count(save, Content.worlds())
+	_unlocked_before = AreaFlow.unlocked_list(save, Content.worlds())
 	AreaFlow.enter(save, area, grade_id, stage)
 	SaveStore.write(save)
 	match stage:
@@ -305,13 +324,15 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 	_swap.call_deferred(b)
 
 
-var _unlocked_before := 0
+var _unlocked_before := []
 
 
 ## The world the boss just unlocked (its lock pops off on the map), or -1.
 func _newly_unlocked(_area: Dictionary) -> int:
-	var now := AreaFlow.unlocked_count(save, Content.worlds())
-	return now - 1 if now > _unlocked_before else -1
+	for i in AreaFlow.unlocked_list(save, Content.worlds()):
+		if not _unlocked_before.has(i):
+			return i
+	return -1
 
 
 ## The map of the worlds: Play on the main menu opens it, and it follows each
@@ -319,7 +340,7 @@ func _newly_unlocked(_area: Dictionary) -> int:
 ## before them to be beaten. The menu button leads back to the main menu.
 func show_world_map(just_unlocked := -1) -> void:
 	var w := WorldMapScreen.new()
-	w.setup(save, Content.worlds(), just_unlocked)
+	w.setup(save, Content.worlds(), just_unlocked, play_grade)
 	w.open_world.connect(func(world: Dictionary):
 		area_id = world["area"]
 		_enter_area())
