@@ -1,6 +1,6 @@
 {
  "version": 1,
- "_note": "Levels by world (docs/difficulty-plan.md section 1.3, built 2026-11-08 for Lava, the Crystal Mines and the Bog). The main menu's Difficulty picks the level number; the world map picks the world. Move draws per section 4.2. Fights use the approved fight rules (grade 1 one die, 2 two-dice sum, 3 die + ? = target) with answers capped at fight.top; the boss uses boss_grade's board (1 match, 2 sum). zoom 1.0 = today's 1x crossing, else half size.",
+ "_note": "Levels by world (docs/difficulty-plan.md section 1.3, built 2026-11-08 for Lava, the Crystal Mines and the Bog). The main menu's Difficulty picks the level number; the world map picks the world. Move draws per section 4.2. Fights use the approved fight rules (grade 1 one die, 2 two-dice sum, 3 die + ? = target) with answers capped at fight.top; the boss uses boss_grade's board (1 match, 2 sum). zoom 1.0 = today's 1x crossing, else half size. A level with \"ramp\" (Crystal Mines, 2026-11-12: Terrence found Crystal 1 too big a jump from Lava 1) splits its guesses into stages, each with its own move, fight and rails; the crossing starts at the matching Lava level's math and steps up. The level's own move, fight and rails are the last stage (the miniboss duel uses that fight).",
  "bands": {
   "acorn": {
    "name": "Acorn",
@@ -168,6 +168,79 @@
      "+++"
     ],
     "min_answer": 3,
+    "max_answer": 9
+   },
+   "fight": {
+    "grade": 2,
+    "top": 9
+   },
+   "boss_grade": 2,
+   "rails": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 6
+     },
+     "fight": {
+      "grade": 2,
+      "top": 6
+     },
+     "rails": false
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 8
+     },
+     "fight": {
+      "grade": 2,
+      "top": 8
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 9
+     },
+     "fight": {
+      "grade": 2,
+      "top": 9
+     },
+     "rails": true
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "world": "crystal_mines",
+   "num": 2,
+   "name": "Crystal 2",
+   "band": "sprout",
+   "move": {
+    "draw": "patterns",
+    "patterns": [
+     "+++"
+    ],
+    "min_answer": 3,
     "max_answer": 11
    },
    "fight": {
@@ -175,13 +248,65 @@
     "top": 11
    },
    "boss_grade": 2,
-   "rails": true
+   "rails": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 8
+     },
+     "fight": {
+      "grade": 2,
+      "top": 8
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 10
+     },
+     "fight": {
+      "grade": 2,
+      "top": 10
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 11
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": true
+    }
+   ]
   },
   {
-   "id": 22,
+   "id": 23,
    "world": "crystal_mines",
-   "num": 2,
-   "name": "Crystal 2",
+   "num": 3,
+   "name": "Crystal 3",
    "band": "sprout",
    "move": {
     "draw": "patterns",
@@ -196,13 +321,64 @@
     "top": 12
    },
    "boss_grade": 2,
-   "rails": true
+   "rails": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 10
+     },
+     "fight": {
+      "grade": 2,
+      "top": 10
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 11
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 14
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    }
+   ]
   },
   {
-   "id": 23,
+   "id": 24,
    "world": "crystal_mines",
-   "num": 3,
-   "name": "Crystal 3",
+   "num": 4,
+   "name": "Crystal 4",
    "band": "sprout",
    "move": {
     "draw": "patterns",
@@ -217,13 +393,64 @@
     "top": 12
    },
    "boss_grade": 2,
-   "rails": true
+   "rails": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++",
+       "+-"
+      ],
+      "min_answer": 1,
+      "max_answer": 12
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 14
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 18
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    }
+   ]
   },
   {
-   "id": 24,
+   "id": 25,
    "world": "crystal_mines",
-   "num": 4,
-   "name": "Crystal 4",
+   "num": 5,
+   "name": "Crystal 5",
    "band": "sprout",
    "move": {
     "draw": "patterns",
@@ -239,28 +466,59 @@
     "top": 12
    },
    "boss_grade": 2,
-   "rails": true
-  },
-  {
-   "id": 25,
-   "world": "crystal_mines",
-   "num": 5,
-   "name": "Crystal 5",
-   "band": "sprout",
-   "move": {
-    "draw": "patterns",
-    "patterns": [
-     "++-"
-    ],
-    "min_answer": 1,
-    "max_answer": 11
-   },
-   "fight": {
-    "grade": 2,
-    "top": 11
-   },
-   "boss_grade": 2,
-   "rails": true
+   "rails": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 9
+     },
+     "fight": {
+      "grade": 2,
+      "top": 9
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 14,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 18,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    }
+   ]
   },
   {
    "id": 26,
@@ -283,7 +541,59 @@
     "top": 12
    },
    "boss_grade": 2,
-   "rails": true
+   "rails": true,
+   "ramp": [
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++"
+      ],
+      "min_answer": 3,
+      "max_answer": 11
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 11
+     },
+     "fight": {
+      "grade": 2,
+      "top": 11
+     },
+     "rails": true
+    },
+    {
+     "guesses": 3,
+     "move": {
+      "draw": "patterns",
+      "patterns": [
+       "+++",
+       "++-"
+      ],
+      "min_answer": 1,
+      "max_answer": 18,
+      "constraint": "ten_pair"
+     },
+     "fight": {
+      "grade": 2,
+      "top": 12
+     },
+     "rails": true
+    }
+   ]
   },
   {
    "id": 31,

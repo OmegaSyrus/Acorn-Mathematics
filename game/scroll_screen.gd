@@ -442,7 +442,7 @@ func _fight() -> void:
 	_hide_dice()
 	_ask("")
 	var f := FightScreen.new()
-	var fg: Dictionary = run.grade.get("fight", {"grade": run.grade["id"], "top": 0})
+	var fg: Dictionary = run.fight_now()
 	f.setup(run.rng, int(fg["grade"]), run.current_monster(), false, false, debug_on, run.hearts)
 	f.fight.set_top(int(fg["top"]))
 	await _fade_to(1.0)
@@ -967,7 +967,8 @@ func _draw_stone_numbers() -> void:
 	if stone_from < 0:
 		return
 	var font := ThemeDB.fallback_font
-	var m := mini(int(run.grade["move"]["max_answer"]), run.length() - stone_from)
+	var m := mini(run.max_answer_now(), run.length() - stone_from)
+	var rails_on := bool(run.stage_now().get("rails", false))
 	# at half size the numbers stay big on screen (font 40, landmarks 48)
 	var k := 1.0 if zoom >= 1.0 else 40.0 / 48.0 / zoom
 	for d in range(1, m + 1):
@@ -976,7 +977,7 @@ func _draw_stone_numbers() -> void:
 			continue
 		var shore := i >= run.length()
 		var landmark := zoom < 1.0 and d % 5 == 0
-		if rails and not (d == 1 or landmark or shore):
+		if rails_on and not (d == 1 or landmark or shore):
 			continue  # a blank rail stop: count on from 1, 5, 10, 15
 		var c := Vector2(_space_x(i), STONE_NUM_Y)
 		if shore:

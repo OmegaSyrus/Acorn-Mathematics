@@ -89,3 +89,42 @@ func test_a_perfect_run_clears_every_level() -> bool:
 			check(run.phase == ScrollRun.CLEARED, "level %d did not clear" % id)
 			check(run.attempt == 1, "level %d restarted" % id)
 	return true
+
+
+## Crystal Mines ramp (Terrence 2026-11-12: Crystal 1 was too big a jump from
+## Lava 1): each roll uses its stage's math, the first stage of Crystal N
+## starts at or near Lava N, and the stages never get easier.
+func test_crystal_ramp_steps_up_along_the_crossing() -> bool:
+	var levels := Content.levels()
+	var area := Content.area("crystal_scroll")
+	for num in range(1, 7):
+		var lv: Dictionary = levels[Content.level_id("crystal_mines", num)]
+		check(lv.has("ramp"), "Crystal %d has no ramp" % num)
+		var r: Array = lv["ramp"]
+		var lava: Dictionary = levels[Content.level_id("lava_caves", num)]
+		check(int(r[0]["move"]["max_answer"]) <= int(lava["move"]["max_answer"]) + 1,
+				"Crystal %d starts above Lava %d" % [num, num])
+		for i in range(1, r.size()):
+			check(int(r[i]["move"]["max_answer"]) >= int(r[i - 1]["move"]["max_answer"]),
+					"Crystal %d stage %d gets easier" % [num, i])
+		for seed_value in range(1, 60):
+			var run := ScrollRun.new(area, lv, seed_value)
+			var k := 0
+			while run.phase != ScrollRun.CLEARED and k < 40:
+				if run.phase == ScrollRun.AWAIT_FIGHT:
+					check(run.fight_now() == run.stage(run.rolls - 1)["fight"], "fight stage")
+					run.resolve_fight(true)
+					continue
+				var st := run.stage(run.rolls)
+				var p := run.roll()
+				check(run.stage_now() == st, "stage_now while choosing")
+				var allowed: Array = st["move"]["patterns"]
+				check(allowed.has(p["signs"]), "Crystal %d roll %d signs %s not in its stage" % [num, run.rolls, p["signs"]])
+				check(p["answer"] <= int(st["move"]["max_answer"]), "Crystal %d answer above its stage" % num)
+				run.choose(p["answer_index"])
+				k += 1
+	# Crystal 1 opens with every stone numbered, then the rail stops come in
+	var c1: Array = levels[Content.level_id("crystal_mines", 1)]["ramp"]
+	check(not c1[0]["rails"] and c1[1]["rails"], "Crystal 1 rails come in on stage 2")
+	check(int(c1[0]["move"]["max_answer"]) <= 6 and c1[0]["move"]["patterns"].size() == 2, "Crystal 1 opens with two dice")
+	return true

@@ -99,6 +99,23 @@ face down and the stone to pick is its face (the tray shows the total as a numer
 level only stone 1, the landmarks (5, 10, 15) and the far shore carry a number; the
 stops between are blank rail stops (rail markers).
 
+**Ramp [built 2026-11-12]**: Terrence found Crystal 1 too big a jump after Lava 1 (three
+dice to 11 and blank rail stops right from the first stone). Every Crystal level now
+ramps along its 9 guesses in three stages of 3 guesses: it opens at the matching Lava
+level's math and steps up to its own (`ramp` in content/levels.json; each stage has its
+own move, fight and rails; the miniboss duel uses the last stage's fight).
+
+| Level | Guesses 1 to 3 | Guesses 4 to 6 | Guesses 7 to 9 | Fights (by stage) |
+|---|---|---|---|---|
+| Crystal 1 | `++`, `+-` to 6, every stone numbered | `++`, `+-` to 8, rail stops | `+++` 3 to 9 | 6, 8, 9 |
+| Crystal 2 | `++`, `+-` to 8 | `++`, `+-` to 10 | `+++` 3 to 11 | 8, 10, 11 |
+| Crystal 3 | `++`, `+-` to 10 | `+++` 3 to 11 | `+++` 3 to 14 | 10, 11, 12 |
+| Crystal 4 | `++`, `+-` to 12 | `+++` 3 to 14 | `+++` 3 to 18 | 12 |
+| Crystal 5 | `+++` 3 to 9 | `+++` to 14, ten pair | `+++` to 18, ten pair | 9, 12, 12 |
+| Crystal 6 | `+++` 3 to 11 | `++-` 1 to 11 | `+++`, `++-`, ten pair, 1 to 18 | 11, 12, 12 |
+
+The table below is the plan before the ramp (each level's old single math).
+
 | Level | Age | Dice and signs | Answers | Stones | View, step | New at this level |
 |---|---|---|---|---|---|---|
 | Crystal 1 | 5 | `+++` | 3 to 11 | 11 | half, 60 | rail markers: count on from 1, 5, 10 |

@@ -67,7 +67,7 @@ func _new_answers() -> void:
 	var top: int = grade["move"]["max_answer"]
 	for k in int(area["guesses"]):
 		if is_level():
-			answers.append(LevelGen.draw_answer(grade["move"], rng))
+			answers.append(LevelGen.draw_answer(stage(k)["move"], rng))
 		else:
 			answers.append(rng.randi_range(1, top))
 	_lay_out()
@@ -76,6 +76,40 @@ func _new_answers() -> void:
 ## A level after Lava 1 (content/levels.json): generator v1.2 draws its rolls.
 func is_level() -> bool:
 	return grade.get("move", {}).get("draw", "op_first") != "op_first"
+
+
+## The ramp stage for guess k (0 = the first): a level with "ramp" (the
+## Crystal Mines, 2026-11-12) steps its math up along the crossing, each
+## stage {guesses, move, fight, rails} covering that many guesses; the last
+## stage runs to the end. A level without one is a single stage.
+func stage(k: int) -> Dictionary:
+	var r: Array = grade.get("ramp", [])
+	if r.is_empty():
+		return {"move": grade.get("move", {}), "fight": grade.get("fight", {"grade": grade["id"], "top": 0}),
+				"rails": bool(grade.get("rails", false))}
+	var left := k
+	for s in r:
+		if left < int(s["guesses"]):
+			return s
+		left -= int(s["guesses"])
+	return r[r.size() - 1]
+
+
+## The stage of the guess being rolled now (or the next one to roll).
+func stage_now() -> Dictionary:
+	var k := rolls - 1 if phase == AWAIT_CHOICE else rolls
+	return stage(maxi(0, k))
+
+
+## The most stones the current guess can offer.
+func max_answer_now() -> int:
+	return int(stage_now()["move"]["max_answer"])
+
+
+## The fight for a monster met now: the stage of the guess that walked
+## into it.
+func fight_now() -> Dictionary:
+	return stage(maxi(0, rolls - 1))["fight"]
 
 
 func _lay_out() -> void:
@@ -195,8 +229,13 @@ func roll() -> Dictionary:
 		var a: int = answers[mini(rolls, answers.size() - 1)]
 		b = [a, a]
 	if is_level():
-		var m := mini(int(grade["move"]["max_answer"]), length() - pos)
-		problem = LevelGen.generate_for(grade, rng, b[0], m)
+		var st := stage(rolls)
+		var m := mini(int(st["move"]["max_answer"]), length() - pos)
+		var lv := grade
+		if grade.has("ramp"):
+			lv = grade.duplicate()
+			lv["move"] = st["move"]
+		problem = LevelGen.generate_for(lv, rng, b[0], m)
 	else:
 		problem = MoveGen.generate_move(grade, rng, length() - pos, b[0], b[1])
 	rolls += 1
