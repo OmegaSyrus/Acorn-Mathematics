@@ -31,9 +31,10 @@ const BODY_TAP := Rect2(9, 6, 135, 250)
 ## The pop-in portrait: bottom left of the 4:3 band, in a gold frame.
 const POP_POS := Vector2(132, 420)
 const POP_PAD := 4.0
-## The answer pop-in after a wrong guess: higher up on the left, clear of the
-## fight's shields and the crossing's stones, sliding in from the left.
-const ANSWER_POS := Vector2(132, 150)
+## The answer pop-in after a wrong guess: top left, just below the hearts
+## (Terrence 2026-11-12), clear of the fight's shields and the crossing's
+## stones, sliding in from the left.
+const ANSWER_POS := Vector2(132, 62)
 ## How often an enemy win brings the pop-in (Terrence 2026-11-07: 1 in 3).
 const POP_CHANCE := 1.0 / 3.0
 ## Chests: a voice line on most, not all, so it stays special.
