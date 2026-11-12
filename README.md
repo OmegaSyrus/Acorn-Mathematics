@@ -72,6 +72,20 @@ can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn
 - In fights the dragon holds his shield again: low at his side, raised out
   in front to block a swing and to shield bash.
 
+### The difficulty curve (Terrence, 2026-11-12)
+
+- Fights ask the step before: a monster fight asks the previous level's fight
+  along the level path (Lava 1 to 6, Crystal, Bog, Mushroom, Space), so new
+  ideas only come on the stones. Lava 1 keeps its own; the duel keeps the level's.
+  `Content.levels()` works it out as `monster_fight`.
+- Lava 2 to 6 play their first 2 of 7 guesses at the Lava level before's math;
+  every Bog level ramps in 3 stages like the Crystal Mines.
+- The Bog has a second heart stone (step 7, just past Tiddy Mun).
+- Boss: 8 balls everywhere, 8 boss hearts at Acorn and 6 above, so naming right
+  wins most fights even with poor aim (`logic/bounce/README.md`).
+- `tests/test_clear_chance.gd` prints how often a player who is right 85% of the
+  time clears each level's crossing in one try.
+
 ## The store
 
 The main menu's Shop button opens the store (`game/store_screen.gd`): heroes and dice
