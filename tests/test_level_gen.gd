@@ -67,7 +67,7 @@ func test_every_level_roll_reads_to_its_answer() -> bool:
 
 func test_a_perfect_run_clears_every_level() -> bool:
 	var levels := Content.levels()
-	for world in ["lava_caves", "crystal_mines", "bog", "mushroom_forest"]:
+	for world in ["lava_caves", "crystal_mines", "bog", "mushroom_forest", "space"]:
 		var area := {}
 		for aid in Content.area_ids():
 			var a := Content.area(aid)
@@ -170,4 +170,40 @@ func test_mushroom_ramp_steps_up_along_the_crossing() -> bool:
 				run.choose(p["answer_index"])
 				k += 1
 			check(run.phase == ScrollRun.CLEARED, "Mushroom %d seed %d did not clear" % [num, seed_value])
+	return true
+
+
+## Space (2026-11-12): every level ramps in three stages, each roll uses its
+## stage's draw, the star stones are numbered by track place, and Space 6's
+## mixes (also inside its ramp) know their parts.
+func test_space_ramp_and_track() -> bool:
+	var levels := Content.levels()
+	var area := Content.area("space_scroll")
+	check(area.get("world") == "space", "space_scroll is in Space")
+	for num in range(1, 7):
+		var lv: Dictionary = levels[Content.level_id("space", num)]
+		check(int(lv["id"]) == 50 + num, "Space %d id" % num)
+		check(bool(lv.get("track", false)), "Space %d numbers stones by track place" % num)
+		var r: Array = lv.get("ramp", [])
+		check(r.size() == 3, "Space %d has three stages" % num)
+		check(r[2]["move"] == lv["move"] and r[2]["fight"] == lv["fight"], "Space %d ends on its own math" % num)
+		for st in r:
+			if st["move"]["draw"] == "mix":
+				check(st["move"].has("part_moves"), "Space %d mix stage has its parts" % num)
+			check(not LevelGen.answers(st["move"]).is_empty(), "Space %d stage can make an answer" % num)
+		for seed_value in range(1, 40):
+			var run := ScrollRun.new(area, lv, seed_value)
+			var k := 0
+			while run.phase != ScrollRun.CLEARED and k < 40:
+				if run.phase == ScrollRun.AWAIT_FIGHT:
+					run.resolve_fight(true)
+					continue
+				var st := run.stage(run.rolls)
+				var p := run.roll()
+				check(p["answer"] >= 1 and p["answer"] <= int(st["move"]["max_answer"]), "Space %d answer in its stage" % num)
+				if st["move"]["draw"] == "hidden":
+					check(p.has("hidden"), "Space %d hidden stage hides a die" % num)
+				run.choose(p["answer_index"])
+				k += 1
+			check(run.phase == ScrollRun.CLEARED, "Space %d seed %d clears" % [num, seed_value])
 	return true

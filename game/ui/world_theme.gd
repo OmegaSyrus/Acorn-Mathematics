@@ -27,6 +27,10 @@ const MONSTER_ART := {
 	"hobgoblin": "res://art/mushroom/hobgoblin.png",
 	"boggart": "res://art/mushroom/boggart.png",
 	"mushroom_miniboss": "res://art/mushroom/hedley-kow.png",
+	"star_squirrel": "res://art/space/star-squirrel.png",
+	"moon_hobgoblin": "res://art/space/moon-hobgoblin.png",
+	"fenrir_pup": "res://art/space/fenrir-pup.png",
+	"space_miniboss": "res://art/space/ratatoskr.png",
 }
 
 ## Per world:
@@ -41,6 +45,9 @@ const MONSTER_ART := {
 ##   ledge_tint: the start and far-shore ledges (basalt tile) tinted to fit
 ##   monsters:   ids that belong to this world (picks the fight room)
 ##   boss_head / boss_arm and where they sit, the treasure room behind the boss
+##   sky:        (Space) the colour above the backdrop at half size, in place
+##               of the cave roof, with twinkling stars drawn over it
+##   stars:      twinkling stars over the whole crossing
 const THEMES := {
 	"lava_caves": {
 		"backdrop": "strip",
@@ -100,6 +107,22 @@ const THEMES := {
 		"treasure": "res://art/mushroom/treasure-room.png", "boss_label": "Green Man",
 		"board_tint": Color(0.8, 1.0, 0.65, 0.9),
 		"bubble": Color(0.95, 0.9, 0.7),
+	},
+	# Space (2026-11-12): star stones float over the clouds; a wrong one falls
+	# away into the dark with the hero on it (like a stalagmite, no water)
+	"space": {
+		"backdrop": "res://art/space/space-bg.png",
+		"stones": ["res://art/space/stone-0.png", "res://art/space/stone-1.png", "res://art/space/stone-2.png"],
+		"stone_top": true, "waterline": 0.0, "sink_depth": 170.0,
+		"ceiling": [], "ceiling_step": 0.0,
+		"glow": false, "ledge_tint": Color(0.5, 0.45, 0.95),
+		"sky": Color(0.027, 0.024, 0.1), "stars": true,
+		"monsters": ["star_squirrel", "moon_hobgoblin", "fenrir_pup", "space_miniboss"],
+		"fight_bg": "res://art/space/fight-bg.png",
+		"boss_head": "res://art/space/fenrir.png", "head_at": Vector2(716, -44),
+		"boss_arm": "res://art/space/fenrir-paw.png", "arm_at": Vector2(738, 236),
+		"treasure": "res://art/space/treasure-room.png", "boss_label": "Fenrir",
+		"board_tint": Color(0.75, 0.7, 1.0, 0.9),
 	},
 }
 

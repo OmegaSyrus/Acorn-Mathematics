@@ -62,12 +62,16 @@ static func levels() -> Dictionary:
 	for l in data["levels"]:
 		out[int(l["id"])] = l
 	for id in out:
-		var mv: Dictionary = out[id]["move"]
-		if mv["draw"] == "mix":
-			var parts := []
-			for pid in mv["parts"]:
-				parts.append(out[int(pid)]["move"])
-			mv["part_moves"] = parts
+		# the level's own move and each ramp stage's (Space 6 ramps through mixes)
+		var moves := [out[id]["move"]]
+		for st in out[id].get("ramp", []):
+			moves.append(st["move"])
+		for mv in moves:
+			if mv["draw"] == "mix" and not mv.has("part_moves"):
+				var parts := []
+				for pid in mv["parts"]:
+					parts.append(out[int(pid)]["move"])
+				mv["part_moves"] = parts
 	return out
 
 

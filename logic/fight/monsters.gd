@@ -39,6 +39,11 @@ const ROSTER := {
 	"hobgoblin": {"name": "Hobgoblin", "hearts": 3, "role": "monster"},
 	"boggart": {"name": "Boggart", "hearts": 4, "role": "monster"},
 	"mushroom_miniboss": {"name": "The Hedley Kow", "hearts": 5, "role": "miniboss"},
+	# Space (2026-11-12)
+	"star_squirrel": {"name": "Star Squirrel", "hearts": 3, "role": "monster"},
+	"moon_hobgoblin": {"name": "Moon Hobgoblin", "hearts": 3, "role": "monster"},
+	"fenrir_pup": {"name": "Fenrir's Pup", "hearts": 4, "role": "monster"},
+	"space_miniboss": {"name": "Ratatoskr", "hearts": 5, "role": "miniboss"},
 }
 
 

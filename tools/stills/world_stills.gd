@@ -16,6 +16,7 @@ const WORLDS := {
 	"crystal": ["crystal_scroll", "crystal_mines", ["knocker", "svartalf", "gem_dwarf", "crystal_miniboss"]],
 	"bog": ["bog_scroll", "bog", ["wispling", "nixie", "tiddy_mun", "draugr", "bog_miniboss"]],
 	"mushroom": ["mushroom_scroll", "mushroom_forest", ["pixie", "hobgoblin", "boggart", "mushroom_miniboss"]],
+	"space": ["space_scroll", "space", ["star_squirrel", "moon_hobgoblin", "fenrir_pup", "space_miniboss"]],
 }
 
 var out_dir := "/tmp"
@@ -38,7 +39,7 @@ func _ready() -> void:
 		if only != "" and key != only:
 			continue
 		var w: Array = WORLDS[key]
-		var run := ScrollRun.new(Content.area(w[0]), Content.grades()[1], 2)
+		var run := ScrollRun.new(Content.area(w[0]), Content.levels().get(int(Content.area(w[0])["grades"][0]), Content.grades()[1]) if key == "space" else Content.grades()[1], 2)
 		var s := ScrollScreen.new()
 		s.setup(run, {"gems": 6}, false)
 		stage.add_child(s)

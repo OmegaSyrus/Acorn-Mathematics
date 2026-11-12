@@ -25,6 +25,8 @@ const DIFF_RECT := Rect2(604, 196, 200, 96)
 const PLAY_RECT := Rect2(396, 392, 200, 120)
 const GEM_TEX := preload("res://art/lava/gem.png")
 const Pointer := preload("res://game/ui/pointer.gd")
+## The oak on the hill, birds and wandering animals (drawn behind the buttons).
+const MenuScene := preload("res://game/ui/menu_scene.gd")
 
 ## Reset (Terrence 2026-11-07): a small grey button top right; it opens a
 ## question, and "Yes" only works if held down for HOLD_S seconds, so a child
@@ -36,6 +38,7 @@ const PANEL := Rect2(310, 120, 520, 320)  # right of Ellwynn (x 130..290)
 const NO_RECT := Rect2(345, 300, 200, 100)
 const YES_RECT := Rect2(595, 300, 200, 100)
 const HOLD_S := 3.0
+const TITLE_EDGE := Color(0.2, 0.1, 0.05)
 
 var save: Dictionary
 var area_id := "lava_1"
@@ -57,6 +60,7 @@ func setup(profile: Dictionary, grade_table: Dictionary, area: String) -> void:
 
 
 func _ready() -> void:
+	add_child(MenuScene.new())
 	for gid in grades:
 		if grades[gid]["available"]:
 			available.append(gid)
@@ -156,7 +160,8 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
-	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.13, 0.09, 0.08))
+	# the backdrop is the MenuScene child; the title gets a dark edge to read on the sky
+	draw_string_outline(font, Vector2(120, 140), "Acorn Math", HORIZONTAL_ALIGNMENT_CENTER, 720, 52, 12, TITLE_EDGE)
 	draw_string(font, Vector2(120, 140), "Acorn Math", HORIZONTAL_ALIGNMENT_CENTER, 720, 52, Color(1.0, 0.6, 0.25))
 	for b in buttons:
 		var r: Rect2 = b["rect"]
@@ -182,8 +187,9 @@ func _draw() -> void:
 			draw_string(font, r.position + Vector2(0, 35), "Reset", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
 					Color(0.8, 0.76, 0.72))
 			continue
-	draw_string(font, Vector2(330, 520), "stickers: %d" % save["stickers"].size(), HORIZONTAL_ALIGNMENT_LEFT,
-			-1, 16, Color(0.6, 0.55, 0.5))
+	var stickers := "stickers: %d" % save["stickers"].size()
+	draw_string_outline(font, Vector2(330, 520), stickers, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, TITLE_EDGE)
+	draw_string(font, Vector2(330, 520), stickers, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.85, 0.82, 0.76))
 	if asking:
 		_draw_reset_question(font)
 
@@ -213,8 +219,9 @@ func _draw_reset_question(font: Font) -> void:
 ## when an area has been beaten at it.
 func _draw_difficulty(font: Font, r: Rect2) -> void:
 	var ink := Color(0.96, 0.94, 0.9)
-	draw_string(font, Vector2(r.position.x - 224, r.position.y + r.size.y / 2 + 12), "Difficulty:",
-			HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
+	var at := Vector2(r.position.x - 224, r.position.y + r.size.y / 2 + 12)
+	draw_string_outline(font, at, "Difficulty:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, 9, TITLE_EDGE)
+	draw_string(font, at, "Difficulty:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
 	RoundBox.fill(self, r, Color(0.42, 0.36, 0.33), 18.0)
 	var gname: String = grades[grade_id]["name"] if grades.has(grade_id) else "?"
 	draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), gname, HORIZONTAL_ALIGNMENT_CENTER,

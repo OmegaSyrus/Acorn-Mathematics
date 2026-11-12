@@ -4,8 +4,8 @@ PixelLab (subscription), picked by Terrence on 2026-11-08. Prompts, seeds, raw t
 mocks are in the project folder at sum-dungeon/art-crystal-mines/. Grid and look rules:
 docs/art-style-guide.md.
 
-Not drawn by any screen yet: the Crystal Mines levels are milestone 5 of
-docs/difficulty-plan.md. Characters are 1 art px = 1 unit; fight-bg, treasure-room and
+Playable since 0.16.0 (docs/difficulty-plan.md milestone 5).
+Characters are 1 art px = 1 unit; fight-bg, treasure-room and
 cave-bg (320x180) draw at 3x like the Lava ones.
 
 The crossing: the hero hops on stalagmites (stalagmite-1, stalagmite-wide, stalagmite-0
