@@ -162,6 +162,26 @@ func name_peg(index: int) -> bool:
 	return named_right
 
 
+## The sum the child is solving, for the line on screen (Terrence
+## 2026-11-14: "Is it addition or matching?"). Uses the ball as it is now, so
+## after a ±1 peg the line changes with it. Empty at Acorn (no ball die).
+##   text   "3 + ? = 6" while naming, "3 + 3 = 6" once named right, and for a
+##          wrong name the sum it really makes, "3 + 4 = 7"
+##   right  false only after a wrong name
+func sum_line() -> Dictionary:
+	if rule == "match":
+		return {}
+	var ball: int = sim.ball_value if sim != null else ball_value
+	var op := " + " if rule == "sum" else " - "
+	if state == State.NAMING:
+		return {"text": str(ball) + op + "? = " + str(target), "right": true}
+	if not named_right:
+		var made: int = ball + named_face if rule == "sum" else ball - named_face
+		return {"text": str(ball) + op + str(named_face) + " = " + str(made), "right": false}
+	var face: int = BounceRules.needed_face(rule, ball, target)
+	return {"text": str(ball) + op + (str(face) if face >= 1 else "?") + " = " + str(target), "right": true}
+
+
 func live_count() -> int:
 	var n := 0
 	for i in board["pegs"].size():

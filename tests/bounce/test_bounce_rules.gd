@@ -181,3 +181,58 @@ func _replay(seed_value: int) -> String:
 		log.append(events)
 		log.append(fight.end_shot())
 	return JsonUtil.canonical(log)
+
+
+## The two shots Terrence reported on the Knocker King (2026-11-14) are the
+## rule working: the pick is the missing peg, not the ball, and a ±1 peg
+## changes the ball rather than hitting the boss. The sum line on screen
+## spells this out.
+func test_sum_line_shows_the_missing_number() -> bool:
+	var f = BounceFight.new(SeededRng.new(9), SPROUT)
+	var b: int = f.ball_value
+	var t: int = f.target
+	check(f.sum_line()["text"] == "%d + ? = %d" % [b, t], "naming shows ball + ? = target")
+	var wrong := -1
+	for i in f.choices.size():
+		if f.choices[i] != f.answer_face:
+			wrong = i
+	f.name_peg(wrong)
+	var line: Dictionary = f.sum_line()
+	check(not line["right"], "wrong pick is marked")
+	check(line["text"] == "%d + %d = %d" % [b, f.named_face, b + f.named_face], "wrong pick shows the sum it makes: " + line["text"])
+	var g = BounceFight.new(SeededRng.new(9), SPROUT)
+	g.name_peg(g.choices.find(g.answer_face))
+	check(g.sum_line()["text"] == "%d + %d = %d" % [b, g.answer_face, t], "right pick shows the full sum")
+	return true
+
+
+func test_case_6_and_5_picking_the_ball_face_is_a_miss() -> bool:
+	# Boss 11 (dice 6 and 5), the ball shows 6: the peg needed is 5. Picking
+	# 6 (the ball's own face) makes 6 + 6 = 12, so the 5-peg is a ghost.
+	var board := _column_board([5])
+	var miss = BounceSim.new(_phys(), board, [true], "sum", 11, 6, false, 0)
+	miss.run()
+	check(miss.popped.is_empty() and miss.damage == 0, "wrong pick: the 5-peg ghosts")
+	var hit = BounceSim.new(_phys(), board, [true], "sum", 11, 6, true, 0)
+	hit.run()
+	check(hit.popped.size() == 1 and hit.damage == 1, "right pick (5): the 5-peg pops")
+	return true
+
+
+func test_plus_one_peg_changes_the_ball_and_the_sum_line() -> bool:
+	var f = BounceFight.new(SeededRng.new(9), SPROUT)
+	f.name_peg(f.choices.find(f.answer_face))
+	f.fire(0)
+	var b: int = f.ball_value
+	f.sim.ball_value = b + 1   # as a +1 peg does mid-flight
+	var need: int = f.target - b - 1
+	var want := "%d + %s = %d" % [b + 1, str(need) if need >= 1 else "?", f.target]
+	check(f.sum_line()["text"] == want, "after +1 the line is " + want + ", got " + f.sum_line()["text"])
+	return true
+
+
+func test_difference_line_uses_minus() -> bool:
+	var f = BounceFight.new(SeededRng.new(3), OAK)
+	check(f.sum_line()["text"] == "%d - ? = %d" % [f.ball_value, f.target], "Oak shows ball - ? = target")
+	check(BounceFight.new(SeededRng.new(3), ACORN).sum_line().is_empty(), "Acorn has no sum line")
+	return true

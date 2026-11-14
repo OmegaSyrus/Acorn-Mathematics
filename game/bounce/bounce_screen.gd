@@ -90,6 +90,8 @@ const BOSS_DIE_AT := Vector2(822, 400)  # two dice side by side still end at SAF
 const BOSS_JAW := Vector2(790, 250)
 const FLOAT_S := 1.1
 const FIRST_FACE_Y := 150.0
+## The "3 + ? = 6" box: top of the board, right of the ball.
+const SUM_BOX := Rect2(524, 48, 196, 60)
 
 ## The robot dragon, or the store hero in use (game/ui/look.gd).
 var hero_tex: Texture2D = Look.hero_texture()
@@ -481,6 +483,7 @@ func _draw() -> void:
 		draw_arc(r[0], 20.0 + 30.0 * k, 0, TAU, 24, Color(r[1], 1.0 - k), 5.0)
 	_draw_launcher(font)
 	_draw_ball()
+	_draw_sum_line(font)
 	_draw_boss(font)
 	_draw_balls_left()
 	if not fight.auto_name():
@@ -769,6 +772,26 @@ func _draw_balls_left() -> void:
 	var shown: int = fight.balls_left - (1 if phase in ["flying", "settling"] else 0)
 	for i in maxi(0, shown):
 		draw_texture(BALL_TEX, top + Vector2((i % cols) * 36, (i / cols) * 36) - Vector2(16, 16))
+
+
+## The sum being solved, in a fiery box at the top of the board, right of
+## the ball: "3 + ? = 6" while picking, then the full sum. Red after a wrong
+## pick, showing the sum that pick really makes.
+func _draw_sum_line(font: Font) -> void:
+	if phase not in ["naming", "aiming", "flying", "settling"]:
+		return
+	if phase == "naming" and not choice.active:
+		return   # the boss is still rolling
+	var line: Dictionary = fight.sum_line()
+	if line.is_empty():
+		return
+	var br := SUM_BOX
+	RoundBox.fire(self, br, _t, 16.0)
+	var size := 34
+	var pos := br.position + Vector2(0, br.size.y / 2.0 + size * 0.36)
+	draw_string_outline(font, pos, line["text"], HORIZONTAL_ALIGNMENT_CENTER, br.size.x, size, 8, OUTLINE)
+	draw_string(font, pos, line["text"], HORIZONTAL_ALIGNMENT_CENTER, br.size.x, size,
+			INK if line["right"] else Color(1.0, 0.45, 0.4))
 
 
 func _draw_choices(font: Font) -> void:
