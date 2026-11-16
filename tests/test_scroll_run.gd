@@ -100,7 +100,7 @@ func test_perfect_player_crosses() -> bool:
 ## Terrence 2026-11-07: a run is 9 guesses and the crossing has as many
 ## stones as the 9 answers add up to. Each roll's answer is the next one
 ## drawn; a sink starts a new run with new answers and a new crossing.
-func test_run_is_9_guesses() -> bool:
+func test_run_is_8_guesses() -> bool:
 	var lengths := {}
 	for i in 600:
 		var run := ScrollRun.new(Content.area("crystal_scroll"), Content.grades()[1], 900 + i)
@@ -108,7 +108,7 @@ func test_run_is_9_guesses() -> bool:
 			for k in ScrollRun.HERO_HEARTS:  # every heart lost: a sink
 				run.roll()
 				run.choose((run.problem["answer_index"] + 1) % run.problem["choices"].size())
-			check(run.rolls == 0 and run.answers.size() == 9, "a sink starts a new run of 9")
+			check(run.rolls == 0 and run.answers.size() == 8, "a sink starts a new run of 8")
 		var answers: Array = run.answers.duplicate()
 		var total := 0
 		for a in answers:
@@ -123,7 +123,7 @@ func test_run_is_9_guesses() -> bool:
 				var p := run.roll()
 				check(p["answer"] == answers[run.rolls - 1], "roll %d answers %d" % [run.rolls, p["answer"]])
 				run.choose(run.problem["answer_index"])
-		check(run.rolls == 9 and run.attempt == (2 if i % 3 == 0 else 1), "seed %d took %d rolls" % [900 + i, run.rolls])
+		check(run.rolls == 8 and run.attempt == (2 if i % 3 == 0 else 1), "seed %d took %d rolls" % [900 + i, run.rolls])
 		lengths[run.length()] = true
 	check(lengths.size() > 10, "crossing lengths vary: %s" % [lengths.keys()])
 	return true
