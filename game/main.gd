@@ -254,10 +254,10 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	_swap.call_deferred(a)
 
 
-## The level songs (the lava ones) play in every world until the Crystal
-## Mines and the Bog get songs of their own.
+## The world's own songs (game/music.gd WORLD_SONGS; the Lava ones until
+## a world has its own).
 func _play_level_music() -> void:
-	Music.play_lava()
+	Music.play_world(str(Content.area(area_id).get("world", "lava_caves")))
 
 
 ## `-- --seed=123` makes new runs repeatable (demos, bug reports).

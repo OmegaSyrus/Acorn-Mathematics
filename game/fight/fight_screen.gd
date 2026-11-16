@@ -34,6 +34,12 @@ const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
+## The Lantern Lord's flash: how long his lantern lights the dice before
+## they go dark (a tap lights a die again; logic/fight/duel.gd).
+const FLASH_S := 1.8
+## The Wisp King and Queen stand side by side, the king on the left.
+const PAIR_DX := [-70.0, 50.0]
+const PAIR_ART := {"wisp_king": "res://art/bog/wisp-king.png", "wisp_queen": "res://art/bog/wisp-queen.png"}
 ## The miniboss duel's retry button, after a loss.
 const RETRY_RECT := Rect2(330, 240, 300, 96)
 ## Monster art and the scale it is drawn at.
@@ -85,6 +91,13 @@ var hero_sink := 0.0
 var clang := 0.0
 var bubble := ""
 var monster_tex: Texture2D
+## The pair duel (the Bog): each foe's art and how far it has faded out
+## once beaten (0 standing, 1 gone).
+var foe_tex: Array = []
+var foe_gone: Array = [0.0, 0.0]
+var monster_break_row := Vector2.ZERO
+var shown_foe_hearts: Array = []
+var _swing := 0  # counts swings, so a late lantern flash can't darken the next one
 var bg_tex: Texture2D = preload("res://art/lava/fight-bg.png")
 var hero_lift := 0.0
 ## The dragon's own shield (Terrence 2026-11-12: he blocks and shield-bashes
@@ -124,6 +137,7 @@ func _ready() -> void:
 		d.visible = false
 		add_child(d)
 		d.pip_tapped.connect(_on_pip_tapped)
+		d.peeked.connect(func() -> void: Beeper.tone(880.0, 0.06, -8.0))
 		dice.append(d)
 	choice = ChoiceWidget.new()
 	choice.show_highlight = false
@@ -134,6 +148,9 @@ func _ready() -> void:
 	add_child(choice)
 	if WorldTheme.MONSTER_ART.has(fight.monster_id):
 		monster_tex = WorldTheme.monster_texture(fight.monster_id)
+	if is_duel and not fight.foes.is_empty():
+		for f in fight.foes:
+			foe_tex.append(load(PAIR_ART.get(f["id"], WorldTheme.MONSTER_ART["bog_miniboss"])))
 	bg_tex = load(WorldTheme.get_theme(WorldTheme.world_of_monster(fight.monster_id))["fight_bg"])
 	_sync_hearts()
 	_loop()
@@ -142,6 +159,10 @@ func _ready() -> void:
 func _sync_hearts() -> void:
 	shown_hero_hearts = fight.hero_hearts
 	shown_monster_hearts = fight.monster_hearts
+	shown_foe_hearts = []
+	if is_duel:
+		for f in fight.foes:
+			shown_foe_hearts.append(int(f["hearts"]))
 	hero_break = -1.0
 	monster_break = -1.0
 
@@ -149,7 +170,7 @@ func _sync_hearts() -> void:
 # --- the exchange loop -----------------------------------------------------
 
 func _loop() -> void:
-	_say("Fight!")  # its name sits under it now
+	_say(fight.opener() if is_duel else "Fight!")  # its name sits under it now
 	await _wait(0.8)
 	while true:
 		await _wind_up()
@@ -157,6 +178,8 @@ func _loop() -> void:
 		var asked_ms := Time.get_ticks_msec()
 		var shown := PlayLog.fight_shown(fight.attack, "bash" if fight.phase == Fight.Phase.BASH else "block")
 		shown["monster"] = fight.monster_id
+		if is_duel:
+			shown["rule"] = fight.rule
 		var pick: int = await choice.picked
 		picked = pick
 		var out: Dictionary = fight.choose(pick)
@@ -169,6 +192,7 @@ func _loop() -> void:
 		revealed = true
 		for d in dice:
 			if d.visible:
+				d.lift_cover()
 				d.show_numeral()
 		_say(str(out["answer"]))
 		if not out["right"]:
@@ -188,6 +212,9 @@ func _loop() -> void:
 		if out["state"] != Fight.State.RESOLVING:
 			PlayLog.event(("%s_won" if out["state"] == Fight.State.WON else "%s_lost") % where,
 					{"monster": fight.monster_id})
+		if is_duel and not fight.foes.is_empty() and bashing and out["right"] \
+				and int(fight.foes[int(out["foe"])]["hearts"]) <= 0 and out["state"] != Fight.State.WON:
+			await _foe_fades(int(out["foe"]))
 		if out["state"] == Fight.State.WON:
 			await _monster_collapse()
 			if is_duel:
@@ -208,6 +235,7 @@ func _loop() -> void:
 				retry_shown = false
 				Beeper.good()
 				_reset_looks()
+				foe_gone = [0.0, 0.0]
 				fight.restart()
 				_sync_hearts()
 				continue
@@ -251,11 +279,47 @@ func _wind_up() -> void:
 			break
 	for i in atk.dice.size():
 		dice[i].countable = true
+	_swing += 1
+	if is_duel:
+		_dress_dice(atk)
 	monster_state = "idle"
 	if bashing:
 		hero_dx = 0.0
 	shields_shown = true
 	_say("Shield bash!" if bashing else "Block!")
+
+
+## The miniboss's rule on the landed dice (logic/fight/duel.gd): a die
+## written as its number, or the Lantern Lord's dice that go dark a moment
+## after they land. Covered dice peek at their dots when tapped.
+func _dress_dice(atk) -> void:
+	var flash := false
+	for i in atk.dice.size():
+		match fight.die_face(i):
+			Duel.NUMERAL:
+				dice[i].countable = false
+				dice[i].set_cover("numeral")
+			Duel.FLASH:
+				flash = true
+	if flash:
+		_lantern_out(_swing)
+
+
+func _lantern_out(swing: int) -> void:
+	await _wait(FLASH_S)
+	if swing != _swing or revealed:
+		return
+	Beeper.tone(260.0, 0.1, -8.0)
+	for i in fight.attack.dice.size():
+		dice[i].countable = false
+		dice[i].set_cover("dark", 0.35)
+
+
+## A pair foe out of hearts fades away; the other fights on.
+func _foe_fades(i: int) -> void:
+	_say(str(fight.foes[i]["name"]).split(" ")[1] + " out!")
+	var f := func(v: float) -> void: foe_gone[i] = v
+	await create_tween().tween_method(f, 0.0, 1.0, 0.7 * SLOW).finished
 
 
 ## Right block: the monster swings, the shield clangs and it bounces off.
@@ -418,6 +482,13 @@ func _break_hero_heart() -> Signal:
 func _break_monster_heart() -> Signal:
 	monster_break_i = fight.monster_hearts
 	shown_monster_hearts = fight.monster_hearts
+	monster_break_row = _monster_row()
+	if is_duel and not fight.foes.is_empty():
+		# the foe who swung (the turn passes only after the bash)
+		var k: int = fight.foe
+		monster_break_i = int(fight.foes[k]["hearts"])
+		shown_foe_hearts[k] = monster_break_i
+		monster_break_row = _foe_row(k)
 	monster_break = 0.0
 	return _break_tween("monster_break")
 
@@ -466,10 +537,13 @@ func _draw() -> void:
 	draw_texture_rect(bg_tex, Rect2(0, 0, 960, 540), false)
 	Ambient.room(self, bg_tex.resource_path, _t)  # embers, glints, mist: behind everything
 	var hero_row := Vector2(140, 30)
-	var monster_row := Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
 	_draw_hearts(hero_row, shown_hero_hearts, fight.hero_max_hearts)
-	if door_alpha < 0.0:
-		_draw_hearts(monster_row, shown_monster_hearts, fight.monster_max_hearts)
+	if door_alpha < 0.0 and _is_pair():
+		# a row each, the king's over the queen's, dimmed once that foe is out
+		for k in fight.foes.size():
+			_draw_hearts(_foe_row(k), shown_foe_hearts[k], int(fight.foes[k]["max"]))
+	elif door_alpha < 0.0:
+		_draw_hearts(_monster_row(), shown_monster_hearts, fight.monster_max_hearts)
 	_draw_target(font)
 	if door_alpha >= 0.0:
 		_draw_door(door_alpha)
@@ -478,6 +552,8 @@ func _draw() -> void:
 		_draw_monster(font)
 	# the enemy's name in a fiery box, under it (the door to the boss says Boss)
 	var name := Monsters.name_of(fight.monster_id) if door_alpha < 0.0 else "Boss"
+	if door_alpha < 0.0 and _is_pair():
+		name = str(fight.active_foe()["name"])
 	var w := font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
 	var nx := minf(MONSTER_POS.x - w / 2.0, NAME_RIGHT - w)
 	var box := Rect2(nx, MONSTER_POS.y + NAME_GAP, w, 34)
@@ -489,7 +565,7 @@ func _draw() -> void:
 	if hero_break >= 0.0:
 		_draw_breaking_heart(hero_row + Vector2(36 * hero_break_i, 0), hero_break)
 	if monster_break >= 0.0:
-		_draw_breaking_heart(monster_row + Vector2(36 * monster_break_i, 0), monster_break)
+		_draw_breaking_heart(monster_break_row + Vector2(36 * monster_break_i, 0), monster_break)
 	if bubble != "":
 		var b := Rect2(360, 12, 240, 44)
 		RoundBox.fire(self, b, _t, 16.0)
@@ -504,6 +580,19 @@ func _draw() -> void:
 				str(atk.choices), fight.hero_hearts, fight.monster_hearts]
 		draw_rect(Rect2(124, 186, 712, 20), Color(0, 0, 0, 0.7))
 		draw_string(font, Vector2(128, 201), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.6, 1, 0.6))
+
+
+func _is_pair() -> bool:
+	return is_duel and not fight.foes.is_empty()
+
+
+func _monster_row() -> Vector2:
+	return Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
+
+
+## The pair's hearts: one row per foe, right-aligned like the monster's.
+func _foe_row(k: int) -> Vector2:
+	return Vector2(824 - 36 * (int(fight.foes[k]["max"]) - 1), 30 + 38 * k)
 
 
 ## Sprout and Oak: the coloured sign between the two dice. Sapling: the die,
@@ -523,6 +612,11 @@ func _draw_target(font: Font) -> void:
 	RoundBox.frame(self, q, INK, 2.0)
 	draw_string(font, q.position + Vector2(0, 50), "?", HORIZONTAL_ALIGNMENT_CENTER, q.size.x, 44, INK)
 	draw_string(font, Vector2(388, DICE_Y + 16), "=", HORIZONTAL_ALIGNMENT_CENTER, 40, 40, INK)
+	if is_duel and fight.target_as_numeral():
+		# Ratatoskr writes the target too: "4 + ? = 7"
+		draw_string_outline(font, Vector2(432, DICE_Y + 26), str(atk.target), HORIZONTAL_ALIGNMENT_CENTER, 120, 72, 7, Color(0.08, 0.04, 0.06))
+		draw_string(font, Vector2(432, DICE_Y + 26), str(atk.target), HORIZONTAL_ALIGNMENT_CENTER, 120, 72, INK)
+		return
 	DiceDraw.draw_value(self, Vector2(492, DICE_Y), 56.0, atk.target)
 
 
@@ -619,6 +713,31 @@ func _draw_breaking_heart(slot: Vector2, p: float) -> void:
 	draw_texture_rect_region(HEART_TEX, Rect2(c + Vector2(spread, -half + drop * 1.15), size), src_r, Color(1, 1, 1, a))
 
 
+## The Wisp King and Queen side by side (art faces right, mirrored to face
+## the hero). The one whose turn it is moves, blinks and sinks; the other
+## stands back a little dimmer. A beaten foe fades away.
+func _draw_pair() -> void:
+	for k in foe_tex.size():
+		var t: Texture2D = foe_tex[k]
+		var active: bool = k == fight.foe
+		var a: float = (1.0 - float(foe_gone[k])) * (1.0 - monster_sink * 0.8)
+		if a <= 0.01:
+			continue
+		var breathe := sin(_t * 2.2 + k * 1.3) * 4.0 if (not active or monster_state == "idle") else 0.0
+		var c := MONSTER_POS + Vector2(PAIR_DX[k], 0)
+		var sink := monster_sink
+		if active:
+			c.x += monster_dx
+		c.y += sink * 60.0 - breathe
+		var ts := t.get_size() * Look.CHAR_PX * Vector2(1.0 + sink * 0.3, 1.0 - sink * 0.7)
+		var tr := Rect2(c + Vector2(-ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
+		var tint := Color.WHITE if active else Color(0.78, 0.78, 0.86)
+		if active:
+			tint = tint.lerp(HIT_RED, monster_flash)
+		tint.a = a
+		draw_texture_rect(t, tr, false, tint)
+
+
 ## The robot dragon: it breathes while idle, blinks red when hit and
 ## squashes down when it collapses.
 func _draw_hero(base: Vector2) -> void:
@@ -641,6 +760,9 @@ func _draw_hero(base: Vector2) -> void:
 
 
 func _draw_monster(font: Font) -> void:
+	if _is_pair():
+		_draw_pair()
+		return
 	var base_col: Color = MONSTER_COLORS.get(fight.monster_id, Color(0.6, 0.2, 0.2))
 	var col := base_col.lerp(Color(1.0, 0.1, 0.1), monster_flash * 0.8)
 	col.a = 1.0 - monster_sink * 0.8
