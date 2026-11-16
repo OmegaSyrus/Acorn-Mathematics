@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "id": "mushroom_scroll",
+  "type": "scroll",
+  "world": "mushroom_forest",
+  "miniboss": "mushroom_miniboss",
+  "boss": "green_man",
+  "name": "Mushroom Forest: the crossing",
+  "grades": [
+    41,
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "_note": "Terrence 2026-11-12: the Mushroom Forest is playable. Same run as the other crossings (9 guesses, stones = the answers added up); the stones are giant mushroom caps, a wrong one bends and drops into the leaf litter. Pixie, Hobgoblin, Boggart, then the Hedley Kow and the Green Man.",
+  "guesses": 9,
+  "chest_gems": {
+    "common": 1,
+    "rare": 2,
+    "rare_in": 6
+  },
+  "steps": [
+    {
+      "after": 1,
+      "type": "chest"
+    },
+    {
+      "after": 2,
+      "type": "monster",
+      "monster": "pixie"
+    },
+    {
+      "after": 3,
+      "type": "heart"
+    },
+    {
+      "after": 4,
+      "type": "chest"
+    },
+    {
+      "after": 5,
+      "type": "monster",
+      "monster": "hobgoblin"
+    },
+    {
+      "after": 6,
+      "type": "chest"
+    },
+    {
+      "after": 7,
+      "type": "chest"
+    },
+    {
+      "after": 8,
+      "type": "monster",
+      "monster": "boggart"
+    }
+  ]
+}

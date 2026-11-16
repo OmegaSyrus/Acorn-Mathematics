@@ -21,6 +21,7 @@ MIN_VALUE = 1
 MAX_ROLLS = 1000
 HERO_HEARTS = 3
 WIND_UP, RESOLVING, WON, LOST = 0, 1, 2, 3
+BLOCK, BASH = 0, 1  # the monster attacks (block it), then the hero shield-bashes
 
 
 def max_value(grade):
@@ -120,6 +121,11 @@ class Fight:
         self.max_hearts = monster_hearts
         self.hero = HERO_HEARTS
         self.monster = monster_hearts - (1 if first_strike else 0)
+        self.phase = BLOCK
+        self.wind_up()
+
+    def next_exchange(self):
+        self.phase = BASH if self.phase == BLOCK else BLOCK
         self.wind_up()
 
     def wind_up(self):
@@ -129,9 +135,9 @@ class Fight:
     def choose(self, i):
         assert self.state == WIND_UP
         right = i == self.attack["answer_index"]
-        if right:
+        if right and self.phase == BASH:
             self.monster -= 1
-        else:
+        elif not right and self.phase == BLOCK:
             self.hero -= 1
         if self.monster <= 0:
             self.state = WON
@@ -144,6 +150,7 @@ class Fight:
     def restart(self):  # duel only
         self.hero = HERO_HEARTS
         self.monster = self.max_hearts
+        self.phase = BLOCK
         self.wind_up()
 
 
@@ -172,7 +179,7 @@ def fight_vectors():
                 if f.state in (WON, LOST):
                     f = Fight(rng, grade, hearts, first_strike)
                 else:
-                    f.wind_up()
+                    f.next_exchange()
             cases.append({"grade": grade, "hearts": hearts, "first_strike": first_strike,
                           "taps": taps, "log": log, "state_after": rng.get_state()})
     return cases
@@ -195,7 +202,7 @@ def check():
             while f.state not in (WON, LOST):
                 f.choose(bot.randi_range(0, 3))
                 if f.state == RESOLVING:
-                    f.wind_up()
+                    f.next_exchange()
             wins += f.state == WON
         print("grade %d: 100k attacks ok, random bot beat a 3-heart monster in %.1f%% of 5000 fights" % (grade, 100.0 * wins / 5000))
         assert wins / 5000 <= 0.15

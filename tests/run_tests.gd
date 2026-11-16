@@ -13,7 +13,7 @@ func _init() -> void:
 	var ran := 0
 	for path in files:
 		var script: GDScript = load(path)
-		if script == null:
+		if script == null or not script.can_instantiate():
 			print("LOAD FAILED ", path)
 			failed += 1
 			continue

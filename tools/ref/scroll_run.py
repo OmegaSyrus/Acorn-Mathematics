@@ -6,6 +6,23 @@ AWAIT_ROLL = "await_roll"
 AWAIT_CHOICE = "await_choice"
 AWAIT_FIGHT = "await_fight"
 CLEARED = "cleared"
+HERO_HEARTS = 3
+MAX_HEARTS = 5
+
+
+def chest_draw(cfg, rng):
+    """One chest's gems: {common, rare, rare_in} is rare when randi_range(1, rare_in) == rare_in;
+    an [lo, hi] pair draws randi_range(lo, hi)."""
+    if isinstance(cfg, list):
+        return rng.randi_range(cfg[0], cfg[1])
+    n = cfg["rare_in"]
+    return cfg["rare"] if rng.randi_range(1, n) == n else cfg["common"]
+
+
+def chest_range(cfg):
+    if isinstance(cfg, list):
+        return cfg[0], cfg[1]
+    return min(cfg["common"], cfg["rare"]), max(cfg["common"], cfg["rare"])
 
 
 class ScrollRun:
@@ -16,15 +33,57 @@ class ScrollRun:
         self.rng = SeededRng(self.seed)
         self.attempt = 1
         self.pos = 0
+        self.target = 0
         self.looted = []
         self.gems = 0
+        self.hearts = HERO_HEARTS
+        self.hearts_taken = []
+        self.hurt = False  # a heart was lost on this crossing (no star)
+        self.rolls = 0
         self.problem = None
         self.phase = AWAIT_ROLL
         self.events = []
-        self.spaces = {s["at"]: s for s in area["spaces"]}
+        self.answers = []
+        if self.is_guessed():
+            self._new_answers()
+        else:
+            self._length = area["length"]
+            self.spaces = {s["at"]: s for s in area["spaces"]}
+
+    def is_guessed(self):
+        return "guesses" in self.area
+
+    def _new_answers(self):
+        top = self.grade["move"]["max_answer"]
+        self.answers = [self.rng.randi_range(1, top) for _ in range(self.area["guesses"])]
+        self._lay_out()
+
+    def _lay_out(self):
+        landing, at = {}, 0
+        for k, a in enumerate(self.answers):
+            at += a
+            landing[k + 1] = at
+        self._length = at
+        self.spaces = {}
+        for st in self.area.get("steps", []):
+            n = st["after"]
+            if n in landing and n < len(self.answers):
+                sp = dict(st)
+                sp["at"] = landing[n]
+                self.spaces[landing[n]] = sp
 
     def length(self):
-        return self.area["length"]
+        return self._length
+
+    def _loot_key(self, i):
+        sp = self.space_at(i)
+        return sp["after"] if sp is not None and "after" in sp else i
+
+    def is_heart_taken(self, i):
+        return self._loot_key(i) in self.hearts_taken
+
+    def is_looted(self, i):
+        return self._loot_key(i) in self.looted
 
     def space_at(self, i):
         return self.spaces.get(i)
@@ -36,25 +95,52 @@ class ScrollRun:
 
     def to_save(self):
         return {"area": self.area["id"], "grade": self.grade["id"], "seed": self.seed,
-                "attempt": self.attempt, "pos": self.pos, "looted": list(self.looted),
-                "gems": self.gems, "phase": self.phase, "rng_state": self.rng.get_state()}
+                "attempt": self.attempt, "pos": self.pos, "target": self.target, "looted": list(self.looted),
+                "gems": self.gems, "hearts": self.hearts, "hearts_taken": list(self.hearts_taken), "hurt": self.hurt, "rolls": self.rolls, "phase": self.phase, "rng_state": self.rng.get_state()} | (
+                    {"answers": list(self.answers)} if self.is_guessed() else {})
 
     @classmethod
     def from_save(cls, area, grade, data):
         run = cls(area, grade, data["seed"])
         run.attempt = data["attempt"]
         run.pos = data["pos"]
+        run.target = max(run.pos, data.get("target", run.pos))
         run.looted = list(data["looted"])
         run.gems = data["gems"]
+        run.hearts = max(1, min(data.get("hearts", HERO_HEARTS), MAX_HEARTS))
+        run.hearts_taken = list(data.get("hearts_taken", []))
+        run.hurt = bool(data.get("hurt", data["attempt"] > 1))
+        run.rolls = data.get("rolls", 0)
         run.phase = data["phase"]
+        if data["phase"] == AWAIT_CHOICE:
+            run.rolls = max(0, run.rolls - 1)
+            run.phase = AWAIT_ROLL
         run.rng.set_state(data["rng_state"])
+        if run.is_guessed():
+            run.answers = list(data["answers"])
+            run._lay_out()
         return run
 
     def roll(self):
         assert self.phase == AWAIT_ROLL
-        self.problem = generate_move(self.grade, self.rng, self.length() - self.pos)
+        lo, hi = self.answer_bounds()
+        if self.is_guessed():
+            lo = hi = self.answers[min(self.rolls, len(self.answers) - 1)]
+        self.problem = generate_move(self.grade, self.rng, self.length() - self.pos, lo, hi)
+        self.rolls += 1
         self.phase = AWAIT_CHOICE
         return self.problem
+
+    def answer_bounds(self):
+        if "rolls" not in self.area:
+            return 1, 0
+        lo_rolls, hi_rolls = self.area["rolls"]
+        top = self.grade["move"]["max_answer"]
+        room = self.length() - self.pos
+        left = hi_rolls - self.rolls - 1
+        lo = max(1, room - top * left)
+        hi = min(top, room - max(0, lo_rolls - self.rolls - 1))
+        return lo, max(lo, hi)
 
     def choose(self, index):
         assert self.phase == AWAIT_CHOICE
@@ -65,49 +151,99 @@ class ScrollRun:
         out = {"result": "", "right": right, "pick": index, "from": self.pos,
                "to": self.pos + dist, "restarted": False}
         if not right:
+            self.hurt = True
+            self.hearts -= 1
+            if self.hearts > 0:
+                out["result"] = "miss"
+                self._log(out)
+                self.rolls = max(0, self.rolls - 1)
+                self.problem = None
+                self.phase = AWAIT_ROLL
+                out["hearts_left"] = self.hearts
+                return out
             out["result"] = "sink"
             self._log(out)
             self._fail()
             out["restarted"] = True
             return out
-        self.pos += dist
-        space = self.space_at(self.pos)
-        self.phase = AWAIT_ROLL
-        if self.pos >= self.length():
-            out["result"] = "goal"
-            self.phase = CLEARED
-        elif space is not None and space["type"] == "monster":
-            out["result"] = "monster"
-            out["monster"] = space["monster"]
-            self.phase = AWAIT_FIGHT
-        elif space is not None and space["type"] == "chest" and self.pos not in self.looted:
-            lo, hi = self.area["chest_gems"]
-            out["result"] = "chest"
-            out["gems"] = self.rng.randi_range(lo, hi)
-            self.looted.append(self.pos)
-            self.gems += out["gems"]
-        else:
-            out["result"] = "hop"
+        self.target = self.pos + dist
+        self._walk(out)
         self._log(out)
         self.problem = None
         return out
 
-    def resolve_fight(self, won):
+    def resolve_fight(self, won, hearts_left=-1):
         assert self.phase == AWAIT_FIGHT
         out = {"result": "fight_won" if won else "fight_lost", "restarted": False}
         self._log(out)
-        if won:
-            self.phase = AWAIT_ROLL
-        else:
+        if not won:
             self._fail()
             out["restarted"] = True
+            return out
+        if hearts_left > 0:
+            if hearts_left < self.hearts:
+                self.hurt = True
+            self.hearts = min(hearts_left, MAX_HEARTS)
+        self.phase = AWAIT_ROLL
+        if self.target > self.pos:
+            w = {"result": "", "from": self.pos, "to": self.target}
+            self._walk(w)
+            self._log(w)
+            out["walk"] = w
         return out
 
+    def _walk(self, out):
+        chests = []
+        got_hearts = []
+        total = 0
+        self.phase = AWAIT_ROLL
+        out["result"] = "hop"
+        while self.pos < self.target:
+            self.pos += 1
+            space = self.space_at(self.pos)
+            if self.pos >= self.length():
+                out["result"] = "goal"
+                self.phase = CLEARED
+                break
+            if space is not None and space["type"] == "monster":
+                out["result"] = "monster"
+                out["monster"] = space["monster"]
+                self.phase = AWAIT_FIGHT
+                break
+            if space is not None and space["type"] == "chest" and not self.is_looted(self.pos):
+                g = chest_draw(self.area["chest_gems"], self.rng)
+                self.looted.append(self._loot_key(self.pos))
+                self.gems += g
+                total += g
+                chests.append({"at": self.pos, "gems": g})
+                if self.pos == self.target:
+                    out["result"] = "chest"
+            if space is not None and space["type"] == "heart" and not self.is_heart_taken(self.pos):
+                self.hearts_taken.append(self._loot_key(self.pos))
+                self.hearts = min(self.hearts + 1, MAX_HEARTS)
+                got_hearts.append(self.pos)
+                if self.pos == self.target:
+                    out["result"] = "heart"
+        if self.phase != AWAIT_FIGHT:
+            self.target = self.pos
+        out["to"] = self.pos
+        out["chests"] = chests
+        out["hearts"] = got_hearts
+        if chests:
+            out["gems"] = total
+
     def _fail(self):
+        self.hurt = True
         self.attempt += 1
+        self.rolls = 0
         self.pos = 0
+        self.target = 0
+        self.hearts = HERO_HEARTS
+        self.hearts_taken = []
         self.problem = None
         self.phase = AWAIT_ROLL
+        if self.is_guessed():
+            self._new_answers()
 
     def _log(self, out):
         e = {"attempt": self.attempt, "pos": self.pos, "result": out["result"]}

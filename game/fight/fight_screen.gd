@@ -3,8 +3,9 @@
 ## what it returns. Covers the area screen while it runs; drawn in the
 ## 960x540 design space with everything that matters inside x 120..840.
 ##
-## The monster is a labelled box that shows which reaction it is playing
-## (Monsters.STATES), so each state can be checked before art exists.
+## The monster is its sprite where one exists (mirrored to face the hero),
+## else a labelled box; either way the label shows which reaction it is
+## playing (Monsters.STATES), so each state can be checked before art exists.
 extends Node2D
 
 signal done(won: bool)
@@ -16,20 +17,45 @@ const Monsters := preload("res://logic/fight/monsters.gd")
 const DieView := preload("res://game/ui/die_view.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
+const Ambient := preload("res://game/ui/ambient.gd")
+const RoundBox := preload("res://game/ui/round_box.gd")
+const Look := preload("res://game/ui/look.gd")
+const PlayLog := preload("res://game/play_log.gd")
 
-const HERO_POS := Vector2(250, 372)
-const MONSTER_POS := Vector2(690, 372)
+## Feet a little higher than before and the shields a little lower, so the
+## monster's name fits under it (Terrence 2026-11-04). The monster's middle
+## sits at MONSTER_POS.x, inside the 4:3 safe area.
+const HERO_POS := Vector2(250, 350)
+const MONSTER_POS := Vector2(728, 350)
 const MONSTER_SIZE := Vector2(150, 170)
 const DICE_Y := 128.0
-const SHIELD_Y := 455.0
+const SHIELD_Y := 472.0
 const SHIELD_SIZE := Vector2(136, 118)
 const SHIELD_GAP := 160.0
 
 const INK := Color(0.96, 0.94, 0.9)
-const SHIELD := Color(0.62, 0.6, 0.58)
-const SHIELD_RIM := Color(0.3, 0.28, 0.27)
-const HEART := Color(0.9, 0.15, 0.2)
-const HEART_EMPTY := Color(0.35, 0.25, 0.25)
+## The miniboss duel's retry button, after a loss.
+const RETRY_RECT := Rect2(330, 240, 300, 96)
+## Monster art and the scale it is drawn at.
+## (by monster id in game/ui/world_theme.gd, with the fight room of its world)
+const WorldTheme := preload("res://game/ui/world_theme.gd")
+## The hero: the robot dragon, facing the monster on the right.
+const HEART_TEX := preload("res://art/ui/heart.png")
+const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
+const SHIELD_TEX := preload("res://art/ui/shield.png")
+const SHIELD_ART_SCALE := 1.1
+const NAME_GAP := 14.0      # from the monster's feet down to its name box
+const NAME_RIGHT := 842.0   # the name box never runs past the safe area
+## Every move and pause in the fight plays this many times slower than it
+## was, so a child can follow who was hit (Terrence 2026-11-05).
+const SLOW := 1.6
+## A lost heart: it swells in two whole-pixel steps (2x, 3x), shakes, flashes,
+## then cracks in two and the halves fall away (Terrence 2026-11-05).
+const BREAK_TIME := 1.5
+## Hit flash: the character blinks red this many times.
+const FLASH_BLINKS := 3
+const FLASH_TIME := 0.9
+const HIT_RED := Color(1.9, 0.35, 0.3)
 const MONSTER_COLORS := {
 	"blorp": Color(0.85, 0.35, 0.12),
 	"craggy": Color(0.5, 0.48, 0.45),
@@ -37,6 +63,8 @@ const MONSTER_COLORS := {
 	"lava_miniboss": Color(0.55, 0.12, 0.35),
 }
 
+## The robot dragon, or the store hero in use (game/ui/look.gd).
+var hero_tex: Texture2D = Look.hero_texture()
 var fight
 var is_duel := false
 var debug_on := false
@@ -44,6 +72,7 @@ var debug_on := false
 var dice: Array = []
 var choice: ChoiceWidget
 var shields_shown := false
+var retry_shown := false
 var picked := -1
 var revealed := false
 var monster_state := "idle"
@@ -55,18 +84,37 @@ var hero_flash := 0.0
 var hero_sink := 0.0
 var clang := 0.0
 var bubble := ""
+var monster_tex: Texture2D
+var bg_tex: Texture2D = preload("res://art/lava/fight-bg.png")
+var hero_lift := 0.0
+## The dragon's own shield (Terrence 2026-11-12: he blocks and shield-bashes
+## with it): 0 held at his side, 1 raised in front.
+var shield_up := 0.0
+var door_alpha := -1.0  # the boss door after the duel; -1 = not shown
 var _t := 0.0
+## Hearts as drawn. They lag the fight's count so a heart only goes when the
+## blow lands, and the one going plays its break (progress 0..1, -1 = none).
+var shown_hero_hearts := 0
+var shown_monster_hearts := 0
+var hero_break := -1.0
+var hero_break_i := 0
+var monster_break := -1.0
+var monster_break_i := 0
 
 
 ## first_strike: a mimic whose lock was answered right starts one heart down.
 ## duel: the miniboss duel (numerals, restarts itself on a loss).
-func setup(rng, grade: int, monster_id: String, first_strike := false, duel := false, show_debug := false) -> void:
+## hero_hearts: the hearts the hero brings from the crossing (-1 = a fresh 3).
+func setup(rng, grade: int, monster_id: String, first_strike := false, duel := false, show_debug := false,
+		hero_hearts := -1) -> void:
 	is_duel = duel
 	debug_on = show_debug
 	if duel:
 		fight = Duel.new(rng, grade, monster_id, Monsters.hearts_of(monster_id))
 	else:
 		fight = Fight.new(rng, grade, monster_id, Monsters.hearts_of(monster_id), first_strike)
+		if hero_hearts > 0:
+			fight.set_hero_hearts(hero_hearts)
 
 
 func _ready() -> void:
@@ -78,55 +126,111 @@ func _ready() -> void:
 		d.pip_tapped.connect(_on_pip_tapped)
 		dice.append(d)
 	choice = ChoiceWidget.new()
+	choice.show_highlight = false
+	# tap a shield to pick it, then the green Go button, the same as the
+	# crossing's (Terrence, 2026-11-07)
+	choice.confirm = true
+	choice.go_area = Rect2(132, 0, 696, 540)
 	add_child(choice)
+	if WorldTheme.MONSTER_ART.has(fight.monster_id):
+		monster_tex = WorldTheme.monster_texture(fight.monster_id)
+	bg_tex = load(WorldTheme.get_theme(WorldTheme.world_of_monster(fight.monster_id))["fight_bg"])
+	_sync_hearts()
 	_loop()
+
+
+func _sync_hearts() -> void:
+	shown_hero_hearts = fight.hero_hearts
+	shown_monster_hearts = fight.monster_hearts
+	hero_break = -1.0
+	monster_break = -1.0
 
 
 # --- the exchange loop -----------------------------------------------------
 
 func _loop() -> void:
-	_say(Monsters.name_of(fight.monster_id))
+	_say("Fight!")  # its name sits under it now
 	await _wait(0.8)
 	while true:
 		await _wind_up()
 		choice.present(_shield_rects())
+		var asked_ms := Time.get_ticks_msec()
+		var shown := PlayLog.fight_shown(fight.attack, "bash" if fight.phase == Fight.Phase.BASH else "block")
+		shown["monster"] = fight.monster_id
 		var pick: int = await choice.picked
 		picked = pick
 		var out: Dictionary = fight.choose(pick)
+		var where := "duel" if is_duel else "fight"
+		PlayLog.answer(where, shown, int(out["answer"]), int(fight.attack.choices[pick]),
+				(Time.get_ticks_msec() - asked_ms) / 1000.0)
+		if not out["right"] and out["phase"] == Fight.Phase.BLOCK:
+			PlayLog.event("heart_lost", {"where": where, "hearts_left": fight.hero_hearts})
+		var bashing: bool = out["phase"] == Fight.Phase.BASH
 		revealed = true
 		for d in dice:
 			if d.visible:
 				d.show_numeral()
 		_say(str(out["answer"]))
-		if out["right"]:
+		if not out["right"]:
+			Ellwynn.say_answer(int(out["answer"]))
+		# a beat to see the right shield light up before anyone moves
+		await _wait(0.5)
+		if bashing and out["right"]:
+			await _happy()
+			await _bash()
+		elif bashing:
+			await _miss()
+		elif out["right"]:
+			await _happy()
 			await _parry()
 		else:
 			await _hit()
+		if out["state"] != Fight.State.RESOLVING:
+			PlayLog.event(("%s_won" if out["state"] == Fight.State.WON else "%s_lost") % where,
+					{"monster": fight.monster_id})
 		if out["state"] == Fight.State.WON:
 			await _monster_collapse()
+			if is_duel:
+				await _boss_door()
 			done.emit(true)
 			return
 		if out["state"] == Fight.State.LOST:
 			await _hero_collapse()
 			if fight.on_loss == Fight.OnLoss.RESTART_DUEL:
-				_say("Again!")
-				await _wait(0.8)
+				# a green "Try again" button starts the duel over (Terrence 2026-11-12)
+				_say("")
+				await _wait(0.5)
+				retry_shown = true
+				choice.confirm = false
+				choice.present([RETRY_RECT])
+				await choice.picked
+				choice.confirm = true
+				retry_shown = false
+				Beeper.good()
 				_reset_looks()
 				fight.restart()
+				_sync_hearts()
 				continue
 			done.emit(false)
 			return
 		fight.next_exchange()
 
 
-## The monster winds up and its dice tumble in. It holds the wind-up, with
-## no timer, until the child picks.
+## The question's dice tumble in. In the block phase the monster winds up
+## to attack first; in the bash phase the hero gets ready to shield bash.
+## Either way it holds, with no timer, until the child picks.
 func _wind_up() -> void:
 	shields_shown = false
 	picked = -1
 	revealed = false
-	monster_state = "wind_up"
-	await _tween_prop("monster_dx", -18.0, 0.25)
+	var bashing: bool = fight.phase == Fight.Phase.BASH
+	if bashing:
+		_say("Shield bash!")
+		await _tween_prop("hero_dx", -18.0, 0.25)
+	else:
+		_say("Block!")
+		monster_state = "wind_up"
+		await _tween_prop("monster_dx", -18.0, 0.25)
 	var atk = fight.attack
 	var xs := _dice_xs(atk)
 	for i in dice.size():
@@ -148,39 +252,84 @@ func _wind_up() -> void:
 	for i in atk.dice.size():
 		dice[i].countable = true
 	monster_state = "idle"
+	if bashing:
+		hero_dx = 0.0
 	shields_shown = true
-	_say("Block!")
+	_say("Shield bash!" if bashing else "Block!")
 
 
-## Right answer: the shield clangs, the hero strikes back, the monster loses a heart.
+## Right block: the monster swings, the shield clangs and it bounces off.
+## Nobody loses a heart; the hero's shield bash comes next.
 func _parry() -> void:
 	monster_state = "strike"
+	create_tween().tween_property(self, "shield_up", 1.0, 0.12 * SLOW)
 	await _tween_prop("monster_dx", -120.0, 0.18)
 	monster_state = "blocked"
 	clang = 1.0
 	Beeper.tone(1200.0, 0.08)
-	create_tween().tween_property(self, "clang", 0.0, 0.4)
-	await _tween_prop("monster_dx", 0.0, 0.2)
+	_say("Blocked!")
+	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
+	await _tween_prop("monster_dx", 30.0, 0.2)
+	await _tween_prop("monster_dx", 0.0, 0.15)
+	await _tween_prop("shield_up", 0.0, 0.2)
+	await _wait(0.2)
+	monster_state = "idle"
+
+
+## Right bash: the hero charges in, the shield clangs on the monster and it
+## loses a heart.
+func _bash() -> void:
+	await _tween_prop("shield_up", 1.0, 0.12)
 	await _tween_prop("hero_dx", 230.0, 0.16)
+	clang = 1.0
+	Beeper.tone(1200.0, 0.08)
+	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
 	monster_state = "hurt"
-	monster_flash = 1.0
 	Beeper.good()
-	create_tween().tween_property(self, "monster_flash", 0.0, 0.5)
+	_blink("monster_flash")
+	var breaking := _break_monster_heart()
 	await _tween_prop("hero_dx", 0.0, 0.25)
+	create_tween().tween_property(self, "shield_up", 0.0, 0.2 * SLOW)
+	await breaking
 	await _wait(0.35)
 	monster_state = "idle"
+
+
+## Wrong bash: the hero charges, the monster hops back out of the way. No
+## heart is lost; the monster attacks next.
+func _miss() -> void:
+	# the hop back is quicker than the charge, so it is done when that lands
+	await _tween_prop("shield_up", 1.0, 0.12)
+	create_tween().tween_property(self, "monster_dx", 70.0, 0.14 * SLOW)
+	await _tween_prop("hero_dx", 200.0, 0.16)
+	_say("Miss!")
+	Beeper.tone(330.0, 0.12)
+	await _tween_prop("hero_dx", 0.0, 0.25)
+	create_tween().tween_property(self, "shield_up", 0.0, 0.2 * SLOW)
+	await _tween_prop("monster_dx", 0.0, 0.2)
+	await _wait(0.35)
+
+
+## A right answer: the hero jumps for joy, twice, before blocking.
+func _happy() -> void:
+	for k in 2:
+		var up := func(t: float) -> void:
+			hero_lift = sin(t * PI) * 40.0
+		await create_tween().tween_method(up, 0.0, 1.0, 0.24 * SLOW).finished
+	hero_lift = 0.0
 
 
 ## Wrong answer: the swing lands and the hero loses a heart.
 func _hit() -> void:
 	monster_state = "strike"
 	await _tween_prop("monster_dx", -260.0, 0.18)
-	hero_flash = 1.0
 	Beeper.bad()
-	create_tween().tween_property(self, "hero_flash", 0.0, 0.5)
+	_blink("hero_flash")
+	var breaking := _break_hero_heart()
 	await _tween_prop("hero_dx", -40.0, 0.1)
 	await _tween_prop("monster_dx", 0.0, 0.25)
 	await _tween_prop("hero_dx", 0.0, 0.2)
+	await breaking
 	await _wait(0.35)
 	monster_state = "idle"
 
@@ -191,7 +340,32 @@ func _monster_collapse() -> void:
 	await _tween_prop("monster_sink", 1.0, 0.8)
 	_say("Yes!")
 	Beeper.good()
+	Ellwynn.enemy_beaten()
 	await _wait(1.0)
+
+
+## After the miniboss: a door to the boss glows where it stood, with the
+## golden GO! arrow over it, and waits for a tap (Terrence, 2026-11-07).
+func _boss_door() -> void:
+	revealed = false
+	shields_shown = false
+	for d in dice:
+		d.visible = false
+	door_alpha = 0.0
+	await _tween_prop("door_alpha", 1.0, 0.5)
+	_say("Tap the door!")
+	choice.confirm = false
+	choice.present([door_rect().grow(40.0)])
+	await choice.picked
+	Beeper.good()
+	_say("Go!")
+	await _tween_prop("hero_dx", MONSTER_POS.x - HERO_POS.x, 0.6)
+	await _tween_prop("door_alpha", 0.0, 0.3)
+
+
+## The boss door, standing where the miniboss was.
+func door_rect() -> Rect2:
+	return Rect2(MONSTER_POS + Vector2(-50, -150), Vector2(100, 150))
 
 
 func _hero_collapse() -> void:
@@ -218,11 +392,43 @@ func _on_pip_tapped(count: int) -> void:
 
 
 func _tween_prop(prop: String, to: float, dur: float) -> void:
-	await create_tween().tween_property(self, prop, to, dur).finished
+	await create_tween().tween_property(self, prop, to, dur * SLOW).finished
 
 
 func _wait(s: float) -> void:
-	await get_tree().create_timer(s).timeout
+	await get_tree().create_timer(s * SLOW).timeout
+
+
+## The character blinks red FLASH_BLINKS times (prop is hero_flash or monster_flash).
+func _blink(prop: String) -> void:
+	var f := func(t: float) -> void:
+		var phase := fmod(t * FLASH_BLINKS, 1.0)
+		set(prop, 1.0 if phase < 0.6 and t < 1.0 else 0.0)
+	create_tween().tween_method(f, 0.0, 1.0, FLASH_TIME * SLOW)
+
+
+## The heart that was lost swells and breaks; awaitable.
+func _break_hero_heart() -> Signal:
+	hero_break_i = fight.hero_hearts
+	shown_hero_hearts = fight.hero_hearts
+	hero_break = 0.0
+	return _break_tween("hero_break")
+
+
+func _break_monster_heart() -> Signal:
+	monster_break_i = fight.monster_hearts
+	shown_monster_hearts = fight.monster_hearts
+	monster_break = 0.0
+	return _break_tween("monster_break")
+
+
+func _break_tween(prop: String) -> Signal:
+	var tw := create_tween()
+	tw.tween_property(self, prop, 0.5, BREAK_TIME * SLOW * 0.5)
+	tw.tween_callback(func() -> void: Beeper.tone(220.0, 0.15))  # the crack
+	tw.tween_property(self, prop, 1.0, BREAK_TIME * SLOW * 0.5)
+	tw.tween_callback(func() -> void: set(prop, -1.0))
+	return tw.finished
 
 
 func _process(delta: float) -> void:
@@ -255,20 +461,43 @@ func _dice_xs(atk) -> Array:
 
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
-	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.12, 0.07, 0.06))
-	draw_rect(Rect2(-480, 380, 1920, 260), Color(0.2, 0.12, 0.09))
-	_draw_hearts(Vector2(140, 34), fight.hero_hearts, 3)
-	_draw_hearts(Vector2(820 - 30 * (fight.monster_max_hearts - 1), 34), fight.monster_hearts, fight.monster_max_hearts)
-	draw_string(font, Vector2(540, 72), Monsters.name_of(fight.monster_id), HORIZONTAL_ALIGNMENT_RIGHT, 300, 18, INK)
+	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.05, 0.03, 0.06))
+	# the lava cave arena, 320x180 pixel art drawn at 3x
+	draw_texture_rect(bg_tex, Rect2(0, 0, 960, 540), false)
+	Ambient.room(self, bg_tex.resource_path, _t)  # embers, glints, mist: behind everything
+	var hero_row := Vector2(140, 30)
+	var monster_row := Vector2(824 - 36 * (fight.monster_max_hearts - 1), 30)
+	_draw_hearts(hero_row, shown_hero_hearts, fight.hero_max_hearts)
+	if door_alpha < 0.0:
+		_draw_hearts(monster_row, shown_monster_hearts, fight.monster_max_hearts)
 	_draw_target(font)
-	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0))
-	_draw_monster(font)
+	if door_alpha >= 0.0:
+		_draw_door(door_alpha)
+	_draw_hero(HERO_POS + Vector2(hero_dx, hero_sink * 90.0 - hero_lift))
+	if door_alpha < 0.0:
+		_draw_monster(font)
+	# the enemy's name in a fiery box, under it (the door to the boss says Boss)
+	var name := Monsters.name_of(fight.monster_id) if door_alpha < 0.0 else "Boss"
+	var w := font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
+	var nx := minf(MONSTER_POS.x - w / 2.0, NAME_RIGHT - w)
+	var box := Rect2(nx, MONSTER_POS.y + NAME_GAP, w, 34)
+	RoundBox.fire(self, box, _t, 12.0)
+	_outlined(font, box.position + Vector2(0, 25), name, box.size.x, 22)
 	if shields_shown or revealed:
 		_draw_shields(font)
+	# a breaking heart draws over everything
+	if hero_break >= 0.0:
+		_draw_breaking_heart(hero_row + Vector2(36 * hero_break_i, 0), hero_break)
+	if monster_break >= 0.0:
+		_draw_breaking_heart(monster_row + Vector2(36 * monster_break_i, 0), monster_break)
 	if bubble != "":
-		var b := Rect2(380, 12, 200, 44)
-		draw_rect(b, INK)
-		draw_string(font, b.position + Vector2(0, 32), bubble, HORIZONTAL_ALIGNMENT_CENTER, b.size.x, 28, Color(0.1, 0.1, 0.1))
+		var b := Rect2(360, 12, 240, 44)
+		RoundBox.fire(self, b, _t, 16.0)
+		_outlined(font, b.position + Vector2(0, 32), bubble, b.size.x, 28)
+	if retry_shown:
+		RoundBox.fill(self, RETRY_RECT, Color(0.2, 0.62, 0.3), 18.0)
+		RoundBox.frame(self, RETRY_RECT, Color(0.07, 0.04, 0.08), 4.0, 18.0)
+		_outlined(font, RETRY_RECT.position + Vector2(0, 64), "Try again", RETRY_RECT.size.x, 46)
 	if debug_on:
 		var atk = fight.attack
 		var line := "dice %s target %d answer %d choices %s  hearts %d/%d" % [str(atk.dice), atk.target, atk.answer,
@@ -277,15 +506,21 @@ func _draw() -> void:
 		draw_string(font, Vector2(128, 201), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.6, 1, 0.6))
 
 
-## Sapling: the die, then "+ ? =", then the target as dots.
+## Sprout and Oak: the coloured sign between the two dice. Sapling: the die,
+## then "+ ? =", then the target as dots.
 func _draw_target(font: Font) -> void:
 	var atk = fight.attack
-	if atk.kind != Attack.Kind.DIE_AND_TARGET or not dice[0].visible:
+	if not dice[0].visible or not dice[0].face_on:
 		return
-	draw_string(font, Vector2(262, DICE_Y + 16), "+", HORIZONTAL_ALIGNMENT_CENTER, 40, 40, INK)
+	if atk.dice.size() == 2 and dice[1].face_on:
+		var op := "-" if atk.kind == Attack.Kind.MOVE_AND_SLIP else "+"
+		DiceDraw.draw_op(self, Vector2(480, DICE_Y), op, 40.0, _t)
+	if atk.kind != Attack.Kind.DIE_AND_TARGET:
+		return
+	DiceDraw.draw_op(self, Vector2(282, DICE_Y), "+", 32.0, _t)
 	var q := Rect2(312, DICE_Y - 34, 68, 68)
-	draw_rect(q, Color(0.25, 0.2, 0.18))
-	draw_rect(q, INK, false, 2.0)
+	RoundBox.fill(self, q, Color(0.25, 0.2, 0.18))
+	RoundBox.frame(self, q, INK, 2.0)
 	draw_string(font, q.position + Vector2(0, 50), "?", HORIZONTAL_ALIGNMENT_CENTER, q.size.x, 44, INK)
 	draw_string(font, Vector2(388, DICE_Y + 16), "=", HORIZONTAL_ALIGNMENT_CENTER, 40, 40, INK)
 	DiceDraw.draw_value(self, Vector2(492, DICE_Y), 56.0, atk.target)
@@ -294,76 +529,138 @@ func _draw_target(font: Font) -> void:
 func _draw_shields(font: Font) -> void:
 	var rects := _shield_rects()
 	var atk = fight.attack
+	var size := SHIELD_TEX.get_size() * SHIELD_ART_SCALE
 	for i in rects.size():
 		var r: Rect2 = rects[i]
-		var col := SHIELD
+		var tint := Color.WHITE
 		if revealed and i == atk.answer_index:
-			col = Color(0.95, 0.8, 0.3)
+			tint = Color(1.25, 1.05, 0.45)
 		elif revealed and i == picked:
-			col = Color(0.55, 0.3, 0.28)
+			tint = Color(0.75, 0.4, 0.38)
 		if clang > 0.0 and i == picked:
-			col = col.lerp(Color.WHITE, clang)
-		var pts := _shield_shape(r)
-		draw_colored_polygon(pts, col)
-		pts.append(pts[0])
-		draw_polyline(pts, SHIELD_RIM, 4.0)
-		var c := r.get_center() + Vector2(0, -8)
+			tint = tint.lerp(Color(2.0, 2.0, 2.0), clang)
+		var art := Rect2(r.get_center() - size / 2.0, size)
+		draw_texture_rect(SHIELD_TEX, art, false, tint)
+		# the numeral or dots sit on the wooden face, a little above center
+		var c := art.get_center() + Vector2(0, -10)
 		var v: int = atk.choices[i]
 		if fight.choice_style == Fight.ChoiceStyle.NUMERALS:
-			draw_string(font, c + Vector2(-60, 24), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 64, Color(0.08, 0.08, 0.08))
+			draw_string_outline(font, c + Vector2(-60, 22), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 60, 6, Color(1, 0.95, 0.85))
+			draw_string(font, c + Vector2(-60, 22), str(v), HORIZONTAL_ALIGNMENT_CENTER, 120, 60, Color(0.08, 0.06, 0.05))
 		else:
-			DiceDraw.draw_value(self, c, 46.0 if v <= 6 else 40.0, v)
+			DiceDraw.draw_value(self, c, 44.0 if v <= 6 else 36.0, v)
 
 
-func _shield_shape(r: Rect2) -> PackedVector2Array:
-	var p := r.position
-	var w := r.size.x
-	var h := r.size.y
-	return PackedVector2Array([
-		p, p + Vector2(w, 0), p + Vector2(w, h * 0.55),
-		p + Vector2(w * 0.5, h), p + Vector2(0, h * 0.55)])
+## The glowing way on to the boss (the crossing's door, scroll_screen.gd)
+## and a golden arrow pointing down at it with "GO!" on it.
+func _draw_door(a: float) -> void:
+	var base := MONSTER_POS
+	var dark := Color(0.12, 0.07, 0.12, a)
+	draw_rect(Rect2(base + Vector2(-50, -150), Vector2(100, 150)), dark)
+	draw_arc(base + Vector2(0, -150), 50.0, PI, TAU, 24, dark, 20.0)
+	var pulse := 0.6 + 0.4 * sin(_t * 3.0)
+	draw_rect(Rect2(base + Vector2(-38, -140), Vector2(76, 140)), Color(1.0, 0.85, 0.4, 0.35 * pulse * a))
+	draw_circle(base + Vector2(0, -170), 14.0, Color(1.0, 0.85, 0.3, pulse * a))
+	var tip := base + Vector2(0, -196 + 8.0 * sin(_t * 4.0))
+	var gold := Color(1.0, 0.8, 0.22, a)
+	var light := Color(1.0, 0.94, 0.55, a)
+	var edge := Color(0.42, 0.24, 0.05, a)
+	var pts := PackedVector2Array([
+		tip + Vector2(-58, -70), tip + Vector2(-82, -70), tip,
+		tip + Vector2(82, -70), tip + Vector2(58, -70),
+		tip + Vector2(58, -150), tip + Vector2(-58, -150),
+	])
+	var grown := Geometry2D.offset_polygon(pts, 6.0)
+	draw_colored_polygon(grown[0] if grown.size() > 0 else pts, edge)
+	draw_colored_polygon(pts, gold)
+	var font := ThemeDB.fallback_font
+	var at := tip + Vector2(-58, -92)
+	draw_string_outline(font, at, "GO!", HORIZONTAL_ALIGNMENT_CENTER, 116, 44, 6, light)
+	draw_string(font, at, "GO!", HORIZONTAL_ALIGNMENT_CENTER, 116, 44, edge)
 
 
+## Light text with a dark outline, for the fiery boxes.
+func _outlined(font: Font, pos: Vector2, text: String, width: float, size: int) -> void:
+	draw_string_outline(font, pos, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, 7, Color(0.08, 0.03, 0.03))
+	draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, INK)
+
+
+## Pixel hearts at 32 px, full then empty.
 func _draw_hearts(at: Vector2, have: int, total: int) -> void:
 	for i in total:
-		var c := at + Vector2(30 * i, 0)
-		var col := HEART if i < have else HEART_EMPTY
-		draw_circle(c + Vector2(-6, -4), 8.0, col)
-		draw_circle(c + Vector2(6, -4), 8.0, col)
-		draw_colored_polygon(PackedVector2Array([c + Vector2(-13, -1), c + Vector2(13, -1), c + Vector2(0, 14)]), col)
+		var c := at + Vector2(36 * i, 0)
+		draw_texture(HEART_TEX if i < have else HEART_EMPTY_TEX, c - Vector2(16, 16))
 
 
+## A lost heart, p from 0 to 1. Whole-pixel scales only (1x, 2x, 3x), so
+## it stays crisp: swell to 2x, then 3x and shake, a white flash, then it
+## splits down the middle and the halves tip apart and fall, fading.
+func _draw_breaking_heart(slot: Vector2, p: float) -> void:
+	var px := 3 if p >= 0.18 else 2
+	var half := 16.0 * px
+	# grow downward from the row so the big heart stays on screen
+	var c := Vector2(slot.x, maxf(slot.y, half + 4.0)).round()
+	if p < 0.5:
+		if p >= 0.18:
+			c += Vector2(roundf(sin(p * 120.0) * 3.0), 0)
+		var glow := 1.0
+		if p >= 0.42:
+			glow = 2.2
+		draw_texture_rect(HEART_TEX, Rect2(c - Vector2(half, half), Vector2(half, half) * 2.0), false, Color(glow, glow, glow))
+		return
+	var q := (p - 0.5) / 0.5            # 0..1 over the fall
+	var spread := roundf(q * 40.0 + 6.0)
+	var drop := roundf(q * q * 160.0)
+	var a := 1.0 - q
+	var src_l := Rect2(0, 0, 16, 32)
+	var src_r := Rect2(16, 0, 16, 32)
+	var size := Vector2(half, half * 2.0)
+	draw_texture_rect_region(HEART_TEX, Rect2(c + Vector2(-half - spread, -half + drop), size), src_l, Color(1, 1, 1, a))
+	draw_texture_rect_region(HEART_TEX, Rect2(c + Vector2(spread, -half + drop * 1.15), size), src_r, Color(1, 1, 1, a))
+
+
+## The robot dragon: it breathes while idle, blinks red when hit and
+## squashes down when it collapses.
 func _draw_hero(base: Vector2) -> void:
 	var alpha := 1.0 - hero_sink * 0.7
-	var body := Color(0.35, 0.8, 0.35, alpha).lerp(Color(1, 0.3, 0.3, alpha), hero_flash)
-	var pts := PackedVector2Array()
-	var squash := 1.0 - hero_sink * 0.5
-	for s in 24:
-		var a := TAU * s / 24.0
-		var p := Vector2(cos(a) * 34.0 * (2.0 - squash), sin(a) * 50.0 * squash)
-		if p.y > 0:
-			p.y *= 0.4
-		pts.append(base + Vector2(0, -24) + p)
-	draw_colored_polygon(pts, body)
-	draw_circle(base + Vector2(-11, -44 * squash), 7.0, Color(1, 1, 1, alpha))
-	draw_circle(base + Vector2(11, -44 * squash), 7.0, Color(1, 1, 1, alpha))
-	draw_circle(base + Vector2(-10, -43 * squash), 3.5, Color(0, 0, 0, alpha))
-	draw_circle(base + Vector2(12, -43 * squash), 3.5, Color(0, 0, 0, alpha))
-	# the hero's shield, raised while the child decides
-	if shields_shown and not revealed:
-		draw_rect(Rect2(base + Vector2(30, -70), Vector2(16, 60)), SHIELD)
+	var tint := Color.WHITE.lerp(HIT_RED, hero_flash)
+	tint.a = alpha
+	var breathe := sin(_t * 2.4) * 0.02
+	var size := hero_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + hero_sink * 0.3, (1.0 + breathe) * (1.0 - hero_sink * 0.5))
+	var feet := base + Vector2(0, 12)
+	draw_texture_rect(hero_tex, Rect2(feet - Vector2(size.x / 2.0, size.y), size), false, tint)
+	# his shield (Terrence 2026-11-12): held low at his side, raised out in
+	# front to block a swing and to shield bash; it flashes on the clang
+	var low := Vector2(24, -22)
+	var high := Vector2(44, -42)
+	var sc := lerpf(0.3, 0.4, shield_up)
+	var ssize := (SHIELD_TEX.get_size() * sc).round()
+	var c := (base + low.lerp(high, shield_up)).round()
+	var stint := tint.lerp(Color(2.0, 2.0, 2.0, alpha), clang * shield_up)
+	draw_texture_rect(SHIELD_TEX, Rect2(c - ssize / 2.0, ssize), false, stint)
 
 
 func _draw_monster(font: Font) -> void:
 	var base_col: Color = MONSTER_COLORS.get(fight.monster_id, Color(0.6, 0.2, 0.2))
-	var col := base_col.lerp(Color.WHITE, monster_flash * 0.8)
+	var col := base_col.lerp(Color(1.0, 0.1, 0.1), monster_flash * 0.8)
 	col.a = 1.0 - monster_sink * 0.8
 	var breathe := sin(_t * 2.2) * 4.0 if monster_state == "idle" else 0.0
 	var size := MONSTER_SIZE * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
 	var c := MONSTER_POS + Vector2(monster_dx, monster_sink * 60.0 - breathe)
 	var r := Rect2(c - Vector2(size.x / 2.0, size.y), size)
-	draw_rect(r, col)
-	draw_rect(r, Color(0.1, 0.05, 0.05, col.a), false, 3.0)
+	if monster_tex != null:
+		# the art faces right; a negative width mirrors it to face the hero
+		var ts := monster_tex.get_size() * Look.CHAR_PX * Vector2(1.0 + monster_sink * 0.3, 1.0 - monster_sink * 0.7)
+		# a mirrored rect spans position .. position + |size|, so this centers it on c
+		var tr := Rect2(c + Vector2(-ts.x / 2.0, -ts.y + 12.0), Vector2(-ts.x, ts.y))
+		var tint := Color.WHITE.lerp(HIT_RED, monster_flash)
+		tint.a = col.a
+		draw_texture_rect(monster_tex, tr, false, tint)
+		if debug_on:
+			draw_string(font, Vector2(c.x - 100, c.y - ts.y + 44), monster_state, HORIZONTAL_ALIGNMENT_CENTER, 200, 18, Color(INK, col.a))
+		return
+	RoundBox.fill(self, r, col, 18.0)
+	RoundBox.frame(self, r, Color(0.1, 0.05, 0.05, col.a), 3.0, 18.0)
 	if fight.monster_id == "mimic":
 		# a chest with teeth: the lid line and a row of fangs
 		draw_line(r.position + Vector2(0, size.y * 0.35), r.position + Vector2(size.x, size.y * 0.35), Color(0.2, 0.1, 0.05, col.a), 4.0)

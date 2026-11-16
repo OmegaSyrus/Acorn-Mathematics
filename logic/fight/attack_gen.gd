@@ -49,7 +49,9 @@ static func near_miss_tiers(attack) -> Array:
 	return [primary, secondary, [a - 3, a + 3]]
 
 
-static func generate(rng, grade: int):
+## top > 0 caps the answer (a level's fight top, docs/difficulty-plan.md
+## 1.5): rolls over it are rolled again, and choices stay at or under it.
+static func generate(rng, grade: int, top := 0):
 	# How many of the three wrong choices sit below the answer.
 	var below_count: int = rng.randi_range(0, CHOICE_COUNT - 1)
 	var above_count: int = CHOICE_COUNT - 1 - below_count
@@ -57,6 +59,9 @@ static func generate(rng, grade: int):
 		var attack = _roll(rng, grade)
 		if attack == null:
 			return null
+		if top > 0 and attack.answer > top:
+			continue
+		attack.top = top
 		var below := _side(attack, true)
 		var above := _side(attack, false)
 		if _count(below) >= below_count and _count(above) >= above_count:
@@ -110,6 +115,8 @@ static func _roll(rng, grade: int):
 static func _side(attack, below: bool) -> Array:
 	var a: int = attack.answer
 	var top := max_value(attack.grade)
+	if attack.top > 0:
+		top = mini(top, attack.top)
 	var seen: Array[int] = []
 	var tiers: Array = []
 	for tier in near_miss_tiers(attack):

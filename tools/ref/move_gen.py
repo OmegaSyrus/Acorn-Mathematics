@@ -2,17 +2,19 @@
 Spec: spec/logic-spec.md section 6. Draw order matters."""
 
 
-def generate_move(grade, rng, room):
+def generate_move(grade, rng, room, lo=1, hi=0):
     cfg = grade["move"]
     m = min(cfg["max_answer"], room)
-    ops = [op for op in cfg["ops"] if not (op == "add" and m < 2)]
+    top = m if hi <= 0 else max(1, min(hi, m))
+    bottom = max(1, min(lo, top))
+    ops = [op for op in cfg["ops"] if not (op == "add" and top < 2)]
     op = ops[0] if len(ops) == 1 else ops[rng.randi_range(0, len(ops) - 1)]
     if op == "add":
-        answer = rng.randi_range(2, m)
+        answer = rng.randi_range(max(2, bottom), top)
         a = rng.randi_range(1, answer - 1)
         b = answer - a
     else:
-        answer = rng.randi_range(1, m)
+        answer = rng.randi_range(bottom, top)
         a = rng.randi_range(answer + 1, cfg["die_max"])
         b = a - answer
     choices = list(range(1, m + 1))

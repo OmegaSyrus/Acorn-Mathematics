@@ -50,16 +50,32 @@ func test_areas_have_6_to_10_tasks() -> bool:
 ## grades that have a "move" config.
 func _check_scroll(a: Dictionary) -> void:
 	var id: String = a["id"]
-	var length: int = a["length"]
-	check(length >= 10, "scroll %s too short" % id)
+	var levels := Content.levels()
 	for gid in a["grades"]:
-		check(Content.grades()[int(gid)].has("move"), "scroll %s grade %d has no move config" % [id, gid])
+		var g: Dictionary = levels.get(int(gid), Content.grades().get(int(gid), {}))
+		check(g.has("move"), "scroll %s grade %d has no move config" % [id, gid])
+		if levels.has(int(gid)) and a.has("world"):
+			check(levels[int(gid)]["world"] == a["world"], "scroll %s level %d is another world's" % [id, gid])
+	var entries: Array
+	var key: String
+	var top: int
+	if a.has("guesses"):
+		# a run of guesses: the steps land on the stones the answers reach
+		top = int(a["guesses"])
+		check(top >= 3, "scroll %s too few guesses" % id)
+		entries = a["steps"]
+		key = "after"
+	else:
+		top = int(a["length"])
+		check(top >= 10, "scroll %s too short" % id)
+		entries = a["spaces"]
+		key = "at"
 	var seen := {}
-	for s in a["spaces"]:
-		var at: int = s["at"]
-		check(at > 0 and at < length and not seen.has(at), "scroll %s bad space %d" % [id, at])
+	for s in entries:
+		var at: int = s[key]
+		check(at > 0 and at < top and not seen.has(at), "scroll %s bad %s %d" % [id, key, at])
 		seen[at] = true
-		check(["chest", "monster"].has(s["type"]), "scroll %s unknown space type" % id)
+		check(["chest", "monster", "heart"].has(s["type"]), "scroll %s unknown space type" % id)
 		if s["type"] == "monster":
 			check(str(s.get("monster", "")) != "", "scroll %s monster space without an id" % id)
 
@@ -77,3 +93,34 @@ func _json_files(dir: String) -> Array:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_json_files(dir.path_join(d)))
 	return out
+
+
+## The mini map's worlds: the five in order, every playable one points at a
+## real area, and that area's miniboss is a duel fighter.
+func test_worlds() -> bool:
+	const Monsters := preload("res://logic/fight/monsters.gd")
+	var worlds := Content.worlds()
+	var ids := []
+	for w in worlds:
+		ids.append(w["id"])
+	check(ids == ["lava_caves", "crystal_mines", "bog", "mushroom_forest", "space"], "worlds in order: %s" % [ids])
+	for w in worlds:
+		if w.has("area"):
+			var a := Content.area(w["area"])
+			check(not a.is_empty(), "world %s area %s missing" % [w["id"], w["area"]])
+			check(a.get("world") == w["id"], "area %s is not in world %s" % [w["area"], w["id"]])
+			if a.has("miniboss"):
+				check(Monsters.ROSTER.has(a["miniboss"]) and Monsters.ROSTER[a["miniboss"]]["role"] == "miniboss",
+						"area %s miniboss %s" % [w["area"], a["miniboss"]])
+	return true
+
+
+## Ellwynn says the right answer after a wrong guess (Terrence 2026-11-08: she
+## went quiet above 6). Every answer from 0 up to the Mushroom Forest's 20 has a voice.
+func test_ellwynn_says_every_answer() -> bool:
+	var lines = JsonUtil.load_file("res://content/ellwynn_lines.json")
+	var answers: Dictionary = lines.get("answers", {})
+	for n in range(0, 21):
+		var file: String = answers.get(str(n), "")
+		check(file != "" and ResourceLoader.exists(file), "no Ellwynn voice for %d" % n)
+	return true
