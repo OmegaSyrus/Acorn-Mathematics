@@ -19,10 +19,13 @@ const RoundBox := preload("res://game/ui/round_box.gd")
 const DiceSkins := preload("res://game/ui/dice_skins.gd")
 const Look := preload("res://game/ui/look.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
+const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 
-const BACK_RECT := Rect2(136, 10, 150, 80)
-const TAB_RECTS := {"hero": Rect2(302, 10, 150, 80), "dice": Rect2(462, 10, 150, 80)}
-const GEMS_BOX := Rect2(628, 14, 196, 72)
+## Narrower Back and tabs (Phase 0, 2026-11-16) leave room for every open
+## currency's balance at the top right, three over two.
+const BACK_RECT := Rect2(128, 10, 124, 80)
+const TAB_RECTS := {"hero": Rect2(260, 10, 120, 80), "dice": Rect2(388, 10, 120, 80)}
+const GEMS_BOX := Rect2(516, 8, 320, 88)
 const COLS := 7   # 14 cards a tab (2026-11-06: Red and Green Bolt joined the heroes)
 const CARD := Vector2(96, 205)
 const GAP := 6.0
@@ -50,7 +53,8 @@ var tab := "hero"
 var selected := ""        # a Buy card tapped once: its big Buy button shows
 var targets: Array = []   # [{rect, what: back|tab|card|buy, id}]
 var choice: ChoiceWidget
-var shown_gems := 0.0
+var shown_gems := 0.0     # gems as counted on screen (the tests read it)
+var shown := {}           # currency id -> balance as counted on screen
 var _shake := {}          # item id -> seconds of shake left
 var _pop := {}            # item id -> seconds of pop left (bought / put on)
 var _sparks: Array = []   # [{pos, vel, life, col}]
@@ -64,6 +68,8 @@ func setup(profile: Dictionary) -> void:
 func _ready() -> void:
 	cat = Store.catalog()
 	shown_gems = Store.balance(save, "gems")
+	for cid in Store.open_currencies(cat):
+		shown[cid] = float(Store.balance(save, cid))
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	# the highlight (keyboard and pad) starts on the hero in use
@@ -137,6 +143,10 @@ func _buy(id: String) -> void:
 		_sparks.append({"pos": c, "vel": Vector2(cos(a), sin(a)) * randf_range(140.0, 320.0), "life": randf_range(0.6, 1.0),
 				"col": [GOLD, Color(1, 1, 1), Color(0.6, 0.9, 1.0), Color(1.0, 0.6, 0.85)][k % 4]})
 	create_tween().tween_property(self, "shown_gems", float(Store.balance(save, "gems")), 0.7)
+	var cid: String = Store.item(cat, id)["price"]["currency"]
+	var from: float = shown.get(cid, 0.0)
+	var to := float(Store.balance(save, cid))
+	create_tween().tween_method(func(v: float) -> void: shown[cid] = v, from, to, 0.7)
 
 
 func _saved() -> void:
@@ -233,7 +243,7 @@ func _draw_back(font: Font) -> void:
 			c + Vector2(20, 9), c + Vector2(4, 9), c + Vector2(4, 20)])
 	draw_colored_polygon(arrow, GOLD)
 	draw_polyline(arrow + PackedVector2Array([arrow[0]]), DARK, 2.0)
-	draw_string(font, r.position + Vector2(58, r.size.y / 2.0 + 11), "Back", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
+	draw_string(font, r.position + Vector2(56, r.size.y / 2.0 + 10), "Back", HORIZONTAL_ALIGNMENT_LEFT, -1, 27, INK)
 
 
 ## The tabs are pictures: the hero in use, and a pair of dice in the skin in
@@ -257,15 +267,27 @@ func _draw_tabs() -> void:
 			draw_texture_rect(DiceSkins.face(Look.dice_id, 2, true), Rect2(r.get_center() + Vector2(2, -20), Vector2(46, 46)), false, m)
 
 
+## Every open currency's balance: gems, crystals and brooches on top,
+## leaves and feathers under them, each with its icon.
 func _draw_gems(font: Font) -> void:
 	var r := GEMS_BOX
 	RoundBox.fill(self, r, Color(0.1, 0.06, 0.1, 0.9), 16.0)
 	RoundBox.frame(self, r, Color(1.0, 0.6, 0.25), 3.0, 16.0)
-	draw_texture_rect(GEM_TEX, Rect2(r.position + Vector2(14, 8), Vector2(56, 56)), false)
-	var at := r.position + Vector2(78, 50)
-	var n := str(roundi(shown_gems))
-	draw_string_outline(font, at, n, HORIZONTAL_ALIGNMENT_LEFT, -1, 42, 6, DARK)
-	draw_string(font, at, n, HORIZONTAL_ALIGNMENT_LEFT, -1, 42, Color(1.0, 0.86, 0.5))
+	var ids := Store.open_currencies(cat)
+	for k in ids.size():
+		var cid: String = ids[k]
+		var row := k / 3
+		var col := k % 3
+		var c := r.position + Vector2(26 + col * 104, 24 + row * 40)
+		if not CurrencyIcon.draw(self, cid, c, 30.0):
+			_currency_icon(cid, c, 26.0)
+		var v: float = shown.get(cid, float(Store.balance(save, cid)))
+		if cid == "gems":
+			v = shown_gems
+		var n := str(roundi(v))
+		var at := c + Vector2(20, 11)
+		draw_string_outline(font, at, n, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, 6, DARK)
+		draw_string(font, at, n, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Color(1.0, 0.86, 0.5))
 
 
 func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:
@@ -384,6 +406,8 @@ func _currency_icon(cid: String, c: Vector2, size: float) -> void:
 	var col := Color(icon.get("color", "#cccccc"))
 	var light := Color(icon.get("light", "#ffffff"))
 	var h := size / 2.0
+	if CurrencyIcon.draw(self, cid, c, size * 1.15):
+		return
 	match str(icon.get("shape", "")):
 		"gem":
 			draw_texture_rect(GEM_TEX, Rect2(c - Vector2(h, h) * 1.15, Vector2(size, size) * 1.15), false)
