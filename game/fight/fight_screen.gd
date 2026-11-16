@@ -555,7 +555,8 @@ func _draw() -> void:
 	if door_alpha < 0.0 and _is_pair():
 		name = str(fight.active_foe()["name"])
 	var w := font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x + 32.0
-	var nx := minf(MONSTER_POS.x - w / 2.0, NAME_RIGHT - w)
+	var name_x := MONSTER_POS.x + (PAIR_DX[fight.foe] if door_alpha < 0.0 and _is_pair() else 0.0)
+	var nx := minf(name_x - w / 2.0, NAME_RIGHT - w)
 	var box := Rect2(nx, MONSTER_POS.y + NAME_GAP, w, 34)
 	RoundBox.fire(self, box, _t, 12.0)
 	_outlined(font, box.position + Vector2(0, 25), name, box.size.x, 22)

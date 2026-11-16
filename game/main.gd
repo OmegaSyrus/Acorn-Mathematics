@@ -329,8 +329,8 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 	_play_level_music()
 	menu.visible = true
 	var b := BounceScreen.new()
-	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
 	b.world_id = str(area.get("world", "lava_caves"))
+	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
 	b.save = save
 	b.done.connect(func(won: bool):
 		if won:

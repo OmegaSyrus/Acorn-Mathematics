@@ -163,8 +163,9 @@ func _load_theme() -> void:
 	gem_tex = icon if icon != null else GEM_TEX
 
 
+## Set world_id first: the boss plays on its world's board.
 func setup(rng, grade: int, show_debug := false) -> void:
-	fight = BounceFight.new(rng, grade)
+	fight = BounceFight.new(rng, grade, {}, {}, world_id)
 	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
 	slow_mo = float(screen_cfg["last_heart_time_scale"])
 	win_gems = int(screen_cfg.get("win_gems", 10))
