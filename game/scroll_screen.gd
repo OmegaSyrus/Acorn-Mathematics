@@ -410,6 +410,9 @@ func _roll_dice(p: Dictionary) -> void:
 ## Where the dice, signs, "=" and answer sit in the tray for n dice (plan 3.4,
 ## kept inside the tray, x 292 to 696). Two dice are today's layout.
 func tray_layout(n: int) -> Dictionary:
+	if n == 1:
+		# one die (Lava 1, Phase 1): the die where the sign sits, then "= ?"
+		return {"scale": 1.0, "xs": [OP_X], "ops": [], "eq": OP_X + 74.0, "ans": OP_X + 146.0, "font": 72}
 	if n <= 2:
 		return {"scale": 1.0, "xs": DICE_XS, "ops": [OP_X], "eq": EQ_X, "ans": ANSWER_X, "font": 72}
 	var sc := 0.75 if n == 3 else 0.6
@@ -1024,7 +1027,7 @@ func _draw_stone_numbers() -> void:
 	if stone_from < 0:
 		return
 	var font := ThemeDB.fallback_font
-	var track := bool(run.grade.get("track", false))
+	var track := bool(run.stage_now().get("track", run.grade.get("track", false)))
 	var m := mini(run.max_answer_now(), run.length() - stone_from)
 	var rails_on := bool(run.stage_now().get("rails", false))
 	# at half size the numbers stay big on screen (font 40, landmarks 48)

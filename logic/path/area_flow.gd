@@ -10,6 +10,7 @@
 extends RefCounted
 
 const SaveData := preload("res://logic/core/save_data.gd")
+const Content := preload("res://logic/core/content.gd")
 
 const DUEL := "duel"
 const BOSS := "boss"
@@ -51,61 +52,111 @@ static func enter(save: Dictionary, area: Dictionary, grade_id: int, stage: Stri
 		save["run"] = stage_run(area, grade_id, stage)
 
 
-## A world on the mini map is unlocked once the world before it has been
-## beaten (Terrence 2026-11-07: the map unlocks the next area when the
-## previous one is complete). The first world is always unlocked.
-## The Debug screen's "Map: all open" (save["debug_unlock"]) unlocks them all.
+## The Level path (Phase 1 of the ship plan, 2026-11-16): Level N is one
+## pass of the five worlds, each at Level N. At a Level, the first world is
+## open once the Level is, and each world after it once the world before it
+## has been beaten at that Level. Level 1 is always open; Level N+1 opens
+## when every world has been beaten at Level N (beating Space finishes the
+## pass). Only play opens worlds and Levels: no grown-up switch moves a
+## child on. The Debug screen's "Map: all open" (save["debug_unlock"])
+## opens every world at every Level, for testing.
 ## A world that isn't built yet (no "area") can't be beaten, so the world
-## after it looks back past it to the last built one (2026-11-12: Space
-## opens after the Bog until the Mushroom Forest is in).
-## A grown-up can open any world from the main menu's Grown-ups panel
-## (Terrence 2026-11-12: "parent unlocks and child picks"), save["parent_open"].
-static func world_unlocked(save: Dictionary, worlds: Array, i: int) -> bool:
-	if bool(save.get("debug_unlock", false)) and i < worlds.size():
+## after it looks back past it to the last built one.
+static func world_unlocked(save: Dictionary, worlds: Array, i: int, level := 1) -> bool:
+	if i < 0 or i >= worlds.size():
+		return false
+	if bool(save.get("debug_unlock", false)):
 		return true
-	if i > 0 and i < worlds.size() and save.get("parent_open", []).has(String(worlds[i]["id"])):
-		return true
+	if not level_open(save, worlds, level):
+		return false
 	if i == 0:
 		return true
-	if i >= worlds.size():
-		return false
 	var before := i - 1
 	while before > 0 and not worlds[before].has("area"):
 		before -= 1
-	return world_beaten(save, String(worlds[before]["id"]))
-
-
-## Unlocked by play alone (the first world, or the one before it beaten),
-## leaving out the Grown-ups panel and the Debug "Map: all open".
-static func world_unlocked_by_play(save: Dictionary, worlds: Array, i: int) -> bool:
-	var plain := save.duplicate()
-	plain["parent_open"] = []
-	plain["debug_unlock"] = false
-	return world_unlocked(plain, worlds, i)
+	return world_beaten(save, String(worlds[before]["id"]), level)
 
 
 ## An unlocked world can be played once it has an area built.
-static func world_open(save: Dictionary, worlds: Array, i: int) -> bool:
-	return world_unlocked(save, worlds, i) and worlds[i].has("area")
+static func world_open(save: Dictionary, worlds: Array, i: int, level := 1) -> bool:
+	return world_unlocked(save, worlds, i, level) and worlds[i].has("area")
 
 
-## The indexes of every unlocked world (a grown-up can open one past a lock).
-static func unlocked_list(save: Dictionary, worlds: Array) -> Array:
+## The indexes of every unlocked world at a Level.
+static func unlocked_list(save: Dictionary, worlds: Array, level := 1) -> Array:
 	var out := []
 	for i in worlds.size():
-		if world_unlocked(save, worlds, i):
+		if world_unlocked(save, worlds, i, level):
 			out.append(i)
 	return out
 
 
-## How many worlds are unlocked, counting from the first.
-static func unlocked_count(save: Dictionary, worlds: Array) -> int:
+## How many worlds are unlocked at a Level, counting from the first.
+static func unlocked_count(save: Dictionary, worlds: Array, level := 1) -> int:
 	var n := 0
-	while n < worlds.size() and world_unlocked(save, worlds, n):
+	while n < worlds.size() and world_unlocked(save, worlds, n, level):
 		n += 1
 	return n
 
 
-## The world has been beaten (boss and all) at some grade.
-static func world_beaten(save: Dictionary, world_id: String) -> bool:
-	return save["marks"].has(world_id) and not save["marks"][world_id].is_empty()
+## The world has been beaten (boss and all) at that Level; level 0 means at
+## any Level.
+static func world_beaten(save: Dictionary, world_id: String, level := 0) -> bool:
+	var marks: Array = save["marks"].get(world_id, [])
+	if level <= 0:
+		return not marks.is_empty()
+	var ids := Content.level_ids(world_id)
+	if level > ids.size():
+		return false
+	# a world with no levels in content (tests, an unbuilt world): ids by number
+	var id := int(ids[level - 1]) if int(ids[level - 1]) > 0 else level
+	return marks.has(id)
+
+
+## Every built world beaten at Level n: the full pass is done.
+static func level_beaten(save: Dictionary, worlds: Array, n: int) -> bool:
+	if n < 1:
+		return false
+	var any := false
+	for w in worlds:
+		if not w.has("area"):
+			continue
+		any = true
+		if not world_beaten(save, String(w["id"]), n):
+			return false
+	return any
+
+
+## Level 1 is always open; Level n once Level n - 1 is beaten.
+static func level_open(save: Dictionary, worlds: Array, n: int) -> bool:
+	if n < 1 or n > Content.LEVEL_COUNT:
+		return false
+	if n == 1 or bool(save.get("debug_unlock", false)):
+		return true
+	return level_beaten(save, worlds, n - 1)
+
+
+## The child's Level: the highest one open.
+static func level_reached(save: Dictionary, worlds: Array) -> int:
+	var n := 1
+	while n < Content.LEVEL_COUNT and level_open(save, worlds, n + 1):
+		n += 1
+	return n
+
+
+## Big bonuses come once (Phase 1): what beating this world's boss at this
+## level pays. "pass" is the first clear that finishes a Level (every other
+## world already beaten at it), "first" any other first clear of the world at
+## the level, "replay" a world already beaten there.
+static func boss_bonus(save: Dictionary, worlds: Array, world_id: String, grade_id: int) -> String:
+	if save["marks"].get(world_id, []).has(grade_id):
+		return "replay"
+	var n := 0
+	var ids := Content.level_ids(world_id)
+	n = ids.find(grade_id) + 1
+	if n < 1:
+		return "first"
+	for w in worlds:
+		if w.has("area") and String(w["id"]) != world_id and not world_beaten(save, String(w["id"]), n):
+			return "first"
+	return "pass"

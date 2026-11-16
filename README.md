@@ -38,14 +38,22 @@ The main menu's small grey Reset button (top right) asks "Reset all?". No keeps
 everything; Yes only works when held down for 3 seconds, so a child tapping around
 can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn's intro.
 
+## The Level path (Phase 1 of the ship plan, 2026-11-16)
+
+Level N is one pass Lava, Crystal, Bog, Mushroom, Space at Level N; beating Space opens
+Level N+1 at Lava. The main menu shows "Level: N" (tap to step back to a Level already
+reached), the map shows what is open and done at that Level, and only play moves a child
+on. The math is one 30-step ladder in `content/levels.json`, one new thing per step, each
+crossing opening with 3 warm-up guesses at the step before. Details, the bonus rules and
+the full table: `docs/level-path.md`.
+
 ## Grown-ups and level marks (Terrence, 2026-11-12)
 
-- "Parent unlocks and child picks": the main menu's small grey Grown-ups
-  button (left of Debug) does nothing on a tap; held down for 3 seconds (a bar
-  fills after the first second) it opens the Grown-ups panel
-  (`game/grownups_screen.gd`). Each world there is "Open by play" or toggles
-  Locked/Open (`save["parent_open"]`); the child picks any open world on the
-  map. Beating a boss still opens the next world. Reset clears the opens too.
+- The main menu's small grey Grown-ups button (left of Debug) does nothing on a
+  tap; held down for 3 seconds (a bar fills after the first second) it opens the
+  Grown-ups panel (`game/grownups_screen.gd`). Since Phase 1 (2026-11-16) it has
+  no world switches: it shows the child's Level and each world Done, Next or
+  Locked at it.
 - Every world records a gold mark per level beaten (boss and all,
   `save["marks"]`) and a bright star when that level's crossing was cleared
   without losing a heart (`save["stars"]`, from `ScrollRun.hurt`). The map

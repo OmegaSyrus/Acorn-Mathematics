@@ -52,8 +52,11 @@ static func worlds() -> Array:
 const LEVELS_PATH := "res://content/levels.json"
 
 
-## Level id -> level (content/levels.json): the world's crossing math by level
-## number. A "mix" level gets its parts' move configs as move.part_moves.
+## Level id -> level (content/levels.json): the crossing math of each step
+## on the level path. A "mix" move gets its parts' move configs as
+## move.part_moves. Every level gets a 2-stage "ramp": 3 warm-up guesses at
+## the step before's math, then its own (Phase 1 of the ship plan,
+## 2026-11-16), and a "monster_fight" (the step before's fight).
 static func levels() -> Dictionary:
 	var out := {}
 	var data = JsonUtil.load_file(LEVELS_PATH)
@@ -62,41 +65,68 @@ static func levels() -> Dictionary:
 	for l in data["levels"]:
 		out[int(l["id"])] = l
 	for id in out:
-		# the level's own move and each ramp stage's (Space 6 ramps through mixes)
-		var moves := [out[id]["move"]]
-		for st in out[id].get("ramp", []):
-			moves.append(st["move"])
-		for mv in moves:
-			if mv["draw"] == "mix" and not mv.has("part_moves"):
-				var parts := []
-				for pid in mv["parts"]:
-					parts.append(out[int(pid)]["move"])
-				mv["part_moves"] = parts
+		var mv: Dictionary = out[id]["move"]
+		if mv["draw"] == "mix" and not mv.has("part_moves"):
+			var parts := []
+			for pid in mv["parts"]:
+				parts.append(out[int(pid)]["move"])
+			mv["part_moves"] = parts
+	_warm_ups(out)
 	_step_back_fights(out)
 	return out
 
 
-## The levels in play order (the level path): the worlds as the map orders
-## them, each world's levels by number. Each world picks up where the last
-## one ended.
+## How many guesses open each crossing at the step before's math.
+const WARM_UP_GUESSES := 3
+
+
+## The level path: Level 1 in every world in map order (Lava, Crystal, Bog,
+## Mushroom, Space), then Level 2 from Lava again, and so on. Each step is
+## one place on the 30-step ladder.
 static func level_path(levels_by_id: Dictionary) -> Array:
-	var order := []
-	for w in worlds():
-		var ls := []
-		for l in levels_by_id.values():
-			if l["world"] == w["id"]:
-				ls.append(l)
-		ls.sort_custom(func(a, b): return int(a["num"]) < int(b["num"]))
-		order.append_array(ls)
-	return order
+	var order := {}
+	var ws := worlds()
+	for i in ws.size():
+		order[String(ws[i]["id"])] = i
+	var out := []
+	for l in levels_by_id.values():
+		if order.has(String(l["world"])):
+			out.append(l)
+	out.sort_custom(func(a, b):
+		if int(a["num"]) != int(b["num"]):
+			return int(a["num"]) < int(b["num"])
+		return order[String(a["world"])] < order[String(b["world"])])
+	return out
+
+
+## Every level opens with WARM_UP_GUESSES guesses at the step before's move
+## and fight, then plays its own: "ramp" [warm-up, own]. The first step has
+## no step before and uses its "warmup" entry. The rails and the star track
+## are the world's: kept in the warm-up, except on the step that brings them
+## in ("new"), so that step's one new thing stays out of its warm-up.
+static func _warm_ups(levels_by_id: Dictionary) -> void:
+	var path := level_path(levels_by_id)
+	for i in path.size():
+		var lv: Dictionary = path[i]
+		var before: Dictionary = lv.get("warmup", {}) if i == 0 else path[i - 1]
+		if before.is_empty():
+			continue
+		var rails := bool(lv.get("rails", false))
+		var track := bool(lv.get("track", false))
+		var new := String(lv.get("new", ""))
+		var warm := {"guesses": WARM_UP_GUESSES, "warmup": true,
+				"move": before["move"].duplicate(true), "fight": before["fight"].duplicate(),
+				"rails": rails and new != "rails", "track": track and new != "track"}
+		var own := {"guesses": 99, "move": lv["move"], "fight": lv["fight"], "rails": rails, "track": track}
+		lv["ramp"] = [warm, own]
 
 
 ## Fights ask the step before (Terrence, 2026-11-12): a monster fight in a
-## level asks the previous level's fight (its own "fight", the last stage's)
-## along the level path, so the new ideas stay on the stones. The first level
-## (Lava 1) keeps its own. A ramp stage already opening below that (same
-## rule, a lower top) keeps its own top. Each level and ramp stage gets the
-## result as "monster_fight"; "fight" stays the level's own (the duel).
+## level asks the previous step's fight along the level path, so the new
+## ideas stay on the stones. The first step keeps its own. A ramp stage
+## already opening below that (same rule, a lower top) keeps its own top.
+## Each level and ramp stage gets the result as "monster_fight"; "fight"
+## stays the level's own (the duel).
 static func _step_back_fights(levels_by_id: Dictionary) -> void:
 	var path := level_path(levels_by_id)
 	for i in path.size():
@@ -129,14 +159,31 @@ static func level_id(world_id: String, num: int) -> int:
 	return 1
 
 
+## How many Levels the path has (each one pass of the five worlds).
+const LEVEL_COUNT := 6
+
+static var _ids_cache := {}
+
+
 ## A world's level ids by number: [level 1 id, ..., level 6 id] (0 where the
-## world has no such level). Reads levels.json once, for drawing the marks.
-static func level_ids(world_id: String, count := 6) -> Array:
+## world has no such level). Reads levels.json once and keeps the answer
+## (the ids never change), for the marks and the Level path checks.
+static func level_ids(world_id: String, count := LEVEL_COUNT) -> Array:
+	if _ids_cache.is_empty():
+		for l in levels().values():
+			var w := String(l["world"])
+			if not _ids_cache.has(w):
+				var blank := []
+				blank.resize(LEVEL_COUNT)
+				blank.fill(0)
+				_ids_cache[w] = blank
+			var n := int(l["num"])
+			if n >= 1 and n <= LEVEL_COUNT:
+				_ids_cache[w][n - 1] = int(l["id"])
 	var out := []
 	out.resize(count)
 	out.fill(0)
-	for l in levels().values():
-		var n := int(l["num"])
-		if l["world"] == world_id and n >= 1 and n <= count:
-			out[n - 1] = int(l["id"])
+	var have: Array = _ids_cache.get(world_id, [])
+	for k in mini(count, have.size()):
+		out[k] = have[k]
 	return out
