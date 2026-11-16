@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "acorn.save.v2",
+  "title": "Acorn Mathematics save, version 2 (user://profile_<profile>.json)",
+  "description": "One save per profile on the device, written after every task. Version 1 (no schema field, profile \"1\", one file user://profile_1.json) upgrades on read in SaveData.from_text. The server never reads inside it; the game merges snapshots on restore.",
+  "type": "object",
+  "required": ["schema", "version", "game", "profile", "stickers", "gems", "gem_counts", "marks", "stars", "currencies", "owned", "hero", "dice"],
+  "properties": {
+    "schema": {"const": "acorn.save"},
+    "version": {"const": 2},
+    "game": {"const": "acorn-math"},
+    "profile": {"type": "string", "pattern": "^p_[0-9a-f]{12}$"},
+    "stickers": {"type": "array", "items": {"type": "string"}},
+    "gems": {"type": "integer", "description": "Balance to spend. Equals the sum of earned minus the sum of spent in gem_counts."},
+    "gem_counts": {
+      "type": "object",
+      "description": "dev -> {earned, spent}. Each device only raises its own counts, so a merge takes each device's highest counts and the totals come out exact.",
+      "additionalProperties": {"type": "object", "required": ["earned", "spent"], "properties": {"earned": {"type": "integer", "minimum": 0}, "spent": {"type": "integer", "minimum": 0}}}
+    },
+    "marks": {"type": "object", "description": "area or world id -> level ids beaten.", "additionalProperties": {"type": "array", "items": {"type": "integer"}}},
+    "stars": {"type": "object", "description": "world id -> level ids cleared without losing a heart.", "additionalProperties": {"type": "array", "items": {"type": "integer"}}},
+    "currencies": {"type": "object"},
+    "owned": {"type": "array", "items": {"type": "string"}},
+    "hero": {"type": "string"},
+    "dice": {"type": "string"},
+    "difficulty": {"type": "integer"},
+    "run": {"type": ["object", "null"], "description": "The level in progress. Stays on its device: never merged."},
+    "parent_open": {"type": "array", "items": {"type": "string"}, "deprecated": true, "description": "Worlds a grown-up opened on the tablet. Phase 1 removes the switches; kept so old saves still read."},
+    "ellwynn_intro_seen": {"type": "boolean"},
+    "debug_unlock": {"type": "boolean"}
+  }
+}

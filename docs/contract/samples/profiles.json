@@ -1,0 +1,6 @@
+{"schema":"family.profiles","v":1,"active":"p_04a2c9e1f3b7",
+ "profiles":[
+  {"id":"p_04a2c9e1f3b7","nickname":"Bear","picture":"fox","guest":false,"created":1763200000,"child":null},
+  {"id":"p_91c0d2e4a6b8","nickname":"Wren","picture":"bunny","guest":false,"created":1763200500,"child":null},
+  {"id":"p_5e5e00a1b2c3","nickname":"Guest","picture":"slime_knight","guest":true,"created":1763201000,"child":null}],
+ "pin":{"salt":"a1b2c3d4e5f60718","hash":"5a1f0b3c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a"}}

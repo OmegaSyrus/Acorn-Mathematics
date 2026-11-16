@@ -42,7 +42,7 @@ func _ready() -> void:
 	var grades := Content.grades()
 	run = AreaRun.new(Content.area("lava_1_fights"), grades[grade_id], Content.stickers(), 1234)
 	area = AreaScreen.new()
-	area.setup(run, SaveData.new_profile(SaveStore.PROFILE), false)
+	area.setup(run, SaveData.new_profile(SaveStore.LEGACY_PROFILE), false)
 	area.finished.connect(_on_finished)
 	add_child(area)
 

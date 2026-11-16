@@ -1,0 +1,56 @@
+{
+ "schema": "family.snapshot",
+ "v": 1,
+ "game": "acorn-math",
+ "dev": "d_7f3a9c1e04b25d68",
+ "profile": "p_04a2c9e1f3b7",
+ "child": "c_9b2f00e1a7c4",
+ "rev": 311,
+ "saved_at": 1763290040,
+ "app": "0.23.1",
+ "code": 42,
+ "cv": 1,
+ "save_schema": "acorn.save",
+ "save_v": 2,
+ "save": {
+  "schema": "acorn.save",
+  "version": 2,
+  "game": "acorn-math",
+  "profile": "p_04a2c9e1f3b7",
+  "stickers": [
+   "lava_1"
+  ],
+  "gems": 17,
+  "gem_counts": {
+   "d_7f3a9c1e04b25d68": {
+    "earned": 52,
+    "spent": 40
+   },
+   "d_00c0ffee00c0ffee": {
+    "earned": 5,
+    "spent": 0
+   }
+  },
+  "marks": {
+   "lava_caves": [
+    1,
+    12
+   ]
+  },
+  "stars": {
+   "lava_caves": [
+    1
+   ]
+  },
+  "currencies": {},
+  "owned": [
+   "slime_helmet"
+  ],
+  "hero": "robodragon",
+  "dice": "classic",
+  "difficulty": 2,
+  "run": null,
+  "parent_open": [],
+  "ellwynn_intro_seen": true
+ }
+}
