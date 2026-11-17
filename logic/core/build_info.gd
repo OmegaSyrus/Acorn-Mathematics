@@ -8,8 +8,8 @@ const JsonUtil := preload("res://logic/core/json_util.gd")
 ## The permanent game id (docs/contract/README.md, Ids).
 const GAME := "acorn-math"
 const TITLE := "Acorn Mathematics"
-const APP := "0.26.0"
-const CODE := 45
+const APP := "0.27.0"
+const CODE := 46
 
 static var _cv := 0
 

@@ -231,6 +231,20 @@ func say_answer(n: int) -> void:
 		_set_mode("off")
 
 
+## A number said straight away, with no portrait and no bubble: the count
+## as the child taps the pips in a fight, and the answer after a right
+## guess (Terrence 2026-11-17). A new number cuts off the one before.
+func say_count(n: int) -> void:
+	var file: String = lines.get("answers", {}).get(str(n), "")
+	if file == "" or not ResourceLoader.exists(file):
+		push_warning("Ellwynn: no number line for %d" % n)
+		return
+	stop_voice()
+	_queue = [{"file": file, "bubble": ""}]
+	_next_line()
+	_duck(ANSWER_DUCK_DB)
+
+
 ## Plays a cue: the intro plays all its lines in order; any other cue plays
 ## one of its lines at random. A cue with no lines plays a placeholder.
 func say(cue: String) -> void:

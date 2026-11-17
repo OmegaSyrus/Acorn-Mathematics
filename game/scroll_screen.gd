@@ -221,7 +221,8 @@ func _ready() -> void:
 		var screen_step := clampf(floorf(660.0 / most), 60.0, 110.0)
 		step = screen_step / zoom
 		hero_screen_x = 150.0
-		world_y = 244.0
+		# the lava line sits at screen y 470 at any zoom (244 at half size)
+		world_y = roundf(470.0 - WATER_Y * zoom)
 	world = Node2D.new()
 	world.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	world.scale = Vector2(zoom, zoom)
@@ -1039,7 +1040,10 @@ func _draw_stone_numbers() -> void:
 		return
 	var font := ThemeDB.fallback_font
 	var track := bool(run.stage_now().get("track", run.grade.get("track", false)))
-	var m := mini(run.max_answer_now(), run.length() - stone_from)
+	# every stone that can be on screen gets its number, also while the
+	# warm-up asks smaller sums (Terrence 2026-11-17: none missing at Level 1)
+	var most := maxi(run.max_answer_now(), int(run.grade.get("move", {}).get("max_answer", 0)))
+	var m := mini(most, run.length() - stone_from)
 	var rails_on := bool(run.stage_now().get("rails", false))
 	# at half size the numbers stay big on screen (font 40, landmarks 48)
 	var k := 1.0 if zoom >= 1.0 else 40.0 / 48.0 / zoom
@@ -1048,7 +1052,8 @@ func _draw_stone_numbers() -> void:
 		if i == sink_space:
 			continue
 		var shore := i >= run.length()
-		var landmark := zoom < 1.0 and d % 5 == 0
+		# no gold ring on 5 when the stones only go to 6 (Lava 1)
+		var landmark := zoom < 1.0 and d % 5 == 0 and most > 6
 		var label := str(d)
 		if track:
 			label = str(i)

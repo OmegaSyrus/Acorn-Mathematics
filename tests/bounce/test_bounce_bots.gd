@@ -28,7 +28,7 @@ func test_gate_3_bots() -> bool:
 			notes.append("Match Bounce %s: random name wins %d%%; right name, random aim %.2f pops a ball, wins %d%%; right name, best aim %.2f pops a ball, wins %d%%" % [
 				label, random_name.win_pct, random_aim.pops_per_ball, random_aim.win_pct,
 				best_aim.pops_per_ball, best_aim.win_pct])
-			check(random_name.win_pct <= 15, "%s: random-name bot wins %d%% (gate: 15%% or less)" % [label, random_name.win_pct])
+			check(random_name.win_pct <= 20, "%s: random-name bot wins %d%% (gate: 20%% or less)" % [label, random_name.win_pct])
 			check(random_aim.pops_per_ball <= 2.0, "%s: random aim pops %.2f a ball (gate: 2 or less)" % [label, random_aim.pops_per_ball])
 			check(best_aim.win_pct == 100, "%s: best-aim bot wins only %d%%" % [label, best_aim.win_pct])
 	return true
@@ -71,7 +71,8 @@ func _best_aim(fight) -> int:
 ## right and aims at random beat the Lava boss about 28 times in 100 but the
 ## others about 3. Every world's boss (each boss_grade in content/levels.json)
 ## now falls to that bot 60 to 80% of the time, while a bot that names at
-## random still mostly loses.
+## random still mostly loses. Bosses have a heart less since 2026-11-17
+## (Terrence: every enemy a heart less), so the gates are 60 to 92% and 20%.
 func test_naming_right_wins_most_boss_fights() -> bool:
 	var Content = load("res://logic/core/content.gd")
 	var by_grade := {}
@@ -90,6 +91,6 @@ func test_naming_right_wins_most_boss_fights() -> bool:
 			var wrong := _play(g, NAMING_FIGHTS, 8000, "random_name", w)
 			notes.append("boss grade %d, %s: right name, random aim wins %d%%; random name wins %d%%" % [
 				g, w, right.win_pct, wrong.win_pct])
-			check(right.win_pct >= 60 and right.win_pct <= 80, "boss grade %d %s: naming right wins %d%% (want 60 to 80%%)" % [g, w, right.win_pct])
-			check(wrong.win_pct <= 15, "boss grade %d %s: random naming wins %d%% (want 15%% or less)" % [g, w, wrong.win_pct])
+			check(right.win_pct >= 60 and right.win_pct <= 92, "boss grade %d %s: naming right wins %d%% (want 60 to 92%%)" % [g, w, right.win_pct])
+			check(wrong.win_pct <= 20, "boss grade %d %s: random naming wins %d%% (want 20%% or less)" % [g, w, wrong.win_pct])
 	return true
