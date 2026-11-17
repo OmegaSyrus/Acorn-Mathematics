@@ -163,6 +163,21 @@ func _load_theme() -> void:
 	gem_tex = icon if icon != null else GEM_TEX
 
 
+## What the win pays (Phase 1, 2026-11-16: big bonuses come once): "first"
+## the first clear of a world at a Level (tuning "win_gems"), "pass" the
+## clear that finishes a Level ("pass_gems"), "replay" a world beaten there
+## before ("replay_gems"). Call after setup.
+func set_bonus(kind: String) -> void:
+	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
+	match kind:
+		"pass":
+			win_gems = int(screen_cfg.get("pass_gems", 30))
+		"replay":
+			win_gems = int(screen_cfg.get("replay_gems", 3))
+		_:
+			win_gems = int(screen_cfg.get("win_gems", 10))
+
+
 ## Set world_id first: the boss plays on its world's board.
 func setup(rng, grade: int, show_debug := false) -> void:
 	fight = BounceFight.new(rng, grade, {}, {}, world_id)

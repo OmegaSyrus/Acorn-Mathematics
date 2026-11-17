@@ -14,7 +14,9 @@
   },
   "screen": {
     "last_heart_time_scale": 0.3,
-    "win_gems": 10
+    "win_gems": 10,
+    "pass_gems": 30,
+    "replay_gems": 3
   },
   "world_boards": {
     "crystal_mines": { "sprout_1": "crystal_1" },

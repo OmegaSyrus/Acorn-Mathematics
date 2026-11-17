@@ -1,5 +1,6 @@
-## Level marks and stars in every world, the Grown-ups unlock, and old saves
-## loading with the new fields (2026-11-12).
+## Level marks and stars in every world, the Level path's unlocks (Phase 1,
+## 2026-11-16: only play moves a child on), and old saves loading with the
+## new fields.
 extends "res://tests/support/test_case.gd"
 
 const AreaFlow := preload("res://logic/path/area_flow.gd")
@@ -8,10 +9,10 @@ const SaveData := preload("res://logic/core/save_data.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 
 
-func test_new_profile_has_stars_and_parent_open() -> bool:
+func test_new_profile_has_stars_and_no_grown_up_opens() -> bool:
 	var save := SaveData.new_profile("t")
 	check(save["stars"] is Dictionary and save["stars"].is_empty(), "stars empty")
-	check(save["parent_open"] is Array and save["parent_open"].is_empty(), "parent_open empty")
+	check(not save.has("parent_open"), "no grown-up opens")
 	return true
 
 
@@ -23,10 +24,14 @@ func test_old_save_loads() -> bool:
 	var save := SaveData.from_text(old, "p")
 	check(int(save["gems"]) == 9 and int(save["difficulty"]) == 2, "kept gems and difficulty")
 	check(SaveData.has_mark(save, "lava_caves", 1), "kept the lava mark")
-	check(save["stars"] is Dictionary and save["parent_open"] is Array, "new fields defaulted")
+	check(save["stars"] is Dictionary, "new fields defaulted")
 	# hand-broken new fields fall back too
-	var broken := SaveData.from_text('{"stars": 3, "parent_open": "x"}', "p")
-	check(broken["stars"] is Dictionary and broken["parent_open"] is Array, "broken fields defaulted")
+	var broken := SaveData.from_text('{"stars": 3}', "p")
+	check(broken["stars"] is Dictionary, "broken fields defaulted")
+	# a save with the old Grown-ups opens drops them: they no longer open a world
+	var opened := SaveData.from_text('{"parent_open": ["space"]}', "p")
+	check(not opened.has("parent_open"), "old grown-up opens dropped")
+	check(not AreaFlow.world_open(opened, Content.worlds(), 4, 1), "Space stays shut")
 	return true
 
 
@@ -52,29 +57,40 @@ func test_marks_and_stars_in_every_world() -> bool:
 	return true
 
 
-func test_grown_up_opens_any_world() -> bool:
+## Level N is one pass of the five worlds: at a Level, each world opens
+## when the one before it is beaten there; Level N + 1 opens (at Lava) when
+## Space is beaten at Level N. Beating a world at one Level opens nothing at
+## another.
+func test_level_path_opens_by_play_only() -> bool:
 	var save := SaveData.new_profile("t")
 	var worlds := Content.worlds()
-	check(not AreaFlow.world_open(save, worlds, 3), "mushroom forest locked at first")
-	SaveData.set_parent_open(save, "mushroom_forest", true)
-	SaveData.set_parent_open(save, "mushroom_forest", true)
-	check(save["parent_open"] == ["mushroom_forest"], "listed once")
-	check(AreaFlow.world_open(save, worlds, 3), "grown-up opened the mushroom forest")
-	check(not AreaFlow.world_open(save, worlds, 1), "crystal mines still locked")
-	check(not AreaFlow.world_unlocked_by_play(save, worlds, 3), "not opened by play")
-	check(AreaFlow.unlocked_list(save, worlds) == [0, 3], "unlocked %s" % [AreaFlow.unlocked_list(save, worlds)])
-	# survives the save file, then closes again
-	var back := SaveData.from_text(SaveData.to_text(save), "t")
-	check(AreaFlow.world_open(back, worlds, 3), "kept after a reload")
-	SaveData.set_parent_open(back, "mushroom_forest", false)
-	check(not AreaFlow.world_open(back, worlds, 3), "closed again")
-	# play still opens the next world as before
-	AreaFlow.enter(back, Content.area("lava_scroll"), 1, AreaFlow.MAP)
-	check(AreaFlow.world_unlocked_by_play(back, worlds, 1) and AreaFlow.world_open(back, worlds, 1),
-			"beating lava opens the crystal mines")
-	# the first world can't be closed
-	SaveData.set_parent_open(back, "lava_caves", false)
-	check(AreaFlow.world_open(back, worlds, 0), "lava always open")
+	eq(AreaFlow.level_reached(save, worlds), 1, "a new child is at Level 1")
+	eq(AreaFlow.unlocked_list(save, worlds, 1), [0], "only Lava at Level 1")
+	check(not AreaFlow.level_open(save, worlds, 2), "Level 2 shut")
+	eq(AreaFlow.unlocked_list(save, worlds, 2), [], "nothing at Level 2")
+	for i in worlds.size():
+		var w: Dictionary = worlds[i]
+		check(AreaFlow.world_open(save, worlds, i, 1), "%s open at Level 1 in turn" % w["name"])
+		if i + 1 < worlds.size():
+			check(not AreaFlow.world_open(save, worlds, i + 1, 1), "%s shut before %s" % [worlds[i + 1]["name"], w["name"]])
+		eq(AreaFlow.level_reached(save, worlds), 1, "still Level 1 before %s" % w["name"])
+		var bonus := AreaFlow.boss_bonus(save, worlds, String(w["id"]), Content.level_id(String(w["id"]), 1))
+		eq(bonus, "pass" if i == worlds.size() - 1 else "first", "%s pays a first-time bonus" % w["name"])
+		AreaFlow.enter(save, Content.area(String(w["area"])), Content.level_id(String(w["id"]), 1), AreaFlow.MAP)
+		eq(AreaFlow.boss_bonus(save, worlds, String(w["id"]), Content.level_id(String(w["id"]), 1)), "replay",
+				"%s again pays small" % w["name"])
+	eq(AreaFlow.level_reached(save, worlds), 2, "beating Space opens Level 2")
+	eq(AreaFlow.unlocked_list(save, worlds, 2), [0], "Level 2 starts again at Lava")
+	eq(AreaFlow.unlocked_count(save, worlds, 1), worlds.size(), "Level 1 all open to replay")
+	# a mark at a later Level (an old save, a Debug jump) skips nothing
+	AreaFlow.enter(save, Content.area("bog_scroll"), Content.level_id("bog", 2), AreaFlow.MAP)
+	check(not AreaFlow.world_open(save, worlds, 1, 2), "Crystal 2 still waits for Lava 2")
+	check(AreaFlow.world_open(save, worlds, 3, 2), "Mushroom 2 opens after Bog 2")
+	eq(AreaFlow.level_reached(save, worlds), 2, "still Level 2")
+	# Debug's "Map: all open" opens every world at every Level
+	save["debug_unlock"] = true
+	eq(AreaFlow.level_reached(save, worlds), Content.LEVEL_COUNT, "Debug opens every Level")
+	check(AreaFlow.world_open(save, worlds, 4, 6), "Debug opens Space 6")
 	return true
 
 

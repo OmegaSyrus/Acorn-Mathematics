@@ -14,8 +14,8 @@
     45,
     46
   ],
-  "_note": "Terrence 2026-11-12: the Mushroom Forest is playable. Same run as the other crossings (9 guesses, stones = the answers added up); the stones are giant mushroom caps, a wrong one bends and drops into the leaf litter. Pixie, Hobgoblin, Boggart, then the Hedley Kow and the Green Man.",
-  "guesses": 9,
+  "_note": "Terrence 2026-11-12: the Mushroom Forest is playable. Same run as the other crossings (9 guesses, stones = the answers added up); the stones are giant mushroom caps, a wrong one bends and drops into the leaf litter. Pixie, Hobgoblin, Boggart, then the Hedley Kow and the Green Man. 2026-11-16 (Phase 1): 8 guesses (was 9), so 85% right clears 55-70% of tries.",
+  "guesses": 8,
   "chest_gems": {
     "common": 1,
     "rare": 2,
@@ -50,10 +50,6 @@
     },
     {
       "after": 7,
-      "type": "chest"
-    },
-    {
-      "after": 8,
       "type": "monster",
       "monster": "boggart"
     }

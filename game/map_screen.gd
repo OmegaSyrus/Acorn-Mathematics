@@ -1,5 +1,6 @@
-## The main menu (Terrence 2026-11-07): "Difficulty: Acorn" (tap the
-## difficulty to change it, when more than one is open), a big Play that goes
+## The main menu (Terrence 2026-11-07): "Level: 1" (Phase 1, 2026-11-16:
+## the child's Level, tap it to step back through the Levels they have
+## reached to replay one; it was "Difficulty"), a big Play that goes
 ## to the map of the worlds, the Shop and the grown-up Reset. A crossing in
 ## progress picks up again from its world on the map.
 extends Node2D
@@ -278,13 +279,13 @@ func _draw_reset_question(font: Font) -> void:
 		draw_arc(c, 62.0, -PI / 2.0, -PI / 2.0 + TAU * clampf(hold_t / HOLD_S, 0.0, 1.0), 48, Color(1.0, 0.82, 0.35), 8.0)
 
 
-## "Difficulty:" and the difficulty's name in a box after it; a gold dot
+## "Level:" and the Level's number in a box after it; a gold dot
 ## when an area has been beaten at it.
 func _draw_difficulty(font: Font, r: Rect2) -> void:
 	var ink := Color(0.96, 0.94, 0.9)
 	var at := Vector2(r.position.x - 224, r.position.y + r.size.y / 2 + 12)
-	draw_string_outline(font, at, "Difficulty:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, 9, TITLE_EDGE)
-	draw_string(font, at, "Difficulty:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
+	draw_string_outline(font, at, "Level:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, 9, TITLE_EDGE)
+	draw_string(font, at, "Level:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
 	RoundBox.fill(self, r, Color(0.42, 0.36, 0.33), 18.0)
 	var gname: String = grades[grade_id]["name"] if grades.has(grade_id) else "?"
 	draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), gname, HORIZONTAL_ALIGNMENT_CENTER,
