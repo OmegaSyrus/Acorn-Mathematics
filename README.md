@@ -32,20 +32,56 @@ An area file names its `miniboss` and `boss`; `logic/path/area_flow.gd` orders t
 and saves the one in progress as the run (`{"area", "grade", "stage"}`), so closing the
 app after the door opens the duel or boss again from the main menu's Go.
 
+## Children, Guest, parent PIN and the family contract (2026-11-16)
+
+Groundwork for logins and cloud saves (ship plan Phase 4, parent app plan v2).
+Nothing goes online yet; the game plays exactly as before with no account.
+
+- **Device id.** Each install makes a random id at first launch
+  (`user://device.json`, `game/device_id.gd`). It carries a hash of the
+  hardware id, so a copy restored onto another tablet makes its own id.
+- **Children.** Saves are one file per profile (`user://profile_<id>.json`)
+  with random profile ids; the roster is `user://profiles.json`
+  (`logic/core/profiles.gd`). The first launch of this build moves the old
+  `profile_1.json` into the first profile ("Player 1") and keeps the old file
+  as `profile_1.v1.json`.
+- **Who is playing?** Shown at launch when two or more children share the
+  tablet, and from the player button at the top left of the main menu. Guest
+  plays and saves here but will never sync.
+- **Grown-ups.** The panel now has Children (add up to six, tap a picture or
+  name to change it, hold Remove for 3 s) and Set/Change PIN. With a PIN set,
+  holding Grown-ups asks for it; "Forgot PIN?" asks a grown-up sum and clears it.
+- **Save version 2** (`acorn.save`): schema, game id and per-device gem
+  counts so saves from several tablets merge exactly (`SaveData.merge`).
+- **Play log version 2**: game, device, profile, sequence, launch count,
+  build and a skill id on every answer.
+- **Contract**: `docs/contract/` (schemas, samples, skill list, API,
+  retention) and `docs/backend/README.md`. `python3 -I tools/contract/check.py`
+  checks the samples; `tests/test_contract.gd` checks what the game writes.
+- Stills: `res://tools/stills/family_stills.tscn` (same command as the others).
+
 ## Reset
 
 The main menu's small grey Reset button (top right) asks "Reset all?". No keeps
 everything; Yes only works when held down for 3 seconds, so a child tapping around
 can't wipe the save. It clears gems, purchases, marks, the saved run and Ellwynn's intro.
 
+## The Level path (Phase 1 of the ship plan, 2026-11-16)
+
+Level N is one pass Lava, Crystal, Bog, Mushroom, Space at Level N; beating Space opens
+Level N+1 at Lava. The main menu shows "Level: N" (tap to step back to a Level already
+reached), the map shows what is open and done at that Level, and only play moves a child
+on. The math is one 30-step ladder in `content/levels.json`, one new thing per step, each
+crossing opening with 3 warm-up guesses at the step before. Details, the bonus rules and
+the full table: `docs/level-path.md`.
+
 ## Grown-ups and level marks (Terrence, 2026-11-12)
 
-- "Parent unlocks and child picks": the main menu's small grey Grown-ups
-  button (left of Debug) does nothing on a tap; held down for 3 seconds (a bar
-  fills after the first second) it opens the Grown-ups panel
-  (`game/grownups_screen.gd`). Each world there is "Open by play" or toggles
-  Locked/Open (`save["parent_open"]`); the child picks any open world on the
-  map. Beating a boss still opens the next world. Reset clears the opens too.
+- The main menu's small grey Grown-ups button (left of Debug) does nothing on a
+  tap; held down for 3 seconds (a bar fills after the first second) it opens the
+  Grown-ups panel (`game/grownups_screen.gd`). Since Phase 1 (2026-11-16) it has
+  no world switches: it shows the child's Level and each world Done, Next or
+  Locked at it.
 - Every world records a gold mark per level beaten (boss and all,
   `save["marks"]`) and a bright star when that level's crossing was cleared
   without losing a heart (`save["stars"]`, from `ScrollRun.hurt`). The map

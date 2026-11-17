@@ -1,8 +1,9 @@
 ## The 85% bot (2026-11-12): a player who answers every question right with
 ## probability 0.85, stones and fights alike, plays each level's crossing
 ## (ScrollRun with the real fights, seeded) and the clear chance of one try
-## is printed per level. Only a loose floor is asserted: the table is for
-## reading, not tuning against.
+## is printed per level. Phase 1 of the ship plan (2026-11-16): every
+## crossing clears 55% to 70% of tries (3 misses allowed: three hearts and
+## one heart stone; Lava 7 guesses, the rest 8, three monsters each).
 extends "res://tests/support/test_case.gd"
 
 const Content := preload("res://logic/core/content.gd")
@@ -12,9 +13,10 @@ const Fight := preload("res://logic/fight/fight.gd")
 const Monsters := preload("res://logic/fight/monsters.gd")
 
 const P_RIGHT := 0.85
-const RUNS := 300
-## Every level clears at least this often in one try at 85% right.
-const FLOOR := 0.35
+const RUNS := 800
+## Every level clears this often in one try at 85% right.
+const FLOOR := 0.55
+const CEILING := 0.70
 
 var notes := []
 
@@ -62,7 +64,9 @@ func test_85_percent_bot_clear_chance() -> bool:
 		if a.get("type") == "scroll" and a.has("world") and a.has("guesses"):
 			areas[a["world"]] = a
 	var rows := {}
-	for lv in Content.level_path(levels):
+	var path := Content.level_path(levels)
+	eq(path.size(), 30, "the 30-step path")
+	for lv in path:
 		var area: Dictionary = areas[lv["world"]]
 		var hand := Rng.new(9000 + int(lv["id"]))
 		var clears := 0
@@ -70,10 +74,12 @@ func test_85_percent_bot_clear_chance() -> bool:
 			if _one_try(area, lv, 5000 + 131 * int(lv["id"]) + i, hand):
 				clears += 1
 		var chance := float(clears) / RUNS
-		if not rows.has(lv["world"]):
-			rows[lv["world"]] = []
-		rows[lv["world"]].append("%s %d%%" % [lv["name"], roundi(100.0 * chance)])
-		check(chance >= FLOOR, "%s clears %d%% at 85%% right (floor %d%%)" % [lv["name"], roundi(100.0 * chance), roundi(100.0 * FLOOR)])
+		var row := "Level %d" % int(lv["num"])
+		if not rows.has(row):
+			rows[row] = []
+		rows[row].append("%s %d%%" % [lv["name"], roundi(100.0 * chance)])
+		check(chance >= FLOOR and chance <= CEILING, "%s clears %d%% at 85%% right (want %d%% to %d%%)" % [
+				lv["name"], roundi(100.0 * chance), roundi(100.0 * FLOOR), roundi(100.0 * CEILING)])
 	notes.append("85%% right, one try clears (%d runs a level):" % RUNS)
 	for w in rows:
 		notes.append("  " + ", ".join(rows[w]))

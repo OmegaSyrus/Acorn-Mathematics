@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family.device.v1",
+  "title": "This install's identity (user://device.json)",
+  "description": "Made at first launch. Never uploaded as a file; dev is sent with every event and snapshot. fp is a hash of the hardware id: when it does not match, the file was copied from another device (backup restore, copied folder) and a new dev is made. Tokens from pairing will live in a separate file, also never backed up.",
+  "type": "object",
+  "required": ["schema", "v", "dev", "fp", "created", "boot"],
+  "properties": {
+    "schema": {"const": "family.device"},
+    "v": {"const": 1},
+    "dev": {"type": "string", "pattern": "^d_[0-9a-f]{16}$"},
+    "fp": {"type": "string", "pattern": "^[0-9a-f]{16}$", "description": "First 16 hex of sha256(salt + OS.get_unique_id())."},
+    "created": {"type": "integer", "description": "Unix seconds."},
+    "boot": {"type": "integer", "minimum": 0, "description": "Launch count, raised once per launch."},
+    "copied_from": {"type": "string", "pattern": "^d_[0-9a-f]{16}$", "description": "The dev in a copied file that was replaced."}
+  }
+}

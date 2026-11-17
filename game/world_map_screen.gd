@@ -1,11 +1,13 @@
 ## The map (Terrence, 2026-11-07): the worlds on a path, left to right in
-## play order (content/worlds.json). Play on the main menu opens it, and it
-## follows each area's boss. A world is unlocked when the one before it has
-## been beaten; the lock comes off with a little pop the first time. The
+## play order (content/worlds.json), at the main menu's Level (Phase 1,
+## 2026-11-16: Level N is one pass of all five worlds). Play on the main
+## menu opens it, and it follows each area's boss. At its Level a world is
+## unlocked when the one before it has been beaten there; the lock comes off
+## with a little pop the first time (Lava's too, when a new Level opens). The
 ## hero stands on the newest unlocked world. Tapping an open world plays it
 ## (a crossing in progress there picks up again); a locked world shakes its
 ## lock, and an unlocked world that isn't built yet says "Soon".
-## Beaten worlds get a gold star.
+## Worlds beaten at this Level get a gold star.
 ## Under each world's name, six marks (two rows of three), one per level (2026-11-12):
 ## gold once that level is beaten, with a bright star beside it when its
 ## crossing was cleared without losing a heart (game/ui/marks.gd). The menu's
@@ -86,11 +88,11 @@ func node_rect(i: int) -> Rect2:
 
 
 func _open(i: int) -> bool:
-	return AreaFlow.world_open(save, worlds, i)
+	return AreaFlow.world_open(save, worlds, i, level)
 
 
 func _unlocked(i: int) -> bool:
-	return AreaFlow.world_unlocked(save, worlds, i)
+	return AreaFlow.world_unlocked(save, worlds, i, level)
 
 
 ## The hero stands on the last open world.
@@ -114,7 +116,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.1, 0.08, 0.12))
-	_label(font, Vector2(120, 110), 720, "Map", 56, Color(1.0, 0.7, 0.3))
+	_label(font, Vector2(120, 110), 720, "Level %d" % level, 56, Color(1.0, 0.7, 0.3))
 	# the path: dots between the worlds, gold up to the hero
 	var here := _hero_at()
 	for i in worlds.size() - 1:
@@ -150,7 +152,7 @@ func _draw_world(font: Font, i: int) -> void:
 	elif popping:
 		# the lock lifts off and fades the first time the world is unlocked
 		_draw_lock(c + Vector2(0, -_unlock * 70.0), 1.0 - _unlock)
-	elif AreaFlow.world_beaten(save, w["id"]):
+	elif AreaFlow.world_beaten(save, w["id"], level):
 		_draw_star(c + Vector2(R * 0.78, R * 0.62), 20.0)
 	# the name under the circle, a word per line
 	var words: PackedStringArray = String(w["name"]).split(" ")

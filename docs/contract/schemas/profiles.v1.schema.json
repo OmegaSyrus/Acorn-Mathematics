@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family.profiles.v1",
+  "title": "Who plays on this device (user://profiles.json)",
+  "description": "The device's \"Who is playing?\" roster and the parent PIN. Never uploaded as a file: the sync add-on sends the profile list (id, nickname, picture, guest) to PUT /v1/devices/{dev}/profiles. The PIN hash never leaves the device.",
+  "type": "object",
+  "required": ["schema", "v", "active", "profiles"],
+  "properties": {
+    "schema": {"const": "family.profiles"},
+    "v": {"const": 1},
+    "active": {"type": "string", "pattern": "^p_[0-9a-f]{12}$"},
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nickname", "picture", "guest", "created"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^p_[0-9a-f]{12}$"},
+          "nickname": {"type": "string", "description": "Up to 12 characters. No real names asked for."},
+          "picture": {"type": "string", "description": "A picture id from the game's set (Acorn: art/heroes/<id>.png)."},
+          "guest": {"type": "boolean", "description": "Plays and saves locally, never syncs."},
+          "created": {"type": "integer"},
+          "child": {"type": ["string", "null"], "pattern": "^c_[0-9a-f]{12}$", "description": "The family's child id once paired; null before."}
+        }
+      }
+    },
+    "pin": {
+      "type": ["object", "null"],
+      "description": "The parent PIN (4 digits) as a salted hash, or null when none is set.",
+      "required": ["salt", "hash"],
+      "properties": {
+        "salt": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+        "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$", "description": "sha256 of salt + PIN, hex."}
+      }
+    }
+  }
+}

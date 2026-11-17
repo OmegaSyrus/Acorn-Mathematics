@@ -22,6 +22,12 @@ const DebugScreen := preload("res://game/debug_screen.gd")
 const GrownUpsScreen := preload("res://game/grownups_screen.gd")
 const PlayLog := preload("res://game/play_log.gd")
 const AppLife := preload("res://game/app_life.gd")
+const DeviceId := preload("res://game/device_id.gd")
+const ProfileStore := preload("res://game/profile_store.gd")
+const Profiles := preload("res://logic/core/profiles.gd")
+const WhoScreen := preload("res://game/who_screen.gd")
+const PinScreen := preload("res://game/pin_screen.gd")
+const ChildrenScreen := preload("res://game/children_screen.gd")
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -51,15 +57,53 @@ func _ready() -> void:
 	area_id = _area_from_args()
 	grades = Content.grades()
 	levels = Content.levels()
+	# this install's id, then who plays here (docs/contract); no account needed
+	var device := DeviceId.load_and_count()
+	SaveData.device = DeviceId.dev()
+	PlayLog.start(DeviceId.dev(), int(device["boot"]))
+	ProfileStore.load_roster()
 	save = SaveStore.read()
-	play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
-	PlayLog.set_profile(str(save.get("profile", SaveStore.PROFILE)))
+	play_grade = clampi(int(save.get("difficulty", 1)), 1, AreaFlow.level_reached(save, Content.worlds()))
+	PlayLog.set_profile(SaveStore.profile)
 	var life := AppLife.new()
 	life.save_now = func(): SaveStore.write(save)
 	life.pause_music = Music.pause
 	life.resume_music = Music.resume
 	add_child(life)
-	show_map()
+	if Profiles.needs_picker(ProfileStore.roster):
+		show_who(false)
+	else:
+		show_map()
+
+
+## "Who is playing?": at launch when two or more children share the tablet,
+## and from the main menu's player button (with Back). The pick's save is
+## loaded in place of the current one.
+func show_who(with_back: bool) -> void:
+	var w := WhoScreen.new()
+	w.setup(ProfileStore.roster, with_back)
+	w.picked.connect(func(id: String):
+		_use_profile(id)
+		show_map.call_deferred())
+	w.back.connect(func(): show_map.call_deferred())
+	_swap.call_deferred(w)
+	menu.visible = false
+	Music.play_menu()
+
+
+func _use_profile(id: String) -> void:
+	if id == WhoScreen.GUEST:
+		id = str(Profiles.ensure_guest(ProfileStore.roster, int(Time.get_unix_time_from_system()))["id"])
+	if id == SaveStore.profile:
+		return
+	SaveStore.write(save)
+	ProfileStore.use(id)
+	var next := SaveStore.read()
+	save.clear()
+	save.merge(next)
+	play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
+	PlayLog.set_profile(id)
+	PlayLog.event("profile_picked", {"guest": bool(ProfileStore.active().get("guest", false))})
 
 
 ## The play log's place: this area at this level (game/play_log.gd).
@@ -103,11 +147,14 @@ func _swap(next: Node2D) -> void:
 
 
 func show_map() -> void:
-	# A scroll area lists the grades it is built for.
-	# the menu's difficulty is the level number, 1 to 6, in every world
+	# the menu's Level (Phase 1, 2026-11-16): the child's Level, or any
+	# Level before it to replay; never one past it
+	var reached := AreaFlow.level_reached(save, Content.worlds())
+	play_grade = clampi(play_grade, 1, reached)
+	save["difficulty"] = play_grade
 	var shown := {}
-	for n in range(1, 7):
-		shown[n] = {"id": n, "name": "Level %d" % n, "available": true}
+	for n in range(1, reached + 1):
+		shown[n] = {"id": n, "name": str(n), "available": true}
 	var m := MapScreen.new()
 	m.setup(save, shown, area_id)
 	m.start.connect(_on_play)
@@ -117,6 +164,9 @@ func show_map() -> void:
 	m.reset_save.connect(_reset_save)
 	m.debug.connect(show_debug)
 	m.grown_ups.connect(show_grown_ups)
+	m.who.connect(func(): show_who(true))
+	var p := ProfileStore.active()
+	m.player = {"nickname": p.get("nickname", ""), "picture": p.get("picture", "")}
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
@@ -126,7 +176,7 @@ func show_map() -> void:
 ## The main menu's Reset, held through its question: a fresh save (gems,
 ## purchases, marks, the saved run, Ellwynn's intro), then the menu again.
 func _reset_save() -> void:
-	var fresh := SaveData.new_profile(String(save.get("profile", SaveStore.PROFILE)))
+	var fresh := SaveData.new_profile(SaveStore.profile)
 	save.clear()
 	save.merge(fresh)
 	SaveStore.write(save)
@@ -166,15 +216,63 @@ func _debug_jump(to_area: String, level: int, stage: String) -> void:
 
 
 ## The Grown-ups panel, from the main menu's Grown-ups button held for 3 s:
-## a grown-up opens any world on the map (saved in the profile), and the
-## child picks from the open ones. Back returns to the main menu.
+## the child's Level and the worlds done at it, to look at only (no grown-up
+## moves a child on). Back returns to the main menu.
+## With a parent PIN set, the PIN comes first (pin_screen.gd).
 func show_grown_ups() -> void:
+	if Profiles.has_pin(ProfileStore.roster):
+		_show_pin(PinScreen.Mode.ENTER, func(ok: bool):
+			if ok:
+				ProfileStore.write()  # Forgot PIN may have cleared it
+				_show_grown_ups_panel()
+			else:
+				show_map())
+		return
+	_show_grown_ups_panel()
+
+
+func _show_grown_ups_panel() -> void:
 	var g := GrownUpsScreen.new()
 	g.setup(save, Content.worlds())
+	g.has_pin = Profiles.has_pin(ProfileStore.roster)
 	g.back.connect(func():
 		SaveStore.write(save)
 		show_map.call_deferred())
+	g.children.connect(func():
+		SaveStore.write(save)
+		_show_children.call_deferred())
+	g.pin.connect(func():
+		SaveStore.write(save)
+		_show_pin.call_deferred(PinScreen.Mode.SET, func(ok: bool):
+			if ok:
+				ProfileStore.write()
+			_show_grown_ups_panel()))
 	_swap.call_deferred(g)
+	menu.visible = false
+
+
+func _show_pin(mode: int, then: Callable) -> void:
+	var s := PinScreen.new()
+	s.setup(ProfileStore.roster, mode)
+	s.done.connect(func(ok: bool): then.call_deferred(ok))
+	_swap.call_deferred(s)
+	menu.visible = false
+
+
+## The tablet's children (Grown-ups panel). If the player was removed, the
+## first child plays on.
+func _show_children() -> void:
+	var c := ChildrenScreen.new()
+	c.setup(ProfileStore.roster)
+	c.removed.connect(func(_id: String):
+		if str(save.get("profile", "")) != SaveStore.profile:
+			var next := SaveStore.read()
+			save.clear()
+			save.merge(next)
+			play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
+			PlayLog.set_profile(SaveStore.profile))
+	c.back.connect(func(): _show_grown_ups_panel.call_deferred())
+	_swap.call_deferred(c)
 	menu.visible = false
 
 
@@ -199,7 +297,7 @@ func _on_play(grade_id: int, _resume: bool) -> void:
 
 
 ## A world tapped on the map: its saved run picks up again (the crossing, or
-## the duel or boss after its door), else a new run at the menu's difficulty
+## the duel or boss after its door), else a new run at the menu's Level
 ## (or the area's first grade, if it isn't built for that one).
 func _enter_area() -> void:
 	var saved = save.get("run")
@@ -254,10 +352,10 @@ func _on_start(grade_id: int, resume: bool) -> void:
 	_swap.call_deferred(a)
 
 
-## The level songs (the lava ones) play in every world until the Crystal
-## Mines and the Bog get songs of their own.
+## The world's own songs (game/music.gd WORLD_SONGS; the Lava ones until
+## a world has its own).
 func _play_level_music() -> void:
-	Music.play_lava()
+	Music.play_world(str(Content.area(area_id).get("world", "lava_caves")))
 
 
 ## `-- --seed=123` makes new runs repeatable (demos, bug reports).
@@ -293,7 +391,9 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 ## or the mini map. The step is saved before it starts, so the map's "Go"
 ## (after the app closes) opens the same step again.
 func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
-	_unlocked_before = AreaFlow.unlocked_list(save, Content.worlds())
+	var level := int(_grade(grade_id).get("num", play_grade))
+	_unlocked_before = AreaFlow.unlocked_list(save, Content.worlds(), level)
+	_reached_before = AreaFlow.level_reached(save, Content.worlds())
 	_log_place(area, grade_id)
 	if stage != AreaFlow.MAP:
 		PlayLog.event(stage + "_start")
@@ -305,7 +405,16 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 		AreaFlow.BOSS:
 			_start_boss(area, grade_id)
 		_:
-			show_world_map.call_deferred(_newly_unlocked(area))
+			# beating Space finishes the pass: the next Level opens at Lava
+			var reached := AreaFlow.level_reached(save, Content.worlds())
+			if reached > _reached_before:
+				play_grade = reached
+				save["difficulty"] = reached
+				SaveStore.write(save)
+				show_world_map.call_deferred(0)
+			else:
+				play_grade = level
+				show_world_map.call_deferred(_newly_unlocked(level))
 
 
 ## The miniboss duel. A loss restarts the duel by itself (FightScreen), so
@@ -329,9 +438,12 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 	_play_level_music()
 	menu.visible = true
 	var b := BounceScreen.new()
-	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
 	b.world_id = str(area.get("world", "lava_caves"))
+	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
 	b.save = save
+	# big bonuses come once: the first clear of a world at a Level, the most
+	# for the clear that finishes the Level; a replay pays small
+	b.set_bonus(AreaFlow.boss_bonus(save, Content.worlds(), b.world_id, grade_id))
 	b.done.connect(func(won: bool):
 		if won:
 			_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.BOSS))
@@ -343,19 +455,22 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 
 
 var _unlocked_before := []
+var _reached_before := 1
 
 
-## The world the boss just unlocked (its lock pops off on the map), or -1.
-func _newly_unlocked(_area: Dictionary) -> int:
-	for i in AreaFlow.unlocked_list(save, Content.worlds()):
+## The world the boss just unlocked at this Level (its lock pops off on the
+## map), or -1.
+func _newly_unlocked(level: int) -> int:
+	for i in AreaFlow.unlocked_list(save, Content.worlds(), level):
 		if not _unlocked_before.has(i):
 			return i
 	return -1
 
 
-## The map of the worlds: Play on the main menu opens it, and it follows each
-## boss. Tapping an open world plays it; locked worlds wait for the one
-## before them to be beaten. The menu button leads back to the main menu.
+## The map of the worlds at the menu's Level: Play on the main menu opens
+## it, and it follows each boss. Tapping an open world plays it; locked
+## worlds wait for the one before them to be beaten at this Level. The menu
+## button leads back to the main menu.
 func show_world_map(just_unlocked := -1) -> void:
 	var w := WorldMapScreen.new()
 	w.setup(save, Content.worlds(), just_unlocked, play_grade)

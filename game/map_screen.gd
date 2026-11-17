@@ -1,5 +1,6 @@
-## The main menu (Terrence 2026-11-07): "Difficulty: Acorn" (tap the
-## difficulty to change it, when more than one is open), a big Play that goes
+## The main menu (Terrence 2026-11-07): "Level: 1" (Phase 1, 2026-11-16:
+## the child's Level, tap it to step back through the Levels they have
+## reached to replay one; it was "Difficulty"), a big Play that goes
 ## to the map of the worlds, the Shop and the grown-up Reset. A crossing in
 ## progress picks up again from its world on the map.
 extends Node2D
@@ -13,6 +14,8 @@ signal debug
 ## The Grown-ups button held down for HOLD_S seconds: main.gd opens the
 ## Grown-ups panel (open any world on the map).
 signal grown_ups
+## The player button (top left): main.gd opens "Who is playing?".
+signal who
 signal _answered(yes: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
@@ -45,6 +48,10 @@ const DEBUG_RECT := Rect2(588, 20, 112, 52)
 ## so a child tapping around never gets in. Kept clear of Debug's tap pad.
 const GATE_RECT := Rect2(416, 20, 152, 52)
 const GATE_RING_AFTER := 1.0
+## Who is playing (parent app plan v2): the player's picture and name, top
+## left; a tap opens "Who is playing?" (another child, or Guest).
+const PLAYER_RECT := Rect2(120, 20, 270, 52)
+const WhoScreen := preload("res://game/who_screen.gd")
 const PANEL := Rect2(310, 120, 520, 320)  # right of Ellwynn (x 130..290)
 const NO_RECT := Rect2(345, 300, 200, 100)
 const YES_RECT := Rect2(595, 300, 200, 100)
@@ -64,6 +71,8 @@ var hold_t := 0.0
 var gate_holding := false  # a finger is down on Grown-ups
 var gate_t := 0.0
 var _mark_worlds: Array = []  # [{id, color, ids}] the built worlds, for the marks under the difficulty
+## The player shown on the player button: {nickname, picture} (main.gd sets it).
+var player := {}
 
 
 func setup(profile: Dictionary, grade_table: Dictionary, area: String) -> void:
@@ -92,6 +101,9 @@ func _ready() -> void:
 	buttons.append({"rect": SHOP_RECT, "label": "Shop", "shop": true, "resume": false})
 	buttons.append({"rect": RESET_RECT, "label": "Reset", "reset": true, "resume": false})
 	buttons.append({"rect": DEBUG_RECT, "label": "Debug", "debug": true, "resume": false})
+	if not player.is_empty():
+		WhoScreen.picture(str(player.get("picture", "")))  # loaded before _draw
+		buttons.append({"rect": PLAYER_RECT, "label": "", "who": true, "resume": false})
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	var rects := []
@@ -107,6 +119,9 @@ func _ready() -> void:
 			continue
 		if buttons[i].get("debug", false):
 			debug.emit()
+			return
+		if buttons[i].get("who", false):
+			who.emit()
 			return
 		if buttons[i].get("shop", false):
 			shop.emit()
@@ -235,6 +250,7 @@ func _draw() -> void:
 					Color(0.8, 0.76, 0.72))
 			continue
 	_draw_gate(font)
+	_draw_player(font)
 	var stickers := "stickers: %d" % save["stickers"].size()
 	draw_string_outline(font, Vector2(330, 520), stickers, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, 4, TITLE_EDGE)
 	draw_string(font, Vector2(330, 520), stickers, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.85, 0.82, 0.76))
@@ -263,13 +279,13 @@ func _draw_reset_question(font: Font) -> void:
 		draw_arc(c, 62.0, -PI / 2.0, -PI / 2.0 + TAU * clampf(hold_t / HOLD_S, 0.0, 1.0), 48, Color(1.0, 0.82, 0.35), 8.0)
 
 
-## "Difficulty:" and the difficulty's name in a box after it; a gold dot
+## "Level:" and the Level's number in a box after it; a gold dot
 ## when an area has been beaten at it.
 func _draw_difficulty(font: Font, r: Rect2) -> void:
 	var ink := Color(0.96, 0.94, 0.9)
 	var at := Vector2(r.position.x - 224, r.position.y + r.size.y / 2 + 12)
-	draw_string_outline(font, at, "Difficulty:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, 9, TITLE_EDGE)
-	draw_string(font, at, "Difficulty:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
+	draw_string_outline(font, at, "Level:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, 9, TITLE_EDGE)
+	draw_string(font, at, "Level:", HORIZONTAL_ALIGNMENT_RIGHT, 210, 34, ink)
 	RoundBox.fill(self, r, Color(0.42, 0.36, 0.33), 18.0)
 	var gname: String = grades[grade_id]["name"] if grades.has(grade_id) else "?"
 	draw_string(font, r.position + Vector2(0, r.size.y / 2 + 12), gname, HORIZONTAL_ALIGNMENT_CENTER,
@@ -316,6 +332,20 @@ func _draw_gate(font: Font) -> void:
 		var q := clampf((gate_t - GATE_RING_AFTER) / (HOLD_S - GATE_RING_AFTER), 0.0, 1.0)
 		draw_rect(Rect2(r.position + Vector2(10, r.size.y - 9), Vector2(roundf((r.size.x - 20) * q), 4)),
 				Color(1.0, 0.82, 0.35))
+
+
+## The player button: the head of their picture at 1:1 and their name.
+func _draw_player(font: Font) -> void:
+	if player.is_empty():
+		return
+	var r := PLAYER_RECT
+	RoundBox.fill(self, r, Color(0.22, 0.36, 0.26, 0.9), 14.0)
+	var tex := WhoScreen.picture(str(player.get("picture", "")))
+	if tex != null:
+		var src := Rect2(roundf(tex.get_width() / 2.0 - 26), 4, 52, 44)
+		draw_texture_rect_region(tex, Rect2(r.position + Vector2(8, 4), src.size), src)
+	draw_string(font, r.position + Vector2(70, 35), str(player.get("nickname", "")), HORIZONTAL_ALIGNMENT_LEFT,
+			r.size.x - 80, 24, Color(0.96, 0.94, 0.9))
 
 
 ## The Shop button: a gem-purple box, "Shop", and the gems to spend.

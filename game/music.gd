@@ -1,7 +1,8 @@
 ## Background music (Terrence's songs, 2026-11-05). Autoloaded as Music.
-## The main menu loops "Welcome to Math Land!"; the lava section plays its
-## five songs in a random order, never the same song twice in a row. Keeps
-## playing while the in-game menu has the game paused.
+## The main menu loops "Welcome to Math Land!"; each world plays its own
+## songs (WORLD_SONGS) in a random order, never the same song twice in a
+## row. A world with no songs yet plays the Lava ones (Phase 0, 2026-11-16).
+## Keeps playing while the in-game menu has the game paused.
 extends Node
 
 const DIR := "res://audio/music/"
@@ -13,11 +14,20 @@ const LAVA := [
 	"lava-pixel-lava-run.mp3",
 	"lava-volcano-jump.mp3",
 ]
+## Each world's songs, by world id (content/worlds.json). Drop a song in
+## audio/music/ and list it here; an empty list falls back to LAVA.
+const WORLD_SONGS := {
+	"lava_caves": LAVA,
+	"crystal_mines": [],
+	"bog": [],
+	"mushroom_forest": [],
+	"space": [],
+}
 ## Under the beeps and, later, Ellwynn's voice.
 const VOLUME_DB := -8.0
 
 var player: AudioStreamPlayer
-var playlist := ""     # "menu", "lava" or "" when quiet
+var playlist := ""     # "menu", a world id, or "" when quiet
 var current := ""      # the file playing now
 var _tracks: Array = []
 var _rng := RandomNumberGenerator.new()
@@ -37,7 +47,19 @@ func play_menu() -> void:
 
 
 func play_lava() -> void:
-	_start("lava", LAVA)
+	play_world("lava_caves")
+
+
+## A world's songs. Two worlds that both fall back to the Lava songs share
+## one list, so walking from one to the other doesn't restart the song.
+func play_world(world_id: String) -> void:
+	var songs := songs_for(world_id)
+	_start("lava_caves" if songs == LAVA else world_id, songs)
+
+
+static func songs_for(world_id: String) -> Array:
+	var songs: Array = WORLD_SONGS.get(world_id, [])
+	return songs if not songs.is_empty() else LAVA
 
 
 func stop() -> void:

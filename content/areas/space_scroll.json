@@ -14,8 +14,8 @@
     55,
     56
   ],
-  "_note": "2026-11-12: Space is playable (world 5, the last). Same run as the other crossings (9 guesses); the stones are star stones numbered by their place on the track, a wrong one falls away into the dark. Star Squirrel, Moon Hobgoblin, Fenrir's Pup, then Ratatoskr and Fenrir.",
-  "guesses": 9,
+  "_note": "2026-11-12: Space is playable (world 5, the last). Same run as the other crossings (9 guesses); the stones are star stones numbered by their place on the track, a wrong one falls away into the dark. Star Squirrel, Moon Hobgoblin, Fenrir's Pup, then Ratatoskr and Fenrir. 2026-11-16 (Phase 1): 8 guesses (was 9), so 85% right clears 55-70% of tries.",
+  "guesses": 8,
   "chest_gems": {
     "common": 1,
     "rare": 2,
@@ -50,10 +50,6 @@
     },
     {
       "after": 7,
-      "type": "chest"
-    },
-    {
-      "after": 8,
       "type": "monster",
       "monster": "fenrir_pup"
     }

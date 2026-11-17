@@ -13,26 +13,33 @@ const BEST_AIM_FIGHTS := 15
 const NAMING_FIGHTS := 150
 
 
+## Every board: the Lava boards (grade 1 and 2), and since Phase 0 each
+## world's own board at grade 2 (tuning "world_boards").
+const WORLDS := ["", "crystal_mines", "bog", "mushroom_forest", "space"]
+
+
 func test_gate_3_bots() -> bool:
-	for grade in [1, 2]:
-		var random_name := _play(grade, FIGHTS, 1000, "random_name")
-		var random_aim := _play(grade, FIGHTS, 2000, "random_aim")
-		var best_aim := _play(grade, BEST_AIM_FIGHTS, 3000, "best_aim")
-		notes.append("Match Bounce grade %d: random name wins %d%%; right name, random aim %.2f pops a ball, wins %d%%; right name, best aim %.2f pops a ball, wins %d%%" % [
-			grade, random_name.win_pct, random_aim.pops_per_ball, random_aim.win_pct,
-			best_aim.pops_per_ball, best_aim.win_pct])
-		check(random_name.win_pct <= 15, "grade %d: random-name bot wins %d%% (gate: 15%% or less)" % [grade, random_name.win_pct])
-		check(random_aim.pops_per_ball <= 2.0, "grade %d: random aim pops %.2f a ball (gate: 2 or less)" % [grade, random_aim.pops_per_ball])
-		check(best_aim.win_pct == 100, "grade %d: best-aim bot wins only %d%%" % [grade, best_aim.win_pct])
+	for world in WORLDS:
+		for grade in ([1, 2] if world == "" else [2]):
+			var random_name := _play(grade, FIGHTS, 1000, "random_name", world)
+			var random_aim := _play(grade, FIGHTS, 2000, "random_aim", world)
+			var best_aim := _play(grade, BEST_AIM_FIGHTS, 3000, "best_aim", world)
+			var label := "grade %d%s" % [grade, "" if world == "" else " " + world]
+			notes.append("Match Bounce %s: random name wins %d%%; right name, random aim %.2f pops a ball, wins %d%%; right name, best aim %.2f pops a ball, wins %d%%" % [
+				label, random_name.win_pct, random_aim.pops_per_ball, random_aim.win_pct,
+				best_aim.pops_per_ball, best_aim.win_pct])
+			check(random_name.win_pct <= 15, "%s: random-name bot wins %d%% (gate: 15%% or less)" % [label, random_name.win_pct])
+			check(random_aim.pops_per_ball <= 2.0, "%s: random aim pops %.2f a ball (gate: 2 or less)" % [label, random_aim.pops_per_ball])
+			check(best_aim.win_pct == 100, "%s: best-aim bot wins only %d%%" % [label, best_aim.win_pct])
 	return true
 
 
-func _play(grade: int, fights: int, seed_base: int, bot: String) -> Dictionary:
+func _play(grade: int, fights: int, seed_base: int, bot: String, world := "") -> Dictionary:
 	var wins := 0
 	var pops := 0
 	var balls := 0
 	for f in fights:
-		var fight = BounceFight.new(SeededRng.new(seed_base + f), grade)
+		var fight = BounceFight.new(SeededRng.new(seed_base + f), grade, {}, {}, world)
 		var hand = SeededRng.new(seed_base + 50000 + f)
 		while not fight.is_over():
 			if bot == "random_name":
@@ -76,11 +83,13 @@ func test_naming_right_wins_most_boss_fights() -> bool:
 			by_grade[g].append(lv["world"])
 	var grades := by_grade.keys()
 	grades.sort()
+	# each world's boss on its own board (Phase 0)
 	for g in grades:
-		var right := _play(g, NAMING_FIGHTS, 7000, "random_aim")
-		var wrong := _play(g, NAMING_FIGHTS, 8000, "random_name")
-		notes.append("boss grade %d (%s): right name, random aim wins %d%%; random name wins %d%%" % [
-			g, ", ".join(by_grade[g]), right.win_pct, wrong.win_pct])
-		check(right.win_pct >= 60 and right.win_pct <= 80, "boss grade %d: naming right wins %d%% (want 60 to 80%%)" % [g, right.win_pct])
-		check(wrong.win_pct <= 15, "boss grade %d: random naming wins %d%% (want 15%% or less)" % [g, wrong.win_pct])
+		for w in by_grade[g]:
+			var right := _play(g, NAMING_FIGHTS, 7000, "random_aim", w)
+			var wrong := _play(g, NAMING_FIGHTS, 8000, "random_name", w)
+			notes.append("boss grade %d, %s: right name, random aim wins %d%%; random name wins %d%%" % [
+				g, w, right.win_pct, wrong.win_pct])
+			check(right.win_pct >= 60 and right.win_pct <= 80, "boss grade %d %s: naming right wins %d%% (want 60 to 80%%)" % [g, w, right.win_pct])
+			check(wrong.win_pct <= 15, "boss grade %d %s: random naming wins %d%% (want 15%% or less)" % [g, w, wrong.win_pct])
 	return true

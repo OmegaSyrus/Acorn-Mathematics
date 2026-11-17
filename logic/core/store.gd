@@ -9,6 +9,7 @@
 extends RefCounted
 
 const JsonUtil := preload("res://logic/core/json_util.gd")
+const SaveData := preload("res://logic/core/save_data.gd")
 
 const PATH := "res://content/store.json"
 const KINDS := ["hero", "dice"]
@@ -53,6 +54,25 @@ static func default_id(cat: Dictionary, kind: String) -> String:
 	return ""
 
 
+## The currency a world pays (its chests and its boss's bucket): the open
+## currency whose "world" is that world, else gems (Phase 0, 2026-11-16).
+static func currency_of_world(cat: Dictionary, world_id: String) -> String:
+	for id in cat["currencies"]:
+		var c: Dictionary = cat["currencies"][id]
+		if str(c.get("world", "")) == world_id and bool(c.get("open", false)):
+			return id
+	return "gems"
+
+
+## The open currencies, in catalog order (the store's balances strip).
+static func open_currencies(cat: Dictionary) -> Array:
+	var out := []
+	for id in cat["currencies"]:
+		if is_open(cat, id):
+			out.append(id)
+	return out
+
+
 static func is_open(cat: Dictionary, currency: String) -> bool:
 	return bool(cat["currencies"].get(currency, {}).get("open", false))
 
@@ -66,7 +86,7 @@ static func balance(save: Dictionary, currency: String) -> int:
 ## Earning: gems go to the top-level "gems", the rest to "currencies".
 static func add(save: Dictionary, currency: String, n: int) -> void:
 	if currency == "gems":
-		save["gems"] = int(save.get("gems", 0)) + n
+		SaveData.add_gems(save, n)  # counts earned and spent per device
 		return
 	if not save.has("currencies") or not save["currencies"] is Dictionary:
 		save["currencies"] = {}

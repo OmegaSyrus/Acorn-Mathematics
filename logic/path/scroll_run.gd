@@ -81,15 +81,16 @@ func is_level() -> bool:
 	return grade.get("move", {}).get("draw", "op_first") != "op_first"
 
 
-## The ramp stage for guess k (0 = the first): a level with "ramp" (the
-## Crystal Mines, 2026-11-12) steps its math up along the crossing, each
-## stage {guesses, move, fight, rails} covering that many guesses; the last
-## stage runs to the end. A level without one is a single stage.
+## The ramp stage for guess k (0 = the first): a level with "ramp" steps
+## its math up along the crossing, each stage {guesses, move, fight, rails,
+## track} covering that many guesses; the last stage runs to the end. Every
+## level on the path has two: 3 warm-up guesses at the step before's math,
+## then its own (Content.levels()). A level without one is a single stage.
 func stage(k: int) -> Dictionary:
 	var r: Array = grade.get("ramp", [])
 	if r.is_empty():
 		var st := {"move": grade.get("move", {}), "fight": grade.get("fight", {"grade": grade["id"], "top": 0}),
-				"rails": bool(grade.get("rails", false))}
+				"rails": bool(grade.get("rails", false)), "track": bool(grade.get("track", false))}
 		if grade.has("monster_fight"):
 			st["monster_fight"] = grade["monster_fight"]
 		return st

@@ -91,214 +91,153 @@ func test_a_perfect_run_clears_every_level() -> bool:
 	return true
 
 
-## Crystal Mines ramp (Terrence 2026-11-12: Crystal 1 was too big a jump from
-## Lava 1): each roll uses its stage's math, the first stage of Crystal N
-## starts at or near Lava N, and the stages never get easier.
-func test_crystal_ramp_steps_up_along_the_crossing() -> bool:
+const WORLDS := ["lava_caves", "crystal_mines", "bog", "mushroom_forest", "space"]
+const KINDS := ["start", "die", "top", "take_away", "hidden", "place", "ten", "rails", "track", "mix"]
+
+
+## The level path (Phase 1 of the ship plan, 2026-11-16): 30 steps, Level 1
+## in every world from Lava to Space, then Level 2 from Lava again. Level
+## ids never change: Lava 1 is 1, the rest world x 10 + Level.
+func test_the_path_is_30_steps_level_by_level() -> bool:
 	var levels := Content.levels()
-	var area := Content.area("crystal_scroll")
-	for num in range(1, 7):
-		var lv: Dictionary = levels[Content.level_id("crystal_mines", num)]
-		check(lv.has("ramp"), "Crystal %d has no ramp" % num)
-		var r: Array = lv["ramp"]
-		var lava: Dictionary = levels[Content.level_id("lava_caves", num)]
-		check(int(r[0]["move"]["max_answer"]) <= int(lava["move"]["max_answer"]) + 1,
-				"Crystal %d starts above Lava %d" % [num, num])
-		for i in range(1, r.size()):
-			check(int(r[i]["move"]["max_answer"]) >= int(r[i - 1]["move"]["max_answer"]),
-					"Crystal %d stage %d gets easier" % [num, i])
-		for seed_value in range(1, 60):
-			var run := ScrollRun.new(area, lv, seed_value)
-			var k := 0
-			while run.phase != ScrollRun.CLEARED and k < 40:
-				if run.phase == ScrollRun.AWAIT_FIGHT:
-					check(run.fight_now() == run.stage(run.rolls - 1)["monster_fight"], "fight stage")
-					run.resolve_fight(true)
-					continue
-				var st := run.stage(run.rolls)
-				var p := run.roll()
-				check(run.stage_now() == st, "stage_now while choosing")
-				var allowed: Array = st["move"]["patterns"]
-				check(allowed.has(p["signs"]), "Crystal %d roll %d signs %s not in its stage" % [num, run.rolls, p["signs"]])
-				check(p["answer"] <= int(st["move"]["max_answer"]), "Crystal %d answer above its stage" % num)
-				run.choose(p["answer_index"])
-				k += 1
-	# Crystal 1 opens with every stone numbered, then the rail stops come in
-	var c1: Array = levels[Content.level_id("crystal_mines", 1)]["ramp"]
-	check(not c1[0]["rails"] and c1[1]["rails"], "Crystal 1 rails come in on stage 2")
-	check(int(c1[0]["move"]["max_answer"]) <= 6 and c1[0]["move"]["patterns"].size() == 2, "Crystal 1 opens with two dice")
+	var path := Content.level_path(levels)
+	eq(path.size(), 30, "30 steps")
+	for k in path.size():
+		var lv: Dictionary = path[k]
+		var n := k / 5 + 1
+		var w: String = WORLDS[k % 5]
+		eq(int(lv["step"]), k + 1, "%s is step %d" % [lv["name"], k + 1])
+		eq(int(lv["num"]), n, "step %d is Level %d" % [k + 1, n])
+		eq(String(lv["world"]), w, "step %d is in %s" % [k + 1, w])
+		eq(int(lv["id"]), 1 if k == 0 else (k % 5 + 1) * 10 + n, "step %d keeps its id" % (k + 1))
+		check(KINDS.has(String(lv.get("new", ""))), "%s names its new thing" % lv["name"])
 	return true
 
 
-## Mushroom Forest ramp (2026-11-12): Mushroom N opens at Lava N's math or
-## easier, each roll uses its stage's math, and four dice only come in later.
-func test_mushroom_ramp_steps_up_along_the_crossing() -> bool:
-	var levels := Content.levels()
-	var area := Content.area("mushroom_scroll")
-	for num in range(1, 7):
-		var lv: Dictionary = levels[Content.level_id("mushroom_forest", num)]
-		check(lv.has("ramp"), "Mushroom %d has no ramp" % num)
-		var r: Array = lv["ramp"]
-		check(r[r.size() - 1]["move"] == lv["move"], "Mushroom %d ends on its own math" % num)
-		var lava: Dictionary = levels[Content.level_id("lava_caves", num)]
-		check(int(r[0]["move"]["max_answer"]) <= int(lava["move"]["max_answer"]) + 1,
-				"Mushroom %d starts above Lava %d" % [num, num])
-		var first: Dictionary = r[0]["move"]
-		for pt in first.get("patterns", []) + first.get("options", []).map(func(o): return o[0]):
-			check(str(pt).length() <= 3, "Mushroom %d opens with four dice" % num)
-		for seed_value in range(1, 60):
-			var run := ScrollRun.new(area, lv, seed_value)
-			var k := 0
-			while run.phase != ScrollRun.CLEARED and k < 40:
-				if run.phase == ScrollRun.AWAIT_FIGHT:
-					check(run.fight_now() == run.stage(run.rolls - 1)["monster_fight"], "fight stage")
-					run.resolve_fight(true)
-					continue
-				var st := run.stage(run.rolls)
-				var p := run.roll()
-				var mv: Dictionary = st["move"]
-				var allowed: Array = mv.get("patterns", []) + mv.get("options", []).map(func(o): return o[0])
-				check(allowed.has(p["signs"]), "Mushroom %d roll %d signs %s not in its stage" % [num, run.rolls, p["signs"]])
-				check(p["answer"] <= int(mv["max_answer"]), "Mushroom %d answer above its stage" % num)
-				check(p["dice"].size() <= 4, "more than four dice")
-				if mv.get("constraint", "") == "across_ten":
-					var plain := 0
-					for i in p["signs"].length():
-						if p["signs"][i] == "+":
-							plain += int(p["dice"][i])
-					check(plain >= 11, "Mushroom %d across ten: plain dice make %d" % [num, plain])
-				run.choose(p["answer_index"])
-				k += 1
-			check(run.phase == ScrollRun.CLEARED, "Mushroom %d seed %d did not clear" % [num, seed_value])
+func _is_patterns(mv: Dictionary) -> bool:
+	return mv["draw"] == "patterns"
+
+
+## One thing per step: a "top" step only raises the top number; a "rails"
+## or "track" step keeps the step before's math and only turns that on; any
+## other step changes the dice or signs but never raises the top number with
+## them. The rails stay on in the Crystal Mines from Level 3, the track in
+## Space from Level 2.
+func test_each_step_adds_one_thing() -> bool:
+	var path := Content.level_path(Content.levels())
+	for k in range(1, path.size()):
+		var lv: Dictionary = path[k]
+		var prev: Dictionary = path[k - 1]
+		var mv: Dictionary = lv["move"]
+		var pm: Dictionary = prev["move"]
+		var new := String(lv["new"])
+		var name := String(lv["name"])
+		match new:
+			"top":
+				check(_is_patterns(mv) and _is_patterns(pm), "%s: top steps are pattern draws" % name)
+				eq(mv["patterns"], pm["patterns"], "%s: same signs as %s" % [name, prev["name"]])
+				check(int(mv["max_answer"]) > int(pm["max_answer"]), "%s raises the top" % name)
+			"rails", "track":
+				var a: Dictionary = mv.duplicate()
+				var b: Dictionary = pm.duplicate()
+				eq(a, b, "%s: the same math as %s" % [name, prev["name"]])
+				check(bool(lv.get(new, false)) and not bool(prev.get(new, false)), "%s turns on the %s" % [name, new])
+			"mix":
+				eq(mv["draw"], "mix", "%s mixes" % name)
+			_:
+				check(_allowed_signs(mv) != _allowed_signs(pm) or mv.get("options") != pm.get("options")
+						or mv.get("constraint") != pm.get("constraint"), "%s changes the dice" % name)
+				if _is_patterns(mv) and _is_patterns(pm):
+					check(int(mv["max_answer"]) <= int(pm["max_answer"]), "%s adds %s and a bigger top" % [name, new])
+		var w := String(lv["world"])
+		var n := int(lv["num"])
+		eq(bool(lv.get("rails", false)), w == "crystal_mines" and n >= 3, "%s rails" % name)
+		eq(bool(lv.get("track", false)), w == "space" and n >= 2, "%s track" % name)
 	return true
 
 
-## Space (2026-11-12): every level ramps in three stages, each roll uses its
-## stage's draw, the star stones are numbered by track place, and Space 6's
-## mixes (also inside its ramp) know their parts.
-func test_space_ramp_and_track() -> bool:
+## Every level opens with 3 warm-up guesses at the step before's math and
+## fight, then plays its own to the end of the crossing; Lava 1 warms up
+## with one die to 3. Each roll uses its stage's math. A step that brings in
+## the rails or the track leaves it out of its warm-up.
+func test_every_level_warms_up_at_the_step_before() -> bool:
 	var levels := Content.levels()
-	var area := Content.area("space_scroll")
-	check(area.get("world") == "space", "space_scroll is in Space")
-	for num in range(1, 7):
-		var lv: Dictionary = levels[Content.level_id("space", num)]
-		check(int(lv["id"]) == 50 + num, "Space %d id" % num)
-		check(bool(lv.get("track", false)), "Space %d numbers stones by track place" % num)
+	var path := Content.level_path(levels)
+	var areas := {}
+	for aid in Content.area_ids():
+		var a := Content.area(aid)
+		if a.get("type") == "scroll" and a.has("world") and a.has("guesses"):
+			areas[a["world"]] = a
+	for k in path.size():
+		var lv: Dictionary = path[k]
+		var name := String(lv["name"])
 		var r: Array = lv.get("ramp", [])
-		check(r.size() == 3, "Space %d has three stages" % num)
-		check(r[2]["move"] == lv["move"] and r[2]["fight"] == lv["fight"], "Space %d ends on its own math" % num)
-		for st in r:
-			if st["move"]["draw"] == "mix":
-				check(st["move"].has("part_moves"), "Space %d mix stage has its parts" % num)
-			check(not LevelGen.answers(st["move"]).is_empty(), "Space %d stage can make an answer" % num)
-		for seed_value in range(1, 40):
+		eq(r.size(), 2, "%s: a warm-up and its own math" % name)
+		if r.size() != 2:
+			continue
+		eq(int(r[0]["guesses"]), 3, "%s warms up for 3 guesses" % name)
+		check(bool(r[0].get("warmup", false)), "%s marks its warm-up" % name)
+		var before: Dictionary = lv["warmup"] if k == 0 else path[k - 1]
+		eq(_allowed_signs(r[0]["move"]), _allowed_signs(before["move"]), "%s warms up with the step before's dice" % name)
+		eq(int(r[0]["move"]["max_answer"]), int(before["move"]["max_answer"]), "%s warm-up top" % name)
+		eq(r[0]["fight"], before["fight"], "%s warm-up fight" % name)
+		check(r[1]["move"] == lv["move"] and r[1]["fight"] == lv["fight"], "%s then its own math" % name)
+		var new := String(lv.get("new", ""))
+		eq(bool(r[0]["rails"]), bool(lv.get("rails", false)) and new != "rails", "%s warm-up rails" % name)
+		eq(bool(r[0]["track"]), bool(lv.get("track", false)) and new != "track", "%s warm-up track" % name)
+		var area: Dictionary = areas[lv["world"]]
+		for seed_value in range(1, 25):
 			var run := ScrollRun.new(area, lv, seed_value)
-			var k := 0
-			while run.phase != ScrollRun.CLEARED and k < 40:
+			var guard := 0
+			while run.phase != ScrollRun.CLEARED and guard < 40:
+				guard += 1
 				if run.phase == ScrollRun.AWAIT_FIGHT:
 					run.resolve_fight(true)
 					continue
 				var st := run.stage(run.rolls)
+				check((run.rolls < 3) == bool(st.get("warmup", false)), "%s roll %d stage" % [name, run.rolls])
 				var p := run.roll()
-				check(p["answer"] >= 1 and p["answer"] <= int(st["move"]["max_answer"]), "Space %d answer in its stage" % num)
-				if st["move"]["draw"] == "hidden":
-					check(p.has("hidden"), "Space %d hidden stage hides a die" % num)
+				check(_allowed_signs(st["move"]).has(p["signs"]), "%s roll signs %s not in its stage" % [name, p["signs"]])
+				check(p["answer"] <= int(st["move"]["max_answer"]), "%s answer above its stage" % name)
 				run.choose(p["answer_index"])
-				k += 1
-			check(run.phase == ScrollRun.CLEARED, "Space %d seed %d clears" % [num, seed_value])
+			check(run.phase == ScrollRun.CLEARED, "%s seed %d clears" % [name, seed_value])
 	return true
 
 
-## Fights ask the step before (Terrence, 2026-11-12): along the level path
-## (Lava 1 to 6, Crystal 1 to 6, Bog, Mushroom, Space) a monster fight asks
-## the previous level's fight, never more than the stones around it; Lava 1
-## keeps its own; the duel keeps the level's own fight.
+## Fights ask the step before (Terrence, 2026-11-12), now along the new path:
+## a monster fight asks the previous step's fight, never more than the
+## stones around it; Lava 1 keeps its own; the duel keeps the level's own.
 func test_fights_ask_the_step_before() -> bool:
 	var levels := Content.levels()
 	var path := Content.level_path(levels)
-	check(path.size() == levels.size(), "every level is on the path")
-	check(path[0]["name"] == "Lava 1" and path[6]["name"] == "Crystal 1" and path[12]["name"] == "Bog 1"
-			and path[18]["name"] == "Mushroom 1" and path[24]["name"] == "Space 1", "path order")
-	eq(path[0]["monster_fight"], path[0]["fight"], "Lava 1 keeps its fight")
-	eq(levels[12]["monster_fight"], levels[1]["fight"], "Lava 2 fights ask Lava 1 (one die)")
-	eq(levels[13]["monster_fight"], levels[12]["fight"], "Lava 3 fights ask Lava 2")
-	eq(levels[33]["monster_fight"], levels[32]["fight"], "Bog 3 fights ask Bog 2 (two dice, not the missing die)")
-	eq(levels[41]["monster_fight"], levels[36]["fight"], "Mushroom 1 picks up where the Bog ended")
-	for i in range(1, path.size()):
-		var lv: Dictionary = path[i]
-		var before: Dictionary = path[i - 1]["fight"]
-		var stages: Array = lv.get("ramp", [])
-		stages = stages + [lv]
-		for st in stages:
-			var mf: Dictionary = st["monster_fight"]
-			check(int(mf["grade"]) == int(before["grade"]), "%s: fight rule is not the step before's" % lv["name"])
-			check(int(mf["top"]) <= int(before["top"]), "%s: fight top above the step before's" % lv["name"])
-			check(mf == before or mf == st["fight"], "%s: fight is neither the step before's nor its own" % lv["name"])
-	# the run uses it: every monster met at Lava 3 asks Lava 2's fight
-	var area := Content.area("lava_scroll")
-	for seed_value in range(1, 30):
-		var run := ScrollRun.new(area, levels[13], seed_value)
-		while run.phase != ScrollRun.CLEARED:
-			if run.phase == ScrollRun.AWAIT_FIGHT:
-				eq(run.fight_now(), {"grade": 2, "top": 8}, "Lava 3 monster fight")
-				run.resolve_fight(true)
-				continue
-			run.choose(run.roll()["answer_index"])
+	eq(levels[1]["monster_fight"], levels[1]["fight"], "Lava 1 keeps its own fight")
+	for k in range(1, path.size()):
+		var lv: Dictionary = path[k]
+		var want := Content.step_back_fight(path[k - 1]["fight"], lv["fight"])
+		eq(lv["monster_fight"], want, "%s monster fight" % lv["name"])
+		for st in lv["ramp"]:
+			check(int(st["monster_fight"]["top"]) <= int(path[k - 1]["fight"]["top"]), "%s stage fight top" % lv["name"])
+	eq(levels[Content.level_id("crystal_mines", 1)]["monster_fight"], {"grade": 1, "top": 6},
+			"Crystal 1 fights ask Lava 1 (one die)")
+	eq(levels[Content.level_id("lava_caves", 2)]["monster_fight"], {"grade": 2, "top": 12},
+			"Lava 2 fights ask Space 1")
 	return true
 
 
-func _signs_of(mv: Dictionary) -> Array:
-	return _allowed_signs(mv)
-
-
-## Bog ramp (2026-11-12): every Bog level opens at the step before's math in
-## 3 stages of 3 guesses and ends on its own; Lava 2 to 6 open with 2 of their
-## 7 guesses at the Lava level before's math.
-func test_bog_and_lava_warm_ups() -> bool:
-	var levels := Content.levels()
-	var path := Content.level_path(levels)
-	var at := {}
-	for i in path.size():
-		at[int(path[i]["id"])] = i
-	for world in ["bog", "lava_caves"]:
-		var area := Content.area("bog_scroll" if world == "bog" else "lava_scroll")
-		for num in range(1 if world == "bog" else 2, 7):
-			var lv: Dictionary = levels[Content.level_id(world, num)]
-			var r: Array = lv.get("ramp", [])
-			var before: Dictionary = path[at[int(lv["id"])] - 1]
-			check(r.size() == (3 if world == "bog" else 2), "%s ramp stages" % lv["name"])
-			if r.is_empty():
-				continue
-			var total := 0
-			for st in r:
-				total += int(st["guesses"])
-				check(not LevelGen.answers(st["move"]).is_empty(), "%s stage can make an answer" % lv["name"])
-				check(int(st["move"]["max_answer"]) <= maxi(int(lv["move"]["max_answer"]), 6), "%s stage offers more stones than the level" % lv["name"])
-			check(total == int(area["guesses"]), "%s ramp covers %d guesses" % [lv["name"], total])
-			check(r[r.size() - 1]["move"] == lv["move"] and r[r.size() - 1]["fight"] == lv["fight"], "%s ends on its own math" % lv["name"])
-			if world == "lava_caves":
-				check(int(r[0]["guesses"]) == 2, "%s warms up for 2 guesses" % lv["name"])
-			# the opening uses only the step before's signs (Lava 1's op-first draw is two dice)
-			var old: Array = ["++", "+-"] if int(before["id"]) == 1 else _signs_of(before["move"])
-			for sg in _signs_of(r[0]["move"]):
-				check(old.has(sg), "%s opens with %s, not the step before's" % [lv["name"], sg])
-			for seed_value in range(1, 40):
-				var run := ScrollRun.new(area, lv, seed_value)
-				var k := 0
-				while run.phase != ScrollRun.CLEARED and k < 40:
-					if run.phase == ScrollRun.AWAIT_FIGHT:
-						run.resolve_fight(true)
-						continue
-					var st := run.stage(run.rolls)
-					var p := run.roll()
-					check(_signs_of(st["move"]).has(p["signs"]), "%s roll signs %s not in its stage" % [lv["name"], p["signs"]])
-					check(p["answer"] <= int(st["move"]["max_answer"]), "%s answer above its stage" % lv["name"])
-					run.choose(p["answer_index"])
-					k += 1
-				check(run.phase == ScrollRun.CLEARED, "%s seed %d clears" % [lv["name"], seed_value])
-	# the Bog's second heart stone
-	var hearts := 0
-	for s in Content.area("bog_scroll")["steps"]:
-		hearts += 1 if s["type"] == "heart" else 0
-	check(hearts == 2, "the Bog has two heart stones")
+## Room for 3 misses in every crossing (Phase 1): three hearts and one heart
+## stone, the Bog's second stone gone. Every crossing asks about the same
+## number: Lava 7 guesses, the others 8, three monsters each.
+func test_every_crossing_has_one_heart_stone_and_three_monsters() -> bool:
+	for aid in ["lava_scroll", "crystal_scroll", "bog_scroll", "mushroom_scroll", "space_scroll"]:
+		var area := Content.area(aid)
+		var hearts := 0
+		var monsters := 0
+		for s in area["steps"]:
+			hearts += 1 if s["type"] == "heart" else 0
+			monsters += 1 if s["type"] == "monster" else 0
+			check(int(s["after"]) < int(area["guesses"]), "%s step %d lands before the shore" % [aid, s["after"]])
+		eq(hearts, 1, "%s has one heart stone" % aid)
+		eq(monsters, 3, "%s has three monsters" % aid)
+		eq(int(area["guesses"]), 7 if aid == "lava_scroll" else 8, "%s guesses" % aid)
+	eq(ScrollRun.HERO_HEARTS, 3, "three hearts")
 	return true

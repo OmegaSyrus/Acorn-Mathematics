@@ -1,0 +1,4 @@
+{"schema":"family.settings","v":1,"child":"c_9b2f00e1a7c4","game":"acorn-math","rev":7,
+ "fields":{
+  "daily_minutes":{"value":30,"rev":7,"at":1763291000,"by":"parent"},
+  "no_play_after":{"value":"19:30","rev":5,"at":1763200000,"by":"device:d_7f3a9c1e04b25d68"}}}
