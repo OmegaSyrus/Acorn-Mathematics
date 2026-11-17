@@ -1,0 +1,1 @@
+33f5ab92e4fd7552b11f9cdd9207dcd7d94cc600c8ca7d9468b0a9e8fa54bf04  acorn-math-0.27.0.apk
