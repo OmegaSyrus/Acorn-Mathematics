@@ -28,6 +28,8 @@ const SaveData := preload("res://logic/core/save_data.gd")
 const SaveStore := preload("res://game/save_store.gd")
 const PlayLog := preload("res://game/play_log.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
+const Store := preload("res://logic/core/store.gd")
+const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 ## The gem bucket for beating the dragon (2026-11-06, Terrence): where it
 ## lands, and how long the pour takes.
 const BUCKET_AT := Vector2(480, 330)
@@ -141,6 +143,8 @@ var DRAGON_AT := Vector2(716, -34)
 var ARM_AT := Vector2(700, 196)
 var board_tint := Color(1, 1, 1, 0.9)
 var boss_label := "Dragon"
+var currency := "gems"         # what the bucket pours (Store.currency_of_world)
+var gem_tex: Texture2D = GEM_TEX
 
 
 func _load_theme() -> void:
@@ -152,10 +156,16 @@ func _load_theme() -> void:
 	ARM_AT = th["arm_at"]
 	board_tint = th["board_tint"]
 	boss_label = th["boss_label"]
+	# the bucket pours the world's own currency (Phase 0): gems in the Lava
+	# Caves, crystals, brooches, leaves and feathers after
+	currency = Store.currency_of_world(Store.catalog(), world_id)
+	var icon := CurrencyIcon.texture(currency)
+	gem_tex = icon if icon != null else GEM_TEX
 
 
+## Set world_id first: the boss plays on its world's board.
 func setup(rng, grade: int, show_debug := false) -> void:
-	fight = BounceFight.new(rng, grade)
+	fight = BounceFight.new(rng, grade, {}, {}, world_id)
 	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
 	slow_mo = float(screen_cfg["last_heart_time_scale"])
 	win_gems = int(screen_cfg.get("win_gems", 10))
@@ -286,7 +296,7 @@ func _on_shot_over() -> void:
 ## save at once (and are written), so leaving early can't lose them.
 func _gem_bucket() -> void:
 	if not save.is_empty():
-		SaveData.add_gems(save, win_gems)
+		Store.add(save, currency, win_gems)
 		if persist:
 			SaveStore.write(save)
 	_say("+%d" % win_gems)
@@ -729,7 +739,7 @@ func _draw_bucket(font: Font) -> void:
 	for k in mini(left, 9):
 		var gx := -44.0 + (k % 5) * 22.0 + (k / 5) * 11.0
 		var gy := -60.0 - (k / 5) * 16.0 + 4.0 * sin(_t * 6.0 + k)
-		draw_texture_rect(GEM_TEX, Rect2(Vector2(gx, gy) - Vector2(14, 14), Vector2(28, 28)), false)
+		_gem(Vector2(gx, gy), 28.0)
 	draw_set_transform(Vector2.ZERO)
 	# the gems in the air: from the lip to the counter, one after another
 	var lip := c + Vector2(58, -50).rotated(tip)
@@ -741,13 +751,20 @@ func _draw_bucket(font: Font) -> void:
 			continue
 		var mid := (lip + target) / 2.0 + Vector2(0, -110)
 		var p := lip.lerp(mid, u).lerp(mid.lerp(target, u), u)
-		var w := absf(cos(u * TAU)) * 26.0 + 4.0
-		draw_texture_rect(GEM_TEX, Rect2(p - Vector2(w / 2.0, 15), Vector2(w, 30)), false)
+		_gem(p, 30.0, absf(cos(u * TAU)) * 0.87 + 0.13)
 	# the count, big, by the target
 	var box := Rect2(target - Vector2(70, 30), Vector2(140, 60))
 	RoundBox.fire(self, box, _t, 16.0)
-	draw_texture_rect(GEM_TEX, Rect2(box.position + Vector2(10, 12), Vector2(36, 36)), false)
+	_gem(box.position + Vector2(28, 30), 36.0)
 	_outlined(font, box.position + Vector2(44, 42), "+%d" % gems_shown, 90, 32)
+
+
+## One of the bucket's gems (or crystals, brooches...) `size` tall, centred
+## on c, narrowed to `turn` of its width as it spins.
+func _gem(c: Vector2, size: float, turn := 1.0) -> void:
+	var s := size / maxf(gem_tex.get_width(), gem_tex.get_height())
+	var sz := gem_tex.get_size() * s * Vector2(turn, 1.0)
+	draw_texture_rect(gem_tex, Rect2(c - sz / 2.0, sz), false)
 
 
 ## Damage numbers: they pop in big, settle, float up and fade.

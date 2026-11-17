@@ -11,6 +11,8 @@ extends Node2D
 
 signal landed
 signal pip_tapped(count: int)
+## A tap on a covered die (the miniboss rules' dark or numeral cover).
+signal peeked
 
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
@@ -42,6 +44,9 @@ const ART_PIPS := {
 }
 const ART_EDGE := Color(0.1, 0.06, 0.12)  # the art's outline, filled under its rounded corners
 const LIT := Color(1.0, 0.8, 0.1)
+const RoundBox := preload("res://game/ui/round_box.gd")
+## How long a tap on a covered die shows its dots.
+const PEEK_S := 1.6
 
 ## The red die (the one taken away). Setting it swaps the face art.
 var slip := false:
@@ -60,6 +65,18 @@ var numeral_alpha := 0.0:
 	set(v):
 		numeral_alpha = v
 		queue_redraw()
+## A cover over the landed face (Phase 0 miniboss rules, logic/fight/duel.gd):
+## "" none, "dark" (the Lantern Lord's lantern went out: a dark die with a
+## "?"), "numeral" (the die written as its number). cover_alpha fades it.
+var cover := "":
+	set(v):
+		cover = v
+		queue_redraw()
+var cover_alpha := 0.0:
+	set(v):
+		cover_alpha = v
+		queue_redraw()
+var _peek_tw: Tween
 var q := Quaternion.IDENTITY
 var offset := Vector2.ZERO
 var lit := []
@@ -113,6 +130,10 @@ func roll_to(v: int, delay := 0.0, from := FROM) -> void:
 	face_on = false
 	countable = false
 	numeral_alpha = 0.0
+	if _peek_tw != null:
+		_peek_tw.kill()
+	cover = ""
+	cover_alpha = 0.0
 	_reset_lit()
 	var q_final := face_quat(v)
 	var q_land := Quaternion(Vector3.RIGHT, TILT) * q_final
@@ -150,6 +171,38 @@ func roll_to(v: int, delay := 0.0, from := FROM) -> void:
 func show_numeral() -> void:
 	countable = false
 	create_tween().tween_property(self, "numeral_alpha", 1.0, 0.4)
+
+
+## Puts the cover on (or fades it in over `fade` seconds).
+func set_cover(kind: String, fade := 0.0) -> void:
+	if _peek_tw != null:
+		_peek_tw.kill()
+	cover = kind
+	if fade <= 0.0 or kind == "":
+		cover_alpha = 1.0 if kind != "" else 0.0
+	else:
+		_peek_tw = create_tween()
+		_peek_tw.tween_property(self, "cover_alpha", 1.0, fade)
+
+
+## Lifts the cover for good (the answer is in: dots and number both show).
+func lift_cover() -> void:
+	if _peek_tw != null:
+		_peek_tw.kill()
+	if cover == "":
+		return
+	_peek_tw = create_tween()
+	_peek_tw.tween_property(self, "cover_alpha", 0.0, 0.3)
+
+
+## A peek: the cover slides off for PEEK_S, then back on.
+func peek() -> void:
+	if _peek_tw != null:
+		_peek_tw.kill()
+	_peek_tw = create_tween()
+	_peek_tw.tween_property(self, "cover_alpha", 0.0, 0.15)
+	_peek_tw.tween_interval(PEEK_S)
+	_peek_tw.tween_property(self, "cover_alpha", 1.0, 0.3)
 
 
 func _reset_lit() -> void:
@@ -190,12 +243,32 @@ func _draw() -> void:
 					var a := TAU * s / 12.0
 					ring.append(_on_face(value, pts[i] + Vector2(cos(a), sin(a)) * 9.0, 1.002))
 				draw_colored_polygon(ring, LIT)
+	if cover != "" and cover_alpha > 0.0 and face_on:
+		_draw_cover()
 	if numeral_alpha > 0.0 and face_on:
 		# under the die, so it never runs into a sign between two dice
 		draw_string_outline(ThemeDB.fallback_font, Vector2(-40, 82), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 40, 7,
 				Color(0.08, 0.04, 0.06, numeral_alpha))
 		draw_string(ThemeDB.fallback_font, Vector2(-40, 82), str(value), HORIZONTAL_ALIGNMENT_CENTER, 80, 40,
 				Color(1, 1, 1, numeral_alpha))
+
+
+## The cover over the face-on die: a dark die with a "?" (the lantern is
+## out), or a plain face with the die's number written big on it.
+func _draw_cover() -> void:
+	var r := Rect2(offset - Vector2(48, 48), Vector2(96, 96))
+	var a := cover_alpha
+	var font := ThemeDB.fallback_font
+	RoundBox.fill(self, r.grow(3), Color(ART_EDGE, a), 16.0)
+	if cover == "dark":
+		RoundBox.fill(self, r, Color(0.12, 0.11, 0.2, a), 14.0)
+		draw_string(font, r.position + Vector2(0, 68), "?", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 56,
+				Color(1.0, 0.85, 0.45, 0.8 * a))
+		return
+	var face := Color(0.96, 0.94, 0.88) if not slip else Color(0.82, 0.2, 0.14)
+	var ink := Color(0.08, 0.05, 0.06) if not slip else Color(1, 1, 1)
+	RoundBox.fill(self, r, Color(face, a), 14.0)
+	draw_string(font, r.position + Vector2(0, 74), str(value), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 72, Color(ink, a))
 
 
 ## The face art mapped onto one side of the cube, cut into a grid so it
@@ -233,11 +306,18 @@ func pip_points() -> Array:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not (countable and face_on and visible):
-		return
-	if not Pointer.is_press(event):
+	if not (face_on and visible) or not Pointer.is_press(event):
 		return
 	var local := Pointer.local_pos(self, event)
+	if cover != "" and cover_alpha > 0.5:
+		# a covered die: a tap anywhere on it peeks at the dots
+		if Rect2(offset - Vector2(52, 52), Vector2(104, 104)).has_point(local):
+			get_viewport().set_input_as_handled()
+			peek()
+			peeked.emit()
+		return
+	if not countable:
+		return
 	var pts := pip_points()
 	for i in pts.size():
 		if local.distance_to(pts[i]) <= 20.0:

@@ -61,8 +61,17 @@ static func load_board(id: String) -> Dictionary:
 	return JsonUtil.load_file(BOARD_DIR + id + ".json")
 
 
+## The board a grade plays on in a world: tuning "world_boards" swaps the
+## grade's board for the world's own layout (Phase 0, 2026-11-16: every boss
+## has a board of its own), else the grade's board as it is.
+static func board_id(tuning: Dictionary, grade_cfg: Dictionary, world_id: String) -> String:
+	var base := str(grade_cfg["board"])
+	return str(tuning.get("world_boards", {}).get(world_id, {}).get(base, base))
+
+
 ## tuning and p_board default to the content files; tests pass their own.
-func _init(p_rng, p_grade: int, tuning := {}, p_board := {}) -> void:
+## p_world picks the world's board (board_id).
+func _init(p_rng, p_grade: int, tuning := {}, p_board := {}, p_world := "") -> void:
 	rng = p_rng
 	grade = p_grade
 	if tuning.is_empty():
@@ -70,7 +79,7 @@ func _init(p_rng, p_grade: int, tuning := {}, p_board := {}) -> void:
 	phys = tuning["physics"]
 	cfg = tuning["grades"][str(grade)]
 	rule = cfg["rule"]
-	board = p_board if not p_board.is_empty() else load_board(cfg["board"])
+	board = p_board if not p_board.is_empty() else load_board(board_id(tuning, cfg, p_world))
 	boss_max_hearts = cfg["boss_hearts"]
 	boss_hearts = boss_max_hearts
 	balls_left = cfg["balls"]

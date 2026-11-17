@@ -52,12 +52,42 @@ func test_catalog_is_well_formed() -> bool:
 ## the helmet slime (two more Lava items, so gems have more to buy).
 func test_gem_items_are_the_lava_items() -> bool:
 	var cat := Store.catalog()
-	var open_priced := []
+	var gem_priced := []
 	for it in cat["items"]:
-		if it.has("price") and Store.is_open(cat, it["price"]["currency"]):
-			open_priced.append(it["id"])
-	eq(open_priced, ["bolt_red", "bolt_green", "slime_knight"], "open-currency items")
+		if it.has("price") and it["price"]["currency"] == "gems":
+			gem_priced.append(it["id"])
+	eq(gem_priced, ["bolt_red", "bolt_green", "slime_knight"], "gem items")
 	eq(Store.item(cat, "slime_knight")["price"], {"currency": "gems", "amount": 25}, "slime price")
+	return true
+
+
+## Phase 0 (2026-11-16): every world pays a currency of its own, open in the
+## shop with at least two things to buy, and each costs a handful of clears
+## of that world (its chests plus the boss's bucket).
+func test_every_world_pays_its_own_currency() -> bool:
+	var cat := Store.catalog()
+	var seen := []
+	var bucket := int(load("res://logic/bounce/bounce_fight.gd").load_tuning()["screen"]["win_gems"])
+	for w in Content.worlds():
+		var cid := Store.currency_of_world(cat, w["id"])
+		check(Store.is_open(cat, cid), "%s pays an open currency (%s)" % [w["id"], cid])
+		check(not seen.has(cid), "%s has its own currency, not %s again" % [w["id"], cid])
+		seen.append(cid)
+		var area := Content.area(w["area"])
+		var chests := 0
+		for st in area["steps"]:
+			if st["type"] == "chest":
+				chests += 1
+		var per_clear := chests * ScrollRun.chest_mean(area["chest_gems"]) + bucket
+		var items := 0
+		for it in cat["items"]:
+			if it.has("price") and it["price"]["currency"] == cid:
+				items += 1
+				var clears := float(it["price"]["amount"]) / per_clear
+				check(clears >= 0.5 and clears <= 6.0, "%s takes %.1f clears of %s" % [it["id"], clears, w["id"]])
+		check(items >= 2, "%s has %d things to buy" % [cid, items])
+	eq(Store.currency_of_world(cat, "lava_caves"), "gems", "the Lava Caves pay gems")
+	eq(Store.currency_of_world(cat, "nowhere"), "gems", "an unknown world pays gems")
 	return true
 
 
@@ -189,22 +219,24 @@ func test_buy_the_slime() -> bool:
 func test_locked_items_cant_be_bought_or_used() -> bool:
 	var cat := Store.catalog()
 	var s := _fresh()
-	Store.add(s, "crystals", 999)
-	eq(Store.balance(s, "crystals"), 999, "crystals kept in currencies")
+	Store.add(s, "sprout_stars", 999)
+	eq(Store.balance(s, "sprout_stars"), 999, "stars kept in currencies")
 	eq(s["gems"], 0, "gems untouched")
-	check(Store.is_locked(cat, s, "steel"), "crystals can't be earned yet")
-	check(not Store.buy(cat, s, "steel"), "locked: no buy")
-	check(not Store.equip(cat, s, "steel"), "not owned: no equip")
+	check(Store.is_locked(cat, s, "lion"), "sprout stars can't be earned yet")
+	check(not Store.buy(cat, s, "lion"), "locked: no buy")
+	check(not Store.equip(cat, s, "lion"), "not owned: no equip")
 	check(not Store.equip(cat, s, "nonsense"), "unknown id")
-	eq(Store.balance(s, "crystals"), 999, "nothing spent")
+	eq(Store.balance(s, "sprout_stars"), 999, "nothing spent")
 	return true
 
 
 ## A later area opens its currency in the data alone, with no code change.
 func test_opening_a_currency_in_data_unlocks_its_items() -> bool:
 	var cat: Dictionary = Store.catalog().duplicate(true)
-	cat["currencies"]["crystals"]["open"] = true
+	cat["currencies"]["crystals"]["open"] = false
 	var s := _fresh()
+	eq(Store.state(cat, s, "steel"), Store.LOCKED, "closed crystals lock steel")
+	cat["currencies"]["crystals"]["open"] = true
 	eq(Store.state(cat, s, "steel"), Store.SHORT, "open but no crystals")
 	Store.add(s, "crystals", 25)
 	check(Store.buy(cat, s, "steel"), "bought steel dice")

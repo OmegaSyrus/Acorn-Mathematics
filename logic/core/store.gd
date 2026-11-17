@@ -54,6 +54,25 @@ static func default_id(cat: Dictionary, kind: String) -> String:
 	return ""
 
 
+## The currency a world pays (its chests and its boss's bucket): the open
+## currency whose "world" is that world, else gems (Phase 0, 2026-11-16).
+static func currency_of_world(cat: Dictionary, world_id: String) -> String:
+	for id in cat["currencies"]:
+		var c: Dictionary = cat["currencies"][id]
+		if str(c.get("world", "")) == world_id and bool(c.get("open", false)):
+			return id
+	return "gems"
+
+
+## The open currencies, in catalog order (the store's balances strip).
+static func open_currencies(cat: Dictionary) -> Array:
+	var out := []
+	for id in cat["currencies"]:
+		if is_open(cat, id):
+			out.append(id)
+	return out
+
+
 static func is_open(cat: Dictionary, currency: String) -> bool:
 	return bool(cat["currencies"].get(currency, {}).get("open", false))
 
