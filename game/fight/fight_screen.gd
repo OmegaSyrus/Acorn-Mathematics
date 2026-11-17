@@ -195,7 +195,12 @@ func _loop() -> void:
 				d.lift_cover()
 				d.show_numeral()
 		_say(str(out["answer"]))
-		if not out["right"]:
+		# she says the right number every time (Terrence 2026-11-17): after a
+		# right guess straight away and then "Woo-hoo!"; after a wrong one
+		# from her portrait
+		if out["right"]:
+			Ellwynn.say_right(int(out["answer"]))
+		else:
 			Ellwynn.say_answer(int(out["answer"]))
 		# a beat to see the right shield light up before anyone moves
 		await _wait(0.5)
@@ -450,9 +455,10 @@ func _say(text: String) -> void:
 	bubble = text
 
 
-func _on_pip_tapped(count: int) -> void:
-	Beeper.count(count)
-	_say(str(count))
+## A pip tapped in a fight (Terrence 2026-11-17): it lights up, and that's
+## all: no beep, no number, no voice. (On the crossing Ellwynn counts.)
+func _on_pip_tapped(_count: int) -> void:
+	pass
 
 
 func _tween_prop(prop: String, to: float, dur: float) -> void:

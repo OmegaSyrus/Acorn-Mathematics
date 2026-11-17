@@ -67,7 +67,7 @@ func test_pair_takes_turns_and_both_must_fall() -> bool:
 	d.choose(d.attack.answer_index)
 	d.next_exchange()
 	var out: Dictionary = d.choose(d.attack.answer_index)
-	check(out["foe"] == 0 and int(d.foes[0]["hearts"]) == 2, "the bash hit the king")
+	check(out["foe"] == 0 and int(d.foes[0]["hearts"]) == 1, "the bash hit the king")
 	d.next_exchange()
 	check(d.foe == 1, "then the queen's turn")
 	# a wrong bash misses the queen and costs nobody a heart
@@ -91,7 +91,7 @@ func test_pair_takes_turns_and_both_must_fall() -> bool:
 	check(int(d.foes[0]["hearts"]) == 0 and int(d.foes[1]["hearts"]) == 0, "both foes are out")
 	check(d.monster_hearts == 0, "and the duel's hearts with them")
 	d.restart()
-	check(d.foe == 0 and int(d.foes[0]["hearts"]) == 3 and int(d.foes[1]["hearts"]) == 2, "a rematch brings both back")
+	check(d.foe == 0 and int(d.foes[0]["hearts"]) == 2 and int(d.foes[1]["hearts"]) == 2, "a rematch brings both back")
 	return true
 
 

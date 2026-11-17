@@ -105,7 +105,10 @@ func test_manifest_sample_is_this_build() -> bool:
 
 
 func test_build_info_matches_export() -> bool:
-	var cfg := FileAccess.get_file_as_string("res://export_presets.cfg")
+	# CRLF on a Windows checkout (core.autocrlf): compare by lines
+	var cfg := FileAccess.get_file_as_string("res://export_presets.cfg").replace("
+", "
+")
 	check(cfg.contains('version/name="%s"' % BuildInfo.APP), "export_presets version/name is " + BuildInfo.APP)
 	check(cfg.contains("version/code=%d\n" % BuildInfo.CODE), "export_presets version/code is %d" % BuildInfo.CODE)
 	return true

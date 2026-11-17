@@ -11,8 +11,8 @@ signal shop
 signal reset_save
 ## The grown-up Debug button, beside Reset: main.gd opens the debug screen.
 signal debug
-## The Grown-ups button held down for HOLD_S seconds: main.gd opens the
-## Grown-ups panel (open any world on the map).
+## The Grown-ups button tapped: main.gd asks for the parent PIN (or has a
+## grown-up make one) and opens the Grown-ups panel.
 signal grown_ups
 ## The player button (top left): main.gd opens "Who is playing?".
 signal who
@@ -42,15 +42,16 @@ const Content := preload("res://logic/core/content.gd")
 const RESET_RECT := Rect2(712, 20, 112, 52)
 ## Debug (Terrence 2026-11-08): the same small grey button, left of Reset.
 const DEBUG_RECT := Rect2(588, 20, 112, 52)
-## Grown-ups (Terrence 2026-11-12: "parent unlocks and child picks"): the
-## same small grey button, left of Debug. A tap does nothing; it opens only
-## when held down for HOLD_S seconds (a bar fills after the first second),
-## so a child tapping around never gets in. Kept clear of Debug's tap pad.
+## Grown-ups (Terrence 2026-11-17: the held grey padlock button looked
+## blocked): a blue button, left of Debug, opened by a plain tap. The
+## parent PIN keeps children out (main.gd: the PIN, or making one first).
 const GATE_RECT := Rect2(416, 20, 152, 52)
-const GATE_RING_AFTER := 1.0
 ## Who is playing (parent app plan v2): the player's picture and name, top
-## left; a tap opens "Who is playing?" (another child, or Guest).
-const PLAYER_RECT := Rect2(120, 20, 270, 52)
+## left; a tap opens "Who is playing?" (another child, or Guest). 72 tall
+## (2026-11-17) so the picture shows 40% more and the fox's ears fit.
+const PLAYER_RECT := Rect2(120, 10, 270, 72)
+## The part of the profile picture shown on the player button, at 1:1.
+const FACE := Vector2(73, 62)
 const WhoScreen := preload("res://game/who_screen.gd")
 const PANEL := Rect2(310, 120, 520, 320)  # right of Ellwynn (x 130..290)
 const NO_RECT := Rect2(345, 300, 200, 100)
@@ -68,8 +69,6 @@ var choice: ChoiceWidget
 var asking := false      # the reset question is up
 var holding := false     # a finger is down on "Yes"
 var hold_t := 0.0
-var gate_holding := false  # a finger is down on Grown-ups
-var gate_t := 0.0
 var _mark_worlds: Array = []  # [{id, color, ids}] the built worlds, for the marks under the difficulty
 ## The player shown on the player button: {nickname, picture} (main.gd sets it).
 var player := {}
@@ -101,6 +100,7 @@ func _ready() -> void:
 	buttons.append({"rect": SHOP_RECT, "label": "Shop", "shop": true, "resume": false})
 	buttons.append({"rect": RESET_RECT, "label": "Reset", "reset": true, "resume": false})
 	buttons.append({"rect": DEBUG_RECT, "label": "Debug", "debug": true, "resume": false})
+	buttons.append({"rect": GATE_RECT, "label": "Grown-ups", "gate": true, "resume": false})
 	if not player.is_empty():
 		WhoScreen.picture(str(player.get("picture", "")))  # loaded before _draw
 		buttons.append({"rect": PLAYER_RECT, "label": "", "who": true, "resume": false})
@@ -119,6 +119,9 @@ func _ready() -> void:
 			continue
 		if buttons[i].get("debug", false):
 			debug.emit()
+			return
+		if buttons[i].get("gate", false):
+			grown_ups.emit()
 			return
 		if buttons[i].get("who", false):
 			who.emit()
@@ -162,7 +165,6 @@ func _ask_reset() -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not asking:
-		_gate_input(event)
 		return
 	var p := Pointer.local_pos(self, event) if (Pointer.is_press(event) or Pointer.is_release(event) or Pointer.is_drag(event)) else Vector2(-1, -1)
 	if Pointer.is_press(event):
@@ -180,36 +182,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		hold_t = 0.0
 
 
-## The Grown-ups button: held, not tapped. Sliding off or lifting the
-## finger early starts over.
-func _gate_input(event: InputEvent) -> void:
-	var p := Pointer.local_pos(self, event) if (Pointer.is_press(event) or Pointer.is_release(event) or Pointer.is_drag(event)) else Vector2(-1, -1)
-	if Pointer.is_press(event) and GATE_RECT.has_point(p):
-		get_viewport().set_input_as_handled()
-		gate_holding = true
-		gate_t = 0.0
-	elif Pointer.is_drag(event) and gate_holding and not GATE_RECT.grow(30).has_point(p):
-		gate_holding = false
-		gate_t = 0.0
-		queue_redraw()
-	elif Pointer.is_release(event) and gate_holding:
-		gate_holding = false
-		gate_t = 0.0
-		queue_redraw()
-
-
 func _process(delta: float) -> void:
 	if not asking:
-		if gate_holding:
-			gate_t += delta
-			if gate_t >= HOLD_S:
-				gate_holding = false
-				set_process_unhandled_input(false)
-				choice.close()
-				Beeper.good()
-				grown_ups.emit()
-				return
-			queue_redraw()
 		return
 	if holding:
 		hold_t += delta
@@ -315,26 +289,18 @@ func _draw_level_marks(r: Rect2) -> void:
 				id > 0 and SaveData.has_star(save, w["id"], id), tint)
 
 
-## The Grown-ups button (grey, like Debug and Reset): a small padlock and
-## "Grown-ups"; while held, a bar fills along its foot (shown after the first second).
+## The Grown-ups button: blue like the Grown-ups panel's own buttons, with
+## a light frame, so it reads as a button to tap.
 func _draw_gate(font: Font) -> void:
 	var r := GATE_RECT
-	RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
-	var dim := Color(0.8, 0.76, 0.72)
-	var lock := (r.position + Vector2(14, 16)).round()
-	draw_rect(Rect2(lock + Vector2(2, 0), Vector2(10, 2)), dim)
-	draw_rect(Rect2(lock + Vector2(2, 0), Vector2(2, 8)), dim)
-	draw_rect(Rect2(lock + Vector2(10, 0), Vector2(2, 8)), dim)
-	draw_rect(Rect2(lock + Vector2(0, 8), Vector2(14, 12)), dim)
-	draw_rect(Rect2(lock + Vector2(6, 12), Vector2(2, 4)), Color(0.3, 0.27, 0.26))
-	draw_string(font, r.position + Vector2(34, 34), "Grown-ups", HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 36, 20, dim)
-	if gate_holding and gate_t >= GATE_RING_AFTER:
-		var q := clampf((gate_t - GATE_RING_AFTER) / (HOLD_S - GATE_RING_AFTER), 0.0, 1.0)
-		draw_rect(Rect2(r.position + Vector2(10, r.size.y - 9), Vector2(roundf((r.size.x - 20) * q), 4)),
-				Color(1.0, 0.82, 0.35))
+	RoundBox.fill(self, r, Color(0.24, 0.34, 0.5), 14.0)
+	RoundBox.frame(self, r, Color(0.75, 0.85, 1.0), 2.0, 14.0)
+	draw_string(font, r.position + Vector2(0, 34), "Grown-ups", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22,
+			Color(0.96, 0.94, 0.9))
 
 
-## The player button: the head of their picture at 1:1 and their name.
+## The player button: the top of their picture at 1:1 (head and ears) and
+## their name.
 func _draw_player(font: Font) -> void:
 	if player.is_empty():
 		return
@@ -342,10 +308,11 @@ func _draw_player(font: Font) -> void:
 	RoundBox.fill(self, r, Color(0.22, 0.36, 0.26, 0.9), 14.0)
 	var tex := WhoScreen.picture(str(player.get("picture", "")))
 	if tex != null:
-		var src := Rect2(roundf(tex.get_width() / 2.0 - 26), 4, 52, 44)
-		draw_texture_rect_region(tex, Rect2(r.position + Vector2(8, 4), src.size), src)
-	draw_string(font, r.position + Vector2(70, 35), str(player.get("nickname", "")), HORIZONTAL_ALIGNMENT_LEFT,
-			r.size.x - 80, 24, Color(0.96, 0.94, 0.9))
+		var w := minf(FACE.x, tex.get_width())
+		var src := Rect2(roundf(tex.get_width() / 2.0 - w / 2.0), 0, w, FACE.y)
+		draw_texture_rect_region(tex, Rect2(r.position + Vector2(6 + roundf((FACE.x - w) / 2.0), 5), src.size), src)
+	draw_string(font, r.position + Vector2(FACE.x + 16, 45), str(player.get("nickname", "")), HORIZONTAL_ALIGNMENT_LEFT,
+			r.size.x - FACE.x - 24, 24, Color(0.96, 0.94, 0.9))
 
 
 ## The Shop button: a gem-purple box, "Shop", and the gems to spend.

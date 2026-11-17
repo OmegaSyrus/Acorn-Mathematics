@@ -118,7 +118,7 @@ func test_duel_uses_numerals_and_restarts_itself() -> bool:
 	var d = Duel.new(SeededRng.new(7), SPROUT, "lava_miniboss")
 	check(d.choice_style == Fight.ChoiceStyle.NUMERALS, "duel shows numerals")
 	check(d.on_loss == Fight.OnLoss.RESTART_DUEL, "losing the duel restarts the duel only")
-	check(d.monster_hearts == 5 and d.hero_hearts == 3, "the miniboss has 5 hearts, the hero 3")
+	check(d.monster_hearts == 4 and d.hero_hearts == 3, "the miniboss has 4 hearts, the hero 3")
 	while not d.is_over():
 		d.choose(_wrong_index(d))
 		if not d.is_over():
@@ -126,7 +126,7 @@ func test_duel_uses_numerals_and_restarts_itself() -> bool:
 	check(d.state == Fight.State.LOST, "duel lost")
 	d.restart()
 	check(d.state == Fight.State.WIND_UP and d.phase == Fight.Phase.BLOCK, "duel winds up again, block first")
-	check(d.hero_hearts == 3 and d.monster_hearts == 5, "fresh hearts after restart")
+	check(d.hero_hearts == 3 and d.monster_hearts == 4, "fresh hearts after restart")
 	return true
 
 

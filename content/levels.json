@@ -1,6 +1,6 @@
 {
  "version": 2,
- "_note": "The level path (Phase 1 of the ship plan, 2026-11-16): one ladder of 30 steps. Level N is one pass Lava, Crystal, Bog, Mushroom, Space at Level N; beating Space at Level N opens Level N+1 at Lava. \"step\" is the place on the ladder; each step adds one new thing to the step before (\"new\": die, top, take_away, hidden, place, ten, rails, track or mix; \"adds\" says it in words). Level ids never change (Lava 1 = 1, else world x 10 + Level), so saves and play records still line up; only the math under them was re-sorted. Every crossing opens with 3 warm-up guesses at the step before's math and fight (logic/core/content.gd builds them as a 2-stage \"ramp\"; Lava 1 has its own \"warmup\", one die to 3); a step that brings in the rails or the track keeps it off for the warm-up. Moves: draw patterns (constraints pairs, across_ten), hidden or mix (parts are level ids). Fights: grade 1 one die, 2 two-dice sum, 3 die + ? = target, top caps the answers; a monster asks the step before's fight (monster_fight), the miniboss duel the level's own. boss_grade: 1 match, 2 sum, 4 difference. zoom 1.0 = the 1x crossing, else half size.",
+ "_note": "The level path (Phase 1 of the ship plan, 2026-11-16): one ladder of 30 steps. Level N is one pass Lava, Crystal, Bog, Mushroom, Space at Level N; beating Space at Level N opens Level N+1 at Lava. \"step\" is the place on the ladder; each step adds one new thing to the step before (\"new\": die, top, take_away, hidden, place, ten, rails, track or mix; \"adds\" says it in words). Level ids never change (Lava 1 = 1, else world x 10 + Level), so saves and play records still line up; only the math under them was re-sorted. Every crossing opens with 3 warm-up guesses at the step before's math and fight (logic/core/content.gd builds them as a 2-stage \"ramp\"; Lava 1 has its own \"warmup\", one die to 3); a step that brings in the rails or the track keeps it off for the warm-up. Moves: draw patterns (constraints pairs, across_ten), hidden or mix (parts are level ids). Fights: grade 1 one die, 2 two-dice sum, 3 die + ? = target, top caps the answers; a monster asks the step before's fight (monster_fight), the miniboss duel the level's own. boss_grade: 1 match, 2 sum, 4 difference. zoom 1.0 = the 1x crossing, 0.8 for Lava 1 (6 stones on screen, Terrence 2026-11-17), else half size.",
  "bands": {
   "acorn": {
    "name": "Acorn",
@@ -62,7 +62,7 @@
     "top": 6
    },
    "boss_grade": 1,
-   "zoom": 1.0,
+   "zoom": 0.8,
    "warmup": {
     "move": {
      "draw": "patterns",

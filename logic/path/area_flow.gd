@@ -57,8 +57,8 @@ static func enter(save: Dictionary, area: Dictionary, grade_id: int, stage: Stri
 ## open once the Level is, and each world after it once the world before it
 ## has been beaten at that Level. Level 1 is always open; Level N+1 opens
 ## when every world has been beaten at Level N (beating Space finishes the
-## pass). Only play opens worlds and Levels: no grown-up switch moves a
-## child on. The Debug screen's "Map: all open" (save["debug_unlock"])
+## pass). A grown-up can also pick the Level on the Grown-ups panel
+## (pick_level). The Debug screen's "Map: all open" (save["debug_unlock"])
 ## opens every world at every Level, for testing.
 ## A world that isn't built yet (no "area") can't be beaten, so the world
 ## after it looks back past it to the last built one.
@@ -127,13 +127,29 @@ static func level_beaten(save: Dictionary, worlds: Array, n: int) -> bool:
 	return any
 
 
-## Level 1 is always open; Level n once Level n - 1 is beaten.
+## Level 1 is always open; Level n once Level n - 1 is beaten, or once a
+## grown-up has picked Level n or higher on the Grown-ups panel.
 static func level_open(save: Dictionary, worlds: Array, n: int) -> bool:
 	if n < 1 or n > Content.LEVEL_COUNT:
 		return false
-	if n == 1 or bool(save.get("debug_unlock", false)):
+	if n == 1 or bool(save.get("debug_unlock", false)) or n <= grown_up_level(save):
 		return true
 	return level_beaten(save, worlds, n - 1)
+
+
+## The Level a grown-up picked on the Grown-ups panel (Terrence 2026-11-17:
+## a parent sets the Level), 0 for none. It opens that Level and the ones
+## before it; play can still take the child past it.
+static func grown_up_level(save: Dictionary) -> int:
+	return int(save.get("grown_up_level", 0))
+
+
+## A grown-up picks Level n: it is open, and the menu plays it next. Picking
+## a lower Level than one already earned only moves the menu back to it.
+static func pick_level(save: Dictionary, n: int) -> void:
+	n = clampi(n, 1, Content.LEVEL_COUNT)
+	save["grown_up_level"] = n
+	save["difficulty"] = n
 
 
 ## The child's Level: the highest one open.
