@@ -12,6 +12,7 @@ extends CanvasLayer
 const SaveStoreRef := preload("res://game/save_store.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const LINES_PATH := "res://content/ellwynn_lines.json"
+const WOOHOO := "res://audio/voice/ellwynn/placeholder-woohoo.mp3"
 ## Mouth tracks made from each voice file by tools/voice/mouth_tracks.py.
 const MOUTH_PATH := "res://content/ellwynn_mouth.json"
 const MOUTH_NAMES := ["closed", "half", "open"]
@@ -232,8 +233,8 @@ func say_answer(n: int) -> void:
 
 
 ## A number said straight away, with no portrait and no bubble: the count
-## as the child taps the pips in a fight, and the answer after a right
-## guess (Terrence 2026-11-17). A new number cuts off the one before.
+## as the child taps the pips on the crossing (Terrence 2026-11-17). A new
+## number cuts off the one before.
 func say_count(n: int) -> void:
 	var file: String = lines.get("answers", {}).get(str(n), "")
 	if file == "" or not ResourceLoader.exists(file):
@@ -241,6 +242,20 @@ func say_count(n: int) -> void:
 		return
 	stop_voice()
 	_queue = [{"file": file, "bubble": ""}]
+	_next_line()
+	_duck(ANSWER_DUCK_DB)
+
+
+## A right guess (Terrence 2026-11-17): she says the right number straight
+## away, while the hero moves on, and then celebrates with "Woo-hoo!", so
+## the number always comes before the celebration.
+func say_right(n: int) -> void:
+	var line := [{"file": WOOHOO, "bubble": ""}]
+	var file: String = lines.get("answers", {}).get(str(n), "")
+	if file != "" and ResourceLoader.exists(file):
+		line.push_front({"file": file, "bubble": ""})
+	stop_voice()
+	_queue = line
 	_next_line()
 	_duck(ANSWER_DUCK_DB)
 

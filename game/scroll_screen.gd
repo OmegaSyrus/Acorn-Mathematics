@@ -312,6 +312,9 @@ func _loop() -> void:
 		answer_shown = int(p["choices"][pick])
 		answer_right = out["right"]
 		if out["right"]:
+			# she says the right number as the dragon moves on, then
+			# "Woo-hoo!" (Terrence 2026-11-17)
+			Ellwynn.say_right(int(p["answer"]))
 			await _happy(HAPPY_JUMPS)
 			stone_from = -1
 			await _play_walk(out)
@@ -757,9 +760,10 @@ func _on_stone_selected(_i: int) -> void:
 	Beeper.tone(523.0, 0.07)
 
 
+## A pip tapped (Terrence 2026-11-17): it lights, and Ellwynn counts it
+## out loud; no beep and no number in the bubble.
 func _on_pip_tapped(count: int) -> void:
-	Beeper.count(count)
-	_say(str(count))
+	Ellwynn.say_count(count)
 
 
 # --- input -----------------------------------------------------------------

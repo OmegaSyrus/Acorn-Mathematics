@@ -362,9 +362,10 @@ func _repeat_question() -> void:
 	create_tween().tween_property(self, "elf_hop", 0.0, 0.4)
 
 
+## A pip tapped (Terrence 2026-11-17): it lights, and Ellwynn counts it
+## out loud; no beep and no number in the bubble.
 func _on_pip_tapped(count: int) -> void:
-	Beeper.count(count)
-	_say(str(count))
+	Ellwynn.say_count(count)
 
 
 # --- input -----------------------------------------------------------------
