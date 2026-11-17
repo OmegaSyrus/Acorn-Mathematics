@@ -7,11 +7,19 @@
 ##
 ## The entry builders are pure static functions (tests/test_play_log.gd);
 ## answer() and event() add the time and the place set by main.gd and write.
+##
+## Version 2 lines (family.event, docs/contract/schemas/event.v2.schema.json)
+## add the game, this install's device id, a sequence number that counts up
+## per device (so an upload sent twice is harmless), the launch count and
+## milliseconds since launch (order when the clock is wrong), the build and
+## content versions, and a skill id on every answer (logic/core/skills.gd).
 extends RefCounted
 
 const Attack := preload("res://logic/fight/attack.gd")
+const BuildInfo := preload("res://logic/core/build_info.gd")
+const Skills := preload("res://logic/core/skills.gd")
 
-const VERSION := 1
+const VERSION := 2
 const MAX_BYTES := 1000000
 const DEFAULT_PATH := "user://play_log.jsonl"
 
@@ -20,9 +28,21 @@ static var path := DEFAULT_PATH
 static var enabled := true
 ## {profile, world, area, level, level_id}: who is playing and where.
 static var place := {}
+## This install (game/device_id.gd) and its launch count; start() sets them.
+static var dev := ""
+static var boot := 0
+## The last sequence number written on this device.
+static var seq := 0
 
 
 # --- what the game calls ---------------------------------------------------
+
+## At launch: the device, its launch count, and the sequence carried on from
+## the last line already in the log.
+static func start(device_id: String, launch: int) -> void:
+	dev = device_id
+	boot = launch
+	seq = maxi(last_seq(path), last_seq(rotated_path(path)))
 
 static func set_profile(profile: String) -> void:
 	place["profile"] = profile
@@ -40,11 +60,25 @@ static func set_place(area: Dictionary, level_id: int, level_num: int) -> void:
 ## child saw (stone_shown, fight_shown, boss_shown). answer and pick are
 ## the numbers; secs is how long the choices were up before the pick.
 static func answer(where: String, shown: Dictionary, right_answer: int, pick: int, secs: float) -> void:
-	write(answer_entry(now(), place, where, shown, right_answer, pick, secs))
+	if enabled:
+		write(answer_entry(now(), _ctx(), where, shown, right_answer, pick, secs))
 
 
 static func event(name: String, extra := {}) -> void:
-	write(event_entry(now(), place, name, extra))
+	if enabled:
+		write(event_entry(now(), _ctx(), name, extra))
+
+
+## The place plus this device's next sequence number.
+static func _ctx() -> Dictionary:
+	var c := place.duplicate()
+	if dev != "":
+		seq += 1
+		c["dev"] = dev
+		c["seq"] = seq
+		c["boot"] = boot
+		c["mono_ms"] = Time.get_ticks_msec()
+	return c
 
 
 static func now() -> int:
@@ -67,6 +101,7 @@ static func answer_entry(t: int, ctx: Dictionary, where: String, shown: Dictiona
 	e["pick"] = pick
 	e["right"] = pick == right_answer
 	e["secs"] = snappedf(maxf(0.0, secs), 0.1)
+	e["skill"] = Skills.of(where, shown, right_answer)
 	return e
 
 
@@ -78,8 +113,17 @@ static func event_entry(t: int, ctx: Dictionary, name: String, extra := {}) -> D
 
 
 static func _head(t: int, ctx: Dictionary, kind: String) -> Dictionary:
-	var e := {"v": VERSION, "t": t, "kind": kind}
-	for k in ["profile", "world", "area", "level", "level_id"]:
+	var e := {"v": VERSION, "game": BuildInfo.GAME, "kind": kind}
+	for k in ["dev", "profile", "seq", "boot"]:
+		if ctx.has(k):
+			e[k] = ctx[k]
+	e["t"] = t
+	if ctx.has("mono_ms"):
+		e["mono_ms"] = ctx["mono_ms"]
+	e["app"] = BuildInfo.APP
+	e["code"] = BuildInfo.CODE
+	e["cv"] = BuildInfo.cv()
+	for k in ["world", "area", "level", "level_id"]:
 		if ctx.has(k):
 			e[k] = ctx[k]
 	return e
@@ -135,6 +179,24 @@ static func boss_shown(fight) -> Dictionary:
 
 
 # --- the file ----------------------------------------------------------------
+
+## The "seq" of the last line in a log file, 0 if none (read from its end).
+static func last_seq(p: String) -> int:
+	if not FileAccess.file_exists(p):
+		return 0
+	var f := FileAccess.open(p, FileAccess.READ)
+	if f == null:
+		return 0
+	var n := f.get_length()
+	f.seek(maxi(0, n - 4096))
+	var tail := f.get_buffer(mini(n, 4096)).get_string_from_utf8()
+	f.close()
+	var lines := tail.split("\n", false)
+	for i in range(lines.size() - 1, -1, -1):
+		var d = JSON.parse_string(lines[i])
+		if d is Dictionary and d.has("seq"):
+			return int(d["seq"])
+	return 0
 
 static func rotated_path(p: String) -> String:
 	return p.get_basename() + ".1." + p.get_extension()

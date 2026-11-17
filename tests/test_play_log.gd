@@ -8,6 +8,7 @@ const BounceFight := preload("res://logic/bounce/bounce_fight.gd")
 const SeededRng := preload("res://logic/core/rng.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
 const Content := preload("res://logic/core/content.gd")
+const BuildInfo := preload("res://logic/core/build_info.gd")
 
 const CTX := {"profile": "1", "world": "lava_caves", "area": "lava_scroll", "level": 1, "level_id": 1}
 
@@ -39,7 +40,9 @@ func test_stone_answer_line() -> bool:
 	var shown := PlayLog.stone_shown({"op": "add", "dice": [3, 2], "answer": 5, "choices": [1, 2, 3, 4, 5]})
 	var e := PlayLog.answer_entry(1763000000, CTX, "stone", shown, 5, 4, 3.44)
 	var line := PlayLog.to_line(e)
-	check(line.begins_with('{"v":1,"t":1763000000,"kind":"answer","profile":"1","world":"lava_caves"'), line)
+	check(line.begins_with('{"v":2,"game":"acorn-math","kind":"answer","profile":"1","t":1763000000,"app":'), line)
+	check(line.contains('"world":"lava_caves"'), "place")
+	eq(JSON.parse_string(line)["skill"], "add.within6", "a skill on every answer")
 	check(not line.contains("\n"), "one line")
 	var back = JSON.parse_string(line)
 	eq(back["q"], "3 + 2 = ?", "question as shown")
@@ -112,7 +115,7 @@ func test_fight_and_boss_shown() -> bool:
 func test_event_line() -> bool:
 	var e := PlayLog.event_entry(1763000000, CTX, "restart", {"why": "fall", "attempt": 2})
 	eq(PlayLog.to_line(e),
-		'{"v":1,"t":1763000000,"kind":"event","profile":"1","world":"lava_caves","area":"lava_scroll","level":1,"level_id":1,"event":"restart","why":"fall","attempt":2}',
+		'{"v":2,"game":"acorn-math","kind":"event","profile":"1","t":1763000000,"app":"%s","code":%d,"cv":%d,"world":"lava_caves","area":"lava_scroll","level":1,"level_id":1,"event":"restart","why":"fall","attempt":2}' % [BuildInfo.APP, BuildInfo.CODE, BuildInfo.cv()],
 		"event line")
 	eq(PlayLog.event_entry(5, {}, "app_paused")["event"], "app_paused", "no place yet is fine")
 	return true
@@ -207,5 +210,34 @@ func test_pause_saves_and_holds_music_once() -> bool:
 	eq(calls, ["save"], "desktop focus out saves only")
 	PlayLog.path = keep_path
 	life.free()
+	_cleanup(p)
+	return true
+
+
+func test_sequence_carries_on() -> bool:
+	var p := _temp_path("seq")
+	var was_path := PlayLog.path
+	var was_dev := PlayLog.dev
+	var was_seq := PlayLog.seq
+	var was_on := PlayLog.enabled
+	PlayLog.path = p
+	PlayLog.enabled = true
+	PlayLog.start("d_0123456789abcdef", 3)
+	eq(PlayLog.seq, 0, "a new log starts at 0")
+	PlayLog.event("run_start")
+	PlayLog.answer("stone", PlayLog.stone_shown({"op": "add", "dice": [1, 2], "choices": [3]}), 3, 3, 1.0)
+	var lines := _lines(p)
+	eq([lines[0]["seq"], lines[1]["seq"]], [1, 2], "counts up")
+	eq(lines[1]["dev"], "d_0123456789abcdef", "device on every line")
+	eq(lines[1]["boot"], 3, "launch count")
+	check(lines[1].has("mono_ms"), "time since launch")
+	PlayLog.start("d_0123456789abcdef", 4)
+	eq(PlayLog.seq, 2, "the next launch carries on from the log")
+	PlayLog.event("run_start")
+	eq(_lines(p)[2]["seq"], 3, "never reused")
+	PlayLog.path = was_path
+	PlayLog.dev = was_dev
+	PlayLog.seq = was_seq
+	PlayLog.enabled = was_on
 	_cleanup(p)
 	return true

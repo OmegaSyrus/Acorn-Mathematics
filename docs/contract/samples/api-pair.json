@@ -1,0 +1,74 @@
+{
+ "_note": "Sample requests and answers for pairing, for the backend's tests and the sync add-on's mock server (api-v1.md).",
+ "pair_start": {
+  "request": {
+   "game": "acorn-math",
+   "dev": "d_7f3a9c1e04b25d68",
+   "app": "0.23.1",
+   "code": 42
+  },
+  "response": {
+   "pair_id": "pr_6c1d8e",
+   "code": "K7Q-42M",
+   "qr_url": "https://parents.example.invalid/pair/K7Q-42M",
+   "expires_in": 600
+  }
+ },
+ "pair_approve": {
+  "request": {
+   "code": "K7Q-42M",
+   "device_name": "Kitchen tablet"
+  },
+  "response": {
+   "ok": true,
+   "dev": "d_7f3a9c1e04b25d68",
+   "name": "Kitchen tablet",
+   "game": "acorn-math"
+  }
+ },
+ "pair_poll": {
+  "response_waiting": {
+   "state": "waiting",
+   "expires_in": 540
+  },
+  "response_done": {
+   "state": "approved",
+   "device_token": "dt_example_not_a_real_token",
+   "family": "8a1f2c3e-0000-4000-8000-00000000f00d",
+   "dev": "d_7f3a9c1e04b25d68",
+   "name": "Kitchen tablet",
+   "children": [
+    {
+     "child": "c_9b2f00e1a7c4",
+     "nickname": "Bear",
+     "picture": "fox"
+    }
+   ]
+  }
+ },
+ "profiles_put": {
+  "request": {
+   "profiles": [
+    {
+     "profile": "p_04a2c9e1f3b7",
+     "child": "c_9b2f00e1a7c4",
+     "nickname": "Bear",
+     "picture": "fox",
+     "guest": false
+    }
+   ]
+  }
+ },
+ "events_put": {
+  "path": "/v1/events/acorn-math/d_7f3a9c1e04b25d68/10430-10435",
+  "body": "play_log.v2.jsonl, gzip",
+  "response": {
+   "stored": true,
+   "lines": 6,
+   "children": [
+    "c_9b2f00e1a7c4"
+   ],
+   "unmapped_profiles": []
+  }
+ }
+}

@@ -32,6 +32,34 @@ An area file names its `miniboss` and `boss`; `logic/path/area_flow.gd` orders t
 and saves the one in progress as the run (`{"area", "grade", "stage"}`), so closing the
 app after the door opens the duel or boss again from the main menu's Go.
 
+## Children, Guest, parent PIN and the family contract (2026-11-16)
+
+Groundwork for logins and cloud saves (ship plan Phase 4, parent app plan v2).
+Nothing goes online yet; the game plays exactly as before with no account.
+
+- **Device id.** Each install makes a random id at first launch
+  (`user://device.json`, `game/device_id.gd`). It carries a hash of the
+  hardware id, so a copy restored onto another tablet makes its own id.
+- **Children.** Saves are one file per profile (`user://profile_<id>.json`)
+  with random profile ids; the roster is `user://profiles.json`
+  (`logic/core/profiles.gd`). The first launch of this build moves the old
+  `profile_1.json` into the first profile ("Player 1") and keeps the old file
+  as `profile_1.v1.json`.
+- **Who is playing?** Shown at launch when two or more children share the
+  tablet, and from the player button at the top left of the main menu. Guest
+  plays and saves here but will never sync.
+- **Grown-ups.** The panel now has Children (add up to six, tap a picture or
+  name to change it, hold Remove for 3 s) and Set/Change PIN. With a PIN set,
+  holding Grown-ups asks for it; "Forgot PIN?" asks a grown-up sum and clears it.
+- **Save version 2** (`acorn.save`): schema, game id and per-device gem
+  counts so saves from several tablets merge exactly (`SaveData.merge`).
+- **Play log version 2**: game, device, profile, sequence, launch count,
+  build and a skill id on every answer.
+- **Contract**: `docs/contract/` (schemas, samples, skill list, API,
+  retention) and `docs/backend/README.md`. `python3 -I tools/contract/check.py`
+  checks the samples; `tests/test_contract.gd` checks what the game writes.
+- Stills: `res://tools/stills/family_stills.tscn` (same command as the others).
+
 ## Reset
 
 The main menu's small grey Reset button (top right) asks "Reset all?". No keeps

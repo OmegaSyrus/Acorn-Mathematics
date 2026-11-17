@@ -1,0 +1,21 @@
+{
+  "schema": "family.skills",
+  "v": 1,
+  "_note": "The shared skill list. Ids are permanent and never reused; add new ones at the end. A skill is named by what the child does and the size of the biggest number involved (the total for adding, the number taken from for taking away). Curriculum codes (Common Core, Ontario) are mapped in the backend's reports, not here.",
+  "skills": [
+    {"id": "count.to6", "label": "Count the dots on one die", "since": "acorn-math"},
+    {"id": "numeral.match.to6", "label": "Match a number to a die face", "since": "acorn-math"},
+    {"id": "add.within6", "label": "Add two numbers, total up to 6", "since": "acorn-math"},
+    {"id": "add.within10", "label": "Add two numbers, total up to 10", "since": "acorn-math"},
+    {"id": "add.within20", "label": "Add two numbers, total up to 20", "since": "acorn-math"},
+    {"id": "sub.within6", "label": "Take away, from up to 6", "since": "acorn-math"},
+    {"id": "sub.within10", "label": "Take away, from up to 10", "since": "acorn-math"},
+    {"id": "sub.within20", "label": "Take away, from up to 20", "since": "acorn-math"},
+    {"id": "missing_addend.within10", "label": "Find the missing number: 3 + ? = 7, total up to 10", "since": "acorn-math"},
+    {"id": "missing_addend.within20", "label": "Find the missing number, total up to 20", "since": "acorn-math"},
+    {"id": "missing_subtrahend.within10", "label": "Find what was taken away: 6 - ? = 2", "since": "acorn-math"},
+    {"id": "add3.within20", "label": "Add three or more numbers, total up to 20", "since": "acorn-math"},
+    {"id": "addsub3.within20", "label": "Add and take away with three or more numbers", "since": "acorn-math"},
+    {"id": "add.within40", "label": "Add onto a bigger number, total up to 40", "since": "acorn-math"}
+  ]
+}

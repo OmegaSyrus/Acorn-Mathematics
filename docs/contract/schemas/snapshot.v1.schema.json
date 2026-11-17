@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family.snapshot.v1",
+  "title": "Save snapshot: one device's save for one child in one game",
+  "description": "The game's own save, unchanged, in a wrapper. Uploaded with PUT /v1/children/{child}/games/{game}/snapshots/{dev}. The server keeps the latest per device. A restore downloads every device's snapshot for the child and merges them in the game (games/acorn-math/README.md says how for Acorn).",
+  "type": "object",
+  "required": ["schema", "v", "game", "dev", "profile", "rev", "saved_at", "app", "code", "cv", "save_schema", "save_v", "save"],
+  "properties": {
+    "schema": {"const": "family.snapshot"},
+    "v": {"const": 1},
+    "game": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$"},
+    "dev": {"type": "string", "pattern": "^d_[0-9a-f]{16}$"},
+    "profile": {"type": "string", "pattern": "^p_[0-9a-f]{12}$"},
+    "child": {"type": ["string", "null"], "pattern": "^c_[0-9a-f]{12}$"},
+    "rev": {"type": "integer", "minimum": 1, "description": "+1 each time this device writes this profile's save."},
+    "saved_at": {"type": "integer", "description": "Unix seconds, device clock."},
+    "app": {"type": "string"},
+    "code": {"type": "integer", "minimum": 1},
+    "cv": {"type": "integer", "minimum": 1},
+    "save_schema": {"type": "string", "description": "The game's save schema name, such as acorn.save."},
+    "save_v": {"type": "integer", "minimum": 1},
+    "save": {"type": "object", "description": "The game's save document, opaque to the server."}
+  }
+}

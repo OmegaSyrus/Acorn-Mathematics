@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family.manifest.v1",
+  "title": "What one game version offers parents",
+  "description": "Published by each game version (PUT /v1/games/{game}/manifests/{code}). The parent app draws controls, names and skill lists from it, so a new game or setting needs no parent app release. A control the child's installed version lacks (since_code above its code) is greyed out with \"update the game to use this\". Level and world unlocks are left out on purpose: parents do not move children through the game.",
+  "type": "object",
+  "required": ["schema", "v", "game", "title", "app", "code", "cv", "settings", "skills", "labels", "pictures"],
+  "properties": {
+    "schema": {"const": "family.manifest"},
+    "v": {"const": 1},
+    "game": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$"},
+    "title": {"type": "string"},
+    "app": {"type": "string"},
+    "code": {"type": "integer", "minimum": 1},
+    "cv": {"type": "integer", "minimum": 1},
+    "settings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key", "type", "default", "label", "since_code"],
+        "properties": {
+          "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "type": {"enum": ["int", "bool", "time", "enum"]},
+          "min": {"type": "integer"},
+          "max": {"type": "integer"},
+          "options": {"type": "array", "items": {"type": "string"}},
+          "default": {},
+          "label": {"type": "string"},
+          "help": {"type": "string"},
+          "since_code": {"type": "integer", "minimum": 1},
+          "scope": {"enum": ["child_game", "device"], "description": "Default child_game. device settings (volume) never sync."}
+        }
+      }
+    },
+    "skills": {"type": "array", "items": {"type": "string", "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$"}, "description": "Skill ids this version can ask, from skills.json."},
+    "labels": {"type": "object", "description": "World and area ids to display names."},
+    "levels": {"type": "array", "description": "Permanent level ids and where they sit, for reports.", "items": {"type": "object", "required": ["id", "world", "num"], "properties": {"id": {"type": "integer"}, "world": {"type": "string"}, "num": {"type": "integer"}}}},
+    "pictures": {"type": "array", "items": {"type": "string"}, "description": "Profile picture ids."}
+  }
+}

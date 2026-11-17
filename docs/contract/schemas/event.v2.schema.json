@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family.event.v2",
+  "title": "Play log line, version 2",
+  "description": "One line of user://play_log.jsonl: one answered question or one run event. A superset of version 1 (which had v, t, kind, profile, world, area, level, level_id and the answer or event fields). The server stamps its own arrival time; t is the device clock and may be wrong, boot + mono_ms keep order within a device.",
+  "type": "object",
+  "required": ["v", "game", "kind", "dev", "profile", "seq", "boot", "t", "mono_ms", "app", "code", "cv"],
+  "properties": {
+    "v": {"const": 2},
+    "game": {"$ref": "#/$defs/game"},
+    "kind": {"enum": ["answer", "event"]},
+    "dev": {"$ref": "#/$defs/dev"},
+    "profile": {"$ref": "#/$defs/profile"},
+    "seq": {"type": "integer", "minimum": 1, "description": "+1 per line, per device, never reused. An upload sent twice is harmless."},
+    "boot": {"type": "integer", "minimum": 1, "description": "App launches on this device so far."},
+    "t": {"type": "integer", "description": "Unix seconds, device clock."},
+    "mono_ms": {"type": "integer", "minimum": 0, "description": "Milliseconds since this launch."},
+    "app": {"type": "string", "description": "Version name, such as 0.24.0."},
+    "code": {"type": "integer", "minimum": 1, "description": "Version code."},
+    "cv": {"type": "integer", "minimum": 1, "description": "Content version (content/levels.json version)."},
+    "world": {"type": "string"},
+    "area": {"type": "string"},
+    "level": {"type": "integer"},
+    "level_id": {"type": "integer"},
+    "where": {"enum": ["stone", "fight", "duel", "boss"]},
+    "skill": {"$ref": "#/$defs/skill"},
+    "q": {"type": "string", "description": "The question as the child saw it: 3 + 2 = ?"},
+    "dice": {"type": "array", "items": {"type": "integer"}},
+    "choices": {"type": "array", "items": {"type": "integer"}},
+    "answer": {"type": "integer"},
+    "pick": {"type": "integer"},
+    "right": {"type": "boolean"},
+    "secs": {"type": "number", "minimum": 0},
+    "event": {"type": "string", "description": "run_start, run_resume, heart_lost, restart, level_cleared, fight_won, boss_won, app_paused, profile_picked and so on. New names may appear; readers keep lines they do not know."}
+  },
+  "oneOf": [
+    {"properties": {"kind": {"const": "answer"}}, "required": ["where", "skill", "q", "answer", "pick", "right", "secs"]},
+    {"properties": {"kind": {"const": "event"}}, "required": ["event"]}
+  ],
+  "$defs": {
+    "game": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$"},
+    "dev": {"type": "string", "pattern": "^d_[0-9a-f]{16}$"},
+    "profile": {"type": "string", "pattern": "^p_[0-9a-f]{12}$"},
+    "skill": {"type": "string", "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$"}
+  }
+}
