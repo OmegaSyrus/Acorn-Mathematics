@@ -7,9 +7,9 @@ Supabase backend, parents sign in, devices pair with a code, everything is
 filed per child per game, latest change wins for settings, no end-to-end
 encryption, no remote Level or world unlock.
 
-This folder lives in the game repository until the platform repository
-exists (name and domain are Terrence's to-do). It then moves to that repo's
-`contract/` unchanged, and the game keeps a copy that its tests read.
+This folder in OmegaSyrus/Acorn-Backend is the source of truth. Each game
+keeps a copy (Acorn Mathematics: `docs/contract/`) that its own tests read;
+a contract change lands here first, then is copied into the games.
 
 | Path | What it is |
 | --- | --- |
@@ -88,8 +88,10 @@ validator agrees with them.
 
 ## Checking
 
-- `python3 -I tools/contract/check.py` validates every sample against its
-  schema (runs in CI).
+- `python3 -I tools/contract/check.py` here (`tools/check_contract.py` in
+  Acorn-Backend) validates every sample against its schema (runs in CI).
+- The backend's API tests (`tests/api/`) upload the samples and check the
+  documents the API returns.
 - The game's Godot tests (`tests/test_contract.gd`) build a real event line,
   device file, roster, snapshot and manifest and validate them against the
   same schemas.

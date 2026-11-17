@@ -1,8 +1,8 @@
 # What is kept, and for how long
 
-Proposed (parent app plan v2). The 24-month limit is not yet approved by
-Terrence. Nothing here applies until a family outside his own pairs, and the
-privacy policy review comes before that.
+Approved by Terrence on 2026-11-17 (24 months). The privacy policy review
+still comes before any family outside his own pairs. The backend's scheduled
+job (`POST /v1/admin/retention`, daily) does the deleting.
 
 ## Collected
 
@@ -38,5 +38,8 @@ profile's save; removing a profile clears its save file.
 - Delete removes raw events, rollups, snapshots, settings and the child row
   within 30 days, backups included. Devices of a deleted family get `gone`
   and play on unpaired.
-- Export is one zip: the family, children, devices, settings, every snapshot
-  and every raw event batch as stored.
+- Export is one JSON document (`family.export`): the family, adults,
+  children, devices and their profiles, settings, consent records, every
+  snapshot and every event line as stored.
+- Deleting a child removes their lines from event batches they shared with
+  a brother or sister; the other child's lines stay.

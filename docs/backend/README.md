@@ -5,12 +5,10 @@ devices, pairing, event upload, snapshots, settings, reports, delete and
 export. It follows the parent app plan v2 and the data contract in
 `docs/contract/`.
 
-**Where it will live.** A new platform repository (named once Terrence picks
-the name and domain) with four folders: `contract/` (moved from this repo's
-`docs/contract/`), `api/` (Edge Functions and database migrations), `web/`
-(the parent app) and `godot-addon/` (the sync add-on, copied into each game).
-Backend core (thread 3 of the plan) starts there; it does not go in the game
-repository.
+**Where it lives:** OmegaSyrus/Acorn-Backend (Terrence, 2026-11-17). Its
+`contract/` is the source of truth; `docs/contract/` here is the game's
+copy, which its tests read. Backend core is Acorn-Backend PR #1; the parent
+app (`web/`) and the sync add-on (`godot-addon/`) come next.
 
 ## Stack
 
@@ -73,10 +71,7 @@ service key never leaves the functions).
    samples first: pairing screen, uploader, snapshot backup and restore,
    settings fetch and apply. Ships switched off until a family pairs.
 
-## Open (Terrence)
+## Decided (Terrence, 2026-11-17)
 
-- OK on Supabase.
-- The platform repository: create it and add it to the project.
-- First sign-ins: email link and Google (proposed).
-- Retention: 24 months after last play (proposed).
-- Name and domain.
+Supabase; email link and Google first; 24 months after last play;
+backend in OmegaSyrus/Acorn-Backend. Still his to-do: name and domain.
