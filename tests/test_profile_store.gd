@@ -45,6 +45,7 @@ func test_version_1_tablet_moves_in() -> bool:
 		check(FileAccess.file_exists(d.path_join("profile_%s.json" % id)), "the save moved")
 		check(not FileAccess.file_exists(d.path_join("profile_1.json")), "the old name is gone")
 		check(FileAccess.file_exists(d.path_join("profile_1.v1.json")), "the old file is kept aside")
+		check(not Profiles.is_fresh(r), "a moved-in tablet skips the create flow")
 		var s := SaveStore.read()
 		eq(s["gems"], 40, "gems kept")
 		eq(s["marks"], {"lava_caves": [1, 12]}, "marks kept")
@@ -71,4 +72,27 @@ func test_new_tablet_and_switching() -> bool:
 		check(ProfileStore.remove(b["id"]), "remove the second")
 		check(not FileAccess.file_exists(SaveStore.path_for(b["id"])), "its save went too")
 		check(not ProfileStore.remove(first), "the last child stays"))
+	return true
+
+
+func test_fresh_install_and_stats() -> bool:
+	_with_dir(func(d: String):
+		var r := ProfileStore.load_roster()
+		check(Profiles.is_fresh(r), "a new tablet opens the create flow")
+		ProfileStore.roster = {}
+		check(Profiles.is_fresh(ProfileStore.load_roster()), "still fresh until it is done")
+		ProfileStore.finish_setup("Wren", "bolt_red")
+		ProfileStore.roster = {}
+		r = ProfileStore.load_roster()
+		check(not Profiles.is_fresh(r), "done is saved")
+		eq(Profiles.active(r)["nickname"], "Wren", "the name is saved")
+		var first: String = Profiles.active(r)["id"]
+		var b := Profiles.add_child(r, 1, "Bear", "lion")
+		ProfileStore.write()
+		var s := SaveStore.read()
+		SaveData.add_gems(s, 9)
+		SaveStore.write(s)
+		eq(ProfileStore.stats(first)["currencies"][0]["amount"], 9, "the active child's gems")
+		eq(ProfileStore.stats(b["id"])["currencies"][0]["amount"], 0, "another child's save, read without switching")
+		eq(SaveStore.profile, first, "still the same player"))
 	return true

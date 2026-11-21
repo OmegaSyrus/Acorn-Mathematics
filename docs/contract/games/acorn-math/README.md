@@ -3,9 +3,14 @@
 - Game id: `acorn-math` (permanent).
 - Save: `acorn.save` version 2, `save.v2.schema.json`. One file per profile,
   `user://profile_<profile id>.json`.
-- Profile pictures: the hero art ids in `art/heroes/` (`fox`, `bunny`,
-  `hedgehog`, `turtle`, `lion`, `eagle`, `phoenix`, `gryphon`, `elf_mage`,
-  `templar`, `slime_knight`).
+- Profile pictures: the 14 hero item ids in `content/store.json`
+  (`robodragon`, `bolt_red`, `bolt_green`, `fox`, `bunny`, `hedgehog`,
+  `turtle`, `lion`, `eagle`, `phoenix`, `gryphon`, `elf_mage`, `templar`,
+  `slime_knight`), the manifest's `pictures` list. The first 11 builds used
+  only the last 11, which stay valid. A picture is only a picture: it does
+  not unlock or equip that hero in play. The three Bolts share
+  `art/lava/robodragon.png`, painted in code; the rest are
+  `art/heroes/<id>.png`.
 - Manifest: built from content by `logic/core/manifest.gd`
   (`samples/manifest.json` is its output for 0.24.0, code 43).
 
