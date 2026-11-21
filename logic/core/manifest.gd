@@ -10,6 +10,7 @@ extends RefCounted
 
 const BuildInfo := preload("res://logic/core/build_info.gd")
 const Content := preload("res://logic/core/content.gd")
+const Store := preload("res://logic/core/store.gd")
 const Profiles := preload("res://logic/core/profiles.gd")
 const Skills := preload("res://logic/core/skills.gd")
 
@@ -28,6 +29,14 @@ static func build() -> Dictionary:
 	ids.sort()
 	for id in ids:
 		levels.append({"id": int(id), "world": str(by_id[id]["world"]), "num": int(by_id[id]["num"])})
+	# the profile pictures' display names: each hero's shop name (Bolt, Blaze, ...)
+	var picture_labels := {}
+	var cat := Store.catalog()
+	for id in Profiles.PICTURES:
+		var it := Store.item(cat, id)
+		if not it.is_empty():
+			picture_labels[id] = str(it.get("name", id))
 	return {"schema": "family.manifest", "v": 1, "game": BuildInfo.GAME, "title": BuildInfo.TITLE,
 			"app": BuildInfo.APP, "code": BuildInfo.CODE, "cv": BuildInfo.cv(), "settings": SETTINGS.duplicate(true),
-			"skills": Skills.ids(), "labels": labels, "levels": levels, "pictures": Profiles.PICTURES.duplicate()}
+			"skills": Skills.ids(), "labels": labels, "levels": levels, "pictures": Profiles.PICTURES.duplicate(),
+			"picture_labels": picture_labels}
