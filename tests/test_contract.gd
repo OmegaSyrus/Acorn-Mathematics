@@ -97,7 +97,7 @@ func test_game_documents_validate() -> bool:
 func test_manifest_sample_is_this_build() -> bool:
 	var sample: Dictionary = JsonUtil.load_file(C + "samples/manifest.json")
 	var m := Manifest.build()
-	for k in ["game", "title", "app", "code", "settings", "skills", "pictures"]:
+	for k in ["game", "title", "app", "code", "settings", "skills", "pictures", "picture_labels"]:
 		eq(sample[k], m[k], "samples/manifest.json %s (run tools/contract/make_manifest.gd)" % k)
 	check(not m.has("levels_unlock") and not JSON.stringify(m["settings"]).contains("world"),
 			"no Level or world unlock for parents")

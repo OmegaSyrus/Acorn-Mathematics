@@ -3,11 +3,22 @@
 - Game id: `acorn-math` (permanent).
 - Save: `acorn.save` version 2, `save.v2.schema.json`. One file per profile,
   `user://profile_<profile id>.json`.
-- Profile pictures: the hero art ids in `art/heroes/` (`fox`, `bunny`,
-  `hedgehog`, `turtle`, `lion`, `eagle`, `phoenix`, `gryphon`, `elf_mage`,
-  `templar`, `slime_knight`).
+- Profile pictures (2026-11-21, profile plan C1): the 14 hero looks from the
+  store (`content/store.json`, items of kind `hero`), the manifest's
+  `pictures` list, in the game's order (`Profiles.PICTURES`):
+  `robodragon` (Bolt), `bolt_red` (Red Bolt), `bolt_green` (Green Bolt),
+  `fox` (Rusty), `bunny` (Nutkin), `hedgehog` (Spike), `turtle` (Shelly),
+  `lion` (Leo), `eagle` (Talon), `phoenix` (Blaze), `gryphon` (Griff),
+  `elf_mage` (Rowan), `templar` (Sir Tam), `slime_knight` (Sir Blob).
+  A picture is only a picture: it does not unlock or equip that hero. Red and
+  Green Bolt are Bolt's sprite repainted in code (`game/ui/look.gd`); the
+  parent app keeps ready-made copies in `web/pictures/acorn-math/`. Older
+  rosters may still hold any of the 11 earlier ids, which are all in this list.
+  The server accepts any id of `[a-z0-9_]{1,32}`, so a new look needs no
+  backend change, only its PNG in `web/pictures/acorn-math/`.
 - Manifest: built from content by `logic/core/manifest.gd`
-  (`samples/manifest.json` is its output for 0.24.0, code 43).
+  (`samples/manifest.json` is its output for 0.28.0, code 47, with
+  `picture_labels` added by hand until `manifest.gd` emits them).
 
 ## Upgrading a version 1 save
 

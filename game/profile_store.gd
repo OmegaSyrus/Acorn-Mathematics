@@ -24,7 +24,8 @@ static func load_roster() -> Dictionary:
 	var text := FileAccess.get_file_as_string(path()) if FileAccess.file_exists(path()) else ""
 	var r := Profiles.from_text(text)
 	if r.is_empty():
-		r = Profiles.new_roster(_now())
+		# a new install (no version 1 save to move in) opens the create flow
+		r = Profiles.new_roster(_now(), not FileAccess.file_exists(SaveStore.path_for(SaveStore.LEGACY_PROFILE)))
 		_move_legacy_save(str(Profiles.active(r)["id"]))
 		roster = r
 		write()
@@ -57,6 +58,18 @@ static func remove(profile_id: String) -> bool:
 	SaveStore.profile = str(Profiles.active(roster)["id"])
 	write()
 	return true
+
+
+## The profile page's numbers for any profile on this device
+## (Profiles.stats), read from its save file without switching to it.
+static func stats(profile_id: String) -> Dictionary:
+	return Profiles.stats(SaveStore.read_profile(profile_id))
+
+
+## The first-launch create flow is done (see Profiles.finish_setup).
+static func finish_setup(nickname := "", picture := "") -> void:
+	Profiles.finish_setup(roster, nickname, picture)
+	write()
 
 
 static func _move_legacy_save(new_id: String) -> void:

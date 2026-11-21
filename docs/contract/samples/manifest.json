@@ -183,6 +183,9 @@
   }
  ],
  "pictures": [
+  "robodragon",
+  "bolt_red",
+  "bolt_green",
   "fox",
   "bunny",
   "hedgehog",
@@ -194,5 +197,21 @@
   "elf_mage",
   "templar",
   "slime_knight"
- ]
+ ],
+ "picture_labels": {
+  "robodragon": "Bolt",
+  "bolt_red": "Red Bolt",
+  "bolt_green": "Green Bolt",
+  "fox": "Rusty",
+  "bunny": "Nutkin",
+  "hedgehog": "Spike",
+  "turtle": "Shelly",
+  "lion": "Leo",
+  "eagle": "Talon",
+  "phoenix": "Blaze",
+  "gryphon": "Griff",
+  "elf_mage": "Rowan",
+  "templar": "Sir Tam",
+  "slime_knight": "Sir Blob"
+ }
 }

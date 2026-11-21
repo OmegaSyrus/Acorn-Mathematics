@@ -17,13 +17,14 @@
         "properties": {
           "id": {"type": "string", "pattern": "^p_[0-9a-f]{12}$"},
           "nickname": {"type": "string", "description": "Up to 12 characters. No real names asked for."},
-          "picture": {"type": "string", "description": "A picture id from the game's set (Acorn: art/heroes/<id>.png)."},
+          "picture": {"type": "string", "description": "A picture id from the game's manifest pictures list (Acorn: the 14 hero item ids in content/store.json)."},
           "guest": {"type": "boolean", "description": "Plays and saves locally, never syncs."},
           "created": {"type": "integer"},
           "child": {"type": ["string", "null"], "pattern": "^c_[0-9a-f]{12}$", "description": "The family's child id once paired; null before."}
         }
       }
     },
+    "fresh": {"type": "boolean", "description": "Optional. True on a new install until the first profile has been through the create flow. Left out (not false) once done, and on rosters from before it."},
     "pin": {
       "type": ["object", "null"],
       "description": "The parent PIN (4 digits) as a salted hash, or null when none is set.",
