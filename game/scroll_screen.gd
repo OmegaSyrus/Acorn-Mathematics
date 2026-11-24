@@ -27,12 +27,28 @@ const WorldTheme := preload("res://game/ui/world_theme.gd")
 const Ambient := preload("res://game/ui/ambient.gd")
 const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
+const HalfArt := preload("res://game/ui/half_art.gd")
 
 const ART := "res://art/lava/"
 ## Backdrops fill the 540-unit height, so their scale comes from the file:
 ## 180 tall = 3x (old art), 270 tall = 2x (art grid plan 2026-11-24).
 static func bg_scale(t: Texture2D) -> float:
 	return 540.0 / float(t.get_height())
+
+
+## At half size each sprite draws its half-size twin (HalfArt) so it stays on
+## the 1-unit pixel grid on screen; elsewhere the sprite itself.
+func _small() -> bool:
+	return is_equal_approx(zoom, 0.5)
+
+
+func _art(t: Texture2D) -> Texture2D:
+	return HalfArt.of(t) if _small() else t
+
+
+## The size a sprite takes in world units: its own size, or twice its twin's.
+func _art_size(t: Texture2D) -> Vector2:
+	return HalfArt.of(t).get_size() * 2.0 if _small() else t.get_size()
 ## The crossing's world is 1920 art pixels wide at 3x in every world.
 const WORLD_W := 5760.0
 const SPACE0_X := 190.0
@@ -217,6 +233,7 @@ func _ready() -> void:
 	if theme["backdrop"] != "strip":
 		backdrop_tex = load(theme["backdrop"])
 	tex["hero"] = Look.hero_texture()  # the robot dragon or the store hero in use
+	tex["hero-half"] = Look.hero_texture_half()
 	zoom = float(run.grade.get("zoom", 0.5 if run.is_level() else 1.0))
 	rails = bool(run.grade.get("rails", false))
 	if zoom < 1.0:
@@ -950,7 +967,8 @@ func _draw_world() -> void:
 		var k := 0
 		var x := SPACE0_X - step / 2.0
 		while x < _world_w():
-			world.draw_texture(ceiling_tex[k % ceiling_tex.size()], Vector2(x, 0))
+			var ct: Texture2D = ceiling_tex[k % ceiling_tex.size()]
+			world.draw_texture_rect(_art(ct), Rect2(Vector2(x, 0), _art_size(ct)), false)
 			x += step
 			k += 1
 		Ambient.ceiling_drips(world, _t, view_l, view_r, theme["ceiling"], SPACE0_X - step / 2.0, step, zoom)
@@ -979,7 +997,7 @@ func _draw_world() -> void:
 				p.y += rock_sink * depth
 				_draw_clipped(rock, p, WATER_Y + 12.0, 1.0 - rock_sink * 0.5)
 		else:
-			world.draw_texture(rock, p)
+			world.draw_texture_rect(_art(rock), Rect2(p, _art_size(rock)), false)
 	# markers on event rocks not reached yet
 	for i in range(1, run.length()):
 		var kind := _event_at(i)
@@ -1001,20 +1019,20 @@ func _draw_world() -> void:
 	if revealed >= 0 and _event_at(revealed) == "monster":
 		var s := run.space_at(revealed)
 		var t: Texture2D = _monster_tex(str(s["monster"]))
-		var size: Vector2 = t.get_size() * Look.CHAR_PX * _pop()
+		var size: Vector2 = _art_size(t) * Look.CHAR_PX * _pop()
 		var breathe := sin(_t * 2.0) * 2.0
 		var c := Vector2(_space_x(revealed) + 84, FEET_Y + 6)
 		# the art faces right; a negative width mirrors it to face the dragon
-		world.draw_texture_rect(t, Rect2(c + Vector2(size.x / 2, -size.y - breathe), Vector2(-size.x, size.y + breathe)), false)
+		world.draw_texture_rect(_art(t), Rect2(c + Vector2(size.x / 2, -size.y - breathe), Vector2(-size.x, size.y + breathe)), false)
 		# its name underneath, in a fiery box
 		# (the mirrored rect lands one width right of c, so its middle is c.x + size.x)
 		_draw_name(Monsters.name_of(str(s["monster"])), Vector2(c.x + size.x, NAME_Y), reveal)
 	# the chest on the rock just reached, in front of the dragon so it stays in view
 	if revealed >= 0 and run.space_at(revealed).get("type") == "chest":
 		var t: Texture2D = tex["chest-open" if lid_open else "chest-closed"]
-		var size := t.get_size() * CHEST_SCALE * _pop()
+		var size := _art_size(t) * CHEST_SCALE * _pop()
 		var c := Vector2(_space_x(revealed) + 46, FEET_Y + 6)
-		world.draw_texture_rect(t, Rect2(c - Vector2(size.x / 2, size.y), size), false)
+		world.draw_texture_rect(_art(t), Rect2(c - Vector2(size.x / 2, size.y), size), false)
 	# (the gems flying out of an opened chest are drawn on the HUD, _draw_chest_gems)
 
 
@@ -1151,7 +1169,11 @@ func _draw_hero() -> void:
 		var pose: Array = HERO_POSE.get(hero_frame, HERO_POSE["idle-0"])
 		world.draw_set_transform(feet, pose[2], Vector2(pose[0], pose[1]))
 		var shake := Vector2(sin(_t * 40.0) * 2.0 * worried, 0)
-		world.draw_texture(t, Vector2(-t.get_width() / 2.0, -t.get_height()) + shake, Color.WHITE.lerp(PALE, worried))
+		if _small() and tex["hero-half"] != t:
+			var hs: Vector2 = tex["hero-half"].get_size() * 2.0
+			world.draw_texture_rect(tex["hero-half"], Rect2(Vector2(-hs.x / 2.0, -hs.y) + shake, hs), false, Color.WHITE.lerp(PALE, worried))
+		else:
+			world.draw_texture(t, Vector2(-t.get_width() / 2.0, -t.get_height()) + shake, Color.WHITE.lerp(PALE, worried))
 		world.draw_set_transform(Vector2.ZERO)
 		if worried > 0.0:
 			_draw_worried(pos + shake, INF)
@@ -1183,10 +1205,15 @@ func _draw_worried(top_left: Vector2, line_y: float) -> void:
 
 ## Draws only the part of a sprite above the lava line, so it sinks into it.
 func _draw_clipped(t: Texture2D, pos: Vector2, line_y: float, alpha: float, tint := Color.WHITE) -> void:
-	var h := clampf(line_y - pos.y, 0.0, t.get_height())
+	var src := t
+	if _small():
+		src = tex["hero-half"] if t == tex["hero"] else HalfArt.of(t)
+	var size := src.get_size() * 2.0 if src != t else t.get_size()
+	var h := clampf(line_y - pos.y, 0.0, size.y)
 	if h <= 0.0:
 		return
-	world.draw_texture_rect_region(t, Rect2(pos, Vector2(t.get_width(), h)), Rect2(0, 0, t.get_width(), h),
+	var k := src.get_size().y / size.y
+	world.draw_texture_rect_region(src, Rect2(pos, Vector2(size.x, h)), Rect2(0, 0, src.get_width(), h * k),
 			Color(tint, alpha))
 
 

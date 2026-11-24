@@ -33,7 +33,7 @@ Stills were rendered at the Galaxy Tab A7 Lite's real screen size (1340x800).
 | Path stones, chests, props | 1 unit | as today (stones 136x76) | richer remakes (P2) |
 | Backgrounds: fight rooms, treasure rooms, crossing backdrops, menu | **2 units** (was 3) | **480x270** (was 320x180) | **done in this PR** |
 | Icons, hearts, ball, pegs, bumpers, shields | 1 unit, drawn 1:1 | one file per drawn size | P3 |
-| Half-size crossing sprites | 1 unit at half size | ~half of each crossing sprite | P4, needs Terrence |
+| Half-size crossing sprites | 1 unit at half size | half of each crossing sprite, in art/<world>/half/ | done |
 
 Why 2 units for backgrounds and not 1: PixelLab's best model (Pro) tops out at
 688x384 for a 16:9 picture, so a native 960x540 scene is not possible in one
@@ -55,7 +55,7 @@ drawing (the half-size crossing) falls back to the smooth look it had.
 | P1 | All 16 backgrounds remade at 480x270 (Pro, current art as the layout reference); crossing backdrops made seamless | 16 | about 450 plan generations | done, in review |
 | P2 | Path stones (22): richer detail, same canvases | 22 | Pro 10 a call, 4 candidates (about 220) | next |
 | P3 | Icons and board pieces redrawn at their drawn size, drawn 1:1 | 17 | about 150 | next |
-| P4 | Half-size crossing: small 1-unit sprites for crossing characters and stones | ~45 | about 450 | waits on Terrence |
+| P4 | Half-size crossing: small 1-unit twins in art/<world>/half/ for 12 heroes, 17 crossing monsters, 24 stones/ceilings/chests (game/ui/half_art.gd) | 53 | about 290 | done (Terrence picked it 2026-11-24) |
 | P5 | Selective character upgrades (lowest detail first: wispling, star squirrel, mimic, Blorp) | ~6 | about 60 | later |
 | - | Ellwynn | 5 | - | locked, not touched |
 | - | Unused files (old slime frames, Blorp alt) | 7 | - | can be deleted |
