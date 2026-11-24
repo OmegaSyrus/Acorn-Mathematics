@@ -8,14 +8,16 @@
 ## it costs a few dozen small shapes a frame. It is always drawn straight
 ## after the backdrop, so the stones, numbers, characters, dice and buttons
 ## all draw over it and nothing is ever hidden. Squares sit on the backdrop's
-## 3-unit pixel grid so the effects look like part of the pixel art.
+## 2-unit pixel grid so the effects look like part of the pixel art
+## (backdrops are 480x270 at 2x since the art grid plan, 2026-11-24).
 ##
 ## Where the glints, lanterns, lava and stalactite tips are on the art comes
 ## from content/ambient_spots.json (tools/ambient/find_spots.py).
 extends RefCounted
 
 const SPOTS_PATH := "res://content/ambient_spots.json"
-const PX := 3.0  # one backdrop pixel (backdrops are drawn at 3x)
+const PX := 2.0  # one backdrop pixel (backdrops are 480x270 drawn at 2x)
+const HALF := PX / 2.0  # the centre of a backdrop pixel
 
 ## Turn the details off (stills, tests). On by default.
 static var enabled := true
@@ -78,7 +80,7 @@ static func ceiling_drips(ci: CanvasItem, t: float, x0: float, x1: float, pieces
 
 # --- rooms (fights, duels, the boss's treasure room) ------------------------
 
-## Over a 320x180 room backdrop drawn at 3x over the 960x540 frame, before
+## Over a 480x270 room backdrop drawn at 2x over the 960x540 frame, before
 ## anything else is drawn on it.
 ## `hole` is left alone (the boss board, which the room shows faintly through).
 static func room(ci: CanvasItem, bg_path: String, t: float, hole := Rect2()) -> void:
@@ -92,7 +94,7 @@ static func room(ci: CanvasItem, bg_path: String, t: float, hole := Rect2()) -> 
 			for i in _spot(bg_path, "lava").size():
 				var p: Array = _spot(bg_path, "lava")[i]
 				var period := 2.2 + _h(i, 3) * 2.6
-				_bubble(ci, Vector2(p[0] * PX + 1.5, p[1] * PX + 3.0), fposmod(t + _h(i, 4) * period, period),
+				_bubble(ci, Vector2(p[0] * PX + HALF, p[1] * PX + 3.0), fposmod(t + _h(i, 4) * period, period),
 						4.0 + _h(i, 5) * 5.0)
 			_lavafall(ci, t, _spot(bg_path, "fall"))
 			_embers(ci, t, 120.0, 860.0, 64.0, 470.0, 380.0)
@@ -212,7 +214,7 @@ static func _backdrop_glints(ci: CanvasItem, t: float, x0: float, x1: float, bg:
 	var spots: Array = _spot(bg, "glints")
 	if spots.is_empty():
 		return
-	var w := 320.0 * PX
+	var w := 480.0 * PX
 	for r in range(int(floorf((x0 - bg_x0) / w)), int(ceilf((x1 - bg_x0) / w)) + 1):
 		# none down by the stones, where a twinkle could sit beside a number
 		_glints(ci, t, spots, Vector2(bg_x0 + r * w, 0), r * 97, Color(0.92, 0.85, 1.0), 370.0, true)
@@ -230,14 +232,14 @@ static func _glints(ci: CanvasItem, t: float, spots: Array, at: Vector2, salt: i
 		if breathe:
 			# the crystal itself glows softly, in and out
 			var g := 0.5 + 0.5 * sin(t * (0.8 + _h(id, 53) * 0.6) + _h(id, 54) * 6.0)
-			_soft(ci, at + Vector2(float(spots[i][0]) * PX + 1.5, float(spots[i][1]) * PX + 1.5),
+			_soft(ci, at + Vector2(float(spots[i][0]) * PX + HALF, float(spots[i][1]) * PX + HALF),
 					Vector2(30, 30) * _k, Color(0.75, 0.5, 1.0, 0.1 + 0.18 * g))
 		var period := 2.4 + _h(id, 51) * 3.8
 		var local := fposmod(t + _h(id, 52) * period, period)
 		if local > 0.7:
 			continue
 		var s := sin(PI * local / 0.7)
-		var c := at + Vector2(float(spots[i][0]) * PX + 1.5, float(spots[i][1]) * PX + 1.5)
+		var c := at + Vector2(float(spots[i][0]) * PX + HALF, float(spots[i][1]) * PX + HALF)
 		_star(ci, c, (4.0 + 10.0 * s) * _k, s, col)
 
 
@@ -270,7 +272,7 @@ static func _motes(ci: CanvasItem, t: float, x0: float, x1: float, spacing: floa
 ## Lantern flames flicker: a warm glow that never quite holds still.
 static func _lamps(ci: CanvasItem, t: float, lamps: Array) -> void:
 	for i in lamps.size():
-		var c := Vector2(float(lamps[i][0]) * PX + 1.5, float(lamps[i][1]) * PX + 1.5)
+		var c := Vector2(float(lamps[i][0]) * PX + HALF, float(lamps[i][1]) * PX + HALF)
 		var f := 0.5 + 0.25 * sin(t * 9.0 + i * 2.0) + 0.25 * sin(t * 23.0 + i * 5.0)
 		_soft(ci, c, Vector2(150, 150) * _k * (0.95 + 0.1 * f), Color(1.0, 0.75, 0.35, 0.16 + 0.1 * f))
 		_soft(ci, c, Vector2(40, 46) * _k, Color(1.0, 0.95, 0.7, 0.35 + 0.25 * f))
@@ -304,7 +306,7 @@ static func _wisps(ci: CanvasItem, t: float, x0: float, x1: float, spacing: floa
 				top + _h(j, 84) * depth + sin(t * 1.3 + j * 2.0) * 8.0)
 		_soft(ci, c, Vector2(72, 72) * _k, Color(0.5, 1.0, 0.85, 0.4 * a))
 		_soft(ci, c, Vector2(24, 24) * _k, Color(0.85, 1.0, 0.95, 0.9 * a))
-		ci.draw_rect(Rect2(_snap(c) - Vector2(1.5, 1.5), Vector2(_u, _u)), Color(1, 1, 1, a))
+		ci.draw_rect(Rect2(_snap(c) - Vector2(HALF, HALF), Vector2(_u, _u)), Color(1, 1, 1, a))
 
 
 ## Fireflies wandering over the water, blinking on and off.

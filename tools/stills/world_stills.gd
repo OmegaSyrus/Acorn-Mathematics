@@ -13,6 +13,7 @@ const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
 const InputSetup := preload("res://game/input_setup.gd")
 
 const WORLDS := {
+	"lava": ["lava_scroll", "lava_caves", ["surtling", "blorp", "lava_miniboss"]],
 	"crystal": ["crystal_scroll", "crystal_mines", ["knocker", "svartalf", "gem_dwarf", "crystal_miniboss"]],
 	"bog": ["bog_scroll", "bog", ["wispling", "nixie", "tiddy_mun", "draugr", "bog_miniboss"]],
 	"mushroom": ["mushroom_scroll", "mushroom_forest", ["pixie", "hobgoblin", "boggart", "mushroom_miniboss"]],

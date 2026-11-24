@@ -1,0 +1,137 @@
+file,canvas,visible body,colors,kind,drawn at,on the grid,plan
+art/bog/bog-bg.png,320x180,320x180,10,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/bog/brooch.png,28x28,24x24,8,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/bog/draugr.png,141x197,139x195,24,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/fight-bg.png,320x180,320x180,21,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/bog/jenny-arm.png,302x217,300x215,23,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/jenny-greenteeth.png,372x362,370x360,23,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/log-0.png,136x76,110x46,12,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/bog/log-1.png,136x76,104x48,14,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/bog/nixie.png,96x156,94x154,19,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/peat-0.png,136x76,108x43,16,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/bog/peat-1.png,136x76,56x39,14,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/bog/tiddy-mun.png,98x126,96x124,19,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/treasure-room.png,320x180,320x180,22,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/bog/tussock-0.png,136x76,74x47,12,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/bog/tussock-1.png,136x76,67x48,7,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/bog/wisp-king.png,143x175,141x173,21,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/wisp-pair.png,242x184,240x182,23,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/wisp-queen.png,119x184,117x182,17,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/bog/wispling.png,62x93,60x91,5,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/boss/board.png,500x500,500x500,15,boss board,1 unit,yes,"P4: more detail, Pro 500x500"
+art/boss/bone-arm.png,320x240,314x164,20,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/boss/bumper.png,48x48,32x33,25,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/boss/peg-blue.png,44x44,32x32,47,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/boss/peg-green.png,44x44,32x32,27,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/boss/peg-orange.png,44x44,32x32,49,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/boss/peg-purple.png,44x44,32x32,27,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/boss/skeleton-dragon.png,400x400,395x383,40,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/boss/treasure-cave.png,320x180,320x180,88,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/crystal/cave-bg.png,320x180,320x180,24,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/crystal/ceiling-0.png,240x148,240x144,7,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/ceiling-1.png,240x148,240x139,6,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/ceiling-2.png,240x148,240x133,6,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/ceiling-3.png,240x148,240x142,6,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/crystal.png,28x28,26x26,7,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/crystal/fight-bg.png,320x180,320x180,22,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/crystal/gem-dwarf.png,149x153,147x151,24,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/crystal/king-hammer.png,234x125,232x123,14,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/crystal/knocker-king.png,320x349,318x347,23,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/crystal/knocker.png,103x118,101x116,18,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/crystal/lantern-lord.png,183x223,181x221,24,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/crystal/stalagmite-0.png,53x124,53x124,7,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/stalagmite-1.png,78x124,78x124,11,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/stalagmite-wide.png,81x110,81x110,5,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/crystal/svartalf.png,171x182,169x180,21,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/crystal/treasure-room.png,320x180,320x180,22,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/ellwynn/bust-96.png,96x96,96x96,38,Ellwynn,1 unit,yes,LOCKED: do not redo without asking
+art/ellwynn/fullbody-blink.png,160x256,135x250,58,Ellwynn,1 unit,yes,LOCKED: do not redo without asking
+art/ellwynn/fullbody-closed.png,160x256,135x250,58,Ellwynn,1 unit,yes,LOCKED: do not redo without asking
+art/ellwynn/fullbody-mouth-half.png,160x256,135x250,58,Ellwynn,1 unit,yes,LOCKED: do not redo without asking
+art/ellwynn/fullbody-mouth-open.png,160x256,135x250,58,Ellwynn,1 unit,yes,LOCKED: do not redo without asking
+art/heroes/bunny.png,85x124,83x122,51,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/eagle.png,78x117,76x115,38,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/elf_mage.png,70x109,68x107,42,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/fox.png,82x109,80x107,33,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/gryphon.png,93x105,91x103,18,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/hedgehog.png,82x108,80x106,18,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/lion.png,94x114,92x112,43,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/phoenix.png,94x116,92x114,14,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/slime_knight.png,92x116,90x114,36,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/templar.png,83x117,81x115,54,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/heroes/turtle.png,74x115,72x113,68,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/icon/icon-background.png,432x432,432x432,1,app icon,launcher,n/a,P5: optional hi-res icon later
+art/icon/icon-foreground.png,432x432,173x216,39,app icon,launcher,n/a,P5: optional hi-res icon later
+art/icon/icon.png,256x256,256x256,40,app icon,launcher,n/a,P5: optional hi-res icon later
+art/lava/blorp-idle-alt.png,192x192,162x158,17,unused,-,-,remove (not loaded by the game)
+art/lava/blorp-idle.png,192x192,161x161,21,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/chest-closed.png,96x96,91x77,20,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/chest-open.png,96x96,84x77,17,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/craggy.png,176x175,174x173,36,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/die-red-1.png,96x96,94x94,9,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-red-2.png,96x96,94x94,9,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-red-3.png,96x96,94x94,9,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-red-4.png,96x96,94x94,9,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-red-5.png,96x96,94x94,9,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-red-6.png,96x96,94x94,9,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-wood-1.png,96x96,94x94,6,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-wood-2.png,96x96,94x94,6,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-wood-3.png,96x96,94x94,6,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-wood-4.png,96x96,94x94,6,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-wood-5.png,96x96,94x94,6,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/die-wood-6.png,96x96,94x94,6,die face,scaled 0.6 to 1.0 by the dice row,NO when scaled,P4: keep (classic skin); dice are mostly code-drawn
+art/lava/fight-bg.png,320x180,320x180,30,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/lava/gem.png,40x40,28x32,8,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/lava/marker-enemy.png,40x40,34x34,7,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/lava/marker-treasure.png,40x40,32x32,9,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/lava/mimic.png,118x113,116x111,13,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/robodragon.png,93x115,91x113,39,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/rock-1.png,136x76,74x44,10,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/lava/rock-2.png,136x76,85x48,6,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/lava/rock-3.png,136x76,85x50,6,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/lava/slime-blink.png,128x128,97x92,11,unused,-,-,remove (not loaded by the game)
+art/lava/slime-hop-air.png,128x128,92x97,12,unused,-,-,remove (not loaded by the game)
+art/lava/slime-hop-squash.png,128x128,114x74,11,unused,-,-,remove (not loaded by the game)
+art/lava/slime-hop-stretch.png,128x128,85x101,12,unused,-,-,remove (not loaded by the game)
+art/lava/slime-idle-0.png,128x128,97x92,12,unused,-,-,remove (not loaded by the game)
+art/lava/slime-idle-1.png,128x128,100x89,12,unused,-,-,remove (not loaded by the game)
+art/lava/strip.png,1920x180,1920x180,19,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/lava/surtling-chief.png,168x172,166x170,72,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/surtling.png,85x120,83x118,48,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/lava/tile-wall-basalt.png,96x96,96x96,4,tile,"tiled, tinted",yes,P4: ok
+art/menu/bird.png,192x30,191x30,66,menu animal,1 unit,yes,keep
+art/menu/deer.png,448x57,448x57,72,menu animal,1 unit,yes,keep
+art/menu/fox.png,504x45,504x45,66,menu animal,1 unit,yes,keep
+art/menu/hedgehog.png,108x25,108x25,41,menu animal,1 unit,yes,keep
+art/menu/oak-hill.png,320x180,320x180,52,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/menu/rabbit.png,224x28,224x28,49,menu animal,1 unit,yes,keep
+art/mushroom/boggart.png,172x169,170x167,24,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/mushroom/branch-arm.png,295x109,293x107,19,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/mushroom/cap-brown.png,80x128,80x128,11,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/mushroom/cap-red.png,72x128,72x128,10,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/mushroom/cap-rose.png,80x128,80x128,9,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/mushroom/fight-bg.png,320x180,320x180,24,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/mushroom/forest-bg.png,320x180,320x180,23,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/mushroom/green-man.png,304x367,302x365,24,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/mushroom/hedley-kow.png,198x199,196x197,18,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/mushroom/hobgoblin.png,135x129,133x127,22,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/mushroom/leaf.png,28x34,26x32,9,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/mushroom/pixie.png,103x103,101x101,20,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/mushroom/treasure-room.png,320x180,320x180,24,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/space/feather.png,28x28,20x23,6,icon,scaled to 40 or 48 (x1.0 to x1.7),NO: drawn scaled,"P3: redraw at each drawn size, draw 1:1"
+art/space/fenrir-paw.png,229x305,229x305,18,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/space/fenrir-pup.png,163x161,163x161,24,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/space/fenrir.png,377x380,377x380,23,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/space/fight-bg.png,320x180,320x180,21,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/space/moon-hobgoblin.png,106x112,106x112,19,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/space/ratatoskr.png,180x201,180x201,19,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/space/space-bg.png,320x180,320x180,17,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/space/star-squirrel.png,109x97,109x97,10,character,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,keep; selective upgrade only
+art/space/stone-0.png,125x42,125x42,10,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/space/stone-1.png,102x57,102x57,13,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/space/stone-2.png,76x39,76x39,5,path stone,"1 unit (0.5 or 0.8 on level crossings, smoothed)",yes at 1x,"P2: richer remake at the same canvas, Pro"
+art/space/treasure-room.png,320x180,320x180,23,background,3 units (320x180 at 3x),NO: 3x pixels next to 1x sprites,"P1: remake at 480x270 (2x), PixelLab Pro"
+art/ui/ball.png,32x32,22x23,9,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/ui/heart-empty.png,32x32,24x23,13,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/ui/heart.png,32x32,24x23,15,UI / board piece,scaled by radius or pulse,NO: drawn scaled,"P3: redraw at drawn size, draw 1:1"
+art/ui/shield.png,104x119,104x119,23,UI shield,scaled for choices,NO when scaled,P3: redraw at drawn size

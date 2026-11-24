@@ -15,15 +15,15 @@ func _in_art(path: String, kind: String, size: Vector2) -> void:
 
 
 func test_every_world_piece_has_its_spots() -> bool:
-	_in_art(WorldTheme.get_theme("crystal_mines")["backdrop"], "glints", Vector2(320, 180))
+	_in_art(WorldTheme.get_theme("crystal_mines")["backdrop"], "glints", Vector2(480, 270))
 	for c in WorldTheme.get_theme("crystal_mines")["ceiling"]:
 		_in_art(c, "tips", Vector2(240, 148))
-	_in_art(WorldTheme.get_theme("crystal_mines")["fight_bg"], "glints", Vector2(320, 180))
-	_in_art(WorldTheme.get_theme("crystal_mines")["fight_bg"], "lamps", Vector2(320, 180))
-	_in_art(WorldTheme.get_theme("lava_caves")["fight_bg"], "lava", Vector2(320, 180))
+	_in_art(WorldTheme.get_theme("crystal_mines")["fight_bg"], "glints", Vector2(480, 270))
+	_in_art(WorldTheme.get_theme("crystal_mines")["fight_bg"], "lamps", Vector2(480, 270))
+	_in_art(WorldTheme.get_theme("lava_caves")["fight_bg"], "lava", Vector2(480, 270))
 	check(Ambient._spot(WorldTheme.get_theme("lava_caves")["fight_bg"], "fall").size() == 4, "lavafall span")
 	for w in ["lava_caves", "crystal_mines", "bog"]:
-		_in_art(WorldTheme.get_theme(w)["treasure"], "glints", Vector2(320, 180))
+		_in_art(WorldTheme.get_theme(w)["treasure"], "glints", Vector2(480, 270))
 	return true
 
 

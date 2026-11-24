@@ -29,7 +29,10 @@ const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 
 const ART := "res://art/lava/"
-const STRIP_SCALE := 3.0
+## Backdrops fill the 540-unit height, so their scale comes from the file:
+## 180 tall = 3x (old art), 270 tall = 2x (art grid plan 2026-11-24).
+static func bg_scale(t: Texture2D) -> float:
+	return 540.0 / float(t.get_height())
 ## The crossing's world is 1920 art pixels wide at 3x in every world.
 const WORLD_W := 5760.0
 const SPACE0_X := 190.0
@@ -911,21 +914,23 @@ func _draw_world() -> void:
 		world.draw_rect(Rect2(-2000, 540, _world_w() + 4000, 200), Color(0.06, 0.04, 0.07))
 	if backdrop_tex == null:
 		var strip: Texture2D = tex["strip"]
-		var sw := strip.get_width() * STRIP_SCALE
+		var ss := bg_scale(strip)
+		var sw := strip.get_width() * ss
 		var k := -1 if zoom < 1.0 else 0
 		while k * sw < _world_w():
 			# every other copy mirrored so the seam matches
 			if k % 2 == 0:
-				world.draw_texture_rect(strip, Rect2(Vector2(k * sw, 0), strip.get_size() * STRIP_SCALE), false)
+				world.draw_texture_rect(strip, Rect2(Vector2(k * sw, 0), strip.get_size() * ss), false)
 			else:
 				world.draw_set_transform(Vector2((k + 1) * sw, 0), 0.0, Vector2(-1, 1))
-				world.draw_texture_rect(strip, Rect2(Vector2.ZERO, strip.get_size() * STRIP_SCALE), false)
+				world.draw_texture_rect(strip, Rect2(Vector2.ZERO, strip.get_size() * ss), false)
 				world.draw_set_transform(Vector2.ZERO)
 			k += 1
 	else:
-		# a seamless 320x180 backdrop, tiled along the crossing at 3x
-		world.draw_set_transform(Vector2.ZERO, 0.0, Vector2(STRIP_SCALE, STRIP_SCALE))
-		world.draw_texture_rect(backdrop_tex, Rect2(-1920 / STRIP_SCALE, 0, (_world_w() + 1920) / STRIP_SCALE, 180), true)
+		# a seamless backdrop tile (320x180 at 3x or 480x270 at 2x), tiled along the crossing
+		var bs := bg_scale(backdrop_tex)
+		world.draw_set_transform(Vector2.ZERO, 0.0, Vector2(bs, bs))
+		world.draw_texture_rect(backdrop_tex, Rect2(-1920 / bs, 0, (_world_w() + 1920) / bs, backdrop_tex.get_height()), true)
 		world.draw_set_transform(Vector2.ZERO)
 	if theme.get("stars", false):
 		_draw_stars()
