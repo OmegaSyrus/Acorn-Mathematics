@@ -19,6 +19,7 @@
 ## Exit code 0 when every step passed.
 extends SceneTree
 
+const BuildInfo := preload("res://logic/core/build_info.gd")
 const Family := preload("res://addons/acorn_family/family.gd")
 const FamilyPairing := preload("res://addons/acorn_family/family_pairing.gd")
 const FamilyApi := preload("res://addons/acorn_family/family_api.gd")
@@ -231,7 +232,7 @@ func _finish() -> void:
 # --- the game's hooks, for one made-up child and a Guest ----------------------------------
 
 func _hooks() -> Dictionary:
-	return {"game": "acorn-math", "dev": dev, "app": "0.29.0", "code": 48, "roster": _roster,
+	return {"game": "acorn-math", "dev": dev, "app": BuildInfo.APP, "code": BuildInfo.CODE, "roster": _roster,
 			"active_profile": _active, "read_save": _read_save, "write_save": _write_save, "snapshot": _snapshot,
 			"merge": _merge, "saved_at": _saved_at, "log_files": _log_files, "last_seq": _last_seq,
 			"keep_log_after": _keep_log_after}
