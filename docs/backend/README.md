@@ -7,8 +7,10 @@ export. It follows the parent app plan v2 and the data contract in
 
 **Where it lives:** OmegaSyrus/Acorn-Backend (Terrence, 2026-11-17). Its
 `contract/` is the source of truth; `docs/contract/` here is the game's
-copy, which its tests read. Backend core is Acorn-Backend PR #1; the parent
-app (`web/`) and the sync add-on (`godot-addon/`) come next.
+copy, which its tests read. Backend core is Acorn-Backend PR #1 and the
+parent app is its `web/`. The sync add-on (the tablet side) lives in this
+repo at `addons/acorn_family/` (see its README; grown-ups' view in
+`docs/family-sync.md`); another game copies that folder in.
 
 ## Stack
 
@@ -58,6 +60,8 @@ service key never leaves the functions).
 - Play log version 2 lines with game, device, profile, sequence and skill.
 - A manifest built from content (`logic/core/manifest.gd`).
 - Everything plays offline with no account, exactly as before.
+- The sync add-on (`addons/acorn_family/`): pairing, who is who, uploads,
+  snapshots, settings and time limits, all behind the parent PIN.
 
 ## Order of work
 
@@ -67,9 +71,12 @@ service key never leaves the functions).
    sign-in, families, children, devices, pairing, tokens, consent record,
    delete and export, staging and production deploys. Done when the
    contract's sample calls pass against staging.
-4. Sync add-on (`godot-addon/`), against a mock server built from the
-   samples first: pairing screen, uploader, snapshot backup and restore,
-   settings fetch and apply. Ships switched off until a family pairs.
+4. Sync add-on (`addons/acorn_family/`, built 2026-11-28), against a mock
+   server built from the samples first (`tools/family_mock/server.py`, with
+   `tools/family_e2e/e2e.gd` running every step over HTTP): pairing screen,
+   uploader, snapshot backup and restore, settings fetch and apply (daily
+   minutes, bedtime). Ships switched off until a family pairs, and sends
+   nothing until a grown-up turns sending on.
 
 ## Decided (Terrence, 2026-11-17)
 
