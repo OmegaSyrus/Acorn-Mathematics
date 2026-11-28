@@ -471,8 +471,11 @@ func _left_x() -> float:
 	return 124.0 if fight.auto_name() else 38.0   # the 5:3 tablet shows x 28 and up
 
 
+## Tall enough for every ball in two columns (12 since Phase 2's easier
+## bosses, 2026-11-28).
 func _balls_panel() -> Rect2:
-	return Rect2(_left_x(), 40, 100 if fight.auto_name() else 92, 200)
+	var rows := ceili(int(fight.cfg["balls"]) / 2.0)
+	return Rect2(_left_x(), 40, 100 if fight.auto_name() else 92, maxf(200.0, 64.0 + rows * 36.0 + 4.0))
 
 
 func _hero_feet() -> Vector2:

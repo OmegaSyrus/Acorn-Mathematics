@@ -21,6 +21,7 @@ const Ambient := preload("res://game/ui/ambient.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
 const PlayLog := preload("res://game/play_log.gd")
+const CountHelp := preload("res://logic/core/count_help.gd")
 
 ## Feet a little higher than before and the shields a little lower, so the
 ## monster's name fits under it (Terrence 2026-11-04). The monster's middle
@@ -37,6 +38,9 @@ const INK := Color(0.96, 0.94, 0.9)
 ## The Lantern Lord's flash: how long his lantern lights the dice before
 ## they go dark (a tap lights a die again; logic/fight/duel.gd).
 const FLASH_S := 1.8
+## The longest the next swing waits for Ellwynn's count-on after a wrong
+## answer, so the dice she lights stay up (scroll_screen.gd has the same).
+const COUNT_HOLD_S := 6.0
 ## The Wisp King and Queen stand side by side, the king on the left.
 const PAIR_DX := [-70.0, 50.0]
 const PAIR_ART := {"wisp_king": "res://art/bog/wisp-king.png", "wisp_queen": "res://art/bog/wisp-queen.png"}
@@ -97,6 +101,8 @@ var foe_tex: Array = []
 var foe_gone: Array = [0.0, 0.0]
 var monster_break_row := Vector2.ZERO
 var shown_foe_hearts: Array = []
+## Ellwynn's count-on lights these dice until the next swing re-rolls them.
+var _count_gen := 0
 var _swing := 0  # counts swings, so a late lantern flash can't darken the next one
 var bg_tex: Texture2D = preload("res://art/lava/fight-bg.png")
 var hero_lift := 0.0
@@ -197,11 +203,11 @@ func _loop() -> void:
 		_say(str(out["answer"]))
 		# she says the right number every time (Terrence 2026-11-17): after a
 		# right guess straight away and then "Woo-hoo!"; after a wrong one
-		# from her portrait
+		# from her portrait, counting on from the first die (Phase 2)
 		if out["right"]:
 			Ellwynn.say_right(int(out["answer"]))
 		else:
-			Ellwynn.say_answer(int(out["answer"]))
+			_say_wrong(int(out["answer"]))
 		# a beat to see the right shield light up before anyone moves
 		await _wait(0.5)
 		if bashing and out["right"]:
@@ -253,6 +259,8 @@ func _loop() -> void:
 ## to attack first; in the bash phase the hero gets ready to shield bash.
 ## Either way it holds, with no timer, until the child picks.
 func _wind_up() -> void:
+	await _count_settle()
+	_count_gen += 1
 	shields_shown = false
 	picked = -1
 	revealed = false
@@ -418,6 +426,7 @@ func _monster_collapse() -> void:
 func _boss_door() -> void:
 	revealed = false
 	shields_shown = false
+	_count_gen += 1
 	for d in dice:
 		d.visible = false
 	door_alpha = 0.0
@@ -459,6 +468,52 @@ func _say(text: String) -> void:
 ## all: no beep, no number, no voice. (On the crossing Ellwynn counts.)
 func _on_pip_tapped(_count: int) -> void:
 	pass
+
+
+## After a wrong answer (Phase 2): Ellwynn counts on from the first die
+## (Sprout's two dice) or back (Oak's red slip die) while the dots light.
+## One die, Sapling's missing number and the miniboss's numeral or dark
+## dice get the answer said, as before.
+func _say_wrong(answer: int) -> void:
+	var atk = fight.attack
+	var steps := []
+	var dots := true
+	if is_duel:
+		for i in atk.dice.size():
+			dots = dots and fight.die_face(i) == Duel.PIPS
+	if dots and int(atk.answer) == answer:
+		steps = CountHelp.plan(Array(atk.dice), CountHelp.fight_signs(atk.kind))
+	Ellwynn.say_counting(steps, answer, _count_step.bind(_count_gen))
+
+
+## One step of her count: the first die glows with every dot lit, then one
+## dot per number. False once the swing's dice are gone.
+func _count_step(st: Dictionary, gen: int) -> bool:
+	if gen != _count_gen or not is_inside_tree():
+		return false
+	if not st.has("n"):
+		return true
+	var i := int(st.get("die", -1))
+	if i < 0 or i >= dice.size() or not is_instance_valid(dice[i]):
+		return false
+	var d: DieView = dice[i]
+	if not d.visible or not d.face_on:
+		return false
+	if int(st.get("pip", -1)) < 0:
+		for e in dice:
+			if is_instance_valid(e):
+				e.countable = false
+				e.clear_lit()
+		d.light_all()
+	else:
+		d.light_pip(int(st["pip"]))
+	return true
+
+
+func _count_settle() -> void:
+	var until := Time.get_ticks_msec() + int(COUNT_HOLD_S * 1000.0)
+	while Ellwynn.is_counting() and Time.get_ticks_msec() < until:
+		await get_tree().process_frame
 
 
 func _tween_prop(prop: String, to: float, dur: float) -> void:

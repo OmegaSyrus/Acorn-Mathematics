@@ -129,7 +129,10 @@ the full table: `docs/level-path.md`.
 - Fights ask the step before: a monster fight asks the previous level's fight
   along the level path (Lava 1 to 6, Crystal, Bog, Mushroom, Space), so new
   ideas only come on the stones. Lava 1 keeps its own; the duel keeps the level's.
-  `Content.levels()` works it out as `monster_fight`.
+  `Content.levels()` works it out as `monster_fight`. Debug has a **Fights** switch
+  (Phase 2 of the ship plan, 2026-11-28): "step before" (the default) or "own math"
+  (the level's own fight), kept in the save as `fight_math`; every play log line
+  notes it as `fights`.
 - Lava 2 to 6 play their first 2 of 7 guesses at the Lava level before's math;
   every Bog level ramps in 3 stages like the Crystal Mines.
 - The Bog has a second heart stone (step 7, just past Tiddy Mun).
@@ -165,7 +168,7 @@ A repeatable run: add `--seed=123` after the `--`.
 | Roll | flick (or tap) the die tray | A | Space / Enter |
 | Move highlight | | d-pad or left stick | arrows / WASD |
 | Pick | tap the rock, key or button | A | Space / Enter |
-| Count dots | tap each dot on a landed die | | |
+| Count dots (Ellwynn says each number on the crossing until two monsters are beaten) | tap each dot on a landed die | | |
 | Hear the question again | tap Ellwynn | Y | R |
 | Menu (pause, back to the main menu) | tap the button with three bars, top right | | Esc |
 | Debug overlay (seed, dice, answer) | hold the top-left corner 1.5 s | Back / Select | F1 |

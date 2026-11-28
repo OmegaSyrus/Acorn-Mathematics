@@ -7,6 +7,9 @@
 ##   after it runs as usual (a won duel goes on to the boss, then the map).
 ## - "Map: all open" unlocks every world on the map (save["debug_unlock"]);
 ##   Reset clears it with the rest of the save.
+## - "Fights" (Phase 2 of the ship plan, 2026-11-28): monster fights ask the
+##   step before's math (the default) or the level's own (save["fight_math"],
+##   ScrollRun.FIGHTS_*). The play log notes which on every line.
 extends Node2D
 
 signal back
@@ -16,12 +19,14 @@ signal jump(area_id: String, level: int, stage: String)
 
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
+const ScrollRun := preload("res://logic/path/scroll_run.gd")
 
 const INK := Color(0.96, 0.94, 0.9)
 const DIM := Color(0.8, 0.76, 0.72)
 const GOLD := Color(1.0, 0.82, 0.35)
 const BACK_RECT := Rect2(120, 20, 140, 60)
-const UNLOCK_RECT := Rect2(560, 20, 280, 60)
+const UNLOCK_RECT := Rect2(580, 20, 260, 60)
+const FIGHTS_RECT := Rect2(270, 20, 300, 60)
 const LEVEL_X := 300.0
 const LEVEL_Y := 100.0
 const LEVEL_SIZE := Vector2(80, 64)
@@ -48,6 +53,7 @@ func setup(profile: Dictionary, world_list: Array) -> void:
 
 func _ready() -> void:
 	buttons.append({"rect": BACK_RECT, "kind": "back"})
+	buttons.append({"rect": FIGHTS_RECT, "kind": "fights"})
 	buttons.append({"rect": UNLOCK_RECT, "kind": "unlock"})
 	for n in range(1, 7):
 		buttons.append({"rect": Rect2(Vector2(LEVEL_X + (n - 1) * (LEVEL_SIZE.x + 10), LEVEL_Y), LEVEL_SIZE),
@@ -74,6 +80,9 @@ func _ready() -> void:
 			"unlock":
 				save["debug_unlock"] = not bool(save.get("debug_unlock", false))
 				Beeper.tone(660.0, 0.08)
+			"fights":
+				save["fight_math"] = ScrollRun.FIGHTS_STEP_BEFORE if ScrollRun.fights_setting(save) == ScrollRun.FIGHTS_OWN else ScrollRun.FIGHTS_OWN
+				Beeper.tone(660.0, 0.08)
 			"level":
 				level = int(b["level"])
 				save["difficulty"] = level
@@ -88,13 +97,16 @@ func _ready() -> void:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.1, 0.1, 0.13))
-	draw_string(font, Vector2(260, 62), "Debug", HORIZONTAL_ALIGNMENT_CENTER, 300, 40, GOLD)
 	draw_string(font, Vector2(120, LEVEL_Y + 44), "Level", HORIZONTAL_ALIGNMENT_LEFT, 170, 32, INK)
 	for b in buttons:
 		var r: Rect2 = b["rect"]
 		match b["kind"]:
 			"back":
 				_button(font, r, "Back", Color(0.3, 0.27, 0.26), 30)
+			"fights":
+				var own := ScrollRun.fights_setting(save) == ScrollRun.FIGHTS_OWN
+				_button(font, r, "Fights: own math" if own else "Fights: step before",
+						Color(0.55, 0.35, 0.15) if own else Color(0.2, 0.45, 0.6), 26)
 			"unlock":
 				var on := bool(save.get("debug_unlock", false))
 				_button(font, r, "Map: all open" if on else "Map: locked",
@@ -116,7 +128,7 @@ func _draw() -> void:
 		var c: Array = w.get("color", [1, 1, 1])
 		draw_string(font, Vector2(120, ROW_Y[r] + 40), str(w["name"]), HORIZONTAL_ALIGNMENT_LEFT, 190, 21,
 				Color(c[0], c[1], c[2]))
-	draw_string(font, Vector2(120, 536), "Each jump starts fresh at the picked level.", HORIZONTAL_ALIGNMENT_LEFT,
+	draw_string(font, Vector2(120, 536), "Debug. Each jump starts fresh at the picked level. Fights: what monsters ask.", HORIZONTAL_ALIGNMENT_LEFT,
 			-1, 16, DIM)
 
 

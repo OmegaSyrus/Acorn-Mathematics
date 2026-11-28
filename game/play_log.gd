@@ -26,7 +26,8 @@ const DEFAULT_PATH := "user://play_log.jsonl"
 ## Where lines go. Tests point it at a temp file.
 static var path := DEFAULT_PATH
 static var enabled := true
-## {profile, world, area, level, level_id}: who is playing and where.
+## {profile, world, area, level, level_id, fights}: who is playing, where,
+## and the Debug fight switch (ScrollRun.FIGHTS_*).
 static var place := {}
 ## This install (game/device_id.gd) and its launch count; start() sets them.
 static var dev := ""
@@ -123,7 +124,7 @@ static func _head(t: int, ctx: Dictionary, kind: String) -> Dictionary:
 	e["app"] = BuildInfo.APP
 	e["code"] = BuildInfo.CODE
 	e["cv"] = BuildInfo.cv()
-	for k in ["world", "area", "level", "level_id"]:
+	for k in ["world", "area", "level", "level_id", "fights"]:
 		if ctx.has(k):
 			e[k] = ctx[k]
 	return e

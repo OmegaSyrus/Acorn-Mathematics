@@ -17,6 +17,8 @@ heard, not seen. She shows up on screen only at these moments:
 | Treasure chest opened | No, voice only | A short word of encouragement. Not every chest, so it stays special. |
 | Region boss beaten | Yes, full body | She walks or slides in beside the hero and congratulates the player, with a longer line. This is her big moment. |
 | Reading questions ("Which stone is safe?") | No, voice only | Reads the talk box text aloud. |
+| Dots tapped on the crossing | No, voice only | Says the count with each tap (fights stay silent). Phase 2 (2026-11-28): she goes quiet once two monsters are beaten in that crossing (a restart counts afresh), with an optional line (`count_quiet`). `logic/core/count_help.gd`. |
+| Wrong answer | Yes, the portrait top left | Phase 2: one second after the "Oops!" she counts on from the first die while its dots light ("four, then five, six, seven"), or back on a red die ("six, then five, four"). One die, a face-down die, a missing number, numeral or dark dice, or a count over 12 numbers: she just says the answer. Cues `count_then`, `count_back_then` (lines sheet K1 to K3). |
 
 She never covers the dice tray, the stones or the Go button, and the child can
 always keep playing while she talks: tapping on with the game cuts her line off.
