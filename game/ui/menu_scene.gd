@@ -2,21 +2,23 @@
 ## on a hill, with birds flying over and animals wandering by now and then
 ## while the menu song loops. Ellwynn stands in front of the oak.
 ##
-## Art (PixelLab, sum-dungeon/art-menu-oak/): the scene is 320x180 drawn at 3x
-## like every background; the animals and birds are on the 1 unit grid like
+## Art (PixelLab Pro, sum-dungeon/art-hq/): the scene is 480x270 drawn at 2x
+## like every background (art grid plan); the animals and birds are on the 1 unit grid like
 ## every character (never scaled). Leaves, far birds and butterflies are drawn
-## here on the background's 3x grid.
+## here on the background's 2x grid.
 ##
 ## The map screen adds this as a child that draws behind it, so the buttons
 ## always sit on top and nothing here takes a tap.
 extends Node2D
 
 const BG := preload("res://art/menu/oak-hill.png")
-const BG_SCALE := 3.0
+const BG_SCALE := 2.0
+## One background pixel, in units: leaves, far birds and butterflies use it.
+const PX := 2.0
 const DESIGN := Vector2(960, 540)
 ## Outside the picture (very tall or very wide screens): its own sky and grass.
-const SKY := Color(0.33, 0.6, 0.86)
-const GRASS := Color(0.27, 0.42, 0.16)
+const SKY := Color(0.32, 0.67, 0.94)
+const GRASS := Color(0.31, 0.35, 0.21)
 
 ## Walkers. Strips are frames side by side, feet on the bottom row, facing
 ## right (mirrored when walking left). `hop`: moves only on these frames.
@@ -35,21 +37,22 @@ const BIRD_FPS := 12.0
 ## down its right side and across the meadow (behind Play and Shop), in design
 ## units, measured on the picture.
 const HILL_PATH := [
-	Vector2(-90, 411), Vector2(0, 411), Vector2(150, 396), Vector2(300, 402), Vector2(345, 412),
-	Vector2(375, 435), Vector2(405, 456), Vector2(440, 468), Vector2(1060, 470),
+	Vector2(-90, 400), Vector2(0, 400), Vector2(100, 398), Vector2(200, 393), Vector2(300, 393),
+	Vector2(350, 396), Vector2(400, 408), Vector2(440, 428), Vector2(470, 460), Vector2(500, 470),
+	Vector2(1060, 470),
 ]
 ## The front lane: along the bottom edge, in the flowers under the buttons.
 const FRONT_Y := 539.0
 ## Where a walker may stop for a moment, where it can be seen.
 const PAUSE_SPOTS := {"hill": [[24, 100], [300, 360], [840, 912]], "front": [[40, 110], [310, 380], [840, 912]]}
 ## Falling leaves start inside the oak's crown (an ellipse) and land on the hill.
-const CROWN_C := Vector2(215, 135)
-const CROWN_R := Vector2(165, 105)
+const CROWN_C := Vector2(270, 150)
+const CROWN_R := Vector2(240, 125)
 const LEAF_COLS := [Color(0.31, 0.5, 0.18), Color(0.45, 0.62, 0.22), Color(0.6, 0.72, 0.3), Color(0.24, 0.4, 0.17)]
 ## Butterflies flutter over the flowers at these spots.
 const FLUTTER_HOMES := [Vector2(886, 476), Vector2(318, 500)]
 const FLUTTER_COLS := [Color(0.98, 0.97, 0.9), Color(1.0, 0.86, 0.35)]
-## A far bird is a 5x3 "v" on the 3x grid, two wing frames.
+## A far bird is a 5x3 "v" on the 2x grid, two wing frames.
 const FAR_BIRD := [["X...X", ".X.X.", "..X.."], [".....", "XX.XX", "..X.."]]
 const FAR_INK := Color(0.2, 0.26, 0.36, 0.85)
 
@@ -271,12 +274,12 @@ func _draw_bird(b: Dictionary) -> void:
 
 func _draw_far_bird(b: Dictionary) -> void:
 	var rows: Array = FAR_BIRD[int(b["t"] * 5.0) % 2]
-	var o := Vector2(_snap(b["x"]) - 6.0, _snap(b["y"]))
+	var o := Vector2(_snap(b["x"]) - 4.0, _snap(b["y"]))
 	for r in rows.size():
 		var row: String = rows[r]
 		for c in row.length():
 			if row[c] == "X":
-				draw_rect(Rect2(o + Vector2(c * 3, r * 3), Vector2(3, 3)), FAR_INK)
+				draw_rect(Rect2(o + Vector2(c * PX, r * PX), Vector2(PX, PX)), FAR_INK)
 
 
 func _draw_leaf(l: Dictionary) -> void:
@@ -286,10 +289,10 @@ func _draw_leaf(l: Dictionary) -> void:
 	var o := Vector2(_snap(l["x"]), _snap(l["y"]))
 	# it flutters: flat (two pixels wide) half the time, edge-on the rest
 	if l["rest"] >= 0.0 or fmod(l["t"] * l["freq"] * 2.0, 1.0) < 0.5:
-		draw_rect(Rect2(o, Vector2(6, 3)), col)
+		draw_rect(Rect2(o, Vector2(PX * 2.0, PX)), col)
 	else:
-		draw_rect(Rect2(o, Vector2(3, 3)), col)
-		draw_rect(Rect2(o + Vector2(3, 3), Vector2(3, 3)), col.darkened(0.15))
+		draw_rect(Rect2(o, Vector2(PX, PX)), col)
+		draw_rect(Rect2(o + Vector2(PX, PX), Vector2(PX, PX)), col.darkened(0.15))
 
 
 func _draw_flutter(f: Dictionary) -> void:
@@ -299,14 +302,14 @@ func _draw_flutter(f: Dictionary) -> void:
 	var o := Vector2(_snap(p.x), _snap(p.y))
 	var col: Color = f["col"]
 	if int(t * 9.0) % 2 == 0:
-		draw_rect(Rect2(o + Vector2(-3, 0), Vector2(3, 3)), col)
-		draw_rect(Rect2(o + Vector2(3, 0), Vector2(3, 3)), col)
+		draw_rect(Rect2(o + Vector2(-PX, 0), Vector2(PX, PX)), col)
+		draw_rect(Rect2(o + Vector2(PX, 0), Vector2(PX, PX)), col)
 	else:
-		draw_rect(Rect2(o + Vector2(-3, 3), Vector2(3, 3)), col)
-		draw_rect(Rect2(o + Vector2(3, 3), Vector2(3, 3)), col)
-	draw_rect(Rect2(o + Vector2(0, 3), Vector2(3, 3)), Color(0.25, 0.2, 0.15))
+		draw_rect(Rect2(o + Vector2(-PX, PX), Vector2(PX, PX)), col)
+		draw_rect(Rect2(o + Vector2(PX, PX), Vector2(PX, PX)), col)
+	draw_rect(Rect2(o + Vector2(0, PX), Vector2(PX, PX)), Color(0.25, 0.2, 0.15))
 
 
-## Snaps to the background's 3 unit pixel grid.
+## Snaps to the background's 2 unit pixel grid.
 static func _snap(v: float) -> float:
-	return floorf(v / 3.0) * 3.0
+	return floorf(v / PX) * PX
