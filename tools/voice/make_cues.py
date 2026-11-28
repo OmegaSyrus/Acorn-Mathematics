@@ -17,7 +17,8 @@ Fields per cue:
   say       stand-in words for "tts" (NOT Ellwynn's line; Terrence and
             Rachel write those). Mostly the words on screen.
   bubble    sight word shown in her bubble while it plays, or ""
-  order     true: play every file in order (the intro), not one at random
+  order     true: play every file in order (the intro), not one at random;
+            Ellwynn.cue_take(id, n) plays one take of it (T14, L4)
   once      true: plays once per child, then never again (taught first turn)
   alias     the older code name, so say("intro") still works
 """
@@ -50,10 +51,10 @@ rows = [
  ("T11","later",1,T,"A heart stone gives a heart back.","", {"when":"First heart stone reached","once":True}),
  ("T12","basic",1,T,"Tap the door!","", {"when":"First GO! door at the far shore","once":True}),
  ("T13","later",1,T,"A big monster! Block it, just like before.","", {"when":"First miniboss duel","once":True}),
- ("T14","basic",2,T,"Pick the number on the ball.|Now aim, and let go!","", {"when":"First boss fight (1: pick the number, 2: aim)","once":True,"order":True}),
+ ("T14","basic",2,T,"Pick the number on the ball.|Drag to aim, then let go!","", {"when":"First boss fight, one take at a time (1: before the first pick, 2: before the first shot; taught as T14 and T14_2)","once":True,"order":True}),
  ("T15","later",1,Q,"","", {"when":"First pip tap on a die","once":True}),
  ("P1","basic",1,T,"Pick a world!","", {"when":"World map opens"}),
- ("P2","later",1,T,"Beat the world before it first.","", {"when":"A locked world tapped"}),
+ ("P2","later",1,T,"Locked! Beat the one before it first.","", {"when":"A locked world tapped"}),
  ("P3","basic",2,T,"Roll!","", {"when":"Dice tray waits on a crossing"}),
  ("P4","basic",2,T,"Which stone is safe?","", {"when":"Dice landed, stones offered"}),
  ("P5","basic",1,T,"Roll again!","", {"when":"Roll the same guess again after a miss"}),
@@ -63,8 +64,8 @@ rows = [
  ("P9","basic",1,T,"Tap the door!","", {"when":"Fight won, door to go on"}),
  ("P10","basic",1,T,"Try again!","", {"when":"Miniboss lost, retry button"}),
  ("P11","basic",1,T,"Pick the number!","", {"when":"Boss: pick the ball's number"}),
- ("P12","later",1,T,"No more balls.","", {"when":"Boss: out of balls"}),
- ("P13","later",1,Q,"","", {"when":"Shop opens"}),
+ ("P12","later",1,T,"No more balls. Tap Try, or Map.","", {"when":"Boss: out of balls (Try or Map)"}),
+ ("P13","later",1,T,"Tap a picture, then tap Buy.","", {"when":"Shop opens"}),
  ("W1","basic",2,Q,"","", {"when":"Lava Caves crossing opens"}),
  ("W2","basic",2,Q,"","", {"when":"Crystal Mines crossing opens"}),
  ("W3","basic",2,Q,"","", {"when":"The Bog crossing opens"}),
@@ -125,10 +126,10 @@ rows = [
  ("L1","basic",2,P,"","", {"when":"Map opens after a boss win: next world opens"}),
  ("L2","later",2,Q,"","", {"when":"First clear of a world at this Level"}),
  ("L3","basic",1,P,"","Yay!", {"when":"Level complete: Space beaten, the next Level opens"}),
- ("L4","later",6,Q,"","", {"when":"Level complete, one line per Level (L4_1 .. L4_6 by Level)","order":True}),
- ("L5","later",2,Q,"","", {"when":"A world replayed that is already beaten"}),
+ ("L4","later",6,Q,"","", {"when":"Level complete, after L3: take n for Level n (L4, L4_2 .. L4_6)","order":True}),
+ ("L5","later",2,Q,"","", {"when":"A world replayed that is already beaten (the map after its boss)"}),
  ("S1","basic",3,P,"","Yay!", {"when":"Bought a hero or a dragon colour"}),
- ("S2","basic",2,Q,"","", {"when":"Tapped a grey Buy: not enough yet"}),
+ ("S2","basic",2,T,"Not enough yet.","", {"when":"Tapped a grey Buy: not enough yet"}),
  ("S3","later",2,Q,"","", {"when":"Put on a hero or colour (Use)"}),
 ]
 cues = []

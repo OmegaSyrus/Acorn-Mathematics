@@ -13,6 +13,7 @@ signal back
 enum Mode { CREATE, EDIT }
 
 var mode := Mode.CREATE
+var voice := false  # as the real screen: main.gd sets it
 
 
 func setup(_r: Dictionary, m: int, _profile_id := "", _first_run := false) -> void:

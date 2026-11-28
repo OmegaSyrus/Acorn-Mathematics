@@ -20,6 +20,7 @@ const DiceSkins := preload("res://game/ui/dice_skins.gd")
 const Look := preload("res://game/ui/look.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
 
 ## Narrower Back and tabs (Phase 0, 2026-11-16) leave room for every open
 ## currency's balance at the top right, three over two.
@@ -75,6 +76,19 @@ func _ready() -> void:
 	# the highlight (keyboard and pad) starts on the hero in use
 	_present({"what": "card", "id": Store.equipped(cat, save, tab)})
 	_loop()
+	# the Shop's prompt (P13), once the Shop tap's cheer (M5) is done
+	var ell := EllwynnRef.here(self)
+	if ell != null:
+		await ell.wait_quiet(3.0)
+		if is_inside_tree():
+			ell.prompt("P13")
+
+
+## Her line for something done here (S1 bought, S2 not enough, S3 Use).
+func _voice(cue: String) -> void:
+	var ell := EllwynnRef.here(self)
+	if ell != null:
+		ell.cue_play(cue)
 
 
 func _loop() -> void:
@@ -113,6 +127,7 @@ func _tap_card(id: String) -> void:
 			_saved()
 			_pop[id] = 0.5
 			Beeper.good()
+			_voice("S3")
 		Store.EQUIPPED:
 			selected = ""
 			_pop[id] = 0.35
@@ -120,6 +135,8 @@ func _tap_card(id: String) -> void:
 		_:
 			# not yet: too dear, or a currency the game can't give yet
 			selected = ""
+			if Store.state(cat, save, id) == Store.SHORT:
+				_voice("S2")
 			_shake[id] = SHAKE_S
 			Beeper.tone(196.0, 0.16, -10.0)
 			get_tree().create_timer(0.15).timeout.connect(Beeper.tone.bind(165.0, 0.2, -10.0))
@@ -137,6 +154,7 @@ func _buy(id: String) -> void:
 	_pop[id] = 0.6
 	Beeper.good()
 	Beeper.gems(5)
+	_voice("S1")
 	var c := _card_rect(_tab_items().find(Store.item(cat, id))).get_center()
 	for k in 26:
 		var a := TAU * k / 26.0 + randf() * 0.2
