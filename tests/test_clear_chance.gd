@@ -5,7 +5,7 @@
 ## crossing clears 55% to 70% of tries (3 misses allowed: three hearts and
 ## one heart stone; Lava 7 guesses, the rest 8, three monsters each).
 ## Every enemy has a heart less since 2026-11-17 (Terrence: enemies had too
-## much health), so fights end sooner and the band is now 55% to 82%.
+## much health), so fights end sooner and the band is now 55% to 82%. Terrence kept this band on 2026-11-28.
 extends "res://tests/support/test_case.gd"
 
 const Content := preload("res://logic/core/content.gd")

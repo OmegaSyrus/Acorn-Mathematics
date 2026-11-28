@@ -2,7 +2,8 @@
 
 Level N is one pass of the five worlds: Lava, Crystal, Bog, Mushroom and Space, each
 at Level N. Beating Space at Level N opens Level N+1, which starts again at Lava.
-No grown-up can move a child on: only play opens the next world and the next Level.
+A grown-up may pick the Level on the Grown-ups panel (Terrence 2026-11-17); the worlds
+inside a Level still open only by play.
 
 ## How it works
 
@@ -10,15 +11,26 @@ No grown-up can move a child on: only play opens the next world and the next Lev
   world is beaten at Level N-1 (`level_open`, `level_reached`). At a Level, Lava is
   open, and each world after it once the world before it is beaten there
   (`world_unlocked(save, worlds, i, level)`). It is all worked out from the marks the
-  save already keeps (`save["marks"][world] = [level ids]`), so there is no new save
-  field. Debug's "Map: all open" still opens every world at every Level.
+  save keeps (`save["marks"][world] = [level ids]`) and the Level a grown-up picked
+  (`grown_up_level`, below). Debug's "Map: all open" still opens every world at every
+  Level.
 - **Menu and map.** The main menu says "Level: N" (was "Difficulty"). It starts on the
   child's Level; a tap steps back through the Levels reached, to replay one. The map's
-  title is the Level, and it shows what is open and done at it. When Space is beaten
-  for the first time at a Level, the map opens at the next Level with Lava's lock
-  popping off.
-- **Grown-ups panel.** No world switches any more. It shows the child's Level and each
-  world Done, Next or Locked at it.
+  title is the Level, and it shows what is open and done at it.
+- **Moving on.** When a boss finishes a Level (every world now beaten at it, and it
+  wasn't before) and the next Level is open, the child moves on: the menu's Level
+  becomes N+1 and the map opens there with Lava's lock popping off
+  (`AreaFlow.move_on_level`). This holds when a grown-up picked a higher Level too: a
+  child picked to 5 who then beats every world at Level 2 moves on to Level 3. A
+  replay of a Level already beaten stays put.
+- **Grown-ups panel.** No world switches. Under the title it names the child it
+  changes (the one playing now), with their picture. The Level buttons 1 to 6 pick the
+  Level the child plays (`AreaFlow.pick_level`): that Level and the ones before it open,
+  each at Lava only; the other worlds there still open by beating the one before.
+  Picking a lower Level than one earned keeps everything earned and only moves the menu
+  back. A run saved at another Level (a crossing mid-way, or its duel or boss) is
+  dropped, so the next play starts fresh at the picked Level. Each child's pick is in
+  their own save. Below, each world is Done, Next or Locked at the Level.
 - **The ladder.** `content/levels.json` lists the 30 steps in order (`step`), each with
   the one thing it adds (`new`, `adds`). Level ids never change (Lava 1 = 1, the rest
   world x 10 + Level), so old marks, stars and play records still line up by world and
@@ -37,13 +49,19 @@ No grown-up can move a child on: only play opens the next world and the next Lev
   (`content/bounce/tuning.json` `win_gems`, `pass_gems`, `replay_gems`;
   `AreaFlow.boss_bonus`).
 - **Bot check.** `tests/test_clear_chance.gd`: a bot answering 85% right (stones and
-  fights) clears every crossing in one try 55% to 70% of the time. Today 57% to 66%.
+  fights) clears every crossing in one try 55% to 82% of the time (Terrence 2026-11-28:
+  keep the 0.27 change of one heart less per enemy, which raised it from 55% to 70%).
+  Today 68% to 77%.
 
 ## Save format
 
-No new fields. `parent_open` (the Grown-ups world switches) is gone: a new profile no
-longer has it, and an old save drops it on load. `difficulty` keeps the Level picked on
-the menu, clamped to the Levels reached.
+- `grown_up_level`: the Level a grown-up picked on the Grown-ups panel, 0 or missing
+  for none. It opens that Level and the ones before it (`AreaFlow.level_open`); play can
+  still take the child past it. Reset wipes it with the rest of the save.
+- `difficulty` keeps the Level picked on the menu (or on the Grown-ups panel), clamped
+  to the Levels reached.
+- `parent_open` (the old Grown-ups world switches) is gone: a new profile no longer has
+  it, and an old save drops it on load.
 
 ## The 30 steps
 
@@ -82,3 +100,12 @@ Fight is grade and top (1 one die, 2 two-dice sum, 3 die + ? = target). Boss 1 m
 | 28 | Bog 6 | 36 | across ten with two take-aways | `++-` `+++-` `++--` to 9, across_ten |  | 2 12 | 2 |
 | 29 | Mushroom 6 | 46 | mixed: adding to 20 and across ten | mix of 54, 36 |  | 3 12 | 2 |
 | 30 | Space 6 | 56 | everything mixed | mix of 54, 55, 36 | track | 3 12 | 4 |
+
+## How long a pass takes (bot estimate, 2026-11-28)
+
+`tools/level_pass/level_pass.gd` plays 200 full passes of each Level with the real
+crossing, fight, duel and boss logic and the game's own animation times, plus 3 s to
+think per answer. A full pass of Level 1 takes about 33 minutes for a bot that is always
+right and about 42 minutes at 85% right (about 2 restarts). Every Level and world is
+about the same length (6 to 8 minutes a world). Fights and duels are about 60% of the
+time, the stones about 20%. Results: `tools/level_pass/RESULTS.md`.
