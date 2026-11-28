@@ -1,0 +1,198 @@
+{
+ "schema": "family.manifest",
+ "v": 1,
+ "game": "acorn-math",
+ "title": "Acorn Mathematics",
+ "app": "0.23.1",
+ "code": 42,
+ "cv": 1,
+ "settings": [],
+ "skills": [
+  "count.to6",
+  "numeral.match.to6",
+  "add.within6",
+  "add.within10",
+  "add.within20",
+  "sub.within6",
+  "sub.within10",
+  "sub.within20",
+  "missing_addend.within10",
+  "missing_addend.within20",
+  "missing_subtrahend.within10",
+  "add3.within20",
+  "addsub3.within20",
+  "add.within40"
+ ],
+ "labels": {
+  "lava_caves": "Lava Caves",
+  "crystal_mines": "Crystal Mines",
+  "bog": "The Bog",
+  "mushroom_forest": "Mushroom Forest",
+  "space": "Space"
+ },
+ "levels": [
+  {
+   "id": 1,
+   "world": "lava_caves",
+   "num": 1
+  },
+  {
+   "id": 12,
+   "world": "lava_caves",
+   "num": 2
+  },
+  {
+   "id": 13,
+   "world": "lava_caves",
+   "num": 3
+  },
+  {
+   "id": 14,
+   "world": "lava_caves",
+   "num": 4
+  },
+  {
+   "id": 15,
+   "world": "lava_caves",
+   "num": 5
+  },
+  {
+   "id": 16,
+   "world": "lava_caves",
+   "num": 6
+  },
+  {
+   "id": 21,
+   "world": "crystal_mines",
+   "num": 1
+  },
+  {
+   "id": 22,
+   "world": "crystal_mines",
+   "num": 2
+  },
+  {
+   "id": 23,
+   "world": "crystal_mines",
+   "num": 3
+  },
+  {
+   "id": 24,
+   "world": "crystal_mines",
+   "num": 4
+  },
+  {
+   "id": 25,
+   "world": "crystal_mines",
+   "num": 5
+  },
+  {
+   "id": 26,
+   "world": "crystal_mines",
+   "num": 6
+  },
+  {
+   "id": 31,
+   "world": "bog",
+   "num": 1
+  },
+  {
+   "id": 32,
+   "world": "bog",
+   "num": 2
+  },
+  {
+   "id": 33,
+   "world": "bog",
+   "num": 3
+  },
+  {
+   "id": 34,
+   "world": "bog",
+   "num": 4
+  },
+  {
+   "id": 35,
+   "world": "bog",
+   "num": 5
+  },
+  {
+   "id": 36,
+   "world": "bog",
+   "num": 6
+  },
+  {
+   "id": 41,
+   "world": "mushroom_forest",
+   "num": 1
+  },
+  {
+   "id": 42,
+   "world": "mushroom_forest",
+   "num": 2
+  },
+  {
+   "id": 43,
+   "world": "mushroom_forest",
+   "num": 3
+  },
+  {
+   "id": 44,
+   "world": "mushroom_forest",
+   "num": 4
+  },
+  {
+   "id": 45,
+   "world": "mushroom_forest",
+   "num": 5
+  },
+  {
+   "id": 46,
+   "world": "mushroom_forest",
+   "num": 6
+  },
+  {
+   "id": 51,
+   "world": "space",
+   "num": 1
+  },
+  {
+   "id": 52,
+   "world": "space",
+   "num": 2
+  },
+  {
+   "id": 53,
+   "world": "space",
+   "num": 3
+  },
+  {
+   "id": 54,
+   "world": "space",
+   "num": 4
+  },
+  {
+   "id": 55,
+   "world": "space",
+   "num": 5
+  },
+  {
+   "id": 56,
+   "world": "space",
+   "num": 6
+  }
+ ],
+ "pictures": [
+  "fox",
+  "bunny",
+  "hedgehog",
+  "turtle",
+  "lion",
+  "eagle",
+  "phoenix",
+  "gryphon",
+  "elf_mage",
+  "templar",
+  "slime_knight"
+ ]
+}

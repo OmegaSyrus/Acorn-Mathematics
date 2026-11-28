@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "family.settings.v1",
+  "title": "Parent settings for one child in one game",
+  "description": "A desired state. The game fetches it at the main menu or the map (never mid-level) and makes itself match. Per field, the latest change wins: the server sets rev and at on every write, from the parent app or from the tablet's Grown-ups panel. A game ignores keys it does not know; keys come from the game's manifest.",
+  "type": "object",
+  "required": ["schema", "v", "child", "game", "rev", "fields"],
+  "properties": {
+    "schema": {"const": "family.settings"},
+    "v": {"const": 1},
+    "child": {"type": "string", "pattern": "^c_[0-9a-f]{12}$"},
+    "game": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,31}$"},
+    "rev": {"type": "integer", "minimum": 0, "description": "Highest field rev."},
+    "fields": {
+      "type": "object",
+      "description": "key -> {value, rev, at, by}. by is \"parent\" (with the adult's id later) or \"device:<dev>\".",
+      "additionalProperties": {"$ref": "#/$defs/field"}
+    }
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "required": ["value", "rev", "at", "by"],
+      "properties": {
+        "value": {},
+        "rev": {"type": "integer", "minimum": 1},
+        "at": {"type": "integer"},
+        "by": {"type": "string", "pattern": "^(parent|device:d_[0-9a-f]{16})"}
+      }
+    }
+  }
+}

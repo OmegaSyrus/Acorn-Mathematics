@@ -9,6 +9,7 @@
 extends RefCounted
 
 const JsonUtil := preload("res://logic/core/json_util.gd")
+const SaveData := preload("res://logic/core/save_data.gd")
 
 const PATH := "res://content/store.json"
 const KINDS := ["hero", "dice"]
@@ -66,7 +67,7 @@ static func balance(save: Dictionary, currency: String) -> int:
 ## Earning: gems go to the top-level "gems", the rest to "currencies".
 static func add(save: Dictionary, currency: String, n: int) -> void:
 	if currency == "gems":
-		save["gems"] = int(save.get("gems", 0)) + n
+		SaveData.add_gems(save, n)  # counts earned and spent per device
 		return
 	if not save.has("currencies") or not save["currencies"] is Dictionary:
 		save["currencies"] = {}

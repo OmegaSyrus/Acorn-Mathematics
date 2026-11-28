@@ -4,9 +4,13 @@
 ## opened by play says "Open"; any other world toggles between "Locked" and
 ## "Open" (save["parent_open"], kept in the profile). The child then picks
 ## from the open worlds on the map. Back returns to the main menu.
+## Children opens the tablet's child profiles; PIN sets or changes the parent
+## PIN that guards this panel (parent app plan v2).
 extends Node2D
 
 signal back
+signal children
+signal pin
 
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
@@ -19,6 +23,8 @@ const GOLD := Color(1.0, 0.82, 0.35)
 const GREY := Color(0.3, 0.27, 0.26)
 const GREEN := Color(0.2, 0.55, 0.3)
 const BACK_RECT := Rect2(120, 20, 140, 60)
+const CHILDREN_RECT := Rect2(530, 20, 150, 60)
+const PIN_RECT := Rect2(690, 20, 150, 60)
 const ROW_Y := [130.0, 204.0, 278.0, 352.0, 426.0]
 const TOGGLE_X := 560.0
 const TOGGLE_SIZE := Vector2(200, 60)
@@ -26,6 +32,8 @@ const TOGGLE_SIZE := Vector2(200, 60)
 var save: Dictionary
 var worlds: Array = []
 var choice: ChoiceWidget
+## A parent PIN is set (main.gd passes it; the PIN button says Set or Change).
+var has_pin := false
 
 
 func setup(profile: Dictionary, world_list: Array) -> void:
@@ -47,7 +55,7 @@ func _won(i: int) -> bool:
 func _ready() -> void:
 	choice = ChoiceWidget.new()
 	add_child(choice)
-	var rects := [BACK_RECT]
+	var rects := [BACK_RECT, CHILDREN_RECT, PIN_RECT]
 	for i in worlds.size():
 		rects.append(toggle_rect(i))
 	var first := 0
@@ -58,7 +66,13 @@ func _ready() -> void:
 		if k == 0:
 			back.emit()
 			return
-		var i := k - 1
+		if k == 1:
+			children.emit()
+			return
+		if k == 2:
+			pin.emit()
+			return
+		var i := k - 3
 		if _won(i):
 			Beeper.tone(330.0, 0.08)
 		else:
@@ -71,8 +85,10 @@ func _ready() -> void:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.1, 0.1, 0.13))
-	draw_string(font, Vector2(280, 64), "Grown-ups", HORIZONTAL_ALIGNMENT_CENTER, 400, 40, GOLD)
+	draw_string(font, Vector2(270, 62), "Grown-ups", HORIZONTAL_ALIGNMENT_CENTER, 250, 36, GOLD)
 	_button(font, BACK_RECT, "Back", GREY, 30)
+	_button(font, CHILDREN_RECT, "Children", Color(0.24, 0.3, 0.38), 26)
+	_button(font, PIN_RECT, "Change PIN" if has_pin else "Set PIN", Color(0.24, 0.3, 0.38), 24)
 	draw_string(font, Vector2(120, 112), "Tap a world to open it on the map. The child picks from the open ones.",
 			HORIZONTAL_ALIGNMENT_LEFT, 720, 18, DIM)
 	for i in worlds.size():
