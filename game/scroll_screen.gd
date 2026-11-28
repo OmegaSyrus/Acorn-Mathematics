@@ -299,7 +299,7 @@ func _ready() -> void:
 		Ellwynn.use_save(save)
 	Ellwynn.clear_prompt()
 	# the crossing opens: the world's arrival line, then (once) the job
-	tutor.event(FirstTurn.world_cue("W", str(run.area.get("world", WorldTheme.DEFAULT))))
+	tutor.event(FirstTurn.world_number_cue("W", str(run.area.get("world", WorldTheme.DEFAULT))))
 	tutor.teach("T1")
 	_place_hero(run.pos)
 	if run.phase == ScrollRun.AWAIT_FIGHT:
@@ -651,6 +651,7 @@ func _hop(a: float, b: float) -> void:
 		else:
 			hero_frame = "hop-air"
 	await create_tween().tween_method(arc, 0.0, 1.0, HOP_S).finished
+	Beeper.play("land", -8.0)
 	hero_x = b
 	hero_lift = 0.0
 

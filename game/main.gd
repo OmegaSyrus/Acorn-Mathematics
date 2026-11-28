@@ -589,6 +589,7 @@ func _start_duel(area: Dictionary, grade_id: int) -> void:
 	_play_level_music()
 	menu.visible = true
 	var f := FightScreen.new()
+	f.save = save
 	var fg := _fight_of(grade_id)
 	f.setup(SeededRng.new(_new_seed()), int(fg["grade"]), area["miniboss"], false, true, debug_on)
 	f.fight.set_top(int(fg["top"]))

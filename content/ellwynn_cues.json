@@ -172,7 +172,7 @@
    "need": "basic",
    "versions": 1,
    "fallback": "tts",
-   "say": "Oh! That stone sank. You lost a heart. You have three.",
+   "say": "Oh! That stone sank, so you lost a heart. Lose them all and you start again.",
    "bubble": "",
    "once": true
   },
@@ -252,8 +252,8 @@
    "when": "First pip tap on a die",
    "need": "later",
    "versions": 1,
-   "fallback": "quiet",
-   "say": "",
+   "fallback": "tts",
+   "say": "Let's count!",
    "bubble": "",
    "once": true
   },

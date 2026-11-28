@@ -32,19 +32,19 @@ func test_cue_ids_are_on_the_sheet() -> bool:
 		check(cues.has(id), "%s on the sheet" % id)
 		check(bool(cues.get(id, {}).get("once", false)), "%s is once per child" % id)
 	for w in FirstTurn.WORLD_ORDER:
-		check(cues.has(FirstTurn.world_cue("W", w)), "world arrival for %s" % w)
-		check(cues.has(FirstTurn.world_cue("D", w)), "duel intro for %s" % w)
+		check(cues.has(FirstTurn.world_number_cue("W", w)), "world arrival for %s" % w)
+		check(cues.has(FirstTurn.world_number_cue("D", w)), "duel intro for %s" % w)
 	for n in range(1, 12):
 		check(bool(cues.get("N%d" % n, {}).get("once", false)), "N%d is once per child" % n)
 	return true
 
 
 func test_world_cues_by_world_order() -> bool:
-	eq([FirstTurn.world_cue("W", "lava_caves"), FirstTurn.world_cue("W", "crystal_mines"),
-			FirstTurn.world_cue("W", "bog"), FirstTurn.world_cue("W", "mushroom_forest"),
-			FirstTurn.world_cue("W", "space")], ["W1", "W2", "W3", "W4", "W5"], "W1..W5")
-	eq(FirstTurn.world_cue("D", "bog"), "D3", "Bog miniboss intro")
-	eq(FirstTurn.world_cue("W", "nowhere"), "W1", "unknown world reads as Lava")
+	eq([FirstTurn.world_number_cue("W", "lava_caves"), FirstTurn.world_number_cue("W", "crystal_mines"),
+			FirstTurn.world_number_cue("W", "bog"), FirstTurn.world_number_cue("W", "mushroom_forest"),
+			FirstTurn.world_number_cue("W", "space")], ["W1", "W2", "W3", "W4", "W5"], "W1..W5")
+	eq(FirstTurn.world_number_cue("D", "bog"), "D3", "Bog miniboss intro")
+	eq(FirstTurn.world_number_cue("W", "nowhere"), "W1", "unknown world reads as Lava")
 	return true
 
 

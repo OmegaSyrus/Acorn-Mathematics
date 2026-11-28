@@ -434,7 +434,7 @@ func _happy() -> void:
 func _hit() -> void:
 	monster_state = "strike"
 	await _tween_prop("monster_dx", -260.0, 0.18)
-	Beeper.bad()
+	Beeper.play("hit")
 	_blink("hero_flash")
 	var breaking := _break_hero_heart()
 	await _tween_prop("hero_dx", -40.0, 0.1)
@@ -450,7 +450,7 @@ func _monster_collapse() -> void:
 	monster_state = "collapse"
 	await _tween_prop("monster_sink", 1.0, 0.8)
 	_say("Yes!")
-	Beeper.good()
+	Beeper.play("poof")
 	Ellwynn.enemy_beaten()
 	await _wait(1.0)
 
@@ -471,7 +471,7 @@ func _boss_door() -> void:
 	choice.present([door_rect().grow(40.0)])
 	tutor.prompt("P9", func() -> bool: return door_alpha >= 0.0 and choice.active)
 	await choice.picked
-	Beeper.good()
+	Beeper.play("door")
 	_say("Go!")
 	await _tween_prop("hero_dx", MONSTER_POS.x - HERO_POS.x, 0.6)
 	await _tween_prop("door_alpha", 0.0, 0.3)
@@ -628,7 +628,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _open_voice() -> void:
 	Ellwynn.clear_prompt()
 	if is_duel:
-		tutor.event(FirstTurn.world_cue("D", WorldTheme.world_of_monster(fight.monster_id)))
+		tutor.event(FirstTurn.world_number_cue("D", WorldTheme.world_of_monster(fight.monster_id)))
 		tutor.begin("T13", _shields_rect, "sweep_down")
 	else:
 		tutor.event("F1")

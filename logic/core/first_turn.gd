@@ -104,7 +104,7 @@ func tick(dt: float, talking: bool) -> String:
 # --- which line, from the content ------------------------------------------
 
 ## "W1".."W5" by world order (a world not listed is Lava's).
-static func world_cue(prefix: String, world_id: String) -> String:
+static func world_number_cue(prefix: String, world_id: String) -> String:
 	var i := WORLD_ORDER.find(world_id)
 	return "%s%d" % [prefix, (i if i >= 0 else 0) + 1]
 
