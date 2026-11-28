@@ -25,6 +25,8 @@ const Monsters := preload("res://logic/fight/monsters.gd")
 const GameMenu := preload("res://game/ui/game_menu.gd")
 const WorldTheme := preload("res://game/ui/world_theme.gd")
 const Ambient := preload("res://game/ui/ambient.gd")
+const Store := preload("res://logic/core/store.gd")
+const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 
 const ART := "res://art/lava/"
 const STRIP_SCALE := 3.0
@@ -158,6 +160,8 @@ var revealed := -1     # the event space the dragon is on, its contents shown
 var reveal := 0.0      # 0..1 pop-in of the revealed chest or monster
 var lid_open := false
 var opening := -1      # chest space whose gems are flying
+var currency := "gems"  # what this world's chests give (Store.currency_of_world)
+var gem_scale := 1.0     # the currency's art drawn as big as the 40 px gem
 var gems_unshown := 0  # gems already banked in the save whose chest hasn't opened on screen yet
 var gem_fly := 0.0     # seconds since the open chest's gems burst out
 var gem_count := 0
@@ -196,6 +200,13 @@ func _ready() -> void:
 	for f in ["strip", "marker-treasure", "marker-enemy", "tile-wall-basalt", "chest-closed", "chest-open", "gem"]:
 		tex[f] = load(ART + f + ".png")
 	theme = WorldTheme.get_theme(str(run.area.get("world", WorldTheme.DEFAULT)))
+	# the world's own currency in its chests and on the counter (Phase 0):
+	# gems in the Lava Caves, crystals, brooches, leaves and feathers after
+	currency = Store.currency_of_world(Store.catalog(), str(run.area.get("world", WorldTheme.DEFAULT)))
+	var icon := CurrencyIcon.texture(currency)
+	if icon != null:
+		tex["gem"] = icon
+	gem_scale = 40.0 / maxf(tex["gem"].get_width(), tex["gem"].get_height())
 	for p in theme["stones"]:
 		stone_tex.append(load(p))
 	for p in theme["ceiling"]:
@@ -331,7 +342,7 @@ func _play_walk(w: Dictionary) -> void:
 	# chest twice on resume. The counter still climbs as each chest opens.
 	if not chest_gems.is_empty():
 		var total := int(w.get("gems", 0))
-		SaveData.add_gems(save, total)
+		Store.add(save, currency, total)
 		gems_unshown += total
 		_save_progress()
 	var heart_spaces: Array = w.get("hearts", [])
@@ -1363,13 +1374,13 @@ func _draw_cleared(font: Font) -> void:
 ## longer number grows to the left.
 func _draw_gems(font: Font) -> void:
 	var gem: Texture2D = tex["gem"]
-	var text := str(int(save.get("gems", 0)) - gems_unshown)
+	var text := str(Store.balance(save, currency) - gems_unshown)
 	var right := GameMenu.button_rect(get_viewport()).position.x - 8.0
 	var x := right - font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT).x
-	gem_icon = Vector2(x - 46, GEMS_Y) + gem.get_size() / 2.0
+	gem_icon = Vector2(x - 46, GEMS_Y) + Vector2(20, 20)
 	# a little jump as each chest gem lands
 	var j := 1.0 + 0.35 * gem_pop
-	var size := gem.get_size() * j
+	var size := gem.get_size() * gem_scale * j
 	hud.draw_texture_rect(gem, Rect2(gem_icon - size / 2.0 - Vector2(0, 6.0 * gem_pop), size), false)
 	var lift := Vector2(0, -6.0 * gem_pop)
 	hud.draw_string_outline(font, Vector2(x, GEMS_Y + 30) + lift, text, HORIZONTAL_ALIGNMENT_LEFT, -1, GEMS_FONT, 6, DARK)
@@ -1425,7 +1436,7 @@ func _draw_chest_gems() -> void:
 				var back := maxf(0.0, ez - 0.07 * (m + 1))
 				var q := top.lerp(ctrl, back).lerp(ctrl.lerp(gem_icon, back), back)
 				_sparkle(q, 5.0 - m, 0.8 - 0.25 * m)
-		var size := gem.get_size() * sc * 1.5  # bigger than the counter's gem: easy to follow
+		var size := gem.get_size() * gem_scale * sc * 1.5  # bigger than the counter's gem: easy to follow
 		# the spin: the gem narrows and widens as if it turns
 		var w := maxf(0.15, absf(spin)) * size.x
 		hud.draw_texture_rect(gem, Rect2(p - Vector2(w, size.y) / 2.0, Vector2(w, size.y)), false,
