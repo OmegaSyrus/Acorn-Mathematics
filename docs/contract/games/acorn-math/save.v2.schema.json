@@ -28,6 +28,7 @@
     "run": {"type": ["object", "null"], "description": "The level in progress. Stays on its device: never merged."},
     "parent_open": {"type": "array", "items": {"type": "string"}, "deprecated": true, "description": "Worlds a grown-up opened on the tablet. Phase 1 removes the switches; kept so old saves still read."},
     "ellwynn_intro_seen": {"type": "boolean"},
+    "taught": {"type": "object", "description": "Ellwynn's taught first turn: cue id (T1, N3 ...) -> true once this child has heard it.", "additionalProperties": {"type": "boolean"}},
     "debug_unlock": {"type": "boolean"}
   }
 }

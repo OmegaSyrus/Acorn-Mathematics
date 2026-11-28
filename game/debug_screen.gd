@@ -10,16 +10,25 @@
 ## - "Fights" (Phase 2 of the ship plan, 2026-11-28): monster fights ask the
 ##   step before's math (the default) or the level's own (save["fight_math"],
 ##   ScrollRun.FIGHTS_*). The play log notes which on every line.
+## - "Voice" (Phase 3, 2026-11-28): the stand-in voice (the tablet's own
+##   text-to-speech reading a cue with no recording yet) on or off, for the
+##   whole tablet (Ellwynn.set_stand_in_voice). On by default.
+## - "Teach again": this child's taught first turn (T1 to T15, N1 to N11)
+##   plays again, without a Reset (main.gd clears save["taught"] and writes
+##   the save). "Teach: fresh" when there is nothing left to clear.
 extends Node2D
 
 signal back
 ## A jump: the world's area id, the level number (1 to 6) and "" (the
 ## crossing), "duel" or "boss".
 signal jump(area_id: String, level: int, stage: String)
+## "Teach again": main.gd clears this child's taught marks and saves.
+signal teach_again
 
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const ScrollRun := preload("res://logic/path/scroll_run.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
 
 const INK := Color(0.96, 0.94, 0.9)
 const DIM := Color(0.8, 0.76, 0.72)
@@ -33,8 +42,11 @@ const LEVEL_SIZE := Vector2(80, 64)
 ## Five rows, one per world (Mushroom Forest added 2026-11-12, room for Space).
 const ROW_Y := [176.0, 246.0, 316.0, 386.0, 456.0]
 const STAGES := [["Walk", ""], ["Mini", "duel"], ["Boss", "boss"]]
-const STAGE_X := [310.0, 490.0, 670.0]
-const STAGE_SIZE := Vector2(160, 60)
+const STAGE_X := [310.0, 440.0, 570.0]
+const STAGE_SIZE := Vector2(120, 60)
+## Ellwynn's switches, a column right of the jumps (inside the 4:3 band).
+const VOICE_RECT := Rect2(700, 176, 140, 60)
+const TEACH_RECT := Rect2(700, 246, 140, 60)
 
 var save: Dictionary
 var worlds: Array = []   # the built worlds (with an area), at most 5 rows
@@ -55,6 +67,8 @@ func _ready() -> void:
 	buttons.append({"rect": BACK_RECT, "kind": "back"})
 	buttons.append({"rect": FIGHTS_RECT, "kind": "fights"})
 	buttons.append({"rect": UNLOCK_RECT, "kind": "unlock"})
+	buttons.append({"rect": VOICE_RECT, "kind": "voice"})
+	buttons.append({"rect": TEACH_RECT, "kind": "teach"})
 	for n in range(1, 7):
 		buttons.append({"rect": Rect2(Vector2(LEVEL_X + (n - 1) * (LEVEL_SIZE.x + 10), LEVEL_Y), LEVEL_SIZE),
 				"kind": "level", "level": n})
@@ -83,6 +97,14 @@ func _ready() -> void:
 			"fights":
 				save["fight_math"] = ScrollRun.FIGHTS_STEP_BEFORE if ScrollRun.fights_setting(save) == ScrollRun.FIGHTS_OWN else ScrollRun.FIGHTS_OWN
 				Beeper.tone(660.0, 0.08)
+			"voice":
+				var ell := EllwynnRef.here(self)
+				if ell != null:
+					ell.set_stand_in_voice(not ell.stand_in_voice)
+				Beeper.tone(660.0, 0.08)
+			"teach":
+				teach_again.emit()
+				Beeper.good()
 			"level":
 				level = int(b["level"])
 				save["difficulty"] = level
@@ -111,6 +133,15 @@ func _draw() -> void:
 				var on := bool(save.get("debug_unlock", false))
 				_button(font, r, "Map: all open" if on else "Map: locked",
 						Color(0.2, 0.55, 0.3) if on else Color(0.3, 0.27, 0.26), 28)
+			"voice":
+				var on := voice_on()
+				_button(font, r, "Voice: on" if on else "Voice: off",
+						Color(0.2, 0.55, 0.3) if on else Color(0.3, 0.27, 0.26), 26)
+			"teach":
+				var t = save.get("taught", {})
+				var any: bool = t is Dictionary and not t.is_empty()
+				_button(font, r, "Teach again" if any else "Teach: fresh",
+						Color(0.2, 0.45, 0.6) if any else Color(0.3, 0.27, 0.26), 22)
 			"level":
 				var picked := int(b["level"]) == level
 				_button(font, r, str(b["level"]), Color(0.62, 0.45, 0.12) if picked else Color(0.3, 0.27, 0.26), 34)
@@ -128,8 +159,14 @@ func _draw() -> void:
 		var c: Array = w.get("color", [1, 1, 1])
 		draw_string(font, Vector2(120, ROW_Y[r] + 40), str(w["name"]), HORIZONTAL_ALIGNMENT_LEFT, 190, 21,
 				Color(c[0], c[1], c[2]))
-	draw_string(font, Vector2(120, 536), "Debug. Each jump starts fresh at the picked level. Fights: what monsters ask.", HORIZONTAL_ALIGNMENT_LEFT,
+	draw_string(font, Vector2(120, 536), "Debug. Jumps start fresh at the picked level. Voice: stand-in speech. Teach: first turn again.", HORIZONTAL_ALIGNMENT_LEFT,
 			-1, 16, DIM)
+
+
+## The stand-in voice is on (Ellwynn's setting; on when there is no Ellwynn).
+func voice_on() -> bool:
+	var ell := EllwynnRef.here(self)
+	return ell == null or bool(ell.stand_in_voice)
 
 
 func _button(font: Font, r: Rect2, text: String, col: Color, size: int) -> void:

@@ -52,6 +52,7 @@ const Modes := preload("res://logic/modes/modes.gd")
 ## beep "no"; a mode just opened wears "New!" until first tapped.
 const ARENA_RECT := Rect2(544, 312, 136, 60)
 const BOUNCE_RECT := Rect2(692, 312, 136, 60)
+const EllwynnRef := preload("res://game/ellwynn.gd")
 
 ## Reset (Terrence 2026-11-07): a small grey button top right; it opens a
 ## question, and "Yes" only works if held down for HOLD_S seconds, so a child
@@ -132,6 +133,10 @@ func _ready() -> void:
 	while true:
 		choice.present(rects, first)
 		var i: int = await choice.picked
+		# any button cuts her off; Play and Shop then say their own (main.gd)
+		var ell := EllwynnRef.here(self)
+		if ell != null:
+			ell.stop_voice()
 		if buttons[i].get("reset", false):
 			if await _ask_reset():
 				reset_save.emit()
@@ -159,6 +164,8 @@ func _ready() -> void:
 			continue
 		if buttons[i].get("difficulty", false):
 			_next_difficulty()
+			if ell != null:
+				ell.cue_play("M7")
 			first = i
 			continue
 		save["difficulty"] = grade_id
