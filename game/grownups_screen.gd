@@ -3,7 +3,8 @@
 ## done or not at it. The Level buttons 1 to 6 pick the Level the child
 ## plays (Terrence 2026-11-17: a parent changes the Level); picking one
 ## opens it (AreaFlow.pick_level). Worlds inside a Level still open by play;
-## Debug stays for testing.
+## Debug stays for testing. The child it changes (the one playing now) is
+## named under the title, with their picture's half-size twin at 1:1.
 ## Children opens the switcher in manage mode (profile plan S1: a card per
 ## child opens their edit screen, New adds one); PIN sets or changes the parent
 ## PIN that guards this panel (parent app plan v2). Back returns to the main
@@ -18,6 +19,7 @@ const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
 const AreaFlow := preload("res://logic/path/area_flow.gd")
 const Content := preload("res://logic/core/content.gd")
+const Look := preload("res://game/ui/look.gd")
 
 const INK := Color(0.96, 0.94, 0.9)
 const DIM := Color(0.8, 0.76, 0.72)
@@ -41,10 +43,16 @@ var level := 1
 var choice: ChoiceWidget
 ## A parent PIN is set (main.gd passes it; the PIN button says Set or Change).
 var has_pin := false
+## The child this panel changes: their nickname and picture (Profiles).
+var child_name := ""
+var child_picture := ""
 
 
-func setup(profile: Dictionary, world_list: Array) -> void:
+## child is the active profile entry from the roster ({nickname, picture}).
+func setup(profile: Dictionary, world_list: Array, child := {}) -> void:
 	save = profile
+	child_name = str(child.get("nickname", ""))
+	child_picture = str(child.get("picture", ""))
 	worlds = world_list.slice(0, ROW_Y.size())
 	level = clampi(int(save.get("difficulty", 1)), 1, AreaFlow.level_reached(save, world_list))
 
@@ -63,6 +71,8 @@ func state_of(i: int) -> String:
 
 
 func _ready() -> void:
+	if child_picture != "":
+		Look.hero_texture_half(child_picture)  # loaded before _draw
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	var rects := [BACK_RECT, CHILDREN_RECT, PIN_RECT]
@@ -91,7 +101,7 @@ func _ready() -> void:
 func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0.1, 0.1, 0.13))
-	draw_string(font, Vector2(270, 62), "Grown-ups", HORIZONTAL_ALIGNMENT_CENTER, 250, 36, GOLD)
+	_draw_title(font)
 	_button(font, BACK_RECT, "Back", GREY, 30)
 	_button(font, CHILDREN_RECT, "Children", Color(0.24, 0.3, 0.38), 26)
 	_button(font, PIN_RECT, "Change PIN" if has_pin else "Set PIN", Color(0.24, 0.3, 0.38), 24)
@@ -112,6 +122,27 @@ func _draw() -> void:
 		draw_string(font, r.position + Vector2(0, 37), st, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 26, INK)
 	draw_string(font, Vector2(120, 520), "Tap a Level to play it. Worlds open by beating the one before.",
 			HORIZONTAL_ALIGNMENT_LEFT, 720, 18, DIM)
+
+
+## The title between Back and Children: "Grown-ups", and under it the child
+## it changes, their picture standing at the left (half-size twin, 1:1).
+func _draw_title(font: Font) -> void:
+	if child_name == "":
+		draw_string(font, Vector2(270, 62), "Grown-ups", HORIZONTAL_ALIGNMENT_CENTER, 250, 36, GOLD)
+		return
+	var x := 280.0
+	if child_picture != "":
+		var tex := Look.hero_texture_half(child_picture)
+		if tex != null:
+			# one art pixel = one unit, never scaled; feet on the bar's bottom
+			draw_texture(tex, Vector2(x, 80 - tex.get_height()).round())
+			x += tex.get_width() + 10
+	var w := 520.0 - x
+	draw_string(font, Vector2(x, 44), "Grown-ups", HORIZONTAL_ALIGNMENT_LEFT, w, 26, GOLD)
+	var size := 24
+	while size > 16 and font.get_string_size(child_name, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > w:
+		size -= 2
+	draw_string(font, Vector2(x, 74), child_name, HORIZONTAL_ALIGNMENT_LEFT, w, size, INK)
 
 
 func _button(font: Font, r: Rect2, text: String, col: Color, size: int) -> void:
