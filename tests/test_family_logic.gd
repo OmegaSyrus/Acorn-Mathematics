@@ -310,7 +310,8 @@ func _settings(fields: Dictionary) -> Dictionary:
 
 func test_settings_parsing() -> bool:
 	var sample: Dictionary = JsonUtil.load_file("res://docs/contract/samples/settings.json")
-	eq(FamilyLimits.parse_settings(sample), {"daily_minutes": 30, "bedtime": null}, "the sample (unknown keys ignored)")
+	eq(FamilyLimits.parse_settings(sample), {"daily_minutes": 30, "bedtime": "19:30"}, "the contract sample")
+	eq(FamilyLimits.parse_settings(_settings({"daily_minutes": 30, "no_play_after": "19:30"})), {"daily_minutes": 30, "bedtime": null}, "unknown keys ignored")
 	eq(FamilyLimits.parse_settings(_settings({"daily_minutes": 45, "bedtime": "19:30"})),
 			{"daily_minutes": 45, "bedtime": "19:30"}, "both")
 	eq(FamilyLimits.parse_settings(_settings({"daily_minutes": 300, "bedtime": "25:00"})), FamilyLimits.NO_LIMITS,
