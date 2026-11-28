@@ -15,6 +15,9 @@ const LEGACY_PROFILE := "1"
 static var profile := LEGACY_PROFILE
 ## Where saves live; tests point it at a temp folder.
 static var dir := "user://"
+## Called with the profile id after each write (main.gd hands it to the
+## family add-on, which backs the save up a little later). Empty in tests.
+static var written := Callable()
 
 
 static func path_for(profile_id: String) -> String:
@@ -41,7 +44,10 @@ static func read_profile(profile_id: String) -> Dictionary:
 
 
 static func write(save: Dictionary) -> void:
-	write_to(path_for(str(save.get("profile", profile))), SaveData.to_text(save))
+	var id := str(save.get("profile", profile))
+	write_to(path_for(id), SaveData.to_text(save))
+	if written.is_valid():
+		written.call(id)
 
 
 ## Text to a file through a temp file, so a crash never leaves half a file.
