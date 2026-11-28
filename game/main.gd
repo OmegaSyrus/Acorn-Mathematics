@@ -369,7 +369,7 @@ func _process(delta: float) -> void:
 	_limit_check -= delta
 	if _limit_check <= 0.0:
 		_limit_check = 1.0
-		if screen is MapScreen or screen is WorldMapScreen or screen is StoreScreen or screen is ProfileScreen:
+		if is_instance_valid(screen) and (screen is MapScreen or screen is WorldMapScreen or screen is StoreScreen or screen is ProfileScreen):
 			_rest_if_due()
 	if Input.is_action_just_pressed("fullscreen"):
 		var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
