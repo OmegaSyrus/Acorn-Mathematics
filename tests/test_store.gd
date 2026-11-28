@@ -21,6 +21,7 @@ func test_catalog_is_well_formed() -> bool:
 		ids[it["id"]] = true
 		check(Store.KINDS.has(it["kind"]), "bad kind " + str(it["kind"]))
 		check(str(it["name"]).length() <= 10, "short name for %s" % it["id"])
+		check(not (it.has("price") and it.has("reward")), "%s: a price or a Level reward, not both" % it["id"])
 		if it.has("price"):
 			var p: Dictionary = it["price"]
 			check(cat["currencies"].has(p["currency"]), "%s: unknown currency %s" % [it["id"], p["currency"]])
@@ -38,8 +39,10 @@ func test_catalog_is_well_formed() -> bool:
 				check(it.get("look", {}).has(key), "%s: look.%s" % [it["id"], key])
 	for kind in Store.KINDS:
 		check(Store.default_id(cat, kind) != "", "a free %s to start with" % kind)
-		# the store shows 7 by 2 cards a tab (game/store_screen.gd COLS)
-		check(Store.items(cat, kind).size() <= 14, "%s tab fits the 7 by 2 grid (%d)" % [kind, Store.items(cat, kind).size()])
+		# the store shows 7 by 2 cards a tab (game/store_screen.gd COLS); the
+		# Level rewards have a tab of their own
+		check(Store.shop_items(cat, kind).size() <= 14, "%s tab fits the 7 by 2 grid (%d)" % [kind, Store.shop_items(cat, kind).size()])
+	check(Store.reward_items(cat).size() <= 14, "the Level tab fits the 7 by 2 grid")
 	for cid in cat["currencies"]:
 		var c: Dictionary = cat["currencies"][cid]
 		check(c.has("icon") and c["icon"].has("shape"), "currency %s has an icon" % cid)
@@ -49,14 +52,15 @@ func test_catalog_is_well_formed() -> bool:
 
 
 ## Terrence 2026-11-06: gems buy three Lava items: Red Bolt, Green Bolt and
-## the helmet slime (two more Lava items, so gems have more to buy).
+## the helmet slime (two more Lava items, so gems have more to buy). Phase 6:
+## the gold dice too, once the Sprout stars were gone.
 func test_gem_items_are_the_lava_items() -> bool:
 	var cat := Store.catalog()
 	var gem_priced := []
 	for it in cat["items"]:
 		if it.has("price") and it["price"]["currency"] == "gems":
 			gem_priced.append(it["id"])
-	eq(gem_priced, ["bolt_red", "bolt_green", "slime_knight"], "gem items")
+	eq(gem_priced, ["bolt_red", "bolt_green", "slime_knight", "gold"], "gem items")
 	eq(Store.item(cat, "slime_knight")["price"], {"currency": "gems", "amount": 25}, "slime price")
 	return true
 
@@ -140,7 +144,8 @@ func test_gem_prices_fit_the_treasure() -> bool:
 func test_bolt_colors_recolor_the_body_only() -> bool:
 	var Look = load("res://game/ui/look.gd")
 	var base: Image = Look.hero_texture("robodragon").get_image()
-	for id in ["bolt_red", "bolt_green"]:
+	# Phase 6: the Level 4 to 6 Bolts (black, purple, pink) are paints too
+	for id in ["bolt_red", "bolt_green", "bolt_black", "bolt_purple", "bolt_pink"]:
 		var img: Image = Look.hero_texture(id).get_image()
 		eq(img.get_size(), base.get_size(), "%s same size as Bolt" % id)
 		var changed := 0
@@ -188,8 +193,8 @@ func test_fresh_profile_owns_and_uses_the_defaults() -> bool:
 	eq(Store.equipped(cat, s, "dice"), "classic", "dice")
 	eq(Store.state(cat, s, "robodragon"), Store.EQUIPPED, "dragon state")
 	eq(Store.state(cat, s, "slime_knight"), Store.SHORT, "slime with no gems")
-	eq(Store.state(cat, s, "lion"), Store.LOCKED, "lion")
-	eq(Store.state(cat, s, "gold"), Store.LOCKED, "gold dice")
+	eq(Store.state(cat, s, "lion"), Store.LEVEL, "lion waits for the Level 1 pass")
+	eq(Store.state(cat, s, "gold"), Store.SHORT, "gold dice, priced in gems")
 	return true
 
 
@@ -217,16 +222,18 @@ func test_buy_the_slime() -> bool:
 
 
 func test_locked_items_cant_be_bought_or_used() -> bool:
-	var cat := Store.catalog()
+	var cat: Dictionary = Store.catalog().duplicate(true)
+	cat["currencies"]["feathers"]["open"] = false
 	var s := _fresh()
-	Store.add(s, "sprout_stars", 999)
-	eq(Store.balance(s, "sprout_stars"), 999, "stars kept in currencies")
+	Store.add(s, "feathers", 999)
+	eq(Store.balance(s, "feathers"), 999, "feathers kept in currencies")
 	eq(s["gems"], 0, "gems untouched")
-	check(Store.is_locked(cat, s, "lion"), "sprout stars can't be earned yet")
-	check(not Store.buy(cat, s, "lion"), "locked: no buy")
-	check(not Store.equip(cat, s, "lion"), "not owned: no equip")
+	check(Store.is_locked(cat, s, "eagle"), "closed feathers can't be earned")
+	eq(Store.state(cat, s, "eagle"), Store.LOCKED, "a lock")
+	check(not Store.buy(cat, s, "eagle"), "locked: no buy")
+	check(not Store.equip(cat, s, "eagle"), "not owned: no equip")
 	check(not Store.equip(cat, s, "nonsense"), "unknown id")
-	eq(Store.balance(s, "sprout_stars"), 999, "nothing spent")
+	eq(Store.balance(s, "feathers"), 999, "nothing spent")
 	return true
 
 

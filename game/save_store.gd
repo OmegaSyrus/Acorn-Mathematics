@@ -5,6 +5,8 @@
 extends RefCounted
 
 const SaveData := preload("res://logic/core/save_data.gd")
+const Store := preload("res://logic/core/store.gd")
+const Content := preload("res://logic/core/content.gd")
 
 ## The version 1 profile id (one save, user://profile_1.json).
 const LEGACY_PROFILE := "1"
@@ -32,7 +34,10 @@ static func read_profile(profile_id: String) -> Dictionary:
 	var text := ""
 	if FileAccess.file_exists(p):
 		text = FileAccess.get_file_as_string(p)
-	return SaveData.from_text(text, profile_id)
+	var save := SaveData.from_text(text, profile_id)
+	# a save that beat a Level before its hero came in gets the hero now
+	Store.grant_level_rewards(Store.catalog(), save, Content.worlds())
+	return save
 
 
 static func write(save: Dictionary) -> void:

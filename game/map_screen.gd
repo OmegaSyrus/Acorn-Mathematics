@@ -16,6 +16,12 @@ signal debug
 signal grown_ups
 ## The player button (top left): main.gd opens the profile page (S3).
 signal who
+## The Book button (Phase 6): main.gd opens the monster book.
+signal book
+## The modes (Phase 6): Arena (fights only) and Bounce (beaten bosses again),
+## each tapped while open; main.gd opens them (game/modes_flow.gd).
+signal arena
+signal bounce
 signal _answered(yes: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
@@ -27,7 +33,12 @@ const Look := preload("res://game/ui/look.gd")
 ## the gem count on it.
 const SHOP_RECT := Rect2(624, 392, 200, 120)
 ## Right of Ellwynn (bottom left, x 150..310): buttons stay right of x 380.
-const DIFF_RECT := Rect2(604, 196, 200, 96)
+## (Phase 6: 30 higher, to make room for the row of small buttons below.)
+const DIFF_RECT := Rect2(604, 166, 200, 96)
+## The row of small buttons between the Level marks and Play (Phase 6):
+## Book first; two more modes fit after it at x 544 and 692, same size.
+const ROW_Y := 312.0
+const BOOK_RECT := Rect2(396, ROW_Y, 136, 60)
 const PLAY_RECT := Rect2(396, 392, 200, 120)
 const GEM_TEX := preload("res://art/lava/gem.png")
 const Pointer := preload("res://game/ui/pointer.gd")
@@ -35,6 +46,12 @@ const Pointer := preload("res://game/ui/pointer.gd")
 const MenuScene := preload("res://game/ui/menu_scene.gd")
 const Marks := preload("res://game/ui/marks.gd")
 const Content := preload("res://logic/core/content.gd")
+const Modes := preload("res://logic/modes/modes.gd")
+## The modes (Phase 6), in the row of small buttons between the Level marks
+## and Play, after the Book's place at x 396. Locked ones show a lock and
+## beep "no"; a mode just opened wears "New!" until first tapped.
+const ARENA_RECT := Rect2(544, 312, 136, 60)
+const BOUNCE_RECT := Rect2(692, 312, 136, 60)
 
 ## Reset (Terrence 2026-11-07): a small grey button top right; it opens a
 ## question, and "Yes" only works if held down for HOLD_S seconds, so a child
@@ -101,6 +118,9 @@ func _ready() -> void:
 	buttons.append({"rect": RESET_RECT, "label": "Reset", "reset": true, "resume": false})
 	buttons.append({"rect": DEBUG_RECT, "label": "Debug", "debug": true, "resume": false})
 	buttons.append({"rect": GATE_RECT, "label": "Grown-ups", "gate": true, "resume": false})
+	buttons.append({"rect": BOOK_RECT, "label": "Book", "book": true, "resume": false})
+	buttons.append({"rect": ARENA_RECT, "label": "Arena", "mode": Modes.ARENA, "resume": false})
+	buttons.append({"rect": BOUNCE_RECT, "label": "Bounce", "mode": Modes.BOUNCE, "resume": false})
 	if not player.is_empty():
 		WhoScreen.picture(str(player.get("picture", "")))  # loaded before _draw
 		buttons.append({"rect": PLAYER_RECT, "label": "", "who": true, "resume": false})
@@ -129,6 +149,14 @@ func _ready() -> void:
 		if buttons[i].get("shop", false):
 			shop.emit()
 			return
+		if buttons[i].get("book", false):
+			book.emit()
+			return
+		if buttons[i].has("mode"):
+			if _tap_mode(String(buttons[i]["mode"])):
+				return
+			first = i
+			continue
 		if buttons[i].get("difficulty", false):
 			_next_difficulty()
 			first = i
@@ -136,6 +164,20 @@ func _ready() -> void:
 		save["difficulty"] = grade_id
 		start.emit(grade_id, false)
 		return
+
+
+## A mode button tapped: an open one loses its "New!" and opens (true);
+## a locked one gives a soft "no" beep and the menu stays (false).
+func _tap_mode(mode: String) -> bool:
+	if not Modes.is_open(save, mode):
+		Beeper.tone(220.0, 0.18, -14.0)
+		return false
+	Modes.mark_seen(save, mode)
+	if mode == Modes.ARENA:
+		arena.emit()
+	else:
+		bounce.emit()
+	return true
 
 
 ## Tapping the difficulty steps to the next open one (round again after the last).
@@ -213,10 +255,16 @@ func _draw() -> void:
 		if b.get("shop", false):
 			_draw_shop(font, r)
 			continue
+		if b.get("book", false):
+			_draw_book(font, r)
+			continue
 		if b.get("debug", false):
 			RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
 			draw_string(font, r.position + Vector2(0, 35), "Debug", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
 					Color(0.8, 0.76, 0.72))
+			continue
+		if b.has("mode"):
+			_draw_mode(font, r, String(b["mode"]), String(b["label"]))
 			continue
 		if b.get("reset", false):
 			RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
@@ -289,6 +337,29 @@ func _draw_level_marks(r: Rect2) -> void:
 				id > 0 and SaveData.has_star(save, w["id"], id), tint)
 
 
+## A mode button: orange when open (with a red "New!" tag until first
+## tapped), grey with a padlock when locked.
+func _draw_mode(font: Font, r: Rect2, mode: String, label: String) -> void:
+	var ink := Color(0.96, 0.94, 0.9)
+	if not Modes.is_open(save, mode):
+		RoundBox.fill(self, r, Color(0.3, 0.27, 0.26, 0.92), 14.0)
+		draw_string(font, r.position + Vector2(40, 39), label, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 42, 24,
+				Color(0.7, 0.66, 0.62))
+		var c := r.position + Vector2(22, 32)
+		draw_arc(c + Vector2(0, -4), 9.0, PI, TAU, 12, TITLE_EDGE, 5.0)
+		RoundBox.fill(self, Rect2(c + Vector2(-13, -4), Vector2(26, 20)), TITLE_EDGE, 4.0)
+		draw_circle(c + Vector2(0, 5), 3.0, Color(0.7, 0.66, 0.62))
+		return
+	RoundBox.fill(self, r, Color(0.8, 0.42, 0.14), 14.0)
+	RoundBox.frame(self, r, Color(1.0, 0.82, 0.35), 3.0, 14.0)
+	draw_string(font, r.position + Vector2(0, 41), label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 30, ink)
+	if Modes.is_new(save, mode):
+		var tag := Rect2(r.end.x - 58, r.position.y - 14, 64, 28)
+		RoundBox.fill(self, tag, Color(0.85, 0.15, 0.2), 10.0)
+		RoundBox.frame(self, tag, ink, 2.0, 10.0)
+		draw_string(font, tag.position + Vector2(0, 21), "New!", HORIZONTAL_ALIGNMENT_CENTER, tag.size.x, 18, ink)
+
+
 ## The Grown-ups button: blue like the Grown-ups panel's own buttons, with
 ## a light frame, so it reads as a button to tap.
 func _draw_gate(font: Font) -> void:
@@ -313,6 +384,18 @@ func _draw_player(font: Font) -> void:
 		draw_texture_rect_region(tex, Rect2(r.position + Vector2(6 + roundf((FACE.x - w) / 2.0), 5), src.size), src)
 	draw_string(font, r.position + Vector2(FACE.x + 16, 45), str(player.get("nickname", "")), HORIZONTAL_ALIGNMENT_LEFT,
 			r.size.x - FACE.x - 24, 24, Color(0.96, 0.94, 0.9))
+
+
+## The Book button: a red-brown box with a little closed book and "Book".
+func _draw_book(font: Font, r: Rect2) -> void:
+	RoundBox.fill(self, r, Color(0.56, 0.26, 0.2), 14.0)
+	RoundBox.frame(self, r, Color(1.0, 0.82, 0.35), 3.0, 14.0)
+	var b := Rect2(r.position + Vector2(14, 13), Vector2(28, 34))
+	draw_rect(b.grow(2), TITLE_EDGE)
+	draw_rect(b, Color(0.3, 0.62, 0.38))
+	draw_rect(Rect2(b.position + Vector2(4, 0), Vector2(2, b.size.y)), Color(0.18, 0.4, 0.24))
+	draw_rect(Rect2(b.position + Vector2(10, 9), Vector2(13, 9)), Color(1.0, 0.82, 0.35))
+	draw_string(font, r.position + Vector2(50, 40), "Book", HORIZONTAL_ALIGNMENT_LEFT, -1, 28, Color(0.96, 0.94, 0.9))
 
 
 ## The Shop button: a gem-purple box, "Shop", and the gems to spend.

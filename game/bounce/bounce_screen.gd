@@ -126,6 +126,8 @@ var peg_tex := {}
 var save: Dictionary = {}  # the profile; empty in the standalone graybox and tests (no gems banked)
 ## true when a lost fight ends on Map rather than Try.
 var to_map := false
+## The second button after a loss: "Map" on the path, "Back" in the Bounce mode.
+var back_label := "Map"
 var persist := true        # false: stills and tests leave the profile file alone
 var win_gems := 10         # the bucket, from tuning.json "screen" "win_gems"
 var bucket_t := -1.0       # seconds since the bucket appeared; -1 before the win
@@ -166,10 +168,14 @@ func _load_theme() -> void:
 ## What the win pays (Phase 1, 2026-11-16: big bonuses come once): "first"
 ## the first clear of a world at a Level (tuning "win_gems"), "pass" the
 ## clear that finishes a Level ("pass_gems"), "replay" a world beaten there
-## before ("replay_gems"). Call after setup.
+## before ("replay_gems"). "mode" is the Bounce mode on the main menu
+## (Phase 6): a small "mode_gems" of the world's currency, the path keeps the
+## big ones. Call after setup.
 func set_bonus(kind: String) -> void:
 	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
 	match kind:
+		"mode":
+			win_gems = int(screen_cfg.get("mode_gems", 2))
 		"pass":
 			win_gems = int(screen_cfg.get("pass_gems", 30))
 		"replay":
@@ -848,7 +854,7 @@ func _draw_fail(font: Font) -> void:
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0, 0, 0, 0.6))
 	draw_string(font, Vector2(120, 220), "No more balls", HORIZONTAL_ALIGNMENT_CENTER, 720, 40, INK)
 	fail_buttons = [Rect2(300, 280, 160, 90), Rect2(500, 280, 160, 90)]
-	var labels := ["Try", "Map"]
+	var labels := ["Try", back_label]
 	for i in 2:
 		RoundBox.fill(self, fail_buttons[i], Color(0.3, 0.6, 0.3) if i == 0 else Color(0.4, 0.4, 0.5), 18.0)
 		draw_string(font, fail_buttons[i].position + Vector2(0, 58), labels[i], HORIZONTAL_ALIGNMENT_CENTER, 160, 36, INK)

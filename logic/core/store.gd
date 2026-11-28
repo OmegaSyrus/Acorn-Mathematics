@@ -6,10 +6,16 @@
 ## currency whose "open" is false is locked: it can't be earned yet, so it
 ## can't be bought. Gems are the save's top-level "gems"; every other
 ## currency is save["currencies"][id].
+##
+## Level heroes (Phase 6, 2026-11-28): an item with "reward": {"level_pass": N}
+## has no price. It becomes the child's ("owned") the first time every world
+## is beaten at Level N (AreaFlow.level_beaten), after that boss or when a
+## save that already did it is loaded (grant_level_rewards).
 extends RefCounted
 
 const JsonUtil := preload("res://logic/core/json_util.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
+const AreaFlow := preload("res://logic/path/area_flow.gd")
 
 const PATH := "res://content/store.json"
 const KINDS := ["hero", "dice"]
@@ -20,6 +26,7 @@ const OWNED := "owned"        # owned, not in use: "Use"
 const BUY := "buy"            # open currency, enough of it: "Buy"
 const SHORT := "short"        # open currency, not enough yet: greyed
 const LOCKED := "locked"      # the currency can't be earned yet: a lock
+const LEVEL := "level"        # a Level hero not won yet: a lock and "Level N"
 
 static var _cached := {}
 
@@ -46,12 +53,51 @@ static func item(cat: Dictionary, id: String) -> Dictionary:
 	return {}
 
 
-## The item a kind starts with: its first unpriced item.
+## The item a kind starts with: its first item with no price and no reward.
 static func default_id(cat: Dictionary, kind: String) -> String:
 	for it in items(cat, kind):
-		if not it.has("price"):
+		if not it.has("price") and not it.has("reward"):
 			return it["id"]
 	return ""
+
+
+## The Level whose first full pass gives this item, 0 for a shop item.
+static func reward_level(it: Dictionary) -> int:
+	var r = it.get("reward", {})
+	return int(r.get("level_pass", 0)) if r is Dictionary else 0
+
+
+## The items of a kind that are bought (no reward), in catalog order.
+static func shop_items(cat: Dictionary, kind: String) -> Array:
+	return items(cat, kind).filter(func(it): return reward_level(it) == 0)
+
+
+## Every Level reward (any kind), by its Level.
+static func reward_items(cat: Dictionary) -> Array:
+	var out: Array = cat["items"].filter(func(it): return reward_level(it) > 0)
+	out.sort_custom(func(a, b): return reward_level(a) < reward_level(b))
+	return out
+
+
+## Gives every Level reward whose Level has had its full pass and isn't
+## owned yet; returns the ids given, in Level order (empty when nothing is
+## new). Run after each boss and on every save load, so a save that beat a
+## Level before the rewards existed gets them too. A reward is given once:
+## a replay of the Level gives nothing.
+static func grant_level_rewards(cat: Dictionary, save: Dictionary, worlds: Array) -> Array:
+	var given := []
+	if typeof(save.get("marks")) != TYPE_DICTIONARY:
+		return given
+	for it in reward_items(cat):
+		var id: String = it["id"]
+		if save.get("owned", []).has(id):
+			continue
+		if AreaFlow.level_beaten(save, worlds, reward_level(it)):
+			if not save.has("owned") or not save["owned"] is Array:
+				save["owned"] = []
+			save["owned"].append(id)
+			given.append(id)
+	return given
 
 
 ## The currency a world pays (its chests and its boss's bucket): the open
@@ -97,7 +143,9 @@ static func owns(cat: Dictionary, save: Dictionary, id: String) -> bool:
 	var it := item(cat, id)
 	if it.is_empty():
 		return false
-	return not it.has("price") or save.get("owned", []).has(id)
+	if not it.has("price") and not it.has("reward"):
+		return true
+	return save.get("owned", []).has(id)
 
 
 static func is_locked(cat: Dictionary, save: Dictionary, id: String) -> bool:
@@ -106,6 +154,8 @@ static func is_locked(cat: Dictionary, save: Dictionary, id: String) -> bool:
 		return true
 	if owns(cat, save, id):
 		return false
+	if not it.has("price"):
+		return true  # a Level reward not won yet
 	return not is_open(cat, it["price"]["currency"])
 
 
@@ -133,6 +183,8 @@ static func state(cat: Dictionary, save: Dictionary, id: String) -> String:
 		return LOCKED
 	if owns(cat, save, id):
 		return EQUIPPED if equipped(cat, save, it["kind"]) == id else OWNED
+	if reward_level(it) > 0:
+		return LEVEL
 	if is_locked(cat, save, id):
 		return LOCKED
 	return BUY if can_afford(cat, save, id) else SHORT
