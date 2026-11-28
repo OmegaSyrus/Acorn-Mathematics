@@ -248,6 +248,8 @@ func _use_profile(id: String) -> void:
 ## The play log's place: this area at this level (game/play_log.gd).
 func _log_place(area: Dictionary, grade_id: int) -> void:
 	PlayLog.set_place(area, grade_id, int(_grade(grade_id).get("num", grade_id)))
+	# the Debug fight switch, on every line (Phase 2: the log notes it)
+	PlayLog.place["fights"] = ScrollRun.fights_setting(save)
 
 
 ## `godot --path . -- --area=lava_1_fights` plays another area file.
@@ -498,6 +500,7 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 		run = ScrollRun.new(area, _grade(grade_id), _new_seed())
 		save["run"] = run.to_save()
 		SaveStore.write(save)
+	run.fight_math = ScrollRun.fights_setting(save)
 	var s := ScrollScreen.new()
 	s.setup(run, save, debug_on)
 	# through the door: the miniboss, then the boss, then the mini map
