@@ -46,6 +46,16 @@ const DUCK_DB := 10.0
 ## the music dipped this much (it must be heard over the game).
 const ANSWER_DELAY := 1.0
 const ANSWER_DUCK_DB := 18.0
+## Counting on after a wrong guess (Phase 2, logic/core/count_help.gd): one
+## number this often, each cutting off the one before; the number takes
+## start this far in, past their quiet lead-in. A "then" with no recording
+## is a short beat instead; one with a recording gets its own length, within
+## THEN_MAX_S. The last number gets COUNT_TAIL_S before the count is done.
+const COUNT_STEP_S := 0.5
+const COUNT_SKIP_S := 0.15
+const THEN_GAP_S := 0.25
+const THEN_MAX_S := 1.0
+const COUNT_TAIL_S := 0.6
 ## Loudness (linear magnitude) for the half and open mouth.
 const HALF_AT := 0.012
 const OPEN_AT := 0.035
@@ -78,6 +88,7 @@ var _analyzer: AudioEffectSpectrumAnalyzerInstance
 var _save: Dictionary = {}
 var _gen := 0              # bumps when a show ends, so old timers do nothing
 var _answer_token := 0     # bumps on every stop, so a waiting answer is dropped
+var _count_token := -1     # the _answer_token of the count running now, -1 none
 
 
 func _ready() -> void:
@@ -232,6 +243,82 @@ func say_answer(n: int) -> void:
 		_set_mode("off")
 
 
+## A wrong guess with dice to count (Phase 2, 2026-11-28): after the same
+## ANSWER_DELAY she counts on from the first die, "four, then five, six,
+## seven", or back for a take-away, "six, then five, four", from her portrait
+## with the running number in her bubble. steps is CountHelp.plan(); for
+## each step she calls on_step(step) first, which lights that die or pip and
+## returns false when the dice are gone (the crossing restarted, the fight
+## moved on): the count then stops. No plan, or a number with no recording,
+## and she says the answer as before (say_answer). Paced by timers, so it
+## runs the same with the sound off; nothing waits on it unless it asks
+## is_counting().
+func say_counting(steps: Array, answer: int, on_step: Callable) -> void:
+	if steps.is_empty() or not _has_numbers(steps):
+		say_answer(answer)
+		return
+	stop_voice()
+	var token := _answer_token
+	_count_token = token
+	await get_tree().create_timer(ANSWER_DELAY, true, false, true).timeout
+	if token != _answer_token:
+		return
+	if mode != "menu":
+		_set_mode("answer")
+	var g := _gen
+	var last := steps.size() - 1
+	for k in steps.size():
+		var st: Dictionary = steps[k]
+		if not on_step.is_valid() or not bool(on_step.call(st)):
+			# the dice are gone: stop cleanly
+			if token == _answer_token:
+				stop_voice()
+			_portrait_off(g)
+			return
+		var wait := COUNT_STEP_S
+		if st.has("n"):
+			var n := int(st["n"])
+			_play_now(_number_file(n), str(n), COUNT_SKIP_S)
+		else:
+			var line := _own_line(String(st.get("cue", "")))
+			if line.is_empty():
+				wait = THEN_GAP_S
+			else:
+				_play_now(String(line.get("file", "")), String(line.get("bubble", "")))
+				wait = clampf(_line_len, COUNT_STEP_S, THEN_MAX_S)
+		await get_tree().create_timer(wait if k < last else COUNT_TAIL_S, true, false, true).timeout
+		if token != _answer_token:
+			_portrait_off(g)
+			return
+	_count_token = -1
+	await get_tree().create_timer(1.2, true, false, true).timeout
+	_portrait_off(g)
+
+
+## The answer portrait goes, unless a newer show took over (g is stale).
+func _portrait_off(g: int) -> void:
+	if g == _gen and mode == "answer":
+		_set_mode("off")
+
+
+## True while a count-on (say_counting) is waiting or counting.
+func is_counting() -> bool:
+	return _count_token >= 0 and _count_token == _answer_token
+
+
+## Plays one of the cue's own lines, never a placeholder; false (and quiet)
+## when the cue has no line yet. For lines that are better left unsaid than
+## replaced with a "Yay!" (count_quiet).
+func say_own(cue: String) -> bool:
+	var line := _own_line(cue)
+	if line.is_empty():
+		return false
+	stop_voice()
+	_queue = [line]
+	_next_line()
+	return true
+
+
 ## A number said straight away, with no portrait and no bubble: the count
 ## as the child taps the pips on the crossing (Terrence 2026-11-17). A new
 ## number cuts off the one before.
@@ -294,6 +381,51 @@ func is_talking() -> bool:
 
 
 # --- internals --------------------------------------------------------------
+
+func _number_file(n: int) -> String:
+	var file: String = lines.get("answers", {}).get(str(n), "")
+	return file if file != "" and ResourceLoader.exists(file) else ""
+
+
+func _has_numbers(steps: Array) -> bool:
+	for st in steps:
+		if st.has("n") and _number_file(int(st["n"])) == "":
+			push_warning("Ellwynn: no number line for %d" % int(st["n"]))
+			return false
+	return true
+
+
+## One of the cue's own recorded lines, {} when it has none. A take-away's
+## "then" (count_back_then) uses count_then's line until it has its own.
+func _own_line(cue: String) -> Dictionary:
+	var own: Array = []
+	for line in lines.get("cues", {}).get(cue, []):
+		if line is Dictionary and ResourceLoader.exists(String(line.get("file", ""))):
+			own.append(line)
+	if own.is_empty():
+		if cue == "count_back_then":
+			return _own_line("count_then")
+		return {}
+	return own[rng.randi() % own.size()]
+
+
+## Plays a file now, cutting off whatever she was saying, without dropping
+## a count in progress (stop_voice would).
+func _play_now(file: String, bub: String, from := 0.0) -> void:
+	var stream = load(file) if file != "" else null
+	if stream == null:
+		return
+	_queue.clear()
+	player.stop()
+	bubble = bub
+	_cur_file = file
+	player.stream = stream
+	_line_len = stream.get_length()
+	_line_t = minf(from, _line_len)
+	player.play(_line_t)
+	_duck(ANSWER_DUCK_DB)
+	_fig.queue_redraw()
+
 
 func _set_mode(m: String) -> void:
 	_gen += 1

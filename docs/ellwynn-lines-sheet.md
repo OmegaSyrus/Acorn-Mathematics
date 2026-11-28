@@ -143,3 +143,28 @@ herself.
 **Count:** about 60 lines if every point gets the versions listed. With 2 takes
 each and some retakes, that is at most about 3,000 credits, around 3% of one
 month of the plan Terrence already pays for.
+
+## Counting help (Phase 2, 2026-11-28)
+
+Two new things she does with the dice. Both use the numbers already recorded
+(`answer-0` to `answer-20`); only the little words in between are new. Until a
+point here has its own line she says **nothing** for it (no "Yay!" placeholder).
+The cue ids are in `content/ellwynn_lines.json`.
+
+**K1. "then" when counting on (cue `count_then`)** · one word · 1 to 2 versions
+- When: a wrong stone or a wrong shield on dice that add up. One second after the "Oops!", her portrait slides in top left and she counts on from the first die: "four, **then** five, six, seven". The first die glows with all its dots lit as she says its number, then one dot of the next die lights with each number after.
+- On screen: the dice still up, the dots lighting one by one, the running number in her bubble.
+- Length: just the word, about half a second, said lightly so the counting keeps its rhythm (the numbers come every half second).
+- Your line: ____
+
+**K2. "then" when counting back (cue `count_back_then`)** · one word · 1 version (optional)
+- When: the same, on a take-away (a red die): "six, **then** five, four", the red die's dots lighting as she counts back.
+- On screen: as K1, the red die's dots light one per number.
+- Length: as K1. Leave it empty to use the K1 word here too; record it only if a different word or tone works better for taking away.
+- Your line: ____
+
+**K3. She stops counting the dots (cue `count_quiet`)** · short · 1 to 2 versions (optional)
+- When: once per crossing, right after the second monster is beaten. Until then, every dot the child taps on the crossing gets its number said aloud; from then on the dots still light but she stays quiet, so the child counts alone. (In fights she never counts the taps.)
+- On screen: the crossing comes back after the fight, the hero jumping for joy.
+- Length: 1 to 2 seconds, e.g. "You can count on your own now!"
+- Your line: ____

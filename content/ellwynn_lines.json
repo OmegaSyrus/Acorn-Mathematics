@@ -28,8 +28,12 @@
       }
     ],
     "chest": [],
-    "boss_win": []
+    "boss_win": [],
+    "count_then": [],
+    "count_back_then": [],
+    "count_quiet": []
   },
+  "_count_note": "Phase 2 (2026-11-28), docs/ellwynn-lines-sheet.md K1 to K3: count_then is the \"then\" between the first die and counting on after a wrong answer, count_back_then the same for a take-away (uses count_then's line until it has its own), count_quiet a line said once when she stops counting the dots tapped. These three never fall back to a placeholder: with no line they stay quiet.",
   "_answers_note": "Terrence 2026-11-07: after a wrong guess she says the right answer with a cheerful tone. Bubbles, eleven_v4, prompt \"[cheerful] One!\" and so on, one take each (flow PIySvy4jPrU8YluVR9Mo). 2026-11-08: added 0 and 7-18 (same voice, model and prompt style, one take each) so answers above 6 are spoken too. 2026-11-12: added 19 and 20 for the Mushroom Forest's four dice.",
   "answers": {
     "0": "res://audio/voice/ellwynn/answer-0.mp3",
