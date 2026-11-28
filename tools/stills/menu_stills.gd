@@ -55,8 +55,9 @@ func _ready() -> void:
 		_shot("menu-%d" % i)
 	# the Grown-ups panel with its Level buttons (2026-11-17)
 	var g := GrownUpsScreen.new()
-	g.setup(save, Content.worlds())
+	g.setup(save, Content.worlds(), {"nickname": "Rowan", "picture": "fox"})
 	m.queue_free()
+	Ellwynn.menu_leave()  # main._swap hides her off the menu
 	stage.add_child(g)
 	await _frames(4)
 	_shot("menu-grownups")
