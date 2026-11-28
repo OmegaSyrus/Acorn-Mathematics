@@ -38,8 +38,6 @@ static func new_profile(profile_id: String) -> Dictionary:
 		"dice": "classic",
 		# a level's crossing cleared without losing a heart: {world_id: [level ids]}
 		"stars": {},
-		# worlds a grown-up opened from the menu's Grown-ups panel (world ids)
-		"parent_open": [],
 	}
 
 
@@ -104,19 +102,6 @@ static func has_star(save: Dictionary, world_id: String, grade_id: int) -> bool:
 	return save["stars"].has(world_id) and save["stars"][world_id].has(grade_id)
 
 
-## The Grown-ups panel opens (or closes again) a world on the map.
-static func set_parent_open(save: Dictionary, world_id: String, open: bool) -> void:
-	var list: Array = save["parent_open"]
-	if open and not list.has(world_id):
-		list.append(world_id)
-	elif not open:
-		list.erase(world_id)
-
-
-static func is_parent_open(save: Dictionary, world_id: String) -> bool:
-	return save["parent_open"].has(world_id)
-
-
 static func to_text(save: Dictionary) -> String:
 	return JSON.stringify(save, "\t", true)
 
@@ -137,7 +122,7 @@ static func from_text(text: String, profile_id: String) -> Dictionary:
 			save[k] = fresh[k]
 	# saves from before the store load with its defaults; a hand-broken store
 	# field falls back to its default too
-	for k in ["currencies", "owned", "hero", "dice", "stars", "parent_open", "marks", "gem_counts", "stickers"]:
+	for k in ["currencies", "owned", "hero", "dice", "stars", "marks", "gem_counts", "stickers"]:
 		if typeof(save[k]) != typeof(fresh[k]):
 			save[k] = fresh[k]
 	if typeof(save["gems"]) != TYPE_INT:
@@ -148,6 +133,9 @@ static func from_text(text: String, profile_id: String) -> Dictionary:
 	save["version"] = maxi(VERSION, old_version)
 	save["game"] = BuildInfo.GAME
 	save["profile"] = profile_id
+	# the Grown-ups panel no longer opens worlds (Phase 1, 2026-11-16): only
+	# play moves a child on, so an old save's grown-up opens are dropped
+	save.erase("parent_open")
 	return save
 
 
@@ -184,7 +172,6 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 	var marks := {}
 	var stars := {}
 	var currencies := {}
-	var opened := []
 	var intro := false
 	for sv in newest_first:
 		for d in sv["gem_counts"]:
@@ -204,9 +191,6 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 		_union_lists(stars, sv["stars"])
 		for c in sv["currencies"]:
 			currencies[c] = maxi(int(currencies.get(c, 0)), int(sv["currencies"][c]))
-		for w in sv["parent_open"]:
-			if not opened.has(w):
-				opened.append(w)
 		intro = intro or bool(sv.get("ellwynn_intro_seen", false))
 	out["gem_counts"] = counts
 	out["gems"] = gems_from_counts(counts)
@@ -219,7 +203,6 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 	out["marks"] = marks
 	out["stars"] = stars
 	out["currencies"] = currencies
-	out["parent_open"] = opened
 	if intro:
 		out["ellwynn_intro_seen"] = true
 	out["run"] = keep_run
