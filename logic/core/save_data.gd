@@ -173,6 +173,7 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 	var stars := {}
 	var currencies := {}
 	var intro := false
+	var taught := {}
 	for sv in newest_first:
 		for d in sv["gem_counts"]:
 			var c: Dictionary = sv["gem_counts"][d]
@@ -192,6 +193,11 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 		for c in sv["currencies"]:
 			currencies[c] = maxi(int(currencies.get(c, 0)), int(sv["currencies"][c]))
 		intro = intro or bool(sv.get("ellwynn_intro_seen", false))
+		var t = sv.get("taught", {})
+		if t is Dictionary:
+			for k in t:
+				if bool(t[k]):
+					taught[k] = true
 	out["gem_counts"] = counts
 	out["gems"] = gems_from_counts(counts)
 	var sticker_list := []
@@ -205,6 +211,8 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 	out["currencies"] = currencies
 	if intro:
 		out["ellwynn_intro_seen"] = true
+	if not taught.is_empty():
+		out["taught"] = taught
 	out["run"] = keep_run
 	out["profile"] = profile_id
 	return out

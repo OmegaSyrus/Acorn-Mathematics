@@ -1,4 +1,5 @@
-"""Makes Ellwynn's mouth tracks: for every voice file in audio/voice/ellwynn/,
+"""Makes Ellwynn's mouth tracks: for every voice file in audio/voice/ellwynn/
+and audio/voice/lines/ (the dropped-in lines),
 the loudness every 1/15 s becomes a mouth frame (0 closed, 1 half, 2 open),
 written to content/ellwynn_mouth.json as one string of digits per file.
 Run it again whenever voice files are added or replaced:
@@ -35,7 +36,11 @@ def track(path: pathlib.Path) -> str:
 
 def main() -> None:
     tracks = {}
-    for f in sorted(VOICE.glob("*.mp3")) + sorted(VOICE.glob("*.ogg")) + sorted(VOICE.glob("*.wav")):
+    files = []
+    for folder in (VOICE, ROOT / "audio" / "voice" / "lines"):
+        for ext in ("*.mp3", "*.ogg", "*.wav", "*.MP3", "*.OGG", "*.WAV"):
+            files += sorted(folder.glob(ext))
+    for f in files:
         tracks["res://" + f.relative_to(ROOT).as_posix()] = track(f)
     OUT.write_text(json.dumps({"version": 1, "fps": FPS, "tracks": tracks}, indent=2) + "\n")
     for k, v in tracks.items():

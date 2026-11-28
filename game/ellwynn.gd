@@ -4,14 +4,32 @@
 ##     (mouth frames follow the loudness of her voice); tap her to hear her again;
 ##   - an enemy win: 1 time in 3 her portrait pops up in the corner with a "Yay!";
 ##   - a region boss win: her full body slides in to congratulate the player.
-## Chests get her voice only. Lines come from content/ellwynn_lines.json; a cue
-## with no lines yet plays one of the three placeholders.
+## Chests get her voice only.
+##
+## Cues (Phase 3, 2026-11-28): every place she speaks has a cue id from the
+## lines sheet, listed in content/ellwynn_cues.json. A cue plays a recorded
+## file dropped into audio/voice/lines/ named by its id (T2.mp3, P3.mp3,
+## P3_2.mp3 ...; docs/voice-drop-in.md). With no file it falls back as the
+## list says: a placeholder ("Yay!"), the tablet's own text-to-speech reading
+## the stand-in words (Debug > Voice turns that off), or quiet. Older cue
+## names (intro, welcome, play, shop, enemy, chest, boss_win, count_then ...)
+## are aliases; content/ellwynn_lines.json still holds the placeholders, the
+## number takes and any lines listed by hand.
 ## Draws in the 960x540 design space: main.gd keeps `offset` on the stage's.
 extends CanvasLayer
 
 const SaveStoreRef := preload("res://game/save_store.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const LINES_PATH := "res://content/ellwynn_lines.json"
+const CUES_PATH := "res://content/ellwynn_cues.json"
+## Recorded lines are dropped in here, named by cue id (docs/voice-drop-in.md).
+const DROP_DIR := "res://audio/voice/lines/"
+const AUDIO_EXT := ["ogg", "mp3", "wav"]
+## Her settings for the whole tablet (not per child).
+const SETTINGS_PATH := "user://ellwynn_settings.json"
+## Text-to-speech stand-in: a little higher and slower than the default.
+const TTS_PITCH := 1.25
+const TTS_RATE := 0.9
 const WOOHOO := "res://audio/voice/ellwynn/placeholder-woohoo.mp3"
 ## Mouth tracks made from each voice file by tools/voice/mouth_tracks.py.
 const MOUTH_PATH := "res://content/ellwynn_mouth.json"
@@ -75,6 +93,21 @@ var _cur_file := ""
 var _line_t := 0.0
 var _line_len := 0.0
 var rng := RandomNumberGenerator.new()
+## The cue list by id (content/ellwynn_cues.json) and old names to ids.
+var cues: Dictionary = {}
+var aliases: Dictionary = {}
+## Dropped-in files: lower-case base name ("p3_2") to res:// path.
+var drop_files: Dictionary = {}
+## The tablet's text-to-speech reads the stand-in words of a cue with no
+## recording (fallback "tts"). Off in Debug > Voice; off with no TTS voice.
+var stand_in_voice := true
+## The last prompt said (prompt()), so a tap on the talk box says it again.
+var last_prompt := ""
+## The active child's save (taught first turn flags), set by use_save().
+var _save_ref: Dictionary = {}
+var _last_pick: Dictionary = {}   # cue id -> file played last, to avoid repeats
+var _tts_voice := ""
+var _tts_until := 0.0             # Time (s) her stand-in voice should be done by
 
 var _fig: Node2D
 var _queue: Array = []     # [{file, bubble}] still to play
@@ -96,6 +129,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	rng.randomize()
 	lines = _load_lines()
+	_load_cues()
+	scan_drop_folder()
+	_load_settings()
 	_load_mouth()
 	_setup_bus()
 	player = AudioStreamPlayer.new()
@@ -113,6 +149,54 @@ func _load_lines() -> Dictionary:
 		return {"placeholders": [], "cues": {}}
 	var data = JSON.parse_string(f.get_as_text())
 	return data if data is Dictionary else {"placeholders": [], "cues": {}}
+
+
+func _load_cues() -> void:
+	cues.clear()
+	aliases.clear()
+	var f := FileAccess.open(CUES_PATH, FileAccess.READ)
+	if f == null:
+		return
+	var data = JSON.parse_string(f.get_as_text())
+	if not data is Dictionary:
+		return
+	for c in data.get("cues", []):
+		if c is Dictionary and c.has("id"):
+			cues[String(c["id"])] = c
+			if c.has("alias"):
+				aliases[String(c["alias"])] = String(c["id"])
+
+
+## Finds the recorded lines dropped into DROP_DIR. Names are matched without
+## case, so "t2.MP3" counts for T2. Lists imported resources, so it works in
+## an exported build too.
+func scan_drop_folder(dir := DROP_DIR) -> void:
+	drop_files.clear()
+	var names := PackedStringArray()
+	if ResourceLoader.has_method("list_directory"):
+		names = ResourceLoader.call("list_directory", dir)
+	else:
+		names = DirAccess.get_files_at(dir)
+	for n in names:
+		var ext := n.get_extension().to_lower()
+		if ext in AUDIO_EXT:
+			drop_files[n.get_basename().to_lower()] = dir.path_join(n)
+
+
+func _load_settings() -> void:
+	if FileAccess.file_exists(SETTINGS_PATH):
+		var data = JSON.parse_string(FileAccess.get_file_as_string(SETTINGS_PATH))
+		if data is Dictionary:
+			stand_in_voice = bool(data.get("stand_in_voice", true))
+
+
+func set_stand_in_voice(on: bool) -> void:
+	stand_in_voice = on
+	var f := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
+	if f != null:
+		f.store_string(JSON.stringify({"stand_in_voice": on}))
+	if not on:
+		_tts_stop()
 
 
 func _load_mouth() -> void:
@@ -137,6 +221,9 @@ func _mouth_now() -> String:
 		if i >= 0 and i < tr.length():
 			return MOUTH_NAMES[int(tr[i])]
 		return "closed"
+	if _tts_talking() and not player.playing:
+		# the stand-in voice isn't on her bus: a simple flap
+		return ["half", "open", "half", "closed"][int(_t * 9.0) % 4]
 	if player.playing and _analyzer != null:
 		var mag := _analyzer.get_magnitude_for_frequency_range(150.0, 4000.0).length()
 		if mag > OPEN_AT:
@@ -166,6 +253,7 @@ func _setup_bus() -> void:
 ## "intro"), later she says a short welcome.
 func menu_enter(save: Dictionary) -> void:
 	_save = save
+	use_save(save)
 	_set_mode("menu")
 	if not bool(save.get("ellwynn_intro_seen", false)):
 		save["ellwynn_intro_seen"] = true
@@ -206,9 +294,9 @@ func chest_opened() -> void:
 
 
 ## The region boss is beaten: she slides in to congratulate the player.
-func boss_beaten() -> void:
+func boss_beaten(world_id := "") -> void:
 	_set_mode("boss")
-	say("boss_win")
+	say(world_cue("B2", world_id))
 	var g := _gen
 	await get_tree().create_timer(3.4, true, false, true).timeout
 	if g == _gen and mode == "boss":
@@ -222,8 +310,8 @@ func boss_beaten() -> void:
 ## "Oops!" blorp is over and she is heard on her own; the music dips further
 ## than for her other lines while she says it.
 func say_answer(n: int) -> void:
-	var file: String = lines.get("answers", {}).get(str(n), "")
-	if file == "" or not ResourceLoader.exists(file):
+	var file := answer_file(n)
+	if file == "":
 		push_warning("Ellwynn: no answer line for %d" % n)
 		return
 	stop_voice()
@@ -323,8 +411,8 @@ func say_own(cue: String) -> bool:
 ## as the child taps the pips on the crossing (Terrence 2026-11-17). A new
 ## number cuts off the one before.
 func say_count(n: int) -> void:
-	var file: String = lines.get("answers", {}).get(str(n), "")
-	if file == "" or not ResourceLoader.exists(file):
+	var file := _number_file(n)
+	if file == "":
 		push_warning("Ellwynn: no number line for %d" % n)
 		return
 	stop_voice()
@@ -337,9 +425,11 @@ func say_count(n: int) -> void:
 ## away, while the hero moves on, and then celebrates with "Woo-hoo!", so
 ## the number always comes before the celebration.
 func say_right(n: int) -> void:
-	var line := [{"file": WOOHOO, "bubble": ""}]
-	var file: String = lines.get("answers", {}).get(str(n), "")
-	if file != "" and ResourceLoader.exists(file):
+	# the cheer after the number: a recorded C3 take, else "Woo-hoo!"
+	var cheer := lines_for("C3")
+	var line := [{"file": WOOHOO if cheer.is_empty() else String(cheer[rng.randi() % cheer.size()]["file"]), "bubble": ""}]
+	var file := answer_file(n)
+	if file != "":
 		line.push_front({"file": file, "bubble": ""})
 	stop_voice()
 	_queue = line
@@ -347,27 +437,203 @@ func say_right(n: int) -> void:
 	_duck(ANSWER_DUCK_DB)
 
 
-## Plays a cue: the intro plays all its lines in order; any other cue plays
-## one of its lines at random. A cue with no lines plays a placeholder.
-func say(cue: String) -> void:
-	var own: Array = lines.get("cues", {}).get(cue, [])
-	var pick: Array = []
-	if own.is_empty():
-		var ph: Array = lines.get("placeholders", [])
-		if not ph.is_empty():
-			pick = [ph[rng.randi() % ph.size()]]
-	elif cue == "intro":
-		pick = own.duplicate()
-	else:
-		pick = [own[rng.randi() % own.size()]]
+## Plays a cue by its sheet id ("T2") or old name ("intro"). An ordered cue
+## (the intro) plays all its lines in turn; any other plays one at random,
+## never the same take twice running. With no recording it falls back as
+## content/ellwynn_cues.json says. True when something is said.
+func say(cue: String) -> bool:
+	return cue_play(cue)
+
+
+func cue_play(cue: String) -> bool:
+	var id := resolve(cue)
+	var pick := lines_for(id)
 	if pick.is_empty():
-		return
+		return _fallback(id)
+	var c: Dictionary = cues.get(id, {})
+	if not bool(c.get("order", false)) and pick.size() > 1:
+		var choices := pick.duplicate()
+		var last: String = _last_pick.get(id, "")
+		choices = choices.filter(func(l): return String(l["file"]) != last)
+		if choices.is_empty():
+			choices = pick
+		pick = [choices[rng.randi() % choices.size()]]
+		_last_pick[id] = String(pick[0]["file"])
 	stop_voice()
-	_queue = pick
+	_queue = pick.duplicate()
 	_next_line()
+	return true
+
+
+## A talk box prompt (the P cues, and any line that tells the child what to
+## do): said now, and again when the talk box is tapped (replay_prompt).
+func prompt(cue: String) -> bool:
+	last_prompt = resolve(cue)
+	return cue_play(cue)
+
+
+func replay_prompt() -> bool:
+	if last_prompt == "" or is_talking():
+		return false
+	return cue_play(last_prompt)
+
+
+## Forgets the last prompt (a new screen with nothing to replay).
+func clear_prompt() -> void:
+	last_prompt = ""
+
+
+## The active child's save: the taught first turn marks it (save["taught"]).
+func use_save(save: Dictionary) -> void:
+	_save_ref = save
+
+
+## True once this child has heard a taught line (save["taught"][id]).
+func was_taught(cue: String, save: Dictionary = {}) -> bool:
+	var sv: Dictionary = save if not save.is_empty() else _save_ref
+	var t = sv.get("taught", {})
+	return t is Dictionary and bool(t.get(resolve(cue), false))
+
+
+## The taught first turn (T cues) and first-time lines (N cues): plays the
+## cue the first time this child gets here and marks it in the save, so it
+## never plays again for them. False when already taught (nothing said).
+## Also a prompt, so a tap on the talk box says it again.
+func teach(cue: String, save: Dictionary = {}) -> bool:
+	var sv: Dictionary = save if not save.is_empty() else _save_ref
+	var id := resolve(cue)
+	if was_taught(id, sv):
+		return false
+	if typeof(sv.get("taught")) != TYPE_DICTIONARY:
+		sv["taught"] = {}
+	sv["taught"][id] = true
+	if sv.has("profile"):
+		SaveStoreRef.write(sv)
+	prompt(id)
+	return true
+
+
+## Waits until she has finished talking, or max_s at most. Use with await.
+func wait_quiet(max_s := 8.0) -> void:
+	var until := Time.get_ticks_msec() + int(max_s * 1000.0)
+	await get_tree().process_frame
+	while is_talking() and Time.get_ticks_msec() < until:
+		await get_tree().process_frame
+
+
+## The per-world cue: world_cue("B2", "crystal_mines") is "B2-crystal".
+const WORLD_KEYS := {"lava_caves": "lava", "crystal_mines": "crystal", "bog": "bog",
+		"mushroom_forest": "mushroom", "space": "space"}
+
+
+static func world_cue(prefix: String, world_id: String) -> String:
+	return "%s-%s" % [prefix, WORLD_KEYS.get(world_id, "lava")]
+
+
+## A cue id from an id or an old name.
+func resolve(cue: String) -> String:
+	if cues.has(cue):
+		return cue
+	return String(aliases.get(cue, cue))
+
+
+## The recorded lines of a cue, in order: dropped-in files first (id, id_2,
+## id_3 ...), else the ones listed in content/ellwynn_lines.json under its id
+## or old name. [] when it has none.
+func lines_for(cue: String) -> Array:
+	var id := resolve(cue)
+	var out: Array = []
+	var c: Dictionary = cues.get(id, {})
+	var bub := String(c.get("bubble", ""))
+	var base := id.to_lower()
+	if drop_files.has(base):
+		out.append({"file": drop_files[base], "bubble": bub})
+	for k in range(2, 21):
+		var key := "%s_%d" % [base, k]
+		if drop_files.has(key):
+			out.append({"file": drop_files[key], "bubble": bub})
+	if not out.is_empty():
+		return out
+	var listed: Array = lines.get("cues", {}).get(id, [])
+	if listed.is_empty() and c.has("alias"):
+		listed = lines.get("cues", {}).get(String(c["alias"]), [])
+	for l in listed:
+		if l is Dictionary and ResourceLoader.exists(String(l.get("file", ""))):
+			out.append(l)
+	return out
+
+
+## True when the cue has a recording of its own (not a fallback).
+func has_line(cue: String) -> bool:
+	return not lines_for(cue).is_empty()
+
+
+func _fallback(id: String) -> bool:
+	var c: Dictionary = cues.get(id, {})
+	match String(c.get("fallback", "placeholder" if not cues.has(id) else "quiet")):
+		"placeholder":
+			var ph: Array = lines.get("placeholders", [])
+			if ph.is_empty():
+				return false
+			stop_voice()
+			_queue = [ph[rng.randi() % ph.size()]]
+			_next_line()
+			return true
+		"tts":
+			var text := String(c.get("say", ""))
+			if text == "" or not stand_in_voice:
+				return false
+			stop_voice()
+			return _tts_say(text.replace("|", " "), String(c.get("bubble", "")))
+	return false
+
+
+# --- the stand-in voice (the tablet's text-to-speech) -----------------------
+
+func tts_available() -> bool:
+	if DisplayServer.get_name() == "headless":
+		return false
+	if not ProjectSettings.get_setting("audio/general/text_to_speech", false):
+		return false
+	if _tts_voice == "":
+		var v := DisplayServer.tts_get_voices_for_language("en")
+		if v.is_empty():
+			return false
+		_tts_voice = v[0]
+		for id in v:
+			# a Canadian or British English voice if the tablet has one
+			if "CA" in id or "GB" in id:
+				_tts_voice = id
+				break
+	return true
+
+
+func _tts_say(text: String, bub: String) -> bool:
+	if not tts_available():
+		return false
+	DisplayServer.tts_speak(text, _tts_voice, 90, TTS_PITCH, TTS_RATE)
+	# about 2.6 words a second at this rate, plus a beat
+	var words := text.split(" ", false).size()
+	_tts_until = Time.get_ticks_msec() / 1000.0 + 0.6 + words / 2.6
+	bubble = bub
+	_duck()
+	_fig.queue_redraw()
+	return true
+
+
+func _tts_talking() -> bool:
+	return _tts_until > Time.get_ticks_msec() / 1000.0
+
+
+func _tts_stop() -> void:
+	if _tts_until > 0.0:
+		_tts_until = 0.0
+		if DisplayServer.get_name() != "headless":
+			DisplayServer.tts_stop()
 
 
 func stop_voice() -> void:
+	_tts_stop()
 	_answer_token += 1
 	_queue.clear()
 	_line_len = 0.0
@@ -377,14 +643,28 @@ func stop_voice() -> void:
 
 
 func is_talking() -> bool:
-	return player.playing or _line_t < _line_len
+	return player.playing or _line_t < _line_len or _tts_talking()
 
 
 # --- internals --------------------------------------------------------------
 
-func _number_file(n: int) -> String:
+## The cheerful number take for n (cue A<n>): a dropped-in A<n> file, else
+## the recorded answer-<n>. "" when there is none.
+func answer_file(n: int) -> String:
+	var key := "a%d" % n
+	if drop_files.has(key):
+		return drop_files[key]
 	var file: String = lines.get("answers", {}).get(str(n), "")
 	return file if file != "" and ResourceLoader.exists(file) else ""
+
+
+## The plain number take for counting (cue Q<n>, "four" not "Four!"), falling
+## back to the cheerful one until the plain takes are dropped in.
+func _number_file(n: int) -> String:
+	var key := "q%d" % n
+	if drop_files.has(key):
+		return drop_files[key]
+	return answer_file(n)
 
 
 func _has_numbers(steps: Array) -> bool:
@@ -396,15 +676,12 @@ func _has_numbers(steps: Array) -> bool:
 
 
 ## One of the cue's own recorded lines, {} when it has none. A take-away's
-## "then" (count_back_then) uses count_then's line until it has its own.
+## "then" (count_back_then, H4) uses count_then's (H3) until it has its own.
 func _own_line(cue: String) -> Dictionary:
-	var own: Array = []
-	for line in lines.get("cues", {}).get(cue, []):
-		if line is Dictionary and ResourceLoader.exists(String(line.get("file", ""))):
-			own.append(line)
+	var own := lines_for(cue)
 	if own.is_empty():
-		if cue == "count_back_then":
-			return _own_line("count_then")
+		if resolve(cue) == "H4":
+			return _own_line("H3")
 		return {}
 	return own[rng.randi() % own.size()]
 
@@ -462,14 +739,18 @@ func _next_line() -> void:
 	_duck()
 
 
+## Music is looked up, not named, so this script also loads where the Music
+## autoload isn't there (the headless tests).
 func _duck(db := DUCK_DB) -> void:
-	if get_node_or_null("/root/Music") != null:
-		Music.player.volume_db = Music.VOLUME_DB - db
+	var m := get_node_or_null("/root/Music")
+	if m != null:
+		m.player.volume_db = m.VOLUME_DB - db
 
 
 func _unduck() -> void:
-	if get_node_or_null("/root/Music") != null:
-		Music.player.volume_db = Music.VOLUME_DB
+	var m := get_node_or_null("/root/Music")
+	if m != null:
+		m.player.volume_db = m.VOLUME_DB
 
 
 func _process(delta: float) -> void:
@@ -480,6 +761,11 @@ func _process(delta: float) -> void:
 		if _line_t >= _line_len and not player.playing:
 			_line_len = 0.0
 			_next_line()
+	if _tts_until > 0.0 and not _tts_talking():
+		_tts_until = 0.0
+		if _queue.is_empty() and not player.playing:
+			bubble = ""
+			_unduck()
 	var m := _mouth_now()
 	_mouth = m
 	_blink_in -= delta

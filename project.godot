@@ -18,6 +18,10 @@ Beeper="*res://game/beeper.gd"
 Music="*res://game/music.gd"
 Ellwynn="*res://game/ellwynn.gd"
 
+[audio]
+
+general/text_to_speech=true
+
 [display]
 
 window/size/viewport_width=720
