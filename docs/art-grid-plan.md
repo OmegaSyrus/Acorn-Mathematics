@@ -30,9 +30,9 @@ Stills were rendered at the Galaxy Tab A7 Lite's real screen size (1340x800).
 | What | Art pixel = | Canvas | Status |
 |---|---|---|---|
 | Characters, monsters, minibosses, bosses, limbs | 1 unit | as today (hero 93x115 ... boss 400x400) | keep, already 1:1 |
-| Path stones, chests, props | 1 unit | as today (stones 136x76) | richer remakes (P2) |
-| Backgrounds: fight rooms, treasure rooms, crossing backdrops, menu | **2 units** (was 3) | **480x270** (was 320x180) | **done in this PR** |
-| Icons, hearts, ball, pegs, bumpers, shields | 1 unit, drawn 1:1 | one file per drawn size | P3 |
+| Path stones, chests, props | 1 unit | as today (stones 136x76) | 12 redrawn (P2); crystal and space kept |
+| Backgrounds: fight rooms, treasure rooms, crossing backdrops, menu | **2 units** (was 3) | **480x270** (was 320x180) | done (menu oak swapped 2026-11-28) |
+| Icons, hearts, ball, pegs, bumpers, shields | 1 unit, drawn 1:1 | one file per drawn size | done (P3), bumper still scaled |
 | Half-size crossing sprites | 1 unit at half size | half of each crossing sprite, in art/<world>/half/ | done |
 
 Why 2 units for backgrounds and not 1: PixelLab's best model (Pro) tops out at
@@ -54,7 +54,7 @@ drawing (the half-size crossing) falls back to the smooth look it had.
 | P0 | Sharp-pixels shader, project filter to linear | code | 0 | done |
 | P1 | All 16 backgrounds remade at 480x270 (Pro, current art as the layout reference); crossing backdrops made seamless | 16 | about 450 plan generations | done, in review |
 | P2 | Path stones (22): richer detail, same canvases | 22 | Pro 10 a call, 4 candidates (about 220) | next |
-| P3 | Icons and board pieces redrawn at their drawn size, drawn 1:1 | 17 | about 150 | next |
+| P3 | Icons and board pieces redrawn at their drawn size, drawn 1:1 | 17 | about 150 | done: currency 40 + 24, pegs, ball, shield, chests, markers; bumper left |
 | P4 | Half-size crossing: small 1-unit twins in art/<world>/half/ for 12 heroes, 17 crossing monsters, 24 stones/ceilings/chests (game/ui/half_art.gd) | 53 | about 290 | done (Terrence picked it 2026-11-24) |
 | P5 | Selective character upgrades (lowest detail first: wispling, star squirrel, mimic, Blorp) | ~6 | about 60 | later |
 | - | Ellwynn | 5 | - | locked, not touched |

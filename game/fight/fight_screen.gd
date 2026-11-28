@@ -49,7 +49,7 @@ const WorldTheme := preload("res://game/ui/world_theme.gd")
 const HEART_TEX := preload("res://art/ui/heart.png")
 const HEART_EMPTY_TEX := preload("res://art/ui/heart-empty.png")
 const SHIELD_TEX := preload("res://art/ui/shield.png")
-const SHIELD_ART_SCALE := 1.1
+const SHIELD_ART_SCALE := 1.0  # 114x131, drawn 1:1 (art grid plan P3)
 const NAME_GAP := 14.0      # from the monster's feet down to its name box
 const NAME_RIGHT := 842.0   # the name box never runs past the safe area
 ## Every move and pause in the fight plays this many times slower than it

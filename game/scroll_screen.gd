@@ -57,7 +57,7 @@ const WATER_Y := 452.0      # where the rocks meet the lava
 const ROCK_WATERLINE := 64.0  # the waterline row inside a rock sprite
 const FEET_Y := WATER_Y - 34.0
 const HERO_SCREEN_X := 220.0
-const CHEST_SCALE := 0.7
+const CHEST_SCALE := 1.0  # 68x68 chests drawn 1:1 (art grid plan P3)
 ## The dice box: die, sign, die, "=", the answer, each die with its numeral
 ## under it. Its right edge stays left of the gems beside the menu button on
 ## a 4:3 tablet (2026-11-05). The picked answer goes after the "=", green when
@@ -121,7 +121,7 @@ const NAME_Y := WATER_Y + 22.0
 ## markers too, so every rock looks the same until it is reached.
 const MARKERS_AHEAD := true
 const MARKER_Y := WATER_Y - 104.0  # above the rock, clear of its number
-const MARKER_SCALE := 1.5
+const MARKER_SCALE := 1.0  # 60x60 markers drawn 1:1 (art grid plan P3)
 ## The way out on the far shore, this far past the last space.
 const GOAL_DX := 200.0
 ## About an inch on the tablet, in design units. The game always shows 540

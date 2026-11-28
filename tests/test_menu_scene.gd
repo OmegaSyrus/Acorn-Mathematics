@@ -7,7 +7,7 @@ const MenuScene := preload("res://game/ui/menu_scene.gd")
 
 func test_strips_and_grid() -> bool:
 	var bg: Texture2D = MenuScene.BG
-	eq([bg.get_width(), bg.get_height()], [320, 180], "backgrounds are 320x180 drawn at 3x")
+	eq([bg.get_width(), bg.get_height()], [480, 270], "backgrounds are 480x270 drawn at 2x")
 	for k in MenuScene.CRITTERS:
 		var c: Dictionary = MenuScene.CRITTERS[k]
 		var tex: Texture2D = c["tex"]
