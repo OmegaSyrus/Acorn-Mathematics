@@ -513,6 +513,37 @@ func teach(cue: String, save: Dictionary = {}) -> bool:
 	return true
 
 
+## Marks a taught cue without saying it: the child did the step before she
+## could say it (game/ui/tutor.gd), so it never comes back for them.
+func mark_taught(cue: String, save: Dictionary = {}) -> void:
+	var sv: Dictionary = save if not save.is_empty() else _save_ref
+	var id := resolve(cue)
+	if was_taught(id, sv):
+		return
+	if typeof(sv.get("taught")) != TYPE_DICTIONARY:
+		sv["taught"] = {}
+	sv["taught"][id] = true
+	if sv.has("profile"):
+		SaveStoreRef.write(sv)
+
+
+## A short line just before a number (H1 the sink, F4 took a hit), said in
+## the quiet while say_answer / say_counting wait ANSWER_DELAY. Call it right
+## after them. Only a recorded take that fits in room_s, and it never stops
+## the number that follows (no stop_voice): false, and quiet, otherwise.
+func say_before_number(cue: String, room_s := ANSWER_DELAY - 0.1) -> bool:
+	var fits := []
+	for l in lines_for(cue):
+		var s = load(String(l.get("file", "")))
+		if s != null and s.get_length() <= room_s:
+			fits.append(l)
+	if fits.is_empty():
+		return false
+	var line: Dictionary = fits[rng.randi() % fits.size()]
+	_play_now(String(line["file"]), "")
+	return true
+
+
 ## Waits until she has finished talking, or max_s at most. Use with await.
 func wait_quiet(max_s := 8.0) -> void:
 	var until := Time.get_ticks_msec() + int(max_s * 1000.0)
