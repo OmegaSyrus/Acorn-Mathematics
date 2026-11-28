@@ -25,6 +25,8 @@ const Marks := preload("res://game/ui/marks.gd")
 const Look := preload("res://game/ui/look.gd")
 const Profiles := preload("res://logic/core/profiles.gd")
 const ProfileStore := preload("res://game/profile_store.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
+const Pointer := preload("res://game/ui/pointer.gd")
 
 const GUEST := "guest"
 const NEW := "new"
@@ -115,18 +117,43 @@ func _ready() -> void:
 	choice.show_highlight = false
 	add_child(choice)
 	choice.present(targets(), 0)
+	# play mode: she asks (K1); the Grown-ups' Children list is silent
+	var ell := EllwynnRef.here(self)
+	if ell != null and not manage:
+		ell.prompt("K1")
 	var k: int = await choice.picked
 	if k >= cards.size():
 		back.emit()
 		return
 	var c: Dictionary = cards[k]
 	_beep()
+	if ell != null and not manage and not c["new"]:
+		ell.cue_play("K2")  # hello to the child who picked their picture
 	if c["new"]:
 		add.emit()
 	elif manage:
 		edit.emit(str(c["id"]))
 	else:
 		picked.emit(str(c["id"]))
+
+
+## A tap on the title says "Who is playing?" again (play mode).
+func _unhandled_input(event: InputEvent) -> void:
+	if manage or not Pointer.is_press(event):
+		return
+	if title_rect(can_back).has_point(Pointer.local_pos(self, event)):
+		var ell := EllwynnRef.here(self)
+		if ell != null:
+			ell.replay_prompt()
+			get_viewport().set_input_as_handled()
+
+
+## The top bar's title, right of the back arrow.
+static func title_rect(with_back: bool) -> Rect2:
+	var x := M3.SAFE.position.x + M3.GRID * 3.0
+	if with_back:
+		x = M3.top_bar_back_rect().end.x + M3.GRID * 2.0
+	return Rect2(Vector2(x, 0.0), Vector2(M3.SAFE.end.x - x, M3.TOP_BAR_H))
 
 
 func _draw() -> void:

@@ -29,6 +29,8 @@ const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 const HalfArt := preload("res://game/ui/half_art.gd")
 const CountHelp := preload("res://logic/core/count_help.gd")
+const Tutor := preload("res://game/ui/tutor.gd")
+const FirstTurn := preload("res://logic/core/first_turn.gd")
 
 const ART := "res://art/lava/"
 ## Backdrops fill the 540-unit height, so their scale comes from the file:
@@ -216,6 +218,10 @@ var _tray_down_at := Vector2.ZERO
 var _corner_down_ms := -1
 var _blink_at := 2.0
 var _t := 0.0
+## Ellwynn's prompts and the taught first turn (Phase 3, game/ui/tutor.gd).
+var tutor: Tutor
+var _again := false     # a heart was just lost: "Roll again!" instead of "Roll!"
+var _w6_said := false   # the warm-up is done (said once a crossing)
 
 
 func setup(scroll_run: ScrollRun, profile: Dictionary, show_debug: bool) -> void:
@@ -283,6 +289,18 @@ func _ready() -> void:
 	overlay.z_index = 10
 	add_child(overlay)
 	overlay.draw.connect(_draw_overlay)
+	# the pointing hand and glow: over the HUD and the Go button, under the fade
+	tutor = Tutor.new()
+	tutor.save = save
+	tutor.z_index = 9
+	add_child(tutor)
+	tutor.step_done.connect(_on_step_done)
+	if not save.is_empty():
+		Ellwynn.use_save(save)
+	Ellwynn.clear_prompt()
+	# the crossing opens: the world's arrival line, then (once) the job
+	tutor.event(FirstTurn.world_number_cue("W", str(run.area.get("world", WorldTheme.DEFAULT))))
+	tutor.teach("T1")
 	_place_hero(run.pos)
 	if run.phase == ScrollRun.AWAIT_FIGHT:
 		revealed = run.pos
@@ -304,7 +322,9 @@ func _loop() -> void:
 			continue
 		stone_from = run.pos
 		_ask("Roll!")
+		_tray_voice()
 		await _wait_for_roll()
+		tutor.finish("T2")
 		# no small "Roll!" box while the dice tumble; it comes back with the question
 		question = ""
 		_say("")
@@ -320,9 +340,15 @@ func _loop() -> void:
 		choice.go_area = Rect2(132, 0, 690, 540)
 		offering = true
 		choice.present(_stone_rects(), 0)
+		# the first turn: count the dots first (the die glows), then the
+		# stones; everyone else hears the question (or a first-time line)
+		if not tutor.begin("T3", _die_rect, "up", FirstTurn.T3_MOVE_ON_S, true, Vector2(30, 0)):
+			_stones_voice(p)
 		var asked_ms := Time.get_ticks_msec()
 		var pick: int = await choice.picked
 		offering = false
+		for id in ["T3", "T4", "T5"]:
+			tutor.finish(id)
 		drag_off = 0.0
 		var out := run.choose(pick)
 		PlayLog.answer("stone", PlayLog.stone_shown(p), int(p["answer"]), int(p["choices"][pick]),
@@ -344,6 +370,8 @@ func _loop() -> void:
 			# she says the right number as the dragon moves on, then
 			# "Woo-hoo!" (Terrence 2026-11-17)
 			Ellwynn.say_right(int(p["answer"]))
+			tutor.numbers(0.0, 2.2)
+			tutor.teach("T6")
 			await _happy(HAPPY_JUMPS)
 			stone_from = -1
 			await _play_walk(out)
@@ -354,6 +382,13 @@ func _loop() -> void:
 			hearts_owed = 1
 			await _hop_along(out["from"], out["to"])
 			await _slip_back(out["to"], out["from"], int(p["answer"]))
+			# after her count: what hearts are (once), the last heart, and
+			# the same guess again
+			_again = true
+			var hearts_now := run.hearts
+			tutor.teach("T7", func() -> bool: return run.hearts == hearts_now)
+			if run.hearts == 1:
+				tutor.event("R2", func() -> bool: return run.hearts == 1)
 		else:
 			stone_from = -1
 			await _hop_along(out["from"], out["to"])
@@ -395,6 +430,11 @@ func _play_walk(w: Dictionary) -> void:
 			await _open_chest(i, chest_gems[i])
 		if heart_spaces.has(i):
 			await _bounce()
+			# a heart stone: what it is (once), else her line for it
+			if tutor.taught("T11"):
+				tutor.event("R1")
+			else:
+				tutor.teach("T11")
 			await _take_heart(i)
 	await _bounce()
 	match w["result"]:
@@ -504,6 +544,7 @@ func _fight() -> void:
 	_hide_dice()
 	_ask("")
 	var f := FightScreen.new()
+	f.save = save
 	var fg: Dictionary = run.fight_now()
 	f.setup(run.rng, int(fg["grade"]), run.current_monster(), false, false, debug_on, run.hearts)
 	f.fight.set_top(int(fg["top"]))
@@ -540,12 +581,21 @@ func _cleared() -> void:
 	PlayLog.event("level_cleared", {"attempt": run.attempt, "gems": run.gems})
 	cleared_banner = true
 	_cheer("Yes!")
+	# the far shore, the star for no heart lost, then the door
+	tutor.event("C6")
+	if not run.hurt:
+		tutor.event("C7")
 	await _wait(0.5)
 	_cheer("Yes!")
 	question = ""
 	hud_choice.show_highlight = false
 	hud_choice.present([exit_rect()])
+	# the hand on the door's right, under the area's name (Ellwynn may stand
+	# on its left)
+	if not tutor.begin("T12", _door_screen_rect, "left", -1.0, true, Vector2(0, 40)):
+		tutor.prompt("P6", func() -> bool: return hud_choice.active)
 	await hud_choice.picked
+	tutor.finish("T12")
 	Beeper.good()
 	await _hop(hero_x, _goal_x())
 	await _fade_to(1.0)
@@ -601,6 +651,7 @@ func _hop(a: float, b: float) -> void:
 		else:
 			hero_frame = "hop-air"
 	await create_tween().tween_method(arc, 0.0, 1.0, HOP_S).finished
+	Beeper.play("land", -8.0)
 	hero_x = b
 	hero_lift = 0.0
 
@@ -647,6 +698,8 @@ func _sink(space: int, answer := -1) -> void:
 	await _wait(0.35)
 	if answer >= 0:
 		_say_wrong(answer)
+		# the sink line fits before the number, or isn't said
+		Ellwynn.say_before_number("H1")
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 1.0, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tw.tween_property(self, "hero_sink", 1.0, 0.9).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -663,6 +716,7 @@ func _slip_back(space: int, back_to: int, answer := -1) -> void:
 	await _tween_prop("worried", 1.0, 0.18)
 	if answer >= 0:
 		_say_wrong(answer)
+		Ellwynn.say_before_number("H1")
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 0.35, 0.45).set_ease(Tween.EASE_IN)
 	tw.tween_property(self, "hero_sink", 0.3, 0.5).set_ease(Tween.EASE_IN)
@@ -699,6 +753,8 @@ func _restart() -> void:
 	worried = 0.0
 	_place_hero(0)
 	_say("Again!")
+	_again = false
+	tutor.event("R3")
 	await _fade_to(0.0)
 	await _wait(0.5)
 
@@ -727,6 +783,7 @@ func _open_chest(space: int, n: int) -> void:
 	_cheer("+%d" % n)
 	Beeper.tone(880.0, 0.08, -8.0)
 	Ellwynn.chest_opened()
+	tutor.teach("T8")
 	var total := GEM_LAND + GEM_STAGGER * (n - 1) + 0.15
 	while gem_fly < total:
 		await get_tree().process_frame
@@ -796,6 +853,10 @@ func _cheer(text: String) -> void:
 
 func _on_stone_selected(_i: int) -> void:
 	Beeper.tone(523.0, 0.07)
+	# the first turn: a stone is picked, now Go (never before: no answer shown)
+	tutor.finish("T3")
+	tutor.finish("T4")
+	tutor.begin("T5", func() -> Rect2: return choice.go_rect() if offering else Rect2(), "left")
 
 
 ## A pip tapped (Terrence 2026-11-17): it lights, and Ellwynn counts it
@@ -805,6 +866,10 @@ func _on_stone_selected(_i: int) -> void:
 func _on_pip_tapped(count: int) -> void:
 	if CountHelp.counts_aloud(run.monsters_beaten()):
 		Ellwynn.say_count(count)
+		tutor.numbers(0.0, 0.9)
+	# counting the dots was the step
+	tutor.finish("T3")
+	tutor.teach("T15")
 
 
 ## After a wrong stone (Phase 2): Ellwynn counts on from the first die while
@@ -816,6 +881,7 @@ func _say_wrong(answer: int) -> void:
 	if hidden_place < 0 and not p.is_empty() and int(p.get("answer", -1)) == answer:
 		steps = CountHelp.plan(p["dice"], signs)
 	Ellwynn.say_counting(steps, answer, _count_step.bind(_count_gen))
+	tutor.numbers(Ellwynn.ANSWER_DELAY, 1.6 + Ellwynn.COUNT_STEP_S * steps.size())
 
 
 ## One step of her count: lights the first die whole, or the next pip.
@@ -852,6 +918,80 @@ func _count_settle() -> void:
 		await get_tree().process_frame
 
 
+# --- Ellwynn's prompts and the taught first turn (Phase 3) -------------------
+
+## The dice tray waits: the warm-up's end (once), then "Roll!" ("Roll again!"
+## after a lost heart), or for a new child the taught Roll with a hand on it.
+func _tray_voice() -> void:
+	if not _w6_said and run.rolls > 0 and FirstTurn.warmup_done(run.stage(run.rolls - 1), run.stage(run.rolls)):
+		_w6_said = true
+		tutor.event("W6", func() -> bool: return tray_waiting or run.phase == ScrollRun.AWAIT_ROLL)
+	var again := _again
+	_again = false
+	# the hand points up at the word Roll (the tray glows by itself)
+	if tutor.begin("T2", func() -> Rect2: return TRAY if tray_waiting or run.phase == ScrollRun.AWAIT_ROLL else Rect2(),
+			"up", -1.0, false, Vector2(0, -50)):
+		return
+	tutor.prompt("P5" if again else "P3", func() -> bool: return run.phase == ScrollRun.AWAIT_ROLL)
+
+
+## The stones light up: for a new child the taught step (the whole row
+## glows, the hand runs along it and never rests on one stone), else a
+## first-time math line once per child (two dice, the red die ...), else
+## "Which stone is safe?".
+func _stones_voice(p: Dictionary) -> void:
+	# the hand runs along under the row, its finger just inside it
+	if tutor.begin("T4", _row_rect, "sweep_up", -1.0, true, Vector2(0, -30)):
+		return
+	var still := func() -> bool: return offering and choice.chosen < 0
+	for id in FirstTurn.new_math_cues(p, run.stage_now(), run.grade):
+		if not tutor.taught(id):
+			tutor.teach(id, still)
+			return
+	tutor.prompt("P4", still)
+
+
+## A taught step was done (or ran its time): T3 leads on to the stones.
+func _on_step_done(id: String) -> void:
+	if id == "T3" and offering and choice.chosen < 0 and not _shown_problem.is_empty():
+		_stones_voice(_shown_problem)
+
+
+## The first die in the tray (screen space), while the stones are offered.
+func _die_rect() -> Rect2:
+	var d: DieView = dice[0]
+	if not offering or not d.visible:
+		return Rect2()
+	var sz := 96.0 * d.scale.x
+	return Rect2(d.position - Vector2(sz, sz) / 2.0, Vector2(sz, sz))
+
+
+## The offered stones together, on screen.
+func _row_rect() -> Rect2:
+	if not offering:
+		return Rect2()
+	var rs := _stone_rects()
+	if rs.is_empty():
+		return Rect2()
+	var r: Rect2 = rs[0]
+	for x in rs:
+		r = r.merge(x)
+	# what shows of the row on the 4:3 tablet (x 120..840)
+	var l := maxf(r.position.x, 124.0)
+	var e := minf(r.end.x, 836.0)
+	return Rect2(l, r.position.y, maxf(e - l, 0.0), r.size.y)
+
+
+## The way out on the far shore, on screen (the door itself, not its tap area).
+func _door_screen_rect() -> Rect2:
+	if not hud_choice.active:
+		return Rect2()
+	var d := _door_rect()
+	var a := _to_screen(d.position)
+	var b := _to_screen(d.end)
+	return Rect2(a, b - a)
+
+
 # --- input -----------------------------------------------------------------
 
 func _process(delta: float) -> void:
@@ -871,6 +1011,7 @@ func _process(delta: float) -> void:
 		rolled.emit()
 	if Input.is_action_just_pressed("repeat") and question != "":
 		_say(question)
+		tutor.replay()
 	if Input.is_action_just_pressed("debug"):
 		debug_on = not debug_on
 	if _corner_down_ms >= 0 and Time.get_ticks_msec() - _corner_down_ms > 1500:
@@ -904,8 +1045,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if tray_waiting and TRAY.has_point(pos) and tray_gate.accepts(Time.get_ticks_msec()):
 			_tray_down = true
 			_tray_down_at = pos
-		elif BUBBLE.has_point(pos) and question != "" and not tray_waiting:
-			_say(question)
+		elif BUBBLE.has_point(pos) and (question != "" or tray_waiting):
+			# the talk box: the question again, and she says it again
+			if not tray_waiting:
+				_say(question)
+			tutor.replay()
 		elif DEBUG_CORNER.has_point(pos):
 			_corner_down_ms = Time.get_ticks_msec()
 	else:

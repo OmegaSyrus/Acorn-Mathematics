@@ -22,6 +22,9 @@ const RoundBox := preload("res://game/ui/round_box.gd")
 const Look := preload("res://game/ui/look.gd")
 const PlayLog := preload("res://game/play_log.gd")
 const CountHelp := preload("res://logic/core/count_help.gd")
+const Pointer := preload("res://game/ui/pointer.gd")
+const Tutor := preload("res://game/ui/tutor.gd")
+const FirstTurn := preload("res://logic/core/first_turn.gd")
 
 ## Feet a little higher than before and the shields a little lower, so the
 ## monster's name fits under it (Terrence 2026-11-04). The monster's middle
@@ -46,6 +49,10 @@ const PAIR_DX := [-70.0, 50.0]
 const PAIR_ART := {"wisp_king": "res://art/bog/wisp-king.png", "wisp_queen": "res://art/bog/wisp-queen.png"}
 ## The miniboss duel's retry button, after a loss.
 const RETRY_RECT := Rect2(330, 240, 300, 96)
+## The talk box over the fight; a tap says the prompt again.
+const BUBBLE_RECT := Rect2(360, 12, 240, 44)
+## A right block gets her "Blocked!" line this often (F3).
+const BLOCKED_CHANCE := 1.0 / 3.0
 ## Monster art and the scale it is drawn at.
 ## (by monster id in game/ui/world_theme.gd, with the fight room of its world)
 const WorldTheme := preload("res://game/ui/world_theme.gd")
@@ -119,6 +126,11 @@ var hero_break := -1.0
 var hero_break_i := 0
 var monster_break := -1.0
 var monster_break_i := 0
+## The child's save, for the taught lines (the crossing passes it; {} uses
+## Ellwynn's, set by Ellwynn.use_save). Prompts, event lines and the taught
+## fight steps go through the tutor (game/ui/tutor.gd).
+var save: Dictionary = {}
+var tutor: Tutor
 
 
 ## first_strike: a mimic whose lock was answered right starts one heart down.
@@ -152,6 +164,11 @@ func _ready() -> void:
 	choice.confirm = true
 	choice.go_area = Rect2(132, 0, 696, 540)
 	add_child(choice)
+	choice.selected.connect(_on_shield_selected)
+	tutor = Tutor.new()
+	tutor.save = save
+	tutor.z_index = 1
+	add_child(tutor)
 	if WorldTheme.MONSTER_ART.has(fight.monster_id):
 		monster_tex = WorldTheme.monster_texture(fight.monster_id)
 	if is_duel and not fight.foes.is_empty():
@@ -177,6 +194,7 @@ func _sync_hearts() -> void:
 
 func _loop() -> void:
 	_say(fight.opener() if is_duel else "Fight!")  # its name sits under it now
+	_open_voice()
 	await _wait(0.8)
 	while true:
 		await _wind_up()
@@ -187,6 +205,8 @@ func _loop() -> void:
 		if is_duel:
 			shown["rule"] = fight.rule
 		var pick: int = await choice.picked
+		for id in ["T9", "T10", "T13"]:
+			tutor.finish(id)
 		picked = pick
 		var out: Dictionary = fight.choose(pick)
 		var where := "duel" if is_duel else "fight"
@@ -206,8 +226,12 @@ func _loop() -> void:
 		# from her portrait, counting on from the first die (Phase 2)
 		if out["right"]:
 			Ellwynn.say_right(int(out["answer"]))
+			tutor.numbers(0.0, 2.2)
 		else:
 			_say_wrong(int(out["answer"]))
+			if not bashing:
+				# the blow is coming: her "ow" line fits before the number, or isn't said
+				Ellwynn.say_before_number("F4")
 		# a beat to see the right shield light up before anyone moves
 		await _wait(0.5)
 		if bashing and out["right"]:
@@ -220,6 +244,8 @@ func _loop() -> void:
 			await _parry()
 		else:
 			await _hit()
+			if fight.hero_hearts == 1 and out["state"] == Fight.State.RESOLVING:
+				tutor.event("R2", func() -> bool: return fight.hero_hearts == 1)
 		if out["state"] != Fight.State.RESOLVING:
 			PlayLog.event(("%s_won" if out["state"] == Fight.State.WON else "%s_lost") % where,
 					{"monster": fight.monster_id})
@@ -241,6 +267,8 @@ func _loop() -> void:
 				retry_shown = true
 				choice.confirm = false
 				choice.present([RETRY_RECT])
+				tutor.event("D7", func() -> bool: return retry_shown)
+				tutor.prompt("P10", func() -> bool: return retry_shown)
 				await choice.picked
 				choice.confirm = true
 				retry_shown = false
@@ -300,6 +328,7 @@ func _wind_up() -> void:
 		hero_dx = 0.0
 	shields_shown = true
 	_say("Shield bash!" if bashing else "Block!")
+	_swing_voice(bashing)
 
 
 ## The miniboss's rule on the landed dice (logic/fight/duel.gd): a die
@@ -331,6 +360,7 @@ func _lantern_out(swing: int) -> void:
 ## A pair foe out of hearts fades away; the other fights on.
 func _foe_fades(i: int) -> void:
 	_say(str(fight.foes[i]["name"]).split(" ")[1] + " out!")
+	tutor.event("D8")
 	var f := func(v: float) -> void: foe_gone[i] = v
 	await create_tween().tween_method(f, 0.0, 1.0, 0.7 * SLOW).finished
 
@@ -345,6 +375,10 @@ func _parry() -> void:
 	clang = 1.0
 	Beeper.tone(1200.0, 0.08)
 	_say("Blocked!")
+	if randf() < BLOCKED_CHANCE:
+		# after her number, never over it; gone by the next swing
+		var swing := _swing
+		tutor.event("F3", func() -> bool: return swing == _swing and not choice.active)
 	create_tween().tween_property(self, "clang", 0.0, 0.4 * SLOW)
 	await _tween_prop("monster_dx", 30.0, 0.2)
 	await _tween_prop("monster_dx", 0.0, 0.15)
@@ -400,7 +434,7 @@ func _happy() -> void:
 func _hit() -> void:
 	monster_state = "strike"
 	await _tween_prop("monster_dx", -260.0, 0.18)
-	Beeper.bad()
+	Beeper.play("hit")
 	_blink("hero_flash")
 	var breaking := _break_hero_heart()
 	await _tween_prop("hero_dx", -40.0, 0.1)
@@ -416,7 +450,7 @@ func _monster_collapse() -> void:
 	monster_state = "collapse"
 	await _tween_prop("monster_sink", 1.0, 0.8)
 	_say("Yes!")
-	Beeper.good()
+	Beeper.play("poof")
 	Ellwynn.enemy_beaten()
 	await _wait(1.0)
 
@@ -430,12 +464,14 @@ func _boss_door() -> void:
 	for d in dice:
 		d.visible = false
 	door_alpha = 0.0
+	tutor.event("D6")
 	await _tween_prop("door_alpha", 1.0, 0.5)
 	_say("Tap the door!")
 	choice.confirm = false
 	choice.present([door_rect().grow(40.0)])
+	tutor.prompt("P9", func() -> bool: return door_alpha >= 0.0 and choice.active)
 	await choice.picked
-	Beeper.good()
+	Beeper.play("door")
 	_say("Go!")
 	await _tween_prop("hero_dx", MONSTER_POS.x - HERO_POS.x, 0.6)
 	await _tween_prop("door_alpha", 0.0, 0.3)
@@ -450,6 +486,8 @@ func _hero_collapse() -> void:
 	shields_shown = false
 	monster_state = "gloat"
 	_say("Oops!")
+	if not is_duel:
+		tutor.event("F6")
 	await _tween_prop("hero_sink", 1.0, 0.7)
 	await _wait(0.6)
 
@@ -484,6 +522,7 @@ func _say_wrong(answer: int) -> void:
 	if dots and int(atk.answer) == answer:
 		steps = CountHelp.plan(Array(atk.dice), CountHelp.fight_signs(atk.kind))
 	Ellwynn.say_counting(steps, answer, _count_step.bind(_count_gen))
+	tutor.numbers(Ellwynn.ANSWER_DELAY, 1.6 + Ellwynn.COUNT_STEP_S * steps.size())
 
 
 ## One step of her count: the first die glows with every dot lit, then one
@@ -567,7 +606,58 @@ func _process(delta: float) -> void:
 	_t += delta
 	if Input.is_action_just_pressed("debug"):
 		debug_on = not debug_on
+	if Input.is_action_just_pressed("repeat"):
+		tutor.replay()
 	queue_redraw()
+
+
+## A tap on the talk box says the prompt again.
+func _unhandled_input(event: InputEvent) -> void:
+	if not Pointer.is_press(event) or bubble == "":
+		return
+	if BUBBLE_RECT.has_point(Pointer.local_pos(self, event)):
+		get_viewport().set_input_as_handled()
+		tutor.replay()
+
+
+# --- Ellwynn's prompts and the taught fight steps (Phase 3) -----------------
+
+## The fight opens: a monster (F1), or the miniboss's intro for its world
+## (D1..D5). For a new child the first fight (T9) or duel (T13) is taught:
+## the shields glow and the hand runs along them once they show.
+func _open_voice() -> void:
+	Ellwynn.clear_prompt()
+	if is_duel:
+		tutor.event(FirstTurn.world_number_cue("D", WorldTheme.world_of_monster(fight.monster_id)))
+		tutor.begin("T13", _shields_rect, "sweep_down")
+	else:
+		tutor.event("F1")
+		tutor.begin("T9", _shields_rect, "sweep_down")
+
+
+## The shields wait: "Block!" or "Shield bash!", or the first bash taught
+## (T10). A taught step that is on says it all.
+func _swing_voice(bashing: bool) -> void:
+	if bashing and tutor.begin("T10", _shields_rect, "sweep_down"):
+		return
+	if tutor.is_on("T9") or tutor.is_on("T13") or tutor.is_on("T10"):
+		return
+	var swing := _swing
+	tutor.prompt("P8" if bashing else "P7", func() -> bool: return swing == _swing and choice.active)
+
+
+## A shield picked in a taught step: the hand moves on to the green button.
+func _on_shield_selected(_i: int) -> void:
+	for id in ["T9", "T10", "T13"]:
+		tutor.retarget(id, func() -> Rect2: return choice.go_rect() if choice.active else Rect2(), "left")
+
+
+## The four shields together, while they wait for a pick.
+func _shields_rect() -> Rect2:
+	if not shields_shown or not choice.active or retry_shown:
+		return Rect2()
+	var rs := _shield_rects()
+	return (rs[0] as Rect2).merge(rs[rs.size() - 1])
 
 
 # --- layout ----------------------------------------------------------------
