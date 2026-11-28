@@ -98,3 +98,12 @@ Fight is grade and top (1 one die, 2 two-dice sum, 3 die + ? = target). Boss 1 m
 | 28 | Bog 6 | 36 | across ten with two take-aways | `++-` `+++-` `++--` to 9, across_ten |  | 2 12 | 2 |
 | 29 | Mushroom 6 | 46 | mixed: adding to 20 and across ten | mix of 54, 36 |  | 3 12 | 2 |
 | 30 | Space 6 | 56 | everything mixed | mix of 54, 55, 36 | track | 3 12 | 4 |
+
+## How long a pass takes (bot estimate, 2026-11-28)
+
+`tools/level_pass/level_pass.gd` plays 200 full passes of each Level with the real
+crossing, fight, duel and boss logic and the game's own animation times, plus 3 s to
+think per answer. A full pass of Level 1 takes about 33 minutes for a bot that is always
+right and about 42 minutes at 85% right (about 2 restarts). Every Level and world is
+about the same length (6 to 8 minutes a world). Fights and duels are about 60% of the
+time, the stones about 20%. Results: `tools/level_pass/RESULTS.md`.
