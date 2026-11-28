@@ -182,6 +182,13 @@ func test_guest_and_foreign_lines_never_go() -> bool:
 	eq(sent, [1, 3], "only this device's child lines with real profile ids")
 	for l in b["lines"]:
 		check(not l.contains(GUEST), "no Guest line in the body")
+	# a Guest made since the roster was read: its profile_picked line names it
+	var fresh_guest := "p_99990000aaaa"
+	var picked := JSON.stringify({"v": 2, "game": "acorn-math", "kind": "event", "dev": DEV, "profile": fresh_guest,
+			"seq": 8, "boot": 1, "t": 1, "mono_ms": 1, "app": "0.29.0", "code": 48, "cv": 2, "event": "profile_picked",
+			"guest": true})
+	b = FamilyEvents.plan(_items([picked, _line(9, fresh_guest), _line(10)]), 7, DEV, [GUEST])
+	eq([b["first"], b["last"], b["lines"].size()], [10, 10, 1], "the new Guest's lines stay home")
 	# only Guest lines waiting: nothing goes, the position moves
 	b = FamilyEvents.plan(_items([_line(8, GUEST), _line(9, GUEST)]), 7, DEV, [GUEST])
 	check(b["lines"].is_empty(), "nothing to send")

@@ -46,6 +46,14 @@ func setup(r: Dictionary, m: Mode) -> void:
 	stage = "enter" if m == Mode.ENTER else "new"
 
 
+## A grown-up sum instead of the PIN (the rest screen when no PIN is set):
+## the right answer passes.
+func setup_sum(r: Dictionary) -> void:
+	roster = r
+	mode = Mode.ENTER
+	_start_forgot()
+
+
 static func key_rect(i: int) -> Rect2:
 	return Rect2(Vector2(PAD_X + (i % 3) * (KEY.x + KEY_GAP), PAD_Y + (i / 3) * (KEY.y + KEY_GAP)), KEY)
 

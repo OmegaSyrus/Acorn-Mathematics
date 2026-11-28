@@ -160,6 +160,15 @@ func set_child(profile: String, child: Variant) -> void:
 	changed.emit()
 
 
+## A player was made, renamed or given a new picture: the parent app's list
+## of players is sent again at the next sync.
+func profiles_changed() -> void:
+	if is_paired():
+		state["map_dirty"] = true
+		_map_gen += 1
+		sync_soon()
+
+
 func start_pairing() -> void:
 	if pairing.state == FamilyPairing.State.STARTING or is_paired():
 		return
@@ -215,6 +224,8 @@ func sync_soon() -> void:
 
 ## The game wrote a profile's save: its snapshot goes after a short wait.
 func save_written(profile: String) -> void:
+	if is_paired():
+		FamilyState.note_guests(state, _roster())
 	if not is_paired() or not FamilyApi.is_child_id(child_of(profile)) or state["guests"].has(profile):
 		return
 	if not state["snap_dirty"].has(profile):
@@ -519,6 +530,7 @@ func _put_snapshots() -> bool:
 func _upload_events() -> bool:
 	if state["inflight"].is_empty() and _last_seq() <= int(state["sent"]) and _hook("last_seq").is_valid():
 		return true
+	FamilyState.note_guests(state, _roster())
 	var items := FamilyEvents.read_lines(_hook("log_files").call(), int(state["sent"]))
 	for i in MAX_BATCHES:
 		var batch := FamilyEvents.plan(items, int(state["sent"]), dev, state["guests"], state["inflight"])

@@ -56,7 +56,9 @@ static func parse_line(line: String) -> Dictionary:
 		return {}
 	return {"seq": int(s), "profile": str(d.get("profile", "")), "dev": str(d.get("dev", "")),
 			"v": int(d.get("v", 0)) if (typeof(d.get("v")) == TYPE_FLOAT or typeof(d.get("v")) == TYPE_INT) else 0,
-			"text": line}
+			"text": line,
+			# "Who is playing?" picked the Guest: that profile never syncs
+			"guest": str(d.get("event", "")) == "profile_picked" and d.get("guest") == true}
 
 
 ## True when this line may go to the server: this device's, not a Guest's,
@@ -78,6 +80,7 @@ static func sendable(item: Dictionary, dev: String, guests: Array) -> bool:
 ## like). With an inflight batch, exactly its range again.
 static func plan(items: Array, sent: int, dev: String, guests: Array, inflight := {},
 		max_lines := MAX_LINES, max_bytes := MAX_BYTES) -> Dictionary:
+	guests = with_logged_guests(items, guests)
 	if not inflight.is_empty():
 		var again := []
 		for it in items:
@@ -110,6 +113,17 @@ static func plan(items: Array, sent: int, dev: String, guests: Array, inflight :
 	return {"first": first, "last": last, "advance": advance, "lines": lines}
 
 
+## The Guest ids given plus any the log itself names (a profile_picked
+## line with guest true), so a Guest made since the roster was read never
+## slips through.
+static func with_logged_guests(items: Array, guests: Array) -> Array:
+	var out := guests.duplicate()
+	for it in items:
+		if bool(it.get("guest", false)) and not out.has(it["profile"]):
+			out.append(it["profile"])
+	return out
+
+
 ## The inflight record for a planned batch.
 static func inflight_of(batch: Dictionary) -> Dictionary:
 	return {"first": int(batch["first"]), "last": int(batch["last"]), "advance": int(batch["advance"])}
@@ -119,6 +133,7 @@ static func inflight_of(batch: Dictionary) -> Dictionary:
 ## first half alone next (its own, smaller range). One line: it never goes;
 ## the position moves past it. Returns {inflight, sent, skipped}.
 static func after_refusal(items: Array, batch: Dictionary, sent: int, dev: String, guests: Array) -> Dictionary:
+	guests = with_logged_guests(items, guests)
 	var seqs := []
 	for it in items:
 		var s := int(it["seq"])

@@ -7,13 +7,15 @@
 ## named under the title, with their picture's half-size twin at 1:1.
 ## Children opens the switcher in manage mode (profile plan S1: a card per
 ## child opens their edit screen, New adds one); PIN sets or changes the parent
-## PIN that guards this panel (parent app plan v2). Back returns to the main
-## menu.
+## PIN that guards this panel (parent app plan v2). Family opens the Family
+## screen (linking the tablet to the parent app, game/family_screen.gd).
+## Back returns to the main menu.
 extends Node2D
 
 signal back
 signal children
 signal pin
+signal family
 
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
@@ -29,6 +31,8 @@ const GREEN := Color(0.2, 0.55, 0.3)
 const BACK_RECT := Rect2(120, 20, 140, 60)
 const CHILDREN_RECT := Rect2(530, 20, 150, 60)
 const PIN_RECT := Rect2(690, 20, 150, 60)
+## Family, at the end of the Level row (the Level buttons end at 684).
+const FAMILY_RECT := Rect2(700, 86, 140, 64)
 const ROW_Y := [160.0, 225.0, 290.0, 355.0, 420.0]
 ## The Level buttons, 1 to 6, on the row under the title.
 const LEVEL_X := 240.0
@@ -75,15 +79,15 @@ func _ready() -> void:
 		Look.hero_texture_half(child_picture)  # loaded before _draw
 	choice = ChoiceWidget.new()
 	add_child(choice)
-	var rects := [BACK_RECT, CHILDREN_RECT, PIN_RECT]
+	var rects := [BACK_RECT, CHILDREN_RECT, PIN_RECT, FAMILY_RECT]
 	for n in range(1, Content.LEVEL_COUNT + 1):
 		rects.append(level_rect(n))
 	var first := 0
 	while true:
 		choice.present(rects, first)
 		var k: int = await choice.picked
-		if k >= 3:
-			level = k - 2
+		if k >= 4:
+			level = k - 3
 			AreaFlow.pick_level(save, level)
 			Beeper.tone(660.0, 0.08)
 			first = k
@@ -93,6 +97,8 @@ func _ready() -> void:
 			children.emit()
 		elif k == 2:
 			pin.emit()
+		elif k == 3:
+			family.emit()
 		else:
 			back.emit()
 		return
@@ -105,6 +111,7 @@ func _draw() -> void:
 	_button(font, BACK_RECT, "Back", GREY, 30)
 	_button(font, CHILDREN_RECT, "Children", Color(0.24, 0.3, 0.38), 26)
 	_button(font, PIN_RECT, "Change PIN" if has_pin else "Set PIN", Color(0.24, 0.3, 0.38), 24)
+	_button(font, FAMILY_RECT, "Family", Color(0.2, 0.42, 0.3), 26)
 	draw_string(font, Vector2(120, LEVEL_Y + 37), "Level", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK)
 	for n in range(1, Content.LEVEL_COUNT + 1):
 		var lr := level_rect(n)
