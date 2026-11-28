@@ -2,8 +2,12 @@
 ## for a parent report later. Append-only JSON lines in user://play_log.jsonl,
 ## one line per answered question and one per run event (run start, a heart
 ## lost, a restart, a level cleared, a boss won or lost, the app paused or
-## resumed). Nothing is sent anywhere. At about 1 MB the file moves to
-## play_log.1.jsonl (the one before that is dropped) and a new one starts.
+## resumed). At about 1 MB the file moves to play_log.1.jsonl (the one before
+## that is dropped) and a new one starts. Once the tablet is paired with a
+## family (addons/acorn_family), keep_after is the upload position: a full
+## file that still holds unsent lines is never dropped, older ones move up
+## to play_log.2.jsonl and on (at most MAX_KEPT files), and the uploader reads
+## them all (log_files).
 ##
 ## The entry builders are pure static functions (tests/test_play_log.gd);
 ## answer() and event() add the time and the place set by main.gd and write.
@@ -21,18 +25,24 @@ const Skills := preload("res://logic/core/skills.gd")
 
 const VERSION := 2
 const MAX_BYTES := 1000000
+## Rotated files kept while lines in them wait to be sent (about 8 MB).
+const MAX_KEPT := 8
 const DEFAULT_PATH := "user://play_log.jsonl"
 
 ## Where lines go. Tests point it at a temp file.
 static var path := DEFAULT_PATH
 static var enabled := true
-## {profile, world, area, level, level_id}: who is playing and where.
+## {profile, world, area, level, level_id, fights}: who is playing, where,
+## and the Debug fight switch (ScrollRun.FIGHTS_*).
 static var place := {}
 ## This install (game/device_id.gd) and its launch count; start() sets them.
 static var dev := ""
 static var boot := 0
 ## The last sequence number written on this device.
 static var seq := 0
+## Lines after this seq wait for upload and are never rotated away; -1 when
+## the tablet is not paired (the family add-on sets it).
+static var keep_after := -1
 
 
 # --- what the game calls ---------------------------------------------------
@@ -123,7 +133,7 @@ static func _head(t: int, ctx: Dictionary, kind: String) -> Dictionary:
 	e["app"] = BuildInfo.APP
 	e["code"] = BuildInfo.CODE
 	e["cv"] = BuildInfo.cv()
-	for k in ["world", "area", "level", "level_id"]:
+	for k in ["world", "area", "level", "level_id", "fights"]:
 		if ctx.has(k):
 			e[k] = ctx[k]
 	return e
@@ -199,7 +209,44 @@ static func last_seq(p: String) -> int:
 	return 0
 
 static func rotated_path(p: String) -> String:
-	return p.get_basename() + ".1." + p.get_extension()
+	return kept_path(p, 1)
+
+
+## The n-th rotated file: play_log.1.jsonl is the newest, .2 the one before.
+static func kept_path(p: String, n: int) -> String:
+	return p.get_basename() + ".%d." % n + p.get_extension()
+
+
+## Every play log file there is, oldest first (the uploader reads them all).
+static func log_files(p := DEFAULT_PATH) -> Array:
+	var out := []
+	for n in range(MAX_KEPT, 0, -1):
+		if FileAccess.file_exists(kept_path(p, n)):
+			out.append(kept_path(p, n))
+	if FileAccess.file_exists(p):
+		out.append(p)
+	return out
+
+
+## Moves a full log aside. The old .1 is dropped unless it still holds lines
+## after keep_after; then the kept files move up one (.1 to .2 and on, the
+## oldest past MAX_KEPT dropped). Kept files whose lines are all sent go.
+static func rotate(at: String) -> void:
+	var old := rotated_path(at)
+	if FileAccess.file_exists(old):
+		if keep_after >= 0 and last_seq(old) > keep_after:
+			if FileAccess.file_exists(kept_path(at, MAX_KEPT)):
+				DirAccess.remove_absolute(kept_path(at, MAX_KEPT))
+			for n in range(MAX_KEPT - 1, 0, -1):
+				if FileAccess.file_exists(kept_path(at, n)):
+					DirAccess.rename_absolute(kept_path(at, n), kept_path(at, n + 1))
+		else:
+			DirAccess.remove_absolute(old)
+	for n in range(2, MAX_KEPT + 1):
+		var k := kept_path(at, n)
+		if FileAccess.file_exists(k) and (keep_after < 0 or last_seq(k) <= keep_after):
+			DirAccess.remove_absolute(k)
+	DirAccess.rename_absolute(at, old)
 
 
 ## Appends one line; moves a full file aside first.
@@ -211,10 +258,7 @@ static func append(line: String, at := DEFAULT_PATH) -> void:
 			size = r.get_length()
 			r.close()
 	if size > 0 and size + line.length() + 1 > MAX_BYTES:
-		var old := rotated_path(at)
-		if FileAccess.file_exists(old):
-			DirAccess.remove_absolute(old)
-		DirAccess.rename_absolute(at, old)
+		rotate(at)
 		size = 0
 	var f := FileAccess.open(at, FileAccess.READ_WRITE if size > 0 else FileAccess.WRITE)
 	if f == null:

@@ -17,6 +17,8 @@ const AreaFlow := preload("res://logic/path/area_flow.gd")
 const SeededRng := preload("res://logic/core/rng.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
+## The Arena and Bounce modes (Phase 6): their screens and flow.
+const ModesFlow := preload("res://game/modes_flow.gd")
 const WorldMapScreen := preload("res://game/world_map_screen.gd")
 const DebugScreen := preload("res://game/debug_screen.gd")
 const GrownUpsScreen := preload("res://game/grownups_screen.gd")
@@ -29,6 +31,12 @@ const WhoScreen := preload("res://game/who_screen.gd")
 const PinScreen := preload("res://game/pin_screen.gd")
 const ProfileScreen := preload("res://game/profile_screen.gd")
 const ProfileFlow := preload("res://game/profile_flow.gd")
+const Store := preload("res://logic/core/store.gd")
+const Book := preload("res://logic/core/book.gd")
+const BookScreen := preload("res://game/book_screen.gd")
+const FamilyGlue := preload("res://game/family_glue.gd")
+const FamilyScreen := preload("res://game/family_screen.gd")
+const RestScreen := preload("res://game/rest_screen.gd")
 ## The create and edit screen (profile plan P3). Until it lands the stub with
 ## the same signals stands in, so the wiring here already runs.
 const PROFILE_EDIT := "res://game/profile_edit_screen.gd"
@@ -46,6 +54,9 @@ var debug_on := false
 var area_id := DEFAULT_AREA
 var play_grade := 1  # the main menu's difficulty (level 1 to 6), for the next area picked on the map
 var levels: Dictionary
+var modes = ModesFlow.new(self)
+## Seconds to the next look at the parent's limits on a menu screen.
+var _limit_check := 1.0
 
 
 func _ready() -> void:
@@ -75,6 +86,11 @@ func _ready() -> void:
 	life.pause_music = Music.pause
 	life.resume_music = Music.resume
 	add_child(life)
+	# the family add-on: idle until a grown-up pairs the tablet (Grown-ups, Family)
+	var fam := _family()
+	if fam != null:
+		SaveStore.written = fam.save_written
+		fam.configure(FamilyGlue.hooks(DeviceId.dev(), func(): return save, _replace_save))
 	if Profiles.is_fresh(ProfileStore.roster):
 		# a new install: the create flow makes the first child (no PIN)
 		show_create(true, show_map)
@@ -99,6 +115,8 @@ func show_who(with_back: bool, manage := false, back_to := Callable()) -> void:
 	w.setup(ProfileStore.roster, with_back, manage)
 	w.picked.connect(func(id: String):
 		_use_profile(id)
+		# she just said hello (K2): no welcome on top of it
+		_menu_greet = ["-", true]
 		show_map.call_deferred())
 	w.add.connect(func():
 		if manage:
@@ -145,6 +163,9 @@ func _edit_screen() -> Node2D:
 func show_create(first_run: bool, back_to: Callable, stay := false) -> void:
 	var e := _edit_screen()
 	e.setup(ProfileStore.roster, 0, "", first_run)  # Mode.CREATE
+	# a child making their own picture hears what to do (K3, K4); a
+	# grown-up adding children from the Grown-ups panel does not
+	e.voice = not stay
 	e.created.connect(func(nickname: String, picture: String):
 		var id := ProfileFlow.create(nickname, picture, first_run)
 		if id == "":
@@ -152,10 +173,15 @@ func show_create(first_run: bool, back_to: Callable, stay := false) -> void:
 			back_to.call_deferred()
 			return
 		PlayLog.event("profile_created", {"first": first_run})
+		if _family() != null:
+			_family().profiles_changed()
 		if stay:
 			back_to.call_deferred()
 			return
 		_use_profile(id)
+		Ellwynn.use_save(save)
+		Ellwynn.cue_play("K5")
+		_menu_greet = ["-", true]
 		show_map.call_deferred())
 	e.back.connect(func():
 		if first_run:
@@ -180,6 +206,8 @@ func _show_edit(id: String, back_to: Callable) -> void:
 	e.setup(ProfileStore.roster, 1, id, false)  # Mode.EDIT
 	e.saved.connect(func(pid: String, nickname: String, picture: String):
 		ProfileFlow.save_edit(pid, nickname, picture)
+		if _family() != null:
+			_family().profiles_changed()
 		back_to.call_deferred())
 	e.removed.connect(func(pid: String):
 		if ProfileFlow.remove(pid):
@@ -245,9 +273,78 @@ func _use_profile(id: String) -> void:
 	PlayLog.event("profile_picked", {"guest": bool(ProfileStore.active().get("guest", false))})
 
 
+## The family add-on (autoload Family), or null where it is not loaded.
+func _family() -> Node:
+	return get_node_or_null("/root/Family")
+
+
+## A restore (Family screen) merged the player's save from the family's
+## other tablets: the screens use the merged one from now on.
+func _replace_save(merged: Dictionary) -> void:
+	save.clear()
+	save.merge(merged)
+	SaveStore.write(save)
+
+
+## The parent's limits (daily minutes, bedtime; addons/acorn_family): at a
+## safe point (a menu, the map, before a level or the next part of one)
+## the save is written and the rest screen shows. True when it did.
+func _rest_if_due() -> bool:
+	var fam := _family()
+	if fam == null:
+		return false
+	var why: String = fam.stop_reason(SaveStore.profile)
+	if why == "":
+		return false
+	SaveStore.write(save)
+	show_rest(why)
+	return true
+
+
+## "Time to rest! Come back tomorrow." Grown-ups asks for the parent PIN (a
+## grown-up sum when none is set); a yes lets this player go on until the
+## morning.
+func show_rest(why: String) -> void:
+	PlayLog.event("rest_shown", {"why": why})
+	var r := RestScreen.new()
+	r.setup(why, str(ProfileStore.active().get("picture", "")))
+	r.grown_up.connect(func():
+		var s := PinScreen.new()
+		if Profiles.has_pin(ProfileStore.roster):
+			s.setup(ProfileStore.roster, PinScreen.Mode.ENTER)
+		else:
+			s.setup_sum(ProfileStore.roster)
+		s.done.connect(func(ok: bool):
+			if ok:
+				_family().grant_pass(SaveStore.profile)
+				PlayLog.event("rest_passed", {"why": why})
+				show_map.call_deferred()
+			else:
+				show_rest.call_deferred(why))
+		_swap.call_deferred(s))
+	_swap.call_deferred(r)
+	menu.visible = false
+	Music.play_menu()
+
+
+## The Family screen (Grown-ups, Family): pairing, who is who, sending on or off.
+func show_family() -> void:
+	var fam := _family()
+	if fam == null:
+		_show_grown_ups_panel()
+		return
+	var f := FamilyScreen.new()
+	f.setup(fam, FamilyGlue.roster())
+	f.back.connect(func(): _show_grown_ups_panel.call_deferred())
+	_swap.call_deferred(f)
+	menu.visible = false
+
+
 ## The play log's place: this area at this level (game/play_log.gd).
 func _log_place(area: Dictionary, grade_id: int) -> void:
 	PlayLog.set_place(area, grade_id, int(_grade(grade_id).get("num", grade_id)))
+	# the Debug fight switch, on every line (Phase 2: the log notes it)
+	PlayLog.place["fights"] = ScrollRun.fights_setting(save)
 
 
 ## `godot --path . -- --area=lava_1_fights` plays another area file.
@@ -267,25 +364,60 @@ func _layout() -> void:
 	Ellwynn.offset = stage.position
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	# limits reached on a menu screen stop play at once (in a level, at the next part)
+	_limit_check -= delta
+	if _limit_check <= 0.0:
+		_limit_check = 1.0
+		if is_instance_valid(screen) and (screen is MapScreen or screen is WorldMapScreen or screen is StoreScreen or screen is ProfileScreen):
+			_rest_if_due()
 	if Input.is_action_just_pressed("fullscreen"):
 		var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if full else DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 
 func _swap(next: Node2D) -> void:
+	# a new screen says its own prompt; a tap on the old one's talk text
+	# must not bring the old one back
+	Ellwynn.clear_prompt()
+	if _parents_only(next):
+		Ellwynn.stop_voice()
 	if screen != null:
 		if "debug_on" in screen:
 			debug_on = screen.get("debug_on")
 		screen.queue_free()
 	screen = next
+	var fam := _family()
+	if fam != null:
+		# minutes count while a child plays, not on the grown-up screens
+		fam.counting = not (next is GrownUpsScreen or next is PinScreen or next is FamilyScreen or next is RestScreen)
 	if not (next is MapScreen):
 		Ellwynn.menu_leave()
 	stage.add_child(screen)
 	stage.move_child(menu, -1)
 
 
+## The grown-up screens are silent: she stops when one opens.
+func _parents_only(next: Node2D) -> bool:
+	if next is DebugScreen or next is GrownUpsScreen or next is PinScreen:
+		return true
+	if next is WhoScreen and next.manage:
+		return true
+	# the create and edit screen with its voice off (a grown-up's)
+	return "voice" in next and next.get("voice") == false
+
+
+## How the next show_map greets: [instead, wait] for Ellwynn.menu_enter
+## (back from the Shop, just greeted by K2/K5). Used once.
+var _menu_greet := ["", false]
+
+
 func show_map() -> void:
+	var fam := _family()
+	if fam != null:
+		fam.poke()
+	if _rest_if_due():
+		return
 	# the menu's Level (Phase 1, 2026-11-16): the child's Level, or any
 	# Level before it to replay; never one past it
 	var reached := AreaFlow.level_reached(save, Content.worlds())
@@ -304,12 +436,17 @@ func show_map() -> void:
 	m.debug.connect(show_debug)
 	m.grown_ups.connect(show_grown_ups)
 	m.who.connect(show_profile)
+	m.book.connect(show_book)
+	m.arena.connect(modes.arena)
+	m.bounce.connect(modes.bounce)
 	var p := ProfileStore.active()
 	m.player = {"nickname": p.get("nickname", ""), "picture": p.get("picture", "")}
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
-	Ellwynn.menu_enter(save)
+	var greet: Array = _menu_greet
+	_menu_greet = ["", false]
+	Ellwynn.menu_enter(save, greet[0], greet[1])
 
 
 ## The main menu's Reset, held through its question: a fresh save (gems,
@@ -333,6 +470,11 @@ func show_debug() -> void:
 		SaveStore.write(save)
 		show_map.call_deferred())
 	d.jump.connect(_debug_jump)
+	d.teach_again.connect(func():
+		# the taught first turn plays again for this child (no Reset)
+		save.erase("taught")
+		SaveStore.write(save)
+		Ellwynn.use_save(save))
 	_swap.call_deferred(d)
 	menu.visible = false
 
@@ -380,6 +522,9 @@ func _show_grown_ups_panel() -> void:
 	g.children.connect(func():
 		SaveStore.write(save)
 		show_who.call_deferred(true, true))
+	g.family.connect(func():
+		SaveStore.write(save)
+		show_family.call_deferred())
 	g.pin.connect(func():
 		SaveStore.write(save)
 		_show_pin.call_deferred(PinScreen.Mode.SET, func(ok: bool):
@@ -403,8 +548,21 @@ func _show_pin(mode: int, then: Callable) -> void:
 func show_store() -> void:
 	var st := StoreScreen.new()
 	st.setup(save)
-	st.back.connect(show_map)
+	st.back.connect(func():
+		_menu_greet = ["M6", false]
+		show_map())
 	_swap.call_deferred(st)
+	menu.visible = false
+	Music.play_menu()
+
+
+## The monster book (Phase 6), from the main menu's Book button; Back
+## returns to the main menu.
+func show_book() -> void:
+	var b := BookScreen.new()
+	b.setup(save)
+	b.back.connect(func(): show_map.call_deferred())
+	_swap.call_deferred(b)
 	menu.visible = false
 	Music.play_menu()
 
@@ -422,6 +580,8 @@ func _on_play(grade_id: int, _resume: bool) -> void:
 ## the duel or boss after its door), else a new run at the menu's Level
 ## (or the area's first grade, if it isn't built for that one).
 func _enter_area() -> void:
+	if _rest_if_due():
+		return
 	var saved = save.get("run")
 	if saved is Dictionary and saved.get("area") == area_id:
 		_on_start(int(saved["grade"]), true)
@@ -498,6 +658,7 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 		run = ScrollRun.new(area, _grade(grade_id), _new_seed())
 		save["run"] = run.to_save()
 		SaveStore.write(save)
+	run.fight_math = ScrollRun.fights_setting(save)
 	var s := ScrollScreen.new()
 	s.setup(run, save, debug_on)
 	# through the door: the miniboss, then the boss, then the mini map
@@ -521,6 +682,9 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 		PlayLog.event(stage + "_start")
 	AreaFlow.enter(save, area, grade_id, stage)
 	SaveStore.write(save)
+	# between the parts of a level: the step is saved, so Go picks it up tomorrow
+	if stage != AreaFlow.MAP and _rest_if_due():
+		return
 	match stage:
 		AreaFlow.DUEL:
 			_start_duel(area, grade_id)
@@ -530,14 +694,22 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 			# finishing the pass (every world beaten at this Level, even one
 			# lower than a grown-up picked) moves on: the next Level at Lava
 			var next := AreaFlow.move_on_level(save, Content.worlds(), level, _beaten_before)
+			# the first full pass of a Level wins its hero ("New hero!" on the map)
+			var heroes := Store.grant_level_rewards(Store.catalog(), save, Content.worlds())
+			if not heroes.is_empty():
+				PlayLog.event("hero_won", {"heroes": heroes})
+				SaveStore.write(save)
+			var won := _boss_win
+			_boss_win = ""
 			if next > 0:
 				play_grade = next
 				save["difficulty"] = next
 				SaveStore.write(save)
-				show_world_map.call_deferred(0)
+				show_world_map.call_deferred(0, heroes, Ellwynn.after_boss_lines(won, true, false, level))
 			else:
 				play_grade = level
-				show_world_map.call_deferred(_newly_unlocked(level))
+				var unlocked := _newly_unlocked(level)
+				show_world_map.call_deferred(unlocked, heroes, Ellwynn.after_boss_lines(won, false, unlocked >= 0, level))
 
 
 ## The miniboss duel. A loss restarts the duel by itself (FightScreen), so
@@ -546,10 +718,14 @@ func _start_duel(area: Dictionary, grade_id: int) -> void:
 	_play_level_music()
 	menu.visible = true
 	var f := FightScreen.new()
+	f.save = save
 	var fg := _fight_of(grade_id)
 	f.setup(SeededRng.new(_new_seed()), int(fg["grade"]), area["miniboss"], false, true, debug_on)
 	f.fight.set_top(int(fg["top"]))
 	f.done.connect(func(won: bool):
+		if won:
+			# the miniboss's card in the monster book (saved by _start_stage)
+			Book.record(save, str(area["miniboss"]), int(_grade(grade_id).get("num", play_grade)))
 		_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.DUEL) if won else AreaFlow.DUEL))
 	_swap.call_deferred(f)
 
@@ -557,28 +733,33 @@ func _start_duel(area: Dictionary, grade_id: int) -> void:
 ## The boss fight (Match Bounce). A win (the gem bucket is banked by the
 ## screen) leads to the mini map; on a loss "Try" fights the boss again and
 ## "Map" goes to the mini map with the boss still saved for the map's "Go".
-func _start_boss(area: Dictionary, grade_id: int) -> void:
+func _start_boss(area: Dictionary, grade_id: int, again := false) -> void:
 	_play_level_music()
 	menu.visible = true
 	var b := BounceScreen.new()
 	b.world_id = str(area.get("world", "lava_caves"))
+	b.again = again  # Try: no "here it is" line again
 	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
 	b.save = save
 	# big bonuses come once: the first clear of a world at a Level, the most
 	# for the clear that finishes the Level; a replay pays small
-	b.set_bonus(AreaFlow.boss_bonus(save, Content.worlds(), b.world_id, grade_id))
+	var bonus := AreaFlow.boss_bonus(save, Content.worlds(), b.world_id, grade_id)
+	b.set_bonus(bonus)
 	b.done.connect(func(won: bool):
 		if won:
+			_boss_win = bonus
 			_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.BOSS))
 		elif b.to_map:
 			show_world_map.call_deferred(-1)
 		else:
-			_start_boss.call_deferred(area, grade_id))
+			_start_boss.call_deferred(area, grade_id, true))
 	_swap.call_deferred(b)
 
 
 var _unlocked_before := []
 var _beaten_before := false
+## The bonus of the boss just beaten ("first", "pass", "replay"), "" none.
+var _boss_win := ""
 
 
 ## The world the boss just unlocked at this Level (its lock pops off on the
@@ -594,9 +775,15 @@ func _newly_unlocked(level: int) -> int:
 ## it, and it follows each boss. Tapping an open world plays it; locked
 ## worlds wait for the one before them to be beaten at this Level. The menu
 ## button leads back to the main menu.
-func show_world_map(just_unlocked := -1) -> void:
+func show_world_map(just_unlocked := -1, new_heroes := [], lines := []) -> void:
+	var fam := _family()
+	if fam != null:
+		fam.poke()
+	if _rest_if_due():
+		return
 	var w := WorldMapScreen.new()
-	w.setup(save, Content.worlds(), just_unlocked, play_grade)
+	w.setup(save, Content.worlds(), just_unlocked, play_grade, new_heroes)
+	w.lines = lines
 	w.open_world.connect(func(world: Dictionary):
 		area_id = world["area"]
 		_enter_area())

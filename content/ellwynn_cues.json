@@ -1,0 +1,980 @@
+{
+ "version": 1,
+ "_note": "Every place Ellwynn speaks, by the lines sheet's cue id. Made by tools/voice/make_cues.py; drop-in rules in docs/voice-drop-in.md.",
+ "cues": [
+  {
+   "id": "K1",
+   "when": "Who is playing? screen opens",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Who is playing?",
+   "bubble": ""
+  },
+  {
+   "id": "K2",
+   "when": "A child taps their own picture",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Hi!"
+  },
+  {
+   "id": "K3",
+   "when": "New tapped: pick a picture",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Pick a picture!",
+   "bubble": ""
+  },
+  {
+   "id": "K4",
+   "when": "The name box shows",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Ask a grown-up to type your name.",
+   "bubble": ""
+  },
+  {
+   "id": "K5",
+   "when": "New child saved",
+   "need": "later",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "M1",
+   "when": "First time the menu opens, and each time she is tapped",
+   "need": "basic",
+   "versions": 7,
+   "fallback": "tts",
+   "say": "Hi! I'm Ellwynn. Roll the dice and count the dots. Tap the stone with that number, then tap Go. Monsters swing dice: pick the number to block. Chests have gems for the Shop. You have three hearts. Lose them all and you start again. Tap Play! Tap me to hear this again.",
+   "bubble": "",
+   "order": true,
+   "alias": "intro"
+  },
+  {
+   "id": "M2",
+   "when": "Menu opens on a later visit",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "",
+   "alias": "welcome"
+  },
+  {
+   "id": "M3",
+   "when": "Play tapped",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Go!",
+   "alias": "play"
+  },
+  {
+   "id": "M5",
+   "when": "Shop tapped",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "",
+   "alias": "shop"
+  },
+  {
+   "id": "M6",
+   "when": "Back from the Shop",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "M7",
+   "when": "Level: N button tapped",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "T1",
+   "when": "First crossing opens, hero on the shore",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Let's get across!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T2",
+   "when": "The dice tray waits",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Tap Roll!",
+   "bubble": "Roll",
+   "once": true
+  },
+  {
+   "id": "T3",
+   "when": "The die lands",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Count the dots. Tap each dot to count it.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T4",
+   "when": "Stones light up with numbers",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Find the stone with that number, and tap it.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T5",
+   "when": "A stone is picked",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Now tap Go!",
+   "bubble": "Go!",
+   "once": true
+  },
+  {
+   "id": "T6",
+   "when": "First right hop",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yes!",
+   "once": true
+  },
+  {
+   "id": "T7",
+   "when": "First wrong stone",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Oh! That stone sank, so you lost a heart. Lose them all and you start again.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T8",
+   "when": "First chest walked onto",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Gems! Spend them in the Shop.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T9",
+   "when": "First fight opens",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "A monster! It swings dice. Pick the shield with that number to block.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T10",
+   "when": "First Shield bash turn",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Your turn! Hit back!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T11",
+   "when": "First heart stone reached",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "A heart stone gives a heart back.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T12",
+   "when": "First GO! door at the far shore",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Tap the door!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T13",
+   "when": "First miniboss duel",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "A big monster! Block it, just like before.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "T14",
+   "when": "First boss fight, one take at a time (1: before the first pick, 2: before the first shot; taught as T14 and T14_2)",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "tts",
+   "say": "Pick the number on the ball.|Drag to aim, then let go!",
+   "bubble": "",
+   "order": true,
+   "once": true
+  },
+  {
+   "id": "T15",
+   "when": "First pip tap on a die",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Let's count!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "P1",
+   "when": "World map opens",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Pick a world!",
+   "bubble": ""
+  },
+  {
+   "id": "P2",
+   "when": "A locked world tapped",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Locked! Beat the one before it first.",
+   "bubble": ""
+  },
+  {
+   "id": "P3",
+   "when": "Dice tray waits on a crossing",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "tts",
+   "say": "Roll!",
+   "bubble": ""
+  },
+  {
+   "id": "P4",
+   "when": "Dice landed, stones offered",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "tts",
+   "say": "Which stone is safe?",
+   "bubble": ""
+  },
+  {
+   "id": "P5",
+   "when": "Roll the same guess again after a miss",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Roll again!",
+   "bubble": ""
+  },
+  {
+   "id": "P6",
+   "when": "Far shore reached, golden arrow",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Go!",
+   "bubble": ""
+  },
+  {
+   "id": "P7",
+   "when": "Fight: the monster swings",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "tts",
+   "say": "Block!",
+   "bubble": ""
+  },
+  {
+   "id": "P8",
+   "when": "Fight: the hero's turn",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "tts",
+   "say": "Shield bash!",
+   "bubble": ""
+  },
+  {
+   "id": "P9",
+   "when": "Fight won, door to go on",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Tap the door!",
+   "bubble": ""
+  },
+  {
+   "id": "P10",
+   "when": "Miniboss lost, retry button",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Try again!",
+   "bubble": ""
+  },
+  {
+   "id": "P11",
+   "when": "Boss: pick the ball's number",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Pick the number!",
+   "bubble": ""
+  },
+  {
+   "id": "P12",
+   "when": "Boss: out of balls (Try or Map)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "No more balls. Tap Try, or Map.",
+   "bubble": ""
+  },
+  {
+   "id": "P13",
+   "when": "Shop opens",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Tap a picture, then tap Buy.",
+   "bubble": ""
+  },
+  {
+   "id": "W1",
+   "when": "Lava Caves crossing opens",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "W2",
+   "when": "Crystal Mines crossing opens",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "W3",
+   "when": "The Bog crossing opens",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "W4",
+   "when": "Mushroom Forest crossing opens",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "W5",
+   "when": "Space star track opens",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "W6",
+   "when": "Warm-up done, the level's own math starts",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "N1",
+   "when": "First time two dice show (Crystal 1)",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Two dice! Add them up.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N2",
+   "when": "Bigger numbers (the top goes up)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N3",
+   "when": "First take-away (Lava 2)",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "The red die takes away!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N4",
+   "when": "First three dice (Crystal 2)",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Three dice!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N5",
+   "when": "Star track (Space 2)",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "The stones show their place.",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N6",
+   "when": "Rails: only 1, 5, 10, 15 numbered (Crystal 3)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N7",
+   "when": "Four dice (Lava 4)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N8",
+   "when": "Hidden die (Lava 5)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "One die is hidden. Find the missing number!",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N9",
+   "when": "Hidden die can be any (Mushroom 5)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N10",
+   "when": "Take away across ten (Lava 6)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "N11",
+   "when": "Everything mixed (Mushroom 6, Space 6)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "once": true
+  },
+  {
+   "id": "C3",
+   "when": "Right stone picked: a cheer after the number (falls back to Woo-hoo)",
+   "need": "basic",
+   "versions": 4,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "C5",
+   "when": "Chest opened (2 in 3)",
+   "need": "basic",
+   "versions": 4,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "",
+   "alias": "chest"
+  },
+  {
+   "id": "C6",
+   "when": "Far shore reached",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "C7",
+   "when": "Star earned: crossing done with no heart lost",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "F1",
+   "when": "A monster appears (Fight!)",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "F3",
+   "when": "Hit blocked (sometimes)",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "F4",
+   "when": "Took a hit, heart lost (before the number)",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "F5",
+   "when": "Monster beaten (pop-in 1 in 3)",
+   "need": "basic",
+   "versions": 4,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!",
+   "alias": "enemy"
+  },
+  {
+   "id": "F6",
+   "when": "Fight lost, back to the start",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "F7",
+   "when": "Mimic chest snaps open",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "D1",
+   "when": "Lava miniboss: Surtling Chief",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "D2",
+   "when": "Crystal miniboss: Svartalf Lantern Lord",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Look fast! The dice go dark. Tap one to light it.",
+   "bubble": ""
+  },
+  {
+   "id": "D3",
+   "when": "Bog miniboss: Wisp King and Queen",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Two foes! They take turns.",
+   "bubble": ""
+  },
+  {
+   "id": "D4",
+   "when": "Mushroom miniboss: the Hedley Kow",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Count on! Start from the number, then count the dots.",
+   "bubble": ""
+  },
+  {
+   "id": "D5",
+   "when": "Space miniboss: Ratatoskr",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "tts",
+   "say": "Read it! Tap a number to see the dots.",
+   "bubble": ""
+  },
+  {
+   "id": "D6",
+   "when": "Duel won, door to the boss",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "D7",
+   "when": "Duel lost, Try again button",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "D8",
+   "when": "Bog only: the King or the Queen is out",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B1-lava",
+   "when": "Boss appears: the Skeleton Dragon",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B1-crystal",
+   "when": "Boss appears: the Knocker King",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B1-bog",
+   "when": "Boss appears: Jenny Greenteeth",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B1-mushroom",
+   "when": "Boss appears: the Green Man",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B1-space",
+   "when": "Boss appears: Fenrir",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B2-lava",
+   "when": "Skeleton Dragon beaten",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "B2-crystal",
+   "when": "Knocker King beaten",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "B2-bog",
+   "when": "Jenny Greenteeth beaten",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "B2-mushroom",
+   "when": "Green Man beaten",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "B2-space",
+   "when": "Fenrir beaten",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "B3",
+   "when": "Lost to the boss (Oh no!)",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "B4",
+   "when": "Boss moments: new pegs, combo, big gem bucket",
+   "need": "later",
+   "versions": 3,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "H1",
+   "when": "Wrong stone: the sink (never the answer yet)",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "H2",
+   "when": "Lead-in before she says the right number",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "H3",
+   "when": "The 'then' in a count-on after a miss",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "alias": "count_then"
+  },
+  {
+   "id": "H4",
+   "when": "The 'then' counting back on the red die",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "alias": "count_back_then"
+  },
+  {
+   "id": "H5",
+   "when": "Hidden die help after a miss",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "H6",
+   "when": "Two misses in a row on one guess",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "H7",
+   "when": "She stops counting pips (two monsters beaten)",
+   "need": "later",
+   "versions": 1,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "alias": "count_quiet"
+  },
+  {
+   "id": "R1",
+   "when": "Heart stone reached, a heart comes back",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "R2",
+   "when": "Down to the last heart",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "R3",
+   "when": "All hearts gone, hero back at the start",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "L1",
+   "when": "Map opens after a boss win: next world opens",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "L2",
+   "when": "First clear of a world at this Level",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "L3",
+   "when": "Level complete: Space beaten, the next Level opens",
+   "need": "basic",
+   "versions": 1,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "L4",
+   "when": "Level complete, after L3: take n for Level n (L4, L4_2 .. L4_6)",
+   "need": "later",
+   "versions": 6,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": "",
+   "order": true
+  },
+  {
+   "id": "L5",
+   "when": "A world replayed that is already beaten (the map after its boss)",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  },
+  {
+   "id": "S1",
+   "when": "Bought a hero or a dragon colour",
+   "need": "basic",
+   "versions": 3,
+   "fallback": "placeholder",
+   "say": "",
+   "bubble": "Yay!"
+  },
+  {
+   "id": "S2",
+   "when": "Tapped a grey Buy: not enough yet",
+   "need": "basic",
+   "versions": 2,
+   "fallback": "tts",
+   "say": "Not enough yet.",
+   "bubble": ""
+  },
+  {
+   "id": "S3",
+   "when": "Put on a hero or colour (Use)",
+   "need": "later",
+   "versions": 2,
+   "fallback": "quiet",
+   "say": "",
+   "bubble": ""
+  }
+ ]
+}

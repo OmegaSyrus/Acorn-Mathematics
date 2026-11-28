@@ -82,7 +82,7 @@ func _ready() -> void:
 	_check(picked[0], "tap on Go picked the rock")
 	await _frames(60)
 	_shot("5-picked")
-	_check(Music.playlist == "lava" and Music.player.playing, "lava music playing on the crossing")
+	_check(Music.playlist == "lava_caves" and Music.player.playing, "lava music playing on the crossing")
 
 	# The menu button beside the gems: opens a paused menu; Play closes it,
 	# Main Menu goes back to the map (and its music).
@@ -102,7 +102,7 @@ func _ready() -> void:
 	await _frames(10)
 	_check(not get_tree().paused and main.screen.get_script().resource_path.ends_with("map_screen.gd"), "Main Menu went back to the map")
 	_check(not menu.visible, "no menu button on the map")
-	_check(Music.playlist == "menu" and Music.current.begins_with("menu-"), "menu music on the map")
+	_check(Music.playlist == "menu" and Music.current.get_file().begins_with("menu-"), "menu music on the map")
 
 	# The exit door on a crossing already cleared: a tap about an inch to the
 	# left of the door, outside the door itself, still leaves.

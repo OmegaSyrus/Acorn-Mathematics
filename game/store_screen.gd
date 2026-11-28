@@ -7,6 +7,9 @@
 ##   a grey "Buy" (not enough yet): the card shakes;
 ##   a lock (a currency the game can't give yet): the card shakes;
 ##   a blue "Use" (owned): puts it on; a check mark: in use.
+## A third tab, a gold cup (Phase 6, 2026-11-28), holds the Level heroes:
+## not bought, each won by the first full pass of its Level. Until then its
+## card shows a lock and "Level N" where a price would be, and shakes.
 ## All rules live in logic/core/store.gd; the catalog is content/store.json.
 extends Node2D
 
@@ -20,12 +23,17 @@ const DiceSkins := preload("res://game/ui/dice_skins.gd")
 const Look := preload("res://game/ui/look.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
+const Trophy := preload("res://game/ui/trophy.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
 
 ## Narrower Back and tabs (Phase 0, 2026-11-16) leave room for every open
-## currency's balance at the top right, three over two.
-const BACK_RECT := Rect2(128, 10, 124, 80)
-const TAB_RECTS := {"hero": Rect2(260, 10, 120, 80), "dice": Rect2(388, 10, 120, 80)}
-const GEMS_BOX := Rect2(516, 8, 320, 88)
+## currency's balance at the top right, three over two. Phase 6: narrower
+## again for the third tab (the Level heroes, a gold cup).
+const BACK_RECT := Rect2(128, 10, 112, 80)
+const TAB_RECTS := {"hero": Rect2(246, 10, 100, 80), "dice": Rect2(352, 10, 100, 80),
+		"level": Rect2(458, 10, 100, 80)}
+const GEMS_BOX := Rect2(564, 8, 272, 88)
+const GEMS_STEP := 86.0
 const COLS := 7   # 14 cards a tab (2026-11-06: Red and Green Bolt joined the heroes)
 const CARD := Vector2(96, 205)
 const GAP := 6.0
@@ -40,6 +48,7 @@ const CARD_COL := {
 	Store.BUY: Color(0.46, 0.28, 0.6),
 	Store.SHORT: Color(0.3, 0.26, 0.26),
 	Store.LOCKED: Color(0.19, 0.17, 0.2),
+	Store.LEVEL: Color(0.22, 0.19, 0.16),
 }
 const BUY_GREEN := Color(0.2, 0.62, 0.3)
 const USE_BLUE := Color(0.22, 0.45, 0.78)
@@ -72,9 +81,26 @@ func _ready() -> void:
 		shown[cid] = float(Store.balance(save, cid))
 	choice = ChoiceWidget.new()
 	add_child(choice)
-	# the highlight (keyboard and pad) starts on the hero in use
-	_present({"what": "card", "id": Store.equipped(cat, save, tab)})
+	# the highlight (keyboard and pad) starts on the hero in use, on the
+	# Level tab when it is a Level hero
+	var hero := Store.equipped(cat, save, "hero")
+	if Store.reward_level(Store.item(cat, hero)) > 0:
+		tab = "level"
+	_present({"what": "card", "id": hero})
 	_loop()
+	# the Shop's prompt (P13), once the Shop tap's cheer (M5) is done
+	var ell := EllwynnRef.here(self)
+	if ell != null:
+		await ell.wait_quiet(3.0)
+		if is_inside_tree():
+			ell.prompt("P13")
+
+
+## Her line for something done here (S1 bought, S2 not enough, S3 Use).
+func _voice(cue: String) -> void:
+	var ell := EllwynnRef.here(self)
+	if ell != null:
+		ell.cue_play(cue)
 
 
 func _loop() -> void:
@@ -113,6 +139,7 @@ func _tap_card(id: String) -> void:
 			_saved()
 			_pop[id] = 0.5
 			Beeper.good()
+			_voice("S3")
 		Store.EQUIPPED:
 			selected = ""
 			_pop[id] = 0.35
@@ -120,6 +147,8 @@ func _tap_card(id: String) -> void:
 		_:
 			# not yet: too dear, or a currency the game can't give yet
 			selected = ""
+			if Store.state(cat, save, id) == Store.SHORT:
+				_voice("S2")
 			_shake[id] = SHAKE_S
 			Beeper.tone(196.0, 0.16, -10.0)
 			get_tree().create_timer(0.15).timeout.connect(Beeper.tone.bind(165.0, 0.2, -10.0))
@@ -135,8 +164,9 @@ func _buy(id: String) -> void:
 	Store.equip(cat, save, id)
 	_saved()
 	_pop[id] = 0.6
-	Beeper.good()
+	Beeper.play("buy")
 	Beeper.gems(5)
+	_voice("S1")
 	var c := _card_rect(_tab_items().find(Store.item(cat, id))).get_center()
 	for k in 26:
 		var a := TAU * k / 26.0 + randf() * 0.2
@@ -156,7 +186,9 @@ func _saved() -> void:
 
 
 func _tab_items() -> Array:
-	return Store.items(cat, tab)
+	if tab == "level":
+		return Store.reward_items(cat)
+	return Store.shop_items(cat, tab)
 
 
 func _card_rect(i: int) -> Rect2:
@@ -255,7 +287,10 @@ func _draw_tabs() -> void:
 		RoundBox.fill(self, r, Color(0.5, 0.4, 0.34) if on else Color(0.24, 0.19, 0.18), 18.0)
 		if on:
 			RoundBox.frame(self, r, GOLD, 4.0, 18.0)
-		if k == "hero":
+		if k == "level":
+			var ts := Trophy.size(4)
+			Trophy.draw(self, r.get_center() - ts / 2.0, true, 4, 1.0 if on else 0.7)
+		elif k == "hero":
 			var tex := Look.hero_texture()
 			var s := 66.0 / tex.get_height()
 			var size := tex.get_size() * s
@@ -278,7 +313,7 @@ func _draw_gems(font: Font) -> void:
 		var cid: String = ids[k]
 		var row := k / 3
 		var col := k % 3
-		var c := r.position + Vector2(26 + col * 104, 24 + row * 40)
+		var c := r.position + Vector2(24 + col * GEMS_STEP, 24 + row * 40)
 		if not CurrencyIcon.draw(self, cid, c, 30.0):
 			_currency_icon(cid, c, 26.0)
 		var v: float = shown.get(cid, float(Store.balance(save, cid)))
@@ -308,7 +343,7 @@ func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:
 	# the picture, standing on the card's middle line
 	var pic := Rect2(r.position + Vector2(4, 6), Vector2(r.size.x - 8, 126))
 	var tint := Color.WHITE
-	if st == Store.LOCKED:
+	if st == Store.LOCKED or st == Store.LEVEL:
 		# dim, but still easy to make out: something to look forward to
 		tint = Color(0.55, 0.53, 0.62) if it["kind"] == "hero" else Color(0.78, 0.76, 0.84)
 	elif st == Store.SHORT:
@@ -340,6 +375,13 @@ func _draw_card(font: Font, it: Dictionary, r: Rect2, i: int) -> void:
 			_check(Vector2(mid, r.position.y + 168), 24.0)
 		Store.OWNED:
 			_pill(font, Rect2(r.position + Vector2(8, 148), Vector2(r.size.x - 16, 46)), USE_BLUE, "Use", INK)
+		Store.LEVEL:
+			# no price: a lock and the Level that wins it
+			_lock(Vector2(mid, r.position.y + 150), 26.0)
+			var at := Vector2(r.position.x, r.position.y + 194)
+			var words := "Level %d" % Store.reward_level(it)
+			draw_string_outline(font, at, words, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24, 6, DARK)
+			draw_string(font, at, words, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24, GOLD)
 		_:
 			_draw_price(font, it["price"], Vector2(mid, r.position.y + 148), st == Store.LOCKED)
 			var pr := Rect2(r.position + Vector2(10, 164), Vector2(r.size.x - 20, 34))
@@ -410,7 +452,7 @@ func _currency_icon(cid: String, c: Vector2, size: float) -> void:
 		return
 	match str(icon.get("shape", "")):
 		"gem":
-			draw_texture_rect(GEM_TEX, Rect2(c - Vector2(h, h) * 1.15, Vector2(size, size) * 1.15), false)
+			draw_texture_rect(GEM_TEX, Rect2((c - GEM_TEX.get_size() / 2.0).round(), GEM_TEX.get_size()), false)
 		"crystal":
 			var p := PackedVector2Array([c + Vector2(0, -h), c + Vector2(h * 0.55, -h * 0.45), c + Vector2(h * 0.55, h * 0.55),
 					c + Vector2(0, h), c + Vector2(-h * 0.55, h * 0.55), c + Vector2(-h * 0.55, -h * 0.45)])

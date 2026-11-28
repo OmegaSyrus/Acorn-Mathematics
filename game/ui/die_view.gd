@@ -80,6 +80,11 @@ var _peek_tw: Tween
 var q := Quaternion.IDENTITY
 var offset := Vector2.ZERO
 var lit := []
+## A gold glow round the whole die (0..1): Ellwynn's count-on starts from it.
+var glow := 0.0:
+	set(v):
+		glow = v
+		queue_redraw()
 ## face value -> Texture2D (96 x 96, pips at 27/48/69 px).
 var face_art := {}
 var _frames := {}  # face value -> [normal, tangent, bitangent] in die space
@@ -209,6 +214,29 @@ func _reset_lit() -> void:
 	lit = []
 	for i in DiceDraw.PIPS[value].size():
 		lit.append(false)
+	glow = 0.0
+
+
+## Ellwynn's count (game/ellwynn.gd say_counting): pip i lights up, as if
+## the child had tapped it. Out of range does nothing.
+func light_pip(i: int) -> void:
+	if i >= 0 and i < lit.size():
+		lit[i] = true
+		queue_redraw()
+
+
+## Every pip lit and the die glowing: the first die of a count-on.
+func light_all() -> void:
+	for i in lit.size():
+		lit[i] = true
+	glow = 1.0
+
+
+## All pips dark again and no glow.
+func clear_lit() -> void:
+	for i in lit.size():
+		lit[i] = false
+	glow = 0.0
 
 
 func _project(p: Vector3) -> Vector2:
@@ -225,6 +253,8 @@ func _on_face(v: int, px: Vector2, lift := 1.001) -> Vector2:
 
 func _draw() -> void:
 	draw_circle(Vector2(0, HALF * 1.45), HALF * 0.9, Color(0, 0, 0, 0.25))
+	if glow > 0.0 and face_on:
+		RoundBox.fill(self, Rect2(offset - Vector2(58, 58), Vector2(116, 116)), Color(LIT, 0.55 * glow), 22.0)
 	var front := []
 	for v in _frames:
 		var nz := (q * (_frames[v][0] as Vector3)).z

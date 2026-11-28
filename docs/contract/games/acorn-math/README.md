@@ -20,6 +20,21 @@
   (`samples/manifest.json` is its output for 0.28.0, code 47, with
   `picture_labels` added by hand until `manifest.gd` emits them).
 
+## Grown-up controls (time limits)
+
+Agreed 2026-11-28 for the sync add-on (Phase 5): the manifest's `settings`
+list holds two keys, both `scope` `child_game` (they follow the child to every
+tablet), with `since_code` the first build that has the sync add-on:
+
+| Key | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `daily_minutes` | `int`, 0 to 240 | `0` | Minutes of play a day on all tablets together; `0` is no limit. When time is up the game lets the current level finish, then says goodbye until tomorrow (the tablet's local midnight). |
+| `bedtime` | `time` `HH:MM` or `null` | `null` | No new play after this time on the tablet's clock, until 06:00. |
+
+The parent app draws them from the manifest; the game reads them with
+`GET .../settings` and applies the newest value. Nothing here unlocks a world
+or changes a Level. `samples/manifest.json` shows them.
+
 ## Upgrading a version 1 save
 
 Version 1 lived in `user://profile_1.json` with `"profile": "1"`. On the
@@ -48,5 +63,7 @@ device's snapshot for that child and merges them with `SaveData.merge`:
 | `currencies` | per currency, the highest (no spending yet) |
 | `hero`, `dice`, `difficulty` | from the newest snapshot (`saved_at`) |
 | `ellwynn_intro_seen` | true if any is true |
+| `taught` | per cue id, true if any is true |
+| `book` | per monster id, the union of the Levels (like `marks`) |
 | `run` | this device's own; never taken from another device |
 | anything unknown | from the newest snapshot that has it |

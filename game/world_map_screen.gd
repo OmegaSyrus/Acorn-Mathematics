@@ -7,7 +7,10 @@
 ## hero stands on the newest unlocked world. Tapping an open world plays it
 ## (a crossing in progress there picks up again); a locked world shakes its
 ## lock, and an unlocked world that isn't built yet says "Soon".
-## Worlds beaten at this Level get a gold star.
+## Worlds beaten at this Level get a gold trophy (Phase 6, 2026-11-28: the
+## boss's trophy, game/ui/trophy.gd; it was a gold star).
+## A Level hero just won (Store.grant_level_rewards, after the boss that
+## finished the Level) pops up first: "New hero!" with the hero, tap to go on.
 ## Under each world's name, six marks (two rows of three), one per level (2026-11-12):
 ## gold once that level is beaten, with a bright star beside it when its
 ## crossing was cleared without losing a heart (game/ui/marks.gd). The menu's
@@ -23,6 +26,14 @@ const Look := preload("res://game/ui/look.gd")
 const Marks := preload("res://game/ui/marks.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const Content := preload("res://logic/core/content.gd")
+const Book := preload("res://logic/core/book.gd")
+const Trophy := preload("res://game/ui/trophy.gd")
+## The "New hero!" pop: a panel in the middle, tap anywhere to close it.
+const POP := Rect2(300, 110, 360, 330)
+const EllwynnRef := preload("res://game/ellwynn.gd")
+const Pointer := preload("res://game/ui/pointer.gd")
+## The "Level N" title: a tap says the prompt again.
+const TITLE_RECT := Rect2(300, 56, 360, 72)
 ## One level's mark and star, left to right, six to a world in two rows of
 ## three (levels 1-3 over 4-6), so the edge worlds stay inside the 4:3 band.
 const MARK_STEP := 30
@@ -49,10 +60,18 @@ var fresh_unlock := -1  # a world whose lock just came off (pops on show), -1 = 
 var _unlock := 0.0      # 0..1 the lock popping off
 var level := 1          # the main menu's level number, framed in each row of marks
 var _ids := {}          # world id -> its level ids by number (Content.level_ids)
+var new_heroes: Array = []  # Level heroes just won, shown one by one before the map
+var _pop_hero := ""         # the hero in the pop now, "" for none
+var _pop := 0.0             # 0..1 the pop growing in
+## What Ellwynn says first, after a boss (Ellwynn.after_boss_lines): [[cue, take]],
+## each after the one before is done, then "Pick a world!" (P1).
+var lines: Array = []
+var _picked := false
 
 
-func setup(profile: Dictionary, world_list: Array, just_unlocked := -1, menu_level := 1) -> void:
+func setup(profile: Dictionary, world_list: Array, just_unlocked := -1, menu_level := 1, heroes := []) -> void:
 	save = profile
+	new_heroes = heroes
 	worlds = world_list.slice(0, XS.size())
 	fresh_unlock = just_unlocked
 	level = clampi(menu_level, 1, LEVELS)
@@ -67,19 +86,71 @@ func _ready() -> void:
 	for i in worlds.size():
 		rects.append(node_rect(i))
 	var here := _hero_at()
+	for id in new_heroes:
+		await _show_new_hero(String(id))
 	if fresh_unlock >= 0:
 		await get_tree().create_timer(0.5).timeout
 		Beeper.good()
 		await create_tween().tween_property(self, "_unlock", 1.0, 0.8).finished
+	_speak()
 	while true:
 		choice.present(rects, here)
 		var i: int = await choice.picked
+		var ell := EllwynnRef.here(self)
 		if _open(i):
+			_picked = true
 			Beeper.good()
 			open_world.emit(worlds[i])
 			return
 		Beeper.bad()
 		_shake[i] = SHAKE_S
+		if ell != null and not _unlocked(i):
+			ell.prompt("P2")  # locked: beat the one before it first
+
+
+## After a boss, her lines in turn (L1 to L5), then the prompt (P1). Each
+## waits for the one before (the menu's "Let's go!" too), and stops once a
+## world is picked or the map is gone.
+func _speak() -> void:
+	var ell := EllwynnRef.here(self)
+	if ell == null:
+		return
+	for l in lines:
+		await ell.wait_quiet(4.0)
+		if _picked or not is_inside_tree():
+			return
+		if int(l[1]) > 0:
+			ell.cue_take(String(l[0]), int(l[1]))
+		else:
+			ell.cue_play(String(l[0]))
+	await ell.wait_quiet(4.0)
+	if _picked or not is_inside_tree():
+		return
+	ell.prompt("P1")
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if Pointer.is_press(event) and TITLE_RECT.has_point(Pointer.local_pos(self, event)):
+		var ell := EllwynnRef.here(self)
+		if ell != null and ell.replay_prompt():
+			get_viewport().set_input_as_handled()
+
+
+## "New hero!": the hero grows in on a panel with a chime and sparkles;
+## a tap anywhere (after the usual lockout) closes it.
+func _show_new_hero(id: String) -> void:
+	_pop_hero = id
+	_pop = 0.0
+	await get_tree().create_timer(0.3).timeout
+	Beeper.good()
+	Beeper.gems(4)
+	create_tween().tween_property(self, "_pop", 1.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	choice.show_highlight = false
+	choice.present([Rect2(-480, -100, 1920, 740)])
+	await choice.picked
+	choice.show_highlight = true
+	Beeper.tone(660.0, 0.08)
+	_pop_hero = ""
 
 
 ## The tap area of world i (the circle and its name).
@@ -131,6 +202,37 @@ func _draw() -> void:
 	var tex := Look.hero_texture()
 	var foot := Vector2(XS[here], YS[here] - R * 0.35 + sin(_t * 3.0) * 3.0)
 	draw_texture(tex, (foot - Vector2(tex.get_width() / 2.0, tex.get_height())).round())
+	if _pop_hero != "":
+		_draw_new_hero(font)
+
+
+## The pop: dims the map, a panel with "New hero!", the hero at 1:1 on a
+## glow with stars turning round it.
+func _draw_new_hero(font: Font) -> void:
+	draw_rect(Rect2(-480, -100, 1920, 740), Color(0, 0, 0, 0.6 * _pop))
+	var s := maxf(_pop, 0.01)
+	var c := POP.get_center()
+	draw_set_transform(c, 0.0, Vector2(s, s))
+	var r := Rect2(-POP.size / 2.0, POP.size)
+	RoundBox.fill(self, r, Color(0.16, 0.11, 0.1), 24.0)
+	RoundBox.frame(self, r, GOLD, 4.0, 24.0)
+	_label(font, Vector2(r.position.x, r.position.y + 62), r.size.x, "New hero!", 46, GOLD)
+	var feet := Vector2(0, r.end.y - 50)
+	draw_circle(feet + Vector2(0, -60), 82.0, Color(1.0, 0.85, 0.4, 0.18))
+	for k in 6:
+		var a := _t * 1.2 + TAU * k / 6.0
+		_draw_star(feet + Vector2(0, -60) + Vector2(cos(a), sin(a)) * 104.0, 10.0)
+	draw_set_transform(Vector2.ZERO)
+	if _pop < 0.98:
+		return
+	# the hero at 1:1 (never scaled, Look.CHAR_PX), once the panel is full size
+	var tex := Look.hero_texture(_pop_hero)
+	var bob := absf(sin(_t * 3.0)) * 4.0
+	var at := c + feet - Vector2(tex.get_width() / 2.0, tex.get_height() + bob)
+	draw_set_transform(c + feet + Vector2(0, -2), 0.0, Vector2(1.0, 0.25))
+	draw_circle(Vector2.ZERO, 34.0, Color(0, 0, 0, 0.3))
+	draw_set_transform(Vector2.ZERO)
+	draw_texture(tex, at.round())
 
 
 func _draw_world(font: Font, i: int) -> void:
@@ -152,8 +254,9 @@ func _draw_world(font: Font, i: int) -> void:
 	elif popping:
 		# the lock lifts off and fades the first time the world is unlocked
 		_draw_lock(c + Vector2(0, -_unlock * 70.0), 1.0 - _unlock)
-	elif AreaFlow.world_beaten(save, w["id"], level):
-		_draw_star(c + Vector2(R * 0.78, R * 0.62), 20.0)
+	elif Book.trophy_at(save, String(w["id"]), level):
+		# the boss's trophy, by the world's lower right
+		Trophy.draw(self, c + Vector2(R * 0.74, R * 0.58) - Trophy.size(3) / 2.0, true, 3)
 	# the name under the circle, a word per line
 	var words: PackedStringArray = String(w["name"]).split(" ")
 	if words.size() == 2 and words[0].length() <= 3:

@@ -246,7 +246,8 @@ func _pick_with_go(choice, index: int) -> void:
 
 
 func _tap_choice(choice, index: int) -> void:
-	var r: Rect2 = choice.rects[index]
+	# one target up (the door to the boss, "Try again"): that one
+	var r: Rect2 = choice.rects[index] if index < choice.rects.size() else choice.rects[0]
 	await _tap_at(choice, r.get_center())
 
 

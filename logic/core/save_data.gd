@@ -38,6 +38,8 @@ static func new_profile(profile_id: String) -> Dictionary:
 		"dice": "classic",
 		# a level's crossing cleared without losing a heart: {world_id: [level ids]}
 		"stars": {},
+		# the monster book (logic/core/book.gd): {monster id: [Level numbers beaten at]}
+		"book": {},
 	}
 
 
@@ -122,7 +124,7 @@ static func from_text(text: String, profile_id: String) -> Dictionary:
 			save[k] = fresh[k]
 	# saves from before the store load with its defaults; a hand-broken store
 	# field falls back to its default too
-	for k in ["currencies", "owned", "hero", "dice", "stars", "marks", "gem_counts", "stickers"]:
+	for k in ["currencies", "owned", "hero", "dice", "stars", "marks", "gem_counts", "stickers", "book"]:
 		if typeof(save[k]) != typeof(fresh[k]):
 			save[k] = fresh[k]
 	if typeof(save["gems"]) != TYPE_INT:
@@ -151,7 +153,7 @@ static func snapshot(save: Dictionary, dev: String, rev: int, now: int, child = 
 
 ## One child's progress from every device's snapshot (and this device's
 ## save, as a snapshot too). Nothing earned on any device is lost:
-## marks, stars and owned items by union, stickers by the most copies,
+## marks, stars, the monster book and owned items by union, stickers by the most copies,
 ## gems from each device's highest counts. Hero, dice and difficulty come
 ## from the newest snapshot. The run (a level in progress) stays with its
 ## device: keep_run is this device's own, put back as it was.
@@ -171,8 +173,10 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 	var owned := []
 	var marks := {}
 	var stars := {}
+	var book := {}
 	var currencies := {}
 	var intro := false
+	var taught := {}
 	for sv in newest_first:
 		for d in sv["gem_counts"]:
 			var c: Dictionary = sv["gem_counts"][d]
@@ -189,9 +193,15 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 				owned.append(o)
 		_union_lists(marks, sv["marks"])
 		_union_lists(stars, sv["stars"])
+		_union_lists(book, sv["book"])
 		for c in sv["currencies"]:
 			currencies[c] = maxi(int(currencies.get(c, 0)), int(sv["currencies"][c]))
 		intro = intro or bool(sv.get("ellwynn_intro_seen", false))
+		var t = sv.get("taught", {})
+		if t is Dictionary:
+			for k in t:
+				if bool(t[k]):
+					taught[k] = true
 	out["gem_counts"] = counts
 	out["gems"] = gems_from_counts(counts)
 	var sticker_list := []
@@ -202,9 +212,12 @@ static func merge(snapshots: Array, profile_id: String, keep_run = null) -> Dict
 	out["owned"] = owned
 	out["marks"] = marks
 	out["stars"] = stars
+	out["book"] = book
 	out["currencies"] = currencies
 	if intro:
 		out["ellwynn_intro_seen"] = true
+	if not taught.is_empty():
+		out["taught"] = taught
 	out["run"] = keep_run
 	out["profile"] = profile_id
 	return out

@@ -43,6 +43,14 @@ var problem := {}
 var phase := AWAIT_ROLL
 var events := []
 var _spaces := {}
+## What monster fights ask (Phase 2 of the ship plan, a Debug switch):
+## FIGHTS_STEP_BEFORE (the default) asks the step before's fight, so new
+## math shows up only on the stones; FIGHTS_OWN asks the stage's own fight.
+## The miniboss duel always asks the level's own. Not saved with the run:
+## main.gd sets it from the save on every start and resume.
+const FIGHTS_STEP_BEFORE := "step_before"
+const FIGHTS_OWN := "own"
+var fight_math := FIGHTS_STEP_BEFORE
 
 
 func _init(area_data: Dictionary, grade_data: Dictionary, seed_value: int) -> void:
@@ -87,12 +95,17 @@ func is_level() -> bool:
 ## level on the path has two: 3 warm-up guesses at the step before's math,
 ## then its own (Content.levels()). A level without one is a single stage.
 func stage(k: int) -> Dictionary:
-	var r: Array = grade.get("ramp", [])
+	return stage_of(grade, k)
+
+
+## stage() for any level: the ramp stage that covers guess k (0 = the first).
+static func stage_of(lv: Dictionary, k: int) -> Dictionary:
+	var r: Array = lv.get("ramp", [])
 	if r.is_empty():
-		var st := {"move": grade.get("move", {}), "fight": grade.get("fight", {"grade": grade["id"], "top": 0}),
-				"rails": bool(grade.get("rails", false)), "track": bool(grade.get("track", false))}
-		if grade.has("monster_fight"):
-			st["monster_fight"] = grade["monster_fight"]
+		var st := {"move": lv.get("move", {}), "fight": lv.get("fight", {"grade": lv["id"], "top": 0}),
+				"rails": bool(lv.get("rails", false)), "track": bool(lv.get("track", false))}
+		if lv.has("monster_fight"):
+			st["monster_fight"] = lv["monster_fight"]
 		return st
 	var left := k
 	for s in r:
@@ -115,10 +128,39 @@ func max_answer_now() -> int:
 
 ## The fight for a monster met now: the stage of the guess that walked
 ## into it. A level asks the step before's fight ("monster_fight", set by
-## Content.levels(): fights ask the previous level's math, 2026-11-12).
+## Content.levels(): fights ask the previous level's math, 2026-11-12),
+## unless the Debug fight switch says FIGHTS_OWN.
 func fight_now() -> Dictionary:
-	var st := stage(maxi(0, rolls - 1))
+	return fight_of(stage(maxi(0, rolls - 1)), fight_math)
+
+
+## The fight a monster asks in ramp stage st: the step before's
+## ("monster_fight"), or the stage's own when the switch says FIGHTS_OWN.
+static func fight_of(st: Dictionary, math: String) -> Dictionary:
+	if math == FIGHTS_OWN:
+		return st["fight"]
 	return st.get("monster_fight", st["fight"])
+
+
+## The fight a monster asks where the path meets it: the area step that
+## holds the monster (its "after" n is walked into by guess n, so stage
+## n - 1), at this level. A monster the area doesn't hold asks the level's
+## last stage. The Arena asks this, so its fights match the path's
+## (logic/modes/arena_run.gd).
+static func monster_fight(area_data: Dictionary, grade_data: Dictionary, monster_id: String, math: String) -> Dictionary:
+	var k := 99
+	for st in area_data.get("steps", []):
+		if str(st.get("type", "")) == "monster" and str(st.get("monster", "")) == monster_id:
+			k = int(st["after"]) - 1
+			break
+	return fight_of(stage_of(grade_data, maxi(0, k)), math)
+
+
+## The Debug fight switch's setting kept in a save, checked (an unknown
+## value reads as the default).
+static func fights_setting(save: Dictionary) -> String:
+	var v := String(save.get("fight_math", FIGHTS_STEP_BEFORE))
+	return v if v == FIGHTS_OWN else FIGHTS_STEP_BEFORE
 
 
 func _lay_out() -> void:
@@ -224,6 +266,21 @@ func space_at(i: int) -> Dictionary:
 
 func has_problem() -> bool:
 	return not problem.is_empty()
+
+
+## Monsters beaten on this attempt of the crossing (Ellwynn's counting help,
+## logic/core/count_help.gd): every monster space the hero is past or
+## standing on after its fight. A restart starts again from the first
+## stone, so the count is 0 again; a heart lost on a stone keeps it. Worked
+## out from where the hero is, so a resumed crossing knows it too.
+func monsters_beaten() -> int:
+	var n := 0
+	for at in _spaces:
+		if str(_spaces[at].get("type", "")) != "monster":
+			continue
+		if int(at) < pos or (int(at) == pos and phase != AWAIT_FIGHT):
+			n += 1
+	return n
 
 
 func current_monster() -> String:

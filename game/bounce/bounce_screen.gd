@@ -30,6 +30,11 @@ const PlayLog := preload("res://game/play_log.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
 const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
+## The "Pick" over the naming column, and the "No more balls" line: a tap
+## says the prompt again (Ellwynn.replay_prompt).
+const PICK_LABEL_RECT := Rect2(124, 72, 96, 34)
+const FAIL_LABEL_RECT := Rect2(240, 176, 480, 64)
 ## The gem bucket for beating the dragon (2026-11-06, Terrence): where it
 ## lands, and how long the pour takes.
 const BUCKET_AT := Vector2(480, 330)
@@ -55,7 +60,7 @@ const PEG_ART := {
 	5: ["orange", Color(1.25, 1.25, 0.45)],
 	6: ["blue", Color(0.7, 1.3, 1.3)],
 }
-const PEG_ART_SCALE := 1.25    # 32 px gems drawn to fill a 40 px peg
+## Pegs are 56x56 with a 40 unit gem (a radius 20 peg), drawn 1:1.
 const BUMPER_ART_SCALE := 1.375
 const BOARD_TEX := preload("res://art/boss/board.png")
 const BUMPER_TEX := preload("res://art/boss/bumper.png")
@@ -126,10 +131,18 @@ var peg_tex := {}
 var save: Dictionary = {}  # the profile; empty in the standalone graybox and tests (no gems banked)
 ## true when a lost fight ends on Map rather than Try.
 var to_map := false
+## The second button after a loss: "Map" on the path, "Back" in the Bounce mode.
+var back_label := "Map"
 var persist := true        # false: stills and tests leave the profile file alone
 var win_gems := 10         # the bucket, from tuning.json "screen" "win_gems"
 var bucket_t := -1.0       # seconds since the bucket appeared; -1 before the win
 var gems_shown := 0        # the bucket's gems counted into the corner so far
+## Ellwynn (Phase 3): "Try" fights the boss again with no "here it is" line
+## (B1) on top (main.gd sets it). bonus is set_bonus's kind: a big bucket
+## ("first", "pass") is one of her boss moments (B4).
+var again := false
+var bonus := "first"
+var _combo_said := false
 
 
 ## The boss's world (Terrence 2026-11-08): its head, arm, treasure room and
@@ -166,10 +179,15 @@ func _load_theme() -> void:
 ## What the win pays (Phase 1, 2026-11-16: big bonuses come once): "first"
 ## the first clear of a world at a Level (tuning "win_gems"), "pass" the
 ## clear that finishes a Level ("pass_gems"), "replay" a world beaten there
-## before ("replay_gems"). Call after setup.
+## before ("replay_gems"). "mode" is the Bounce mode on the main menu
+## (Phase 6): a small "mode_gems" of the world's currency, the path keeps the
+## big ones. Call after setup.
 func set_bonus(kind: String) -> void:
+	bonus = kind
 	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
 	match kind:
+		"mode":
+			win_gems = int(screen_cfg.get("mode_gems", 2))
 		"pass":
 			win_gems = int(screen_cfg.get("pass_gems", 30))
 		"replay":
@@ -200,23 +218,69 @@ func _ready() -> void:
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	choice.picked.connect(_on_named)
+	var ell := EllwynnRef.here(self)
+	if ell != null and not again:
+		ell.cue_play(EllwynnRef.world_cue("B1", world_id))  # the boss appears
 	_start_naming()
+
+
+## Ellwynn, or null (the standalone graybox in the tests has none).
+func _ell() -> Node:
+	return EllwynnRef.here(self)
 
 
 func _start_naming() -> void:
 	phase = "naming"
 	aim = 0
 	pop_count = 0
+	_combo_said = false
 	if fight.refills > 0 and fight.shot_count > 0 and _all_pegs_back():
 		_say("New pegs!")
+		_moment()
 	await _boss_rolls()
 	if phase != "naming":
 		return
 	if fight.auto_name():
 		await _ball_takes_roll()
+		_aim_tip()
 	else:
 		choice.present(_choice_rects())
 		_asked_ms = Time.get_ticks_msec()
+		_pick_prompt()
+
+
+## The choices are open: the first time ever, the pick tip (T14 take 1),
+## else "Pick the number!" (P11), once she has finished her line before.
+func _pick_prompt() -> void:
+	var ell := _ell()
+	if ell == null:
+		return
+	var shot: int = fight.shot_count
+	await ell.wait_quiet(3.0)
+	if phase != "naming" or not choice.active or fight.shot_count != shot:
+		return
+	if not ell.teach_take("T14", 1):
+		ell.prompt("P11")
+
+
+## Aiming opens: the first time ever, the aim tip (T14 take 2). It waits
+## for her line before (the boss's line at Acorn); a shot fired meanwhile
+## leaves it for the next one.
+func _aim_tip() -> void:
+	var ell := _ell()
+	if ell == null or ell.was_taught("T14_2"):
+		return
+	var shot: int = fight.shot_count
+	await ell.wait_quiet(3.0)
+	if phase == "aiming" and fight.shot_count == shot:
+		ell.teach_take("T14", 2)
+
+
+## A boss moment (B4: new pegs, a combo, a big bucket), quiet until recorded.
+func _moment() -> void:
+	var ell := _ell()
+	if ell != null and ell.has_line("B4"):
+		ell.cue_play("B4")
 
 
 ## Acorn: no naming step. The boss's dots jump onto the ball, which swells
@@ -267,12 +331,18 @@ func _on_named(index: int) -> void:
 	PlayLog.answer("boss", shown, fight.answer_face, fight.named_face, (Time.get_ticks_msec() - _asked_ms) / 1000.0)
 	Beeper.count(fight.named_face)
 	phase = "aiming"
+	var ell := _ell()
+	if ell != null:
+		ell.stop_voice()  # picked: the pick prompt is done
+		ell.clear_prompt()
+	_aim_tip()
 
 
 func _fire() -> void:
 	phase = "flying"
 	aiming_touch = false
 	fight.fire(aim)
+	Beeper.play("launch")
 	_acc = 0.0
 	slow = false
 	slow_t = 0.0
@@ -287,8 +357,11 @@ func _on_shot_over() -> void:
 		phase = "won"
 		PlayLog.event("boss_won", {"shots": fight.shot_count})
 		_say("You win!")
-		Beeper.good()
-		Ellwynn.boss_beaten()
+		Beeper.play("win")
+		var ell := _ell()
+		if ell != null:
+			ell.clear_prompt()
+			ell.boss_beaten(world_id)
 		await get_tree().create_timer(1.2).timeout
 		await _gem_bucket()
 		await get_tree().create_timer(1.0).timeout
@@ -300,10 +373,23 @@ func _on_shot_over() -> void:
 		for d in boss_dice:
 			d.visible = false
 		Beeper.bad()
+		_lost_voice()
 		return
 	if out["damage"] == 0 and fight.named_right:
 		_say("Oh no!")
 	_start_naming()
+
+
+## Lost (Try or Map): her "Oh no!" (B3), then "No more balls" (P12).
+func _lost_voice() -> void:
+	var ell := _ell()
+	if ell == null:
+		return
+	ell.clear_prompt()
+	ell.cue_play("B3")
+	await ell.wait_quiet(3.0)
+	if phase == "lost":
+		ell.prompt("P12")
 
 
 ## The dragon's bonus: a bucket of gems drops in from the top, tips over and
@@ -315,6 +401,8 @@ func _gem_bucket() -> void:
 		if persist:
 			SaveStore.write(save)
 	_say("+%d" % win_gems)
+	if bonus != "replay":
+		_big_bucket_moment()
 	bucket_t = 0.0
 	Beeper.tone(523.0, 0.1)
 	var counted := 0
@@ -331,9 +419,22 @@ func _gem_bucket() -> void:
 	Beeper.good()
 
 
+## A big bucket is a boss moment (B4), after her "you beat it" (B2).
+func _big_bucket_moment() -> void:
+	var ell := _ell()
+	if ell == null or not ell.has_line("B4"):
+		return
+	await ell.wait_quiet(3.0)
+	if is_inside_tree():
+		ell.cue_play("B4")
+
+
 # --- input -----------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
+	if Pointer.is_press(event) and _tap_replays(Pointer.local_pos(self, event)):
+		get_viewport().set_input_as_handled()
+		return
 	if phase == "lost":
 		if Pointer.is_press(event):
 			var p := Pointer.local_pos(self, event)
@@ -354,6 +455,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_aim_at(Pointer.local_pos(self, event))
 	elif Pointer.is_release(event) and aiming_touch:
 		_fire()
+
+
+## A tap on "Pick" (naming) or "No more balls" (lost) says the prompt again.
+func _tap_replays(p: Vector2) -> bool:
+	var on_text: bool = (phase == "naming" and not fight.auto_name() and PICK_LABEL_RECT.has_point(p)) \
+			or (phase == "lost" and FAIL_LABEL_RECT.has_point(p))
+	if not on_text:
+		return false
+	var ell := _ell()
+	return ell != null and ell.replay_prompt()
 
 
 func _aim_at(p: Vector2) -> void:
@@ -418,6 +529,9 @@ func _on_event(e: Dictionary) -> void:
 			_float_damage(int(e["damage"]))
 			if e["damage"] > 1:
 				_say("Combo!")
+				if not _combo_said:
+					_combo_said = true
+					_moment()
 			if not slow and fight.is_lethal():
 				# The last heart: time slows, the ball and pegs warble, and the
 				# pop lands with a fanfare.
@@ -471,8 +585,11 @@ func _left_x() -> float:
 	return 124.0 if fight.auto_name() else 38.0   # the 5:3 tablet shows x 28 and up
 
 
+## Tall enough for every ball in two columns (12 since Phase 2's easier
+## bosses, 2026-11-28).
 func _balls_panel() -> Rect2:
-	return Rect2(_left_x(), 40, 100 if fight.auto_name() else 92, 200)
+	var rows := ceili(int(fight.cfg["balls"]) / 2.0)
+	return Rect2(_left_x(), 40, 100 if fight.auto_name() else 92, maxf(200.0, 64.0 + rows * 36.0 + 4.0))
 
 
 func _hero_feet() -> Vector2:
@@ -571,8 +688,8 @@ func _draw_pegs(font: Font) -> void:
 
 
 func _draw_peg_art(t: Texture2D, c: Vector2, r: float, tint: Color) -> void:
-	var size := t.get_size() * PEG_ART_SCALE * r / 20.0
-	draw_texture_rect(t, Rect2(c - size / 2.0, size), false, tint)
+	var size := t.get_size() * r / 20.0
+	draw_texture_rect(t, Rect2((c - size / 2.0).round(), size), false, tint)
 
 
 ## Light text with a dark outline: peg numerals and the fiery boxes.
@@ -654,10 +771,10 @@ func _draw_ball() -> void:
 			_draw_warble_ball(at, r + 3.0, col)
 		else:
 			# the pixel pearl, a little bigger while it carries a die face
-			var rr := r + 7.0 if value > 0 else r
-			var bs := Vector2.ONE * rr * 2.0 * 32.0 / 22.0
+			# drawn 1:1: its 22 unit pearl is the radius 12 ball (art grid plan)
+			var bs := BALL_TEX.get_size()
 			var tint := Color.WHITE if fight.named_face <= 0 else col
-			draw_texture_rect(BALL_TEX, Rect2(at - bs / 2.0, bs), false, tint)
+			draw_texture_rect(BALL_TEX, Rect2((at - bs / 2.0).round(), bs), false, tint)
 		if value > 0:
 			# The ball's die, drawn a little bigger than the ball so the dots
 			# read while it flies.
@@ -777,9 +894,9 @@ func _draw_bucket(font: Font) -> void:
 ## One of the bucket's gems (or crystals, brooches...) `size` tall, centred
 ## on c, narrowed to `turn` of its width as it spins.
 func _gem(c: Vector2, size: float, turn := 1.0) -> void:
-	var s := size / maxf(gem_tex.get_width(), gem_tex.get_height())
-	var sz := gem_tex.get_size() * s * Vector2(turn, 1.0)
-	draw_texture_rect(gem_tex, Rect2(c - sz / 2.0, sz), false)
+	# drawn 1:1 (40 units) whatever `size` asks, so its pixels stay on the grid
+	var sz := gem_tex.get_size() * Vector2(roundf(turn * 20.0) / 20.0, 1.0)
+	draw_texture_rect(gem_tex, Rect2((c - sz / 2.0).round(), sz), false)
 
 
 ## Damage numbers: they pop in big, settle, float up and fade.
@@ -845,7 +962,7 @@ func _draw_fail(font: Font) -> void:
 	draw_rect(Rect2(-480, -100, 1920, 740), Color(0, 0, 0, 0.6))
 	draw_string(font, Vector2(120, 220), "No more balls", HORIZONTAL_ALIGNMENT_CENTER, 720, 40, INK)
 	fail_buttons = [Rect2(300, 280, 160, 90), Rect2(500, 280, 160, 90)]
-	var labels := ["Try", "Map"]
+	var labels := ["Try", back_label]
 	for i in 2:
 		RoundBox.fill(self, fail_buttons[i], Color(0.3, 0.6, 0.3) if i == 0 else Color(0.4, 0.4, 0.5), 18.0)
 		draw_string(font, fail_buttons[i].position + Vector2(0, 58), labels[i], HORIZONTAL_ALIGNMENT_CENTER, 160, 36, INK)

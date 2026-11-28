@@ -5,6 +5,8 @@
 extends RefCounted
 
 const SaveData := preload("res://logic/core/save_data.gd")
+const Store := preload("res://logic/core/store.gd")
+const Content := preload("res://logic/core/content.gd")
 
 ## The version 1 profile id (one save, user://profile_1.json).
 const LEGACY_PROFILE := "1"
@@ -13,6 +15,9 @@ const LEGACY_PROFILE := "1"
 static var profile := LEGACY_PROFILE
 ## Where saves live; tests point it at a temp folder.
 static var dir := "user://"
+## Called with the profile id after each write (main.gd hands it to the
+## family add-on, which backs the save up a little later). Empty in tests.
+static var written := Callable()
 
 
 static func path_for(profile_id: String) -> String:
@@ -32,11 +37,17 @@ static func read_profile(profile_id: String) -> Dictionary:
 	var text := ""
 	if FileAccess.file_exists(p):
 		text = FileAccess.get_file_as_string(p)
-	return SaveData.from_text(text, profile_id)
+	var save := SaveData.from_text(text, profile_id)
+	# a save that beat a Level before its hero came in gets the hero now
+	Store.grant_level_rewards(Store.catalog(), save, Content.worlds())
+	return save
 
 
 static func write(save: Dictionary) -> void:
-	write_to(path_for(str(save.get("profile", profile))), SaveData.to_text(save))
+	var id := str(save.get("profile", profile))
+	write_to(path_for(id), SaveData.to_text(save))
+	if written.is_valid():
+		written.call(id)
 
 
 ## Text to a file through a temp file, so a crash never leaves half a file.

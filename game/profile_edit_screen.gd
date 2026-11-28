@@ -47,6 +47,8 @@ const Profiles := preload("res://logic/core/profiles.gd")
 const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const RoundBox := preload("res://game/ui/round_box.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
+const WhoScreen := preload("res://game/who_screen.gd")
 
 const TILE := 96.0
 const COLS := 7
@@ -78,6 +80,11 @@ var refused := false
 var dialog_open := false
 var hold_t := -1.0  # seconds Remove has been held, -1 when not held
 var pressed := ""  # a target drawn in its pressed state (stills)
+## true: Ellwynn says what to do on each CREATE step (K3 pick a picture, K4
+## ask a grown-up to type the name). main.gd turns it on for a child making
+## their own; the Grown-ups' screens stay silent.
+var voice := false
+var _spoken := -1  # the step she last spoke for
 
 var choice: ChoiceWidget
 var line: LineEdit
@@ -327,6 +334,7 @@ func _ready() -> void:
 
 func _refresh() -> void:
 	queue_redraw()
+	_speak_step()
 	if choice == null:
 		return
 	_live = []
@@ -340,6 +348,23 @@ func _refresh() -> void:
 		choice.close()
 	else:
 		choice.present(rects, 0)
+
+
+## The step's prompt, once each time the step opens.
+func _speak_step() -> void:
+	if not voice or mode != Mode.CREATE or step == _spoken or refused:
+		return
+	var ell := EllwynnRef.here(self)
+	if ell == null:
+		return
+	_spoken = step
+	match step:
+		Step.PICK:
+			ell.prompt("K3")
+		Step.NAME:
+			ell.prompt("K4")
+		_:
+			ell.clear_prompt()
 
 
 func _on_picked(i: int) -> void:
@@ -377,6 +402,13 @@ func _typing() -> bool:
 
 ## The dialog's Remove is held, not tapped (like Reset).
 func _unhandled_input(event: InputEvent) -> void:
+	if voice and not dialog_open and Pointer.is_press(event) \
+			and WhoScreen.title_rect(_shows_top_back()).has_point(Pointer.local_pos(self, event)):
+		# a tap on the title says the step's prompt again
+		var ell := EllwynnRef.here(self)
+		if ell != null and ell.replay_prompt():
+			get_viewport().set_input_as_handled()
+		return
 	if not dialog_open or not can_remove():
 		return
 	if not (Pointer.is_press(event) or Pointer.is_release(event) or Pointer.is_drag(event)):

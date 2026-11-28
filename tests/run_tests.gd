@@ -2,12 +2,16 @@
 ##   godot --headless --path . --script tests/run_tests.gd
 ## Each test returns true; a script error aborts the method and it returns
 ## null, which counts as a failure. Exit code 0 when everything passes.
-## FUZZ_COUNT (env) sets the fuzz size.
+## FUZZ_COUNT (env) sets the fuzz size. TEST_FILTER (env) runs only the
+## files whose name contains it (TEST_FILTER=ellwynn).
 extends SceneTree
 
 
 func _init() -> void:
 	var files := _find("res://tests")
+	var only := OS.get_environment("TEST_FILTER")
+	if only != "":
+		files = files.filter(func(f): return only in String(f).get_file())
 	files.sort()
 	var failed := 0
 	var ran := 0

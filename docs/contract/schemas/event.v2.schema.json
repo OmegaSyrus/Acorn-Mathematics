@@ -22,6 +22,7 @@
     "area": {"type": "string"},
     "level": {"type": "integer"},
     "level_id": {"type": "integer"},
+    "fights": {"enum": ["step_before", "own"], "description": "The game's Debug fight switch while this line was written: monster fights asked the step before's math, or the level's own. Optional."},
     "where": {"enum": ["stone", "fight", "duel", "boss"]},
     "skill": {"$ref": "#/$defs/skill"},
     "q": {"type": "string", "description": "The question as the child saw it: 3 + 2 = ?"},

@@ -15,6 +15,7 @@ const ChoiceWidget := preload("res://game/ui/choice_widget.gd")
 const DiceDraw := preload("res://game/ui/dice_draw.gd")
 const Pointer := preload("res://game/ui/pointer.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
+const Book := preload("res://logic/core/book.gd")
 
 const START := Vector2(180, 250)
 const STEP := 85.0
@@ -256,6 +257,10 @@ func _fight(first_strike: bool) -> void:
 	debug_on = f.debug_on
 	await _fade_to(1.0)
 	f.queue_free()
+	if won:
+		# the old ten-task path (and its mimic) fills the monster book too
+		Book.record(save, run.current_monster(), int(run.grade.get("num", 1)))
+		SaveStore.write(save)
 	# A win leaves the screen dark for the loop to fade in the next task.
 	if run.resolve_fight(won)["restarted"]:
 		await _restart()
