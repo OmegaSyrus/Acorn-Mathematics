@@ -146,10 +146,31 @@ static func grown_up_level(save: Dictionary) -> int:
 
 ## A grown-up picks Level n: it is open, and the menu plays it next. Picking
 ## a lower Level than one already earned only moves the menu back to it.
+## A run saved at another Level (a crossing mid-way, or its duel or boss) is
+## dropped, so the next play starts fresh at the picked Level.
 static func pick_level(save: Dictionary, n: int) -> void:
 	n = clampi(n, 1, Content.LEVEL_COUNT)
 	save["grown_up_level"] = n
 	save["difficulty"] = n
+	var run = save.get("run")
+	if run is Dictionary and run_level(run) != n:
+		save["run"] = null
+
+
+## The Level number of a saved run (its level id's "num"), 0 if unknown.
+static func run_level(run: Dictionary) -> int:
+	var l = Content.levels().get(int(run.get("grade", 0)))
+	return int(l.get("num", 0)) if l is Dictionary else 0
+
+
+## After a boss at Level n: the Level to move on to, or 0 to stay. When that
+## boss finished Level n (every world beaten at it, and it wasn't before) and
+## Level n + 1 is open, the child moves on to it, at Lava. This holds after a
+## grown-up picked a higher Level too: beating a lower Level still moves on.
+static func move_on_level(save: Dictionary, worlds: Array, n: int, beaten_before: bool) -> int:
+	if beaten_before or not level_beaten(save, worlds, n):
+		return 0
+	return n + 1 if level_open(save, worlds, n + 1) else 0
 
 
 ## The child's Level: the highest one open.
