@@ -29,6 +29,7 @@ const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 const HalfArt := preload("res://game/ui/half_art.gd")
 const CountHelp := preload("res://logic/core/count_help.gd")
+const Book := preload("res://logic/core/book.gd")
 
 const ART := "res://art/lava/"
 ## Backdrops fill the 540-unit height, so their scale comes from the file:
@@ -515,7 +516,12 @@ func _fight() -> void:
 	await _fade_to(1.0)
 	f.queue_free()
 	var at := run.pos
+	var foe := run.current_monster()
 	var out := run.resolve_fight(won, f.fight.hero_hearts)
+	if won:
+		# its card in the monster book, at this Level (the level's "num")
+		Book.record(save, foe, int(run.grade.get("num", 1)))
+		SaveStore.write(save)
 	if out["restarted"]:
 		PlayLog.event("restart", {"why": "fight_lost", "attempt": run.attempt})
 		await _restart()

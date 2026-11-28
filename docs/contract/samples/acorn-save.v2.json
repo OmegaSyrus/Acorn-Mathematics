@@ -1,5 +1,5 @@
 {"schema":"acorn.save","version":2,"game":"acorn-math","profile":"p_04a2c9e1f3b7",
  "stickers":["lava_1"],"gems":17,
  "gem_counts":{"d_7f3a9c1e04b25d68":{"earned":52,"spent":40},"d_00c0ffee00c0ffee":{"earned":5,"spent":0}},
- "marks":{"lava_caves":[1,12]},"stars":{"lava_caves":[1]},"currencies":{},"owned":["slime_helmet"],
+ "marks":{"lava_caves":[1,12]},"stars":{"lava_caves":[1]},"book":{"blorp":[1,2],"lava_miniboss":[1]},"currencies":{},"owned":["slime_helmet"],
  "hero":"robodragon","dice":"classic","difficulty":2,"run":null,"parent_open":[],"ellwynn_intro_seen":true}

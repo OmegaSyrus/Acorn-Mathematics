@@ -17,6 +17,8 @@ const AreaFlow := preload("res://logic/path/area_flow.gd")
 const SeededRng := preload("res://logic/core/rng.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
+## The Arena and Bounce modes (Phase 6): their screens and flow.
+const ModesFlow := preload("res://game/modes_flow.gd")
 const WorldMapScreen := preload("res://game/world_map_screen.gd")
 const DebugScreen := preload("res://game/debug_screen.gd")
 const GrownUpsScreen := preload("res://game/grownups_screen.gd")
@@ -29,6 +31,9 @@ const WhoScreen := preload("res://game/who_screen.gd")
 const PinScreen := preload("res://game/pin_screen.gd")
 const ProfileScreen := preload("res://game/profile_screen.gd")
 const ProfileFlow := preload("res://game/profile_flow.gd")
+const Store := preload("res://logic/core/store.gd")
+const Book := preload("res://logic/core/book.gd")
+const BookScreen := preload("res://game/book_screen.gd")
 ## The create and edit screen (profile plan P3). Until it lands the stub with
 ## the same signals stands in, so the wiring here already runs.
 const PROFILE_EDIT := "res://game/profile_edit_screen.gd"
@@ -46,6 +51,7 @@ var debug_on := false
 var area_id := DEFAULT_AREA
 var play_grade := 1  # the main menu's difficulty (level 1 to 6), for the next area picked on the map
 var levels: Dictionary
+var modes = ModesFlow.new(self)
 
 
 func _ready() -> void:
@@ -306,6 +312,9 @@ func show_map() -> void:
 	m.debug.connect(show_debug)
 	m.grown_ups.connect(show_grown_ups)
 	m.who.connect(show_profile)
+	m.book.connect(show_book)
+	m.arena.connect(modes.arena)
+	m.bounce.connect(modes.bounce)
 	var p := ProfileStore.active()
 	m.player = {"nickname": p.get("nickname", ""), "picture": p.get("picture", "")}
 	_swap(m)
@@ -407,6 +416,17 @@ func show_store() -> void:
 	st.setup(save)
 	st.back.connect(show_map)
 	_swap.call_deferred(st)
+	menu.visible = false
+	Music.play_menu()
+
+
+## The monster book (Phase 6), from the main menu's Book button; Back
+## returns to the main menu.
+func show_book() -> void:
+	var b := BookScreen.new()
+	b.setup(save)
+	b.back.connect(func(): show_map.call_deferred())
+	_swap.call_deferred(b)
 	menu.visible = false
 	Music.play_menu()
 
@@ -533,14 +553,19 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 			# finishing the pass (every world beaten at this Level, even one
 			# lower than a grown-up picked) moves on: the next Level at Lava
 			var next := AreaFlow.move_on_level(save, Content.worlds(), level, _beaten_before)
+			# the first full pass of a Level wins its hero ("New hero!" on the map)
+			var heroes := Store.grant_level_rewards(Store.catalog(), save, Content.worlds())
+			if not heroes.is_empty():
+				PlayLog.event("hero_won", {"heroes": heroes})
+				SaveStore.write(save)
 			if next > 0:
 				play_grade = next
 				save["difficulty"] = next
 				SaveStore.write(save)
-				show_world_map.call_deferred(0)
+				show_world_map.call_deferred(0, heroes)
 			else:
 				play_grade = level
-				show_world_map.call_deferred(_newly_unlocked(level))
+				show_world_map.call_deferred(_newly_unlocked(level), heroes)
 
 
 ## The miniboss duel. A loss restarts the duel by itself (FightScreen), so
@@ -553,6 +578,9 @@ func _start_duel(area: Dictionary, grade_id: int) -> void:
 	f.setup(SeededRng.new(_new_seed()), int(fg["grade"]), area["miniboss"], false, true, debug_on)
 	f.fight.set_top(int(fg["top"]))
 	f.done.connect(func(won: bool):
+		if won:
+			# the miniboss's card in the monster book (saved by _start_stage)
+			Book.record(save, str(area["miniboss"]), int(_grade(grade_id).get("num", play_grade)))
 		_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.DUEL) if won else AreaFlow.DUEL))
 	_swap.call_deferred(f)
 
@@ -597,9 +625,9 @@ func _newly_unlocked(level: int) -> int:
 ## it, and it follows each boss. Tapping an open world plays it; locked
 ## worlds wait for the one before them to be beaten at this Level. The menu
 ## button leads back to the main menu.
-func show_world_map(just_unlocked := -1) -> void:
+func show_world_map(just_unlocked := -1, new_heroes := []) -> void:
 	var w := WorldMapScreen.new()
-	w.setup(save, Content.worlds(), just_unlocked, play_grade)
+	w.setup(save, Content.worlds(), just_unlocked, play_grade, new_heroes)
 	w.open_world.connect(func(world: Dictionary):
 		area_id = world["area"]
 		_enter_area())

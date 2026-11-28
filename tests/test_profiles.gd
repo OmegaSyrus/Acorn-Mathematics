@@ -102,7 +102,9 @@ func test_pictures_are_the_14_shop_looks() -> bool:
 	eq(Profiles.PICTURES.size(), 14, "14 looks")
 	var heroes := []
 	for it in Store.items(Store.catalog(), "hero"):
-		heroes.append(it["id"])
+		# the Level 4 to 6 Bolts (Phase 6) are paints of Bolt, not new looks
+		if not (it.has("paint") and Store.reward_level(it) > 0):
+			heroes.append(it["id"])
 	for id in heroes:
 		check(Profiles.PICTURES.has(id), "shop hero %s is a picture" % id)
 	for id in Profiles.PICTURES:
