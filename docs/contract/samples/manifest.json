@@ -6,7 +6,28 @@
  "app": "0.31.0",
  "code": 50,
  "cv": 2,
- "settings": [],
+ "settings": [
+  {
+   "key": "daily_minutes",
+   "type": "int",
+   "min": 0,
+   "max": 240,
+   "default": 0,
+   "label": "Minutes a day",
+   "help": "Play stops gently after this many minutes each day. 0 means no limit.",
+   "since_code": 49,
+   "scope": "child_game"
+  },
+  {
+   "key": "bedtime",
+   "type": "time",
+   "default": null,
+   "label": "Bedtime",
+   "help": "No play from this time until the morning. Empty means none.",
+   "since_code": 49,
+   "scope": "child_game"
+  }
+ ],
  "skills": [
   "count.to6",
   "numeral.match.to6",

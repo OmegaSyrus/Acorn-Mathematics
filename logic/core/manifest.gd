@@ -3,9 +3,9 @@
 ## parent app draws controls, names and skill lists from it.
 ##
 ## Level and world unlocks are left out on purpose: parents do not move
-## children through the game (Terrence, 2026-11-16). Settings stays empty
-## until a build can apply one (time limits come with the reports thread);
-## each setting then names the version code it arrived in.
+## children through the game (Terrence, 2026-11-16). Each setting names the
+## version code it arrived in; the family add-on (addons/acorn_family,
+## family_limits.gd) applies them.
 extends RefCounted
 
 const BuildInfo := preload("res://logic/core/build_info.gd")
@@ -14,9 +14,20 @@ const Store := preload("res://logic/core/store.gd")
 const Profiles := preload("res://logic/core/profiles.gd")
 const Skills := preload("res://logic/core/skills.gd")
 
-## Settings this build applies (none yet). Shape: {key, type, default,
-## label, since_code, min?, max?, help?}.
-const SETTINGS := []
+## The version code the time limits arrive in (the build after 0.29.0 / 48).
+const LIMITS_SINCE := 49
+## Settings this build applies. Shape: {key, type, default, label,
+## since_code, min?, max?, help?, scope?}. Both are per child per game
+## (scope child_game) and enforced on the tablet: daily_minutes 0 means no
+## limit, a null bedtime means none (night runs from bedtime to 05:00).
+const SETTINGS := [
+	{"key": "daily_minutes", "type": "int", "min": 0, "max": 240, "default": 0, "label": "Minutes a day",
+			"help": "Play stops gently after this many minutes each day. 0 means no limit.",
+			"since_code": LIMITS_SINCE, "scope": "child_game"},
+	{"key": "bedtime", "type": "time", "default": null, "label": "Bedtime",
+			"help": "No play from this time until the morning. Empty means none.",
+			"since_code": LIMITS_SINCE, "scope": "child_game"},
+]
 
 
 static func build() -> Dictionary:
