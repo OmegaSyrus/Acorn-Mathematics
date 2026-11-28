@@ -17,6 +17,8 @@ const AreaFlow := preload("res://logic/path/area_flow.gd")
 const SeededRng := preload("res://logic/core/rng.gd")
 const FightScreen := preload("res://game/fight/fight_screen.gd")
 const BounceScreen := preload("res://game/bounce/bounce_screen.gd")
+## The Arena and Bounce modes (Phase 6): their screens and flow.
+const ModesFlow := preload("res://game/modes_flow.gd")
 const WorldMapScreen := preload("res://game/world_map_screen.gd")
 const DebugScreen := preload("res://game/debug_screen.gd")
 const GrownUpsScreen := preload("res://game/grownups_screen.gd")
@@ -49,6 +51,7 @@ var debug_on := false
 var area_id := DEFAULT_AREA
 var play_grade := 1  # the main menu's difficulty (level 1 to 6), for the next area picked on the map
 var levels: Dictionary
+var modes = ModesFlow.new(self)
 
 
 func _ready() -> void:
@@ -310,6 +313,8 @@ func show_map() -> void:
 	m.grown_ups.connect(show_grown_ups)
 	m.who.connect(show_profile)
 	m.book.connect(show_book)
+	m.arena.connect(modes.arena)
+	m.bounce.connect(modes.bounce)
 	var p := ProfileStore.active()
 	m.player = {"nickname": p.get("nickname", ""), "picture": p.get("picture", "")}
 	_swap(m)

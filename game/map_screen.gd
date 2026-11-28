@@ -18,6 +18,10 @@ signal grown_ups
 signal who
 ## The Book button (Phase 6): main.gd opens the monster book.
 signal book
+## The modes (Phase 6): Arena (fights only) and Bounce (beaten bosses again),
+## each tapped while open; main.gd opens them (game/modes_flow.gd).
+signal arena
+signal bounce
 signal _answered(yes: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
@@ -42,6 +46,12 @@ const Pointer := preload("res://game/ui/pointer.gd")
 const MenuScene := preload("res://game/ui/menu_scene.gd")
 const Marks := preload("res://game/ui/marks.gd")
 const Content := preload("res://logic/core/content.gd")
+const Modes := preload("res://logic/modes/modes.gd")
+## The modes (Phase 6), in the row of small buttons between the Level marks
+## and Play, after the Book's place at x 396. Locked ones show a lock and
+## beep "no"; a mode just opened wears "New!" until first tapped.
+const ARENA_RECT := Rect2(544, 312, 136, 60)
+const BOUNCE_RECT := Rect2(692, 312, 136, 60)
 
 ## Reset (Terrence 2026-11-07): a small grey button top right; it opens a
 ## question, and "Yes" only works if held down for HOLD_S seconds, so a child
@@ -109,6 +119,8 @@ func _ready() -> void:
 	buttons.append({"rect": DEBUG_RECT, "label": "Debug", "debug": true, "resume": false})
 	buttons.append({"rect": GATE_RECT, "label": "Grown-ups", "gate": true, "resume": false})
 	buttons.append({"rect": BOOK_RECT, "label": "Book", "book": true, "resume": false})
+	buttons.append({"rect": ARENA_RECT, "label": "Arena", "mode": Modes.ARENA, "resume": false})
+	buttons.append({"rect": BOUNCE_RECT, "label": "Bounce", "mode": Modes.BOUNCE, "resume": false})
 	if not player.is_empty():
 		WhoScreen.picture(str(player.get("picture", "")))  # loaded before _draw
 		buttons.append({"rect": PLAYER_RECT, "label": "", "who": true, "resume": false})
@@ -140,6 +152,11 @@ func _ready() -> void:
 		if buttons[i].get("book", false):
 			book.emit()
 			return
+		if buttons[i].has("mode"):
+			if _tap_mode(String(buttons[i]["mode"])):
+				return
+			first = i
+			continue
 		if buttons[i].get("difficulty", false):
 			_next_difficulty()
 			first = i
@@ -147,6 +164,20 @@ func _ready() -> void:
 		save["difficulty"] = grade_id
 		start.emit(grade_id, false)
 		return
+
+
+## A mode button tapped: an open one loses its "New!" and opens (true);
+## a locked one gives a soft "no" beep and the menu stays (false).
+func _tap_mode(mode: String) -> bool:
+	if not Modes.is_open(save, mode):
+		Beeper.tone(220.0, 0.18, -14.0)
+		return false
+	Modes.mark_seen(save, mode)
+	if mode == Modes.ARENA:
+		arena.emit()
+	else:
+		bounce.emit()
+	return true
 
 
 ## Tapping the difficulty steps to the next open one (round again after the last).
@@ -232,6 +263,9 @@ func _draw() -> void:
 			draw_string(font, r.position + Vector2(0, 35), "Debug", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
 					Color(0.8, 0.76, 0.72))
 			continue
+		if b.has("mode"):
+			_draw_mode(font, r, String(b["mode"]), String(b["label"]))
+			continue
 		if b.get("reset", false):
 			RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
 			draw_string(font, r.position + Vector2(0, 35), "Reset", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24,
@@ -301,6 +335,29 @@ func _draw_level_marks(r: Rect2) -> void:
 		var tint := Color(rgb[0], rgb[1], rgb[2]).darkened(0.25)
 		Marks.draw_pair(self, Vector2(x0 + k * step, y), id > 0 and SaveData.has_mark(save, w["id"], id),
 				id > 0 and SaveData.has_star(save, w["id"], id), tint)
+
+
+## A mode button: orange when open (with a red "New!" tag until first
+## tapped), grey with a padlock when locked.
+func _draw_mode(font: Font, r: Rect2, mode: String, label: String) -> void:
+	var ink := Color(0.96, 0.94, 0.9)
+	if not Modes.is_open(save, mode):
+		RoundBox.fill(self, r, Color(0.3, 0.27, 0.26, 0.92), 14.0)
+		draw_string(font, r.position + Vector2(40, 39), label, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 42, 24,
+				Color(0.7, 0.66, 0.62))
+		var c := r.position + Vector2(22, 32)
+		draw_arc(c + Vector2(0, -4), 9.0, PI, TAU, 12, TITLE_EDGE, 5.0)
+		RoundBox.fill(self, Rect2(c + Vector2(-13, -4), Vector2(26, 20)), TITLE_EDGE, 4.0)
+		draw_circle(c + Vector2(0, 5), 3.0, Color(0.7, 0.66, 0.62))
+		return
+	RoundBox.fill(self, r, Color(0.8, 0.42, 0.14), 14.0)
+	RoundBox.frame(self, r, Color(1.0, 0.82, 0.35), 3.0, 14.0)
+	draw_string(font, r.position + Vector2(0, 41), label, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 30, ink)
+	if Modes.is_new(save, mode):
+		var tag := Rect2(r.end.x - 58, r.position.y - 14, 64, 28)
+		RoundBox.fill(self, tag, Color(0.85, 0.15, 0.2), 10.0)
+		RoundBox.frame(self, tag, ink, 2.0, 10.0)
+		draw_string(font, tag.position + Vector2(0, 21), "New!", HORIZONTAL_ALIGNMENT_CENTER, tag.size.x, 18, ink)
 
 
 ## The Grown-ups button: blue like the Grown-ups panel's own buttons, with
