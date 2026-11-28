@@ -152,7 +152,7 @@ func _buy(id: String) -> void:
 	Store.equip(cat, save, id)
 	_saved()
 	_pop[id] = 0.6
-	Beeper.good()
+	Beeper.play("buy")
 	Beeper.gems(5)
 	_voice("S1")
 	var c := _card_rect(_tab_items().find(Store.item(cat, id))).get_center()

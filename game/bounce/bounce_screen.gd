@@ -336,6 +336,7 @@ func _fire() -> void:
 	phase = "flying"
 	aiming_touch = false
 	fight.fire(aim)
+	Beeper.play("launch")
 	_acc = 0.0
 	slow = false
 	slow_t = 0.0
@@ -350,7 +351,7 @@ func _on_shot_over() -> void:
 		phase = "won"
 		PlayLog.event("boss_won", {"shots": fight.shot_count})
 		_say("You win!")
-		Beeper.good()
+		Beeper.play("win")
 		var ell := _ell()
 		if ell != null:
 			ell.clear_prompt()
