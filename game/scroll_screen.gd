@@ -28,6 +28,7 @@ const Ambient := preload("res://game/ui/ambient.gd")
 const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
 const HalfArt := preload("res://game/ui/half_art.gd")
+const CountHelp := preload("res://logic/core/count_help.gd")
 
 const ART := "res://art/lava/"
 ## Backdrops fill the 540-unit height, so their scale comes from the file:
@@ -94,6 +95,9 @@ const BAR := Rect2(140, 516, 680, 10)
 const DEBUG_CORNER := Rect2(120, 0, 90, 60)
 const FLICK_PX := 24.0
 const HOP_S := 0.34
+## The longest the crossing holds the dice for Ellwynn's count-on after a
+## wrong stone (a 6 + 6 count runs about 8 s from the pick).
+const COUNT_HOLD_S := 6.0
 const INK := Color(0.96, 0.94, 0.9)
 const DARK := Color(0.07, 0.04, 0.08)
 const PALE := Color(0.82, 0.9, 1.05)  # the worried dragon goes a little pale
@@ -166,6 +170,11 @@ var stone_rects_world: Array = []
 var hidden_place := -1  # the face-down die (Bog), -1 = none
 var hidden_total := 0
 var signs := ""
+## Ellwynn's count-on after a wrong stone (CountHelp): the dice it lights
+## belong to this roll; a new roll or hidden dice bump it, so a late step
+## finds stale dice and the count stops.
+var _count_gen := 0
+var _shown_problem := {}
 var hero_x := SPACE0_X
 var hero_lift := 0.0
 var hero_frame := "idle-0"
@@ -349,7 +358,9 @@ func _loop() -> void:
 			stone_from = -1
 			await _hop_along(out["from"], out["to"])
 			await _sink(out["to"], int(p["answer"]))
+			await _count_settle()
 			await _restart()
+		await _count_settle()
 		_hide_dice()
 		_save_progress()
 
@@ -409,6 +420,8 @@ func _wait_for_roll() -> void:
 ## Once they land each shows its numeral underneath, then the sign and "=".
 func _roll_dice(p: Dictionary) -> void:
 	Beeper.roll()
+	_count_gen += 1
+	_shown_problem = p
 	op_sign = "+" if p["op"] == "add" else "-"
 	op_alpha = 0.0
 	var n: int = p["dice"].size()
@@ -464,6 +477,7 @@ func tray_layout(n: int) -> Dictionary:
 
 
 func _hide_dice() -> void:
+	_count_gen += 1
 	answer_shown = -1
 	hidden_place = -1
 	for d in dice:
@@ -508,6 +522,10 @@ func _fight() -> void:
 	else:
 		beaten[at] = true
 		await _fade_to(0.0)
+		# the second monster of the crossing: she stops counting the pips
+		# tapped (a line to say so only once one is recorded)
+		if CountHelp.just_went_quiet(run.monsters_beaten()):
+			Ellwynn.say_own(CountHelp.COUNT_QUIET)
 		await _happy()
 		if out.has("walk"):
 			_save_progress()
@@ -628,7 +646,7 @@ func _sink(space: int, answer := -1) -> void:
 	await _tween_prop("worried", 1.0, 0.18)
 	await _wait(0.35)
 	if answer >= 0:
-		Ellwynn.say_answer(answer)
+		_say_wrong(answer)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 1.0, 0.8).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tw.tween_property(self, "hero_sink", 1.0, 0.9).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -644,7 +662,7 @@ func _slip_back(space: int, back_to: int, answer := -1) -> void:
 	_say("Oops!")
 	await _tween_prop("worried", 1.0, 0.18)
 	if answer >= 0:
-		Ellwynn.say_answer(answer)
+		_say_wrong(answer)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(self, "rock_sink", 0.35, 0.45).set_ease(Tween.EASE_IN)
 	tw.tween_property(self, "hero_sink", 0.3, 0.5).set_ease(Tween.EASE_IN)
@@ -781,9 +799,57 @@ func _on_stone_selected(_i: int) -> void:
 
 
 ## A pip tapped (Terrence 2026-11-17): it lights, and Ellwynn counts it
-## out loud; no beep and no number in the bubble.
+## out loud; no beep and no number in the bubble. Phase 2: she goes quiet
+## once two monsters are beaten in this crossing (CountHelp); the pips
+## still light.
 func _on_pip_tapped(count: int) -> void:
-	Ellwynn.say_count(count)
+	if CountHelp.counts_aloud(run.monsters_beaten()):
+		Ellwynn.say_count(count)
+
+
+## After a wrong stone (Phase 2): Ellwynn counts on from the first die while
+## its dots light up, or says the answer when the dice aren't a plain count
+## (one die, a face-down die, mixed signs).
+func _say_wrong(answer: int) -> void:
+	var steps := []
+	var p := _shown_problem
+	if hidden_place < 0 and not p.is_empty() and int(p.get("answer", -1)) == answer:
+		steps = CountHelp.plan(p["dice"], signs)
+	Ellwynn.say_counting(steps, answer, _count_step.bind(_count_gen))
+
+
+## One step of her count: lights the first die whole, or the next pip.
+## False once the dice it was for are gone, which stops the count.
+func _count_step(st: Dictionary, gen: int) -> bool:
+	if gen != _count_gen:
+		return false
+	if not st.has("n"):
+		return true
+	var i := int(st.get("die", -1))
+	if i < 0 or i >= dice.size() or not is_instance_valid(dice[i]):
+		return false
+	var d: DieView = dice[i]
+	if not d.visible or not d.face_on:
+		return false
+	if int(st.get("pip", -1)) < 0:
+		# the count starts: her lights only, no taps over them
+		for e in dice:
+			if is_instance_valid(e):
+				e.countable = false
+				e.clear_lit()
+		d.light_all()
+	else:
+		d.light_pip(int(st["pip"]))
+	return true
+
+
+## Holds the crossing (at most COUNT_HOLD_S) until her count-on is done, so
+## the dice she lights stay on screen. Her count runs on timers, so this
+## ends the same with the sound off.
+func _count_settle() -> void:
+	var until := Time.get_ticks_msec() + int(COUNT_HOLD_S * 1000.0)
+	while Ellwynn.is_counting() and Time.get_ticks_msec() < until:
+		await get_tree().process_frame
 
 
 # --- input -----------------------------------------------------------------

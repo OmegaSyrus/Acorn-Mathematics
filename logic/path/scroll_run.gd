@@ -244,6 +244,21 @@ func has_problem() -> bool:
 	return not problem.is_empty()
 
 
+## Monsters beaten on this attempt of the crossing (Ellwynn's counting help,
+## logic/core/count_help.gd): every monster space the hero is past or
+## standing on after its fight. A restart starts again from the first
+## stone, so the count is 0 again; a heart lost on a stone keeps it. Worked
+## out from where the hero is, so a resumed crossing knows it too.
+func monsters_beaten() -> int:
+	var n := 0
+	for at in _spaces:
+		if str(_spaces[at].get("type", "")) != "monster":
+			continue
+		if int(at) < pos or (int(at) == pos and phase != AWAIT_FIGHT):
+			n += 1
+	return n
+
+
 func current_monster() -> String:
 	if phase != AWAIT_FIGHT:
 		return ""

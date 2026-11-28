@@ -165,7 +165,7 @@ A repeatable run: add `--seed=123` after the `--`.
 | Roll | flick (or tap) the die tray | A | Space / Enter |
 | Move highlight | | d-pad or left stick | arrows / WASD |
 | Pick | tap the rock, key or button | A | Space / Enter |
-| Count dots | tap each dot on a landed die | | |
+| Count dots (Ellwynn says each number on the crossing until two monsters are beaten) | tap each dot on a landed die | | |
 | Hear the question again | tap Ellwynn | Y | R |
 | Menu (pause, back to the main menu) | tap the button with three bars, top right | | Esc |
 | Debug overlay (seed, dice, answer) | hold the top-left corner 1.5 s | Back / Select | F1 |
