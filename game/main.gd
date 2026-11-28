@@ -29,6 +29,9 @@ const WhoScreen := preload("res://game/who_screen.gd")
 const PinScreen := preload("res://game/pin_screen.gd")
 const ProfileScreen := preload("res://game/profile_screen.gd")
 const ProfileFlow := preload("res://game/profile_flow.gd")
+const FamilyGlue := preload("res://game/family_glue.gd")
+const FamilyScreen := preload("res://game/family_screen.gd")
+const RestScreen := preload("res://game/rest_screen.gd")
 ## The create and edit screen (profile plan P3). Until it lands the stub with
 ## the same signals stands in, so the wiring here already runs.
 const PROFILE_EDIT := "res://game/profile_edit_screen.gd"
@@ -46,6 +49,8 @@ var debug_on := false
 var area_id := DEFAULT_AREA
 var play_grade := 1  # the main menu's difficulty (level 1 to 6), for the next area picked on the map
 var levels: Dictionary
+## Seconds to the next look at the parent's limits on a menu screen.
+var _limit_check := 1.0
 
 
 func _ready() -> void:
@@ -75,6 +80,11 @@ func _ready() -> void:
 	life.pause_music = Music.pause
 	life.resume_music = Music.resume
 	add_child(life)
+	# the family add-on: idle until a grown-up pairs the tablet (Grown-ups, Family)
+	var fam := _family()
+	if fam != null:
+		SaveStore.written = fam.save_written
+		fam.configure(FamilyGlue.hooks(DeviceId.dev(), func(): return save, _replace_save))
 	if Profiles.is_fresh(ProfileStore.roster):
 		# a new install: the create flow makes the first child (no PIN)
 		show_create(true, show_map)
@@ -152,6 +162,8 @@ func show_create(first_run: bool, back_to: Callable, stay := false) -> void:
 			back_to.call_deferred()
 			return
 		PlayLog.event("profile_created", {"first": first_run})
+		if _family() != null:
+			_family().profiles_changed()
 		if stay:
 			back_to.call_deferred()
 			return
@@ -180,6 +192,8 @@ func _show_edit(id: String, back_to: Callable) -> void:
 	e.setup(ProfileStore.roster, 1, id, false)  # Mode.EDIT
 	e.saved.connect(func(pid: String, nickname: String, picture: String):
 		ProfileFlow.save_edit(pid, nickname, picture)
+		if _family() != null:
+			_family().profiles_changed()
 		back_to.call_deferred())
 	e.removed.connect(func(pid: String):
 		if ProfileFlow.remove(pid):
@@ -245,6 +259,73 @@ func _use_profile(id: String) -> void:
 	PlayLog.event("profile_picked", {"guest": bool(ProfileStore.active().get("guest", false))})
 
 
+## The family add-on (autoload Family), or null where it is not loaded.
+func _family() -> Node:
+	return get_node_or_null("/root/Family")
+
+
+## A restore (Family screen) merged the player's save from the family's
+## other tablets: the screens use the merged one from now on.
+func _replace_save(merged: Dictionary) -> void:
+	save.clear()
+	save.merge(merged)
+	SaveStore.write(save)
+
+
+## The parent's limits (daily minutes, bedtime; addons/acorn_family): at a
+## safe point (a menu, the map, before a level or the next part of one)
+## the save is written and the rest screen shows. True when it did.
+func _rest_if_due() -> bool:
+	var fam := _family()
+	if fam == null:
+		return false
+	var why: String = fam.stop_reason(SaveStore.profile)
+	if why == "":
+		return false
+	SaveStore.write(save)
+	show_rest(why)
+	return true
+
+
+## "Time to rest! Come back tomorrow." Grown-ups asks for the parent PIN (a
+## grown-up sum when none is set); a yes lets this player go on until the
+## morning.
+func show_rest(why: String) -> void:
+	PlayLog.event("rest_shown", {"why": why})
+	var r := RestScreen.new()
+	r.setup(why, str(ProfileStore.active().get("picture", "")))
+	r.grown_up.connect(func():
+		var s := PinScreen.new()
+		if Profiles.has_pin(ProfileStore.roster):
+			s.setup(ProfileStore.roster, PinScreen.Mode.ENTER)
+		else:
+			s.setup_sum(ProfileStore.roster)
+		s.done.connect(func(ok: bool):
+			if ok:
+				_family().grant_pass(SaveStore.profile)
+				PlayLog.event("rest_passed", {"why": why})
+				show_map.call_deferred()
+			else:
+				show_rest.call_deferred(why))
+		_swap.call_deferred(s))
+	_swap.call_deferred(r)
+	menu.visible = false
+	Music.play_menu()
+
+
+## The Family screen (Grown-ups, Family): pairing, who is who, sending on or off.
+func show_family() -> void:
+	var fam := _family()
+	if fam == null:
+		_show_grown_ups_panel()
+		return
+	var f := FamilyScreen.new()
+	f.setup(fam, FamilyGlue.roster())
+	f.back.connect(func(): _show_grown_ups_panel.call_deferred())
+	_swap.call_deferred(f)
+	menu.visible = false
+
+
 ## The play log's place: this area at this level (game/play_log.gd).
 func _log_place(area: Dictionary, grade_id: int) -> void:
 	PlayLog.set_place(area, grade_id, int(_grade(grade_id).get("num", grade_id)))
@@ -267,7 +348,13 @@ func _layout() -> void:
 	Ellwynn.offset = stage.position
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	# limits reached on a menu screen stop play at once (in a level, at the next part)
+	_limit_check -= delta
+	if _limit_check <= 0.0:
+		_limit_check = 1.0
+		if screen is MapScreen or screen is WorldMapScreen or screen is StoreScreen or screen is ProfileScreen:
+			_rest_if_due()
 	if Input.is_action_just_pressed("fullscreen"):
 		var full := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if full else DisplayServer.WINDOW_MODE_FULLSCREEN)
@@ -279,6 +366,10 @@ func _swap(next: Node2D) -> void:
 			debug_on = screen.get("debug_on")
 		screen.queue_free()
 	screen = next
+	var fam := _family()
+	if fam != null:
+		# minutes count while a child plays, not on the grown-up screens
+		fam.counting = not (next is GrownUpsScreen or next is PinScreen or next is FamilyScreen or next is RestScreen)
 	if not (next is MapScreen):
 		Ellwynn.menu_leave()
 	stage.add_child(screen)
@@ -286,6 +377,11 @@ func _swap(next: Node2D) -> void:
 
 
 func show_map() -> void:
+	var fam := _family()
+	if fam != null:
+		fam.poke()
+	if _rest_if_due():
+		return
 	# the menu's Level (Phase 1, 2026-11-16): the child's Level, or any
 	# Level before it to replay; never one past it
 	var reached := AreaFlow.level_reached(save, Content.worlds())
@@ -380,6 +476,9 @@ func _show_grown_ups_panel() -> void:
 	g.children.connect(func():
 		SaveStore.write(save)
 		show_who.call_deferred(true, true))
+	g.family.connect(func():
+		SaveStore.write(save)
+		show_family.call_deferred())
 	g.pin.connect(func():
 		SaveStore.write(save)
 		_show_pin.call_deferred(PinScreen.Mode.SET, func(ok: bool):
@@ -422,6 +521,8 @@ func _on_play(grade_id: int, _resume: bool) -> void:
 ## the duel or boss after its door), else a new run at the menu's Level
 ## (or the area's first grade, if it isn't built for that one).
 func _enter_area() -> void:
+	if _rest_if_due():
+		return
 	var saved = save.get("run")
 	if saved is Dictionary and saved.get("area") == area_id:
 		_on_start(int(saved["grade"]), true)
@@ -521,6 +622,9 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 		PlayLog.event(stage + "_start")
 	AreaFlow.enter(save, area, grade_id, stage)
 	SaveStore.write(save)
+	# between the parts of a level: the step is saved, so Go picks it up tomorrow
+	if stage != AreaFlow.MAP and _rest_if_due():
+		return
 	match stage:
 		AreaFlow.DUEL:
 			_start_duel(area, grade_id)
@@ -595,6 +699,11 @@ func _newly_unlocked(level: int) -> int:
 ## worlds wait for the one before them to be beaten at this Level. The menu
 ## button leads back to the main menu.
 func show_world_map(just_unlocked := -1) -> void:
+	var fam := _family()
+	if fam != null:
+		fam.poke()
+	if _rest_if_due():
+		return
 	var w := WorldMapScreen.new()
 	w.setup(save, Content.worlds(), just_unlocked, play_grade)
 	w.open_world.connect(func(world: Dictionary):
