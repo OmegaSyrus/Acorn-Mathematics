@@ -215,20 +215,19 @@ func _debug_jump(to_area: String, level: int, stage: String) -> void:
 		_start_stage(area, grade_id, stage)
 
 
-## The Grown-ups panel, from the main menu's Grown-ups button held for 3 s:
-## the child's Level and the worlds done at it, to look at only (no grown-up
-## moves a child on). Back returns to the main menu.
-## With a parent PIN set, the PIN comes first (pin_screen.gd).
+## The Grown-ups panel, from the main menu's Grown-ups button (a tap,
+## Terrence 2026-11-17): the child's Level, which a grown-up can change
+## there, and the worlds done at it. Back returns to the main menu.
+## The parent PIN comes first (pin_screen.gd); with none set yet, the
+## grown-up makes one first, so a child can't walk in afterwards.
 func show_grown_ups() -> void:
-	if Profiles.has_pin(ProfileStore.roster):
-		_show_pin(PinScreen.Mode.ENTER, func(ok: bool):
-			if ok:
-				ProfileStore.write()  # Forgot PIN may have cleared it
-				_show_grown_ups_panel()
-			else:
-				show_map())
-		return
-	_show_grown_ups_panel()
+	var mode := PinScreen.Mode.ENTER if Profiles.has_pin(ProfileStore.roster) else PinScreen.Mode.SET
+	_show_pin(mode, func(ok: bool):
+		if ok:
+			ProfileStore.write()  # a new PIN, or Forgot PIN cleared it
+			_show_grown_ups_panel()
+		else:
+			show_map())
 
 
 func _show_grown_ups_panel() -> void:
@@ -236,6 +235,7 @@ func _show_grown_ups_panel() -> void:
 	g.setup(save, Content.worlds())
 	g.has_pin = Profiles.has_pin(ProfileStore.roster)
 	g.back.connect(func():
+		play_grade = clampi(int(save.get("difficulty", play_grade)), 1, Content.LEVEL_COUNT)
 		SaveStore.write(save)
 		show_map.call_deferred())
 	g.children.connect(func():

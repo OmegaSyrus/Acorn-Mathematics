@@ -9,6 +9,7 @@ const Content := preload("res://logic/core/content.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const MapScreen := preload("res://game/map_screen.gd")
 const MenuScene := preload("res://game/ui/menu_scene.gd")
+const GrownUpsScreen := preload("res://game/grownups_screen.gd")
 const InputSetup := preload("res://game/input_setup.gd")
 
 var out_dir := "/tmp"
@@ -34,6 +35,7 @@ func _ready() -> void:
 	for n in range(1, 7):
 		shown[n] = {"id": n, "name": "Level %d" % n, "available": true}
 	m.setup(save, shown, "lava_scroll")
+	m.player = {"nickname": "Robin", "picture": "fox"}
 	stage.add_child(m)
 	Ellwynn.menu_enter(save)
 	await _frames(10)
@@ -51,6 +53,13 @@ func _ready() -> void:
 		scene.queue_redraw()
 		await _frames(2)
 		_shot("menu-%d" % i)
+	# the Grown-ups panel with its Level buttons (2026-11-17)
+	var g := GrownUpsScreen.new()
+	g.setup(save, Content.worlds())
+	m.queue_free()
+	stage.add_child(g)
+	await _frames(4)
+	_shot("menu-grownups")
 	if video:
 		for f in 120:
 			for k in 3:

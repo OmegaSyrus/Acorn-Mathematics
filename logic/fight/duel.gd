@@ -27,7 +27,7 @@ extends "res://logic/fight/fight.gd"
 
 const Attack = preload("res://logic/fight/attack.gd")
 
-const MINIBOSS_HEARTS := 5
+const MINIBOSS_HEARTS := 4
 
 const RULES := {
 	"lava_miniboss": "total",
@@ -41,7 +41,7 @@ const RULES := {
 ## miniboss's (Monsters.ROSTER), so the duel is as long as the others.
 const PAIRS := {
 	"bog_miniboss": [
-		{"id": "wisp_king", "name": "Wisp King", "hearts": 3},
+		{"id": "wisp_king", "name": "Wisp King", "hearts": 2},
 		{"id": "wisp_queen", "name": "Wisp Queen", "hearts": 2},
 	],
 }
