@@ -148,8 +148,10 @@ skins on two tabs, priced in currencies listed in `content/store.json` with thei
 in `logic/core/store.gd`. Gems buy Red Bolt (10), Green Bolt (15) and the helmet slime
 (25): a cleared Acorn crossing banks about 6 gems, and beating the Skeleton Dragon pours
 out a 10 gem bucket. Red and Green Bolt are the robot dragon recolored in code
-(`Look.painted`). The others need
-currencies from areas and grades still to come, so they show a lock. A later area opens
+(`Look.painted`). Every world pays its own currency for the rest. The Level heroes (Leo,
+Sir Tam, Blaze and three more Bolt colors) are not bought: each is won by the first full
+pass of its Level and sits on the store's third tab (Phase 6, `docs/unlocks-and-modes.md`,
+with the monster book). A later area opens
 its currency by setting `"open": true` in the catalog. Equipped hero and dice show in
 the crossing, fights and the boss fight (`game/ui/look.gd`); dice skins are drawn in code
 (`game/ui/dice_skins.gd`) and the take-away die stays red in every skin. Hero art:

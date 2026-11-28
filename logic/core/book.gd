@@ -22,6 +22,8 @@ const ARENA_OPENS_AT := 3
 ## A monster (or miniboss) beaten at Level n. Returns true the first time
 ## it gets a card at all (the "new card" moment).
 static func record(save: Dictionary, monster_id: String, level: int) -> bool:
+	if not Monsters.ROSTER.has(monster_id):
+		return false  # nothing fought, or a fighter the book has no page for
 	if not save.has(KEY) or not (save[KEY] is Dictionary):
 		save[KEY] = {}
 	var book: Dictionary = save[KEY]

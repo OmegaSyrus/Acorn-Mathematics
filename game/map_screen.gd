@@ -16,6 +16,8 @@ signal debug
 signal grown_ups
 ## The player button (top left): main.gd opens the profile page (S3).
 signal who
+## The Book button (Phase 6): main.gd opens the monster book.
+signal book
 signal _answered(yes: bool)
 
 const SaveData := preload("res://logic/core/save_data.gd")
@@ -27,7 +29,12 @@ const Look := preload("res://game/ui/look.gd")
 ## the gem count on it.
 const SHOP_RECT := Rect2(624, 392, 200, 120)
 ## Right of Ellwynn (bottom left, x 150..310): buttons stay right of x 380.
-const DIFF_RECT := Rect2(604, 196, 200, 96)
+## (Phase 6: 30 higher, to make room for the row of small buttons below.)
+const DIFF_RECT := Rect2(604, 166, 200, 96)
+## The row of small buttons between the Level marks and Play (Phase 6):
+## Book first; two more modes fit after it at x 544 and 692, same size.
+const ROW_Y := 312.0
+const BOOK_RECT := Rect2(396, ROW_Y, 136, 60)
 const PLAY_RECT := Rect2(396, 392, 200, 120)
 const GEM_TEX := preload("res://art/lava/gem.png")
 const Pointer := preload("res://game/ui/pointer.gd")
@@ -101,6 +108,7 @@ func _ready() -> void:
 	buttons.append({"rect": RESET_RECT, "label": "Reset", "reset": true, "resume": false})
 	buttons.append({"rect": DEBUG_RECT, "label": "Debug", "debug": true, "resume": false})
 	buttons.append({"rect": GATE_RECT, "label": "Grown-ups", "gate": true, "resume": false})
+	buttons.append({"rect": BOOK_RECT, "label": "Book", "book": true, "resume": false})
 	if not player.is_empty():
 		WhoScreen.picture(str(player.get("picture", "")))  # loaded before _draw
 		buttons.append({"rect": PLAYER_RECT, "label": "", "who": true, "resume": false})
@@ -128,6 +136,9 @@ func _ready() -> void:
 			return
 		if buttons[i].get("shop", false):
 			shop.emit()
+			return
+		if buttons[i].get("book", false):
+			book.emit()
 			return
 		if buttons[i].get("difficulty", false):
 			_next_difficulty()
@@ -212,6 +223,9 @@ func _draw() -> void:
 			continue
 		if b.get("shop", false):
 			_draw_shop(font, r)
+			continue
+		if b.get("book", false):
+			_draw_book(font, r)
 			continue
 		if b.get("debug", false):
 			RoundBox.fill(self, r, Color(0.3, 0.27, 0.26), 14.0)
@@ -313,6 +327,18 @@ func _draw_player(font: Font) -> void:
 		draw_texture_rect_region(tex, Rect2(r.position + Vector2(6 + roundf((FACE.x - w) / 2.0), 5), src.size), src)
 	draw_string(font, r.position + Vector2(FACE.x + 16, 45), str(player.get("nickname", "")), HORIZONTAL_ALIGNMENT_LEFT,
 			r.size.x - FACE.x - 24, 24, Color(0.96, 0.94, 0.9))
+
+
+## The Book button: a red-brown box with a little closed book and "Book".
+func _draw_book(font: Font, r: Rect2) -> void:
+	RoundBox.fill(self, r, Color(0.56, 0.26, 0.2), 14.0)
+	RoundBox.frame(self, r, Color(1.0, 0.82, 0.35), 3.0, 14.0)
+	var b := Rect2(r.position + Vector2(14, 13), Vector2(28, 34))
+	draw_rect(b.grow(2), TITLE_EDGE)
+	draw_rect(b, Color(0.3, 0.62, 0.38))
+	draw_rect(Rect2(b.position + Vector2(4, 0), Vector2(2, b.size.y)), Color(0.18, 0.4, 0.24))
+	draw_rect(Rect2(b.position + Vector2(10, 9), Vector2(13, 9)), Color(1.0, 0.82, 0.35))
+	draw_string(font, r.position + Vector2(50, 40), "Book", HORIZONTAL_ALIGNMENT_LEFT, -1, 28, Color(0.96, 0.94, 0.9))
 
 
 ## The Shop button: a gem-purple box, "Shop", and the gems to spend.
