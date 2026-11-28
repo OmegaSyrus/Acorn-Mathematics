@@ -53,8 +53,25 @@ child. Reset clears it. The game waits at each taught step until the child does 
 
 ## Sound effects
 
-Put a file named by the sound's id in **`audio/sfx/`** to replace the built-in one
-(ids and what they are: `audio/sfx/README.md`).
+Every sound has an id (`roll`, `gem`, `block`, `win`...). The list of ids, what
+each sounds like and where it plays is **`audio/sfx/README.md`**.
+
+1. Name the file by the sound's id and put it in **`audio/sfx/`**
+   (not in `audio/sfx/builtin/`, which holds the built-in ones).
+2. Rebuild the APK.
+
+| What | File names |
+| --- | --- |
+| One sound | `win.mp3` |
+| More takes (one at random, never the same twice running) | `roll.ogg`, `roll_2.ogg`, `roll_3.ogg` ... |
+
+`.mp3`, `.ogg` and `.wav` all work, upper or lower case. A file here replaces all
+the built-in takes of that id. Take the file out and the built-in sound comes back.
+For `count`, `gem`, `coin` and `mallet`, give one clear note (A4 for `count` and
+`mallet`, C6 for `gem` and `coin`): the game raises it per number or gem.
+
+The built-in sounds are made by `python3 -I tools/sfx/make_sfx.py` (synthesized,
+nothing to license).
 
 ## Music
 
@@ -71,4 +88,6 @@ running:
 | `audio/music/space/` | Space |
 
 Any file name works (`.mp3`, `.ogg` or `.wav`). A world whose folder is empty plays the
-Lava songs. Suno exports `.mp3`, which is fine as it is.
+Lava songs (and two such worlds share them, so the song carries on between them).
+One menu song loops seamlessly; several menu songs shuffle. Suno exports `.mp3`,
+which is fine as it is. Rebuild the APK after adding songs.
