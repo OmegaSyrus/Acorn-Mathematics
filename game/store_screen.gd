@@ -452,7 +452,7 @@ func _currency_icon(cid: String, c: Vector2, size: float) -> void:
 		return
 	match str(icon.get("shape", "")):
 		"gem":
-			draw_texture_rect(GEM_TEX, Rect2(c - Vector2(h, h) * 1.15, Vector2(size, size) * 1.15), false)
+			draw_texture_rect(GEM_TEX, Rect2((c - GEM_TEX.get_size() / 2.0).round(), GEM_TEX.get_size()), false)
 		"crystal":
 			var p := PackedVector2Array([c + Vector2(0, -h), c + Vector2(h * 0.55, -h * 0.45), c + Vector2(h * 0.55, h * 0.55),
 					c + Vector2(0, h), c + Vector2(-h * 0.55, h * 0.55), c + Vector2(-h * 0.55, -h * 0.45)])

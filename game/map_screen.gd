@@ -411,6 +411,6 @@ func _draw_shop(font: Font, r: Rect2) -> void:
 	RoundBox.frame(self, r, Color(1.0, 0.82, 0.35), 3.0, 18.0)
 	draw_string(font, r.position + Vector2(0, 50), "Shop", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 40, Color(0.96, 0.94, 0.9))
 	var gem_at := r.position + Vector2(r.size.x / 2.0 - 58, 62)
-	draw_texture_rect(GEM_TEX, Rect2(gem_at, Vector2(48, 48)), false)
+	draw_texture_rect(GEM_TEX, Rect2(gem_at + Vector2(4, 4), Vector2(40, 40)), false)
 	draw_string(font, gem_at + Vector2(54, 38), str(int(save.get("gems", 0))), HORIZONTAL_ALIGNMENT_LEFT, -1, 36,
 			Color(1.0, 0.86, 0.5))

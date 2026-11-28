@@ -60,7 +60,7 @@ const PEG_ART := {
 	5: ["orange", Color(1.25, 1.25, 0.45)],
 	6: ["blue", Color(0.7, 1.3, 1.3)],
 }
-const PEG_ART_SCALE := 1.25    # 32 px gems drawn to fill a 40 px peg
+## Pegs are 56x56 with a 40 unit gem (a radius 20 peg), drawn 1:1.
 const BUMPER_ART_SCALE := 1.375
 const BOARD_TEX := preload("res://art/boss/board.png")
 const BUMPER_TEX := preload("res://art/boss/bumper.png")
@@ -688,8 +688,8 @@ func _draw_pegs(font: Font) -> void:
 
 
 func _draw_peg_art(t: Texture2D, c: Vector2, r: float, tint: Color) -> void:
-	var size := t.get_size() * PEG_ART_SCALE * r / 20.0
-	draw_texture_rect(t, Rect2(c - size / 2.0, size), false, tint)
+	var size := t.get_size() * r / 20.0
+	draw_texture_rect(t, Rect2((c - size / 2.0).round(), size), false, tint)
 
 
 ## Light text with a dark outline: peg numerals and the fiery boxes.
@@ -771,10 +771,10 @@ func _draw_ball() -> void:
 			_draw_warble_ball(at, r + 3.0, col)
 		else:
 			# the pixel pearl, a little bigger while it carries a die face
-			var rr := r + 7.0 if value > 0 else r
-			var bs := Vector2.ONE * rr * 2.0 * 32.0 / 22.0
+			# drawn 1:1: its 22 unit pearl is the radius 12 ball (art grid plan)
+			var bs := BALL_TEX.get_size()
 			var tint := Color.WHITE if fight.named_face <= 0 else col
-			draw_texture_rect(BALL_TEX, Rect2(at - bs / 2.0, bs), false, tint)
+			draw_texture_rect(BALL_TEX, Rect2((at - bs / 2.0).round(), bs), false, tint)
 		if value > 0:
 			# The ball's die, drawn a little bigger than the ball so the dots
 			# read while it flies.
@@ -894,9 +894,9 @@ func _draw_bucket(font: Font) -> void:
 ## One of the bucket's gems (or crystals, brooches...) `size` tall, centred
 ## on c, narrowed to `turn` of its width as it spins.
 func _gem(c: Vector2, size: float, turn := 1.0) -> void:
-	var s := size / maxf(gem_tex.get_width(), gem_tex.get_height())
-	var sz := gem_tex.get_size() * s * Vector2(turn, 1.0)
-	draw_texture_rect(gem_tex, Rect2(c - sz / 2.0, sz), false)
+	# drawn 1:1 (40 units) whatever `size` asks, so its pixels stay on the grid
+	var sz := gem_tex.get_size() * Vector2(roundf(turn * 20.0) / 20.0, 1.0)
+	draw_texture_rect(gem_tex, Rect2((c - sz / 2.0).round(), sz), false)
 
 
 ## Damage numbers: they pop in big, settle, float up and fade.
