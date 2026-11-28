@@ -4,6 +4,8 @@
 ## read it, so no save has to be passed down to them.
 extends RefCounted
 
+const HalfArt := preload("res://game/ui/half_art.gd")
+
 const Store := preload("res://logic/core/store.gd")
 
 const DEFAULT_HERO := "robodragon"
@@ -38,6 +40,24 @@ static func hero_texture(id := "") -> Texture2D:
 	if it.has("paint"):
 		tex = painted(tex, it["paint"])
 	_hero_tex[id] = tex
+	return tex
+
+
+## The hero's half-size twin for the half-size crossings (HalfArt), painted
+## the same way as the full sprite. Falls back to the full sprite.
+static func hero_texture_half(id := "") -> Texture2D:
+	if id == "":
+		id = hero_id
+	var key := id + ":half"
+	if _hero_tex.has(key):
+		return _hero_tex[key]
+	var it := Store.item(Store.catalog(), id)
+	if it.is_empty() or it["kind"] != "hero":
+		it = Store.item(Store.catalog(), DEFAULT_HERO)
+	var tex: Texture2D = HalfArt.of(load(it["art"]))
+	if it.has("paint"):
+		tex = painted(tex, it["paint"])
+	_hero_tex[key] = tex
 	return tex
 
 

@@ -2,7 +2,7 @@
 ## playable with their own art). An area file names its world; the crossing,
 ## the fights and the boss look that world up here. Art from PixelLab, picked
 ## by Terrence (art/crystal/README.md, art/bog/README.md). Every character is
-## drawn 1 art pixel = 1 unit (Look.CHAR_PX); backdrops are 320x180 at 3x.
+## drawn 1 art pixel = 1 unit (Look.CHAR_PX); backdrops are 480x270 at 2x.
 extends RefCounted
 
 const DEFAULT := "lava_caves"
@@ -34,7 +34,8 @@ const MONSTER_ART := {
 }
 
 ## Per world:
-##   backdrop:   "strip" (one 1920x180 strip at 3x) or a 320x180 tile path at 3x
+##   backdrop:   a seamless 480x270 tile path, drawn at 2x (art grid plan 2026-11-24);
+##               "strip" still draws the old mirrored lava strip
 ##   stones:     sprites cycled along the crossing
 ##   stone_top:  true = the sprite's top row is where the hero stands (the
 ##               stalagmites rise out of the pit); false = the sprite's
@@ -50,7 +51,7 @@ const MONSTER_ART := {
 ##   stars:      twinkling stars over the whole crossing
 const THEMES := {
 	"lava_caves": {
-		"backdrop": "strip",
+		"backdrop": "res://art/lava/strip.png",
 		"stones": ["res://art/lava/rock-1.png", "res://art/lava/rock-2.png", "res://art/lava/rock-3.png"],
 		"stone_top": false, "waterline": 64.0, "sink_depth": 46.0,
 		"ceiling": [], "ceiling_step": 0.0,

@@ -71,7 +71,7 @@ func _init(seed_value: int = -1) -> void:
 	else:
 		rng.randomize()
 	show_behind_parent = true
-	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	# texture filter: inherits linear; the sharp-pixels shader keeps it crisp (art grid plan)
 	for i in FLUTTER_HOMES.size():
 		flutters.append({"home": FLUTTER_HOMES[i], "t": rng.randf() * 10.0, "sp": rng.randf_range(0.7, 1.1),
 				"col": FLUTTER_COLS[i % FLUTTER_COLS.size()]})
