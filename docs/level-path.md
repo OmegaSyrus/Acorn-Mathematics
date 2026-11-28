@@ -49,7 +49,9 @@ inside a Level still open only by play.
   (`content/bounce/tuning.json` `win_gems`, `pass_gems`, `replay_gems`;
   `AreaFlow.boss_bonus`).
 - **Bot check.** `tests/test_clear_chance.gd`: a bot answering 85% right (stones and
-  fights) clears every crossing in one try 55% to 70% of the time. Today 57% to 66%.
+  fights) clears every crossing in one try 55% to 82% of the time (Terrence 2026-11-28:
+  keep the 0.27 change of one heart less per enemy, which raised it from 55% to 70%).
+  Today 68% to 77%.
 
 ## Save format
 
