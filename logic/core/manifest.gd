@@ -15,7 +15,7 @@ const Profiles := preload("res://logic/core/profiles.gd")
 const Skills := preload("res://logic/core/skills.gd")
 
 ## The version code the time limits arrive in (the build after 0.29.0 / 48).
-const LIMITS_SINCE := 49
+const LIMITS_SINCE := 55
 ## Settings this build applies. Shape: {key, type, default, label,
 ## since_code, min?, max?, help?, scope?}. Both are per child per game
 ## (scope child_game) and enforced on the tablet: daily_minutes 0 means no
