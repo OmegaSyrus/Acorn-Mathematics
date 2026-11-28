@@ -1,1 +1,0 @@
-48ba811777acb40bfd2ed0446c9791bd8d1ee7464128e9fac0c77e4586c86d14  /mnt/project-files/sum-dungeon/android/acorn-math-0.36.0.apk
