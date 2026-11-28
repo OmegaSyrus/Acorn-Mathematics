@@ -371,7 +371,7 @@ func show_grown_ups() -> void:
 
 func _show_grown_ups_panel() -> void:
 	var g := GrownUpsScreen.new()
-	g.setup(save, Content.worlds())
+	g.setup(save, Content.worlds(), ProfileStore.active())
 	g.has_pin = Profiles.has_pin(ProfileStore.roster)
 	g.back.connect(func():
 		play_grade = clampi(int(save.get("difficulty", play_grade)), 1, Content.LEVEL_COUNT)
@@ -515,7 +515,7 @@ func _start_scroll(area: Dictionary, grade_id: int, resume: bool) -> void:
 func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 	var level := int(_grade(grade_id).get("num", play_grade))
 	_unlocked_before = AreaFlow.unlocked_list(save, Content.worlds(), level)
-	_reached_before = AreaFlow.level_reached(save, Content.worlds())
+	_beaten_before = AreaFlow.level_beaten(save, Content.worlds(), level)
 	_log_place(area, grade_id)
 	if stage != AreaFlow.MAP:
 		PlayLog.event(stage + "_start")
@@ -527,11 +527,12 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 		AreaFlow.BOSS:
 			_start_boss(area, grade_id)
 		_:
-			# beating Space finishes the pass: the next Level opens at Lava
-			var reached := AreaFlow.level_reached(save, Content.worlds())
-			if reached > _reached_before:
-				play_grade = reached
-				save["difficulty"] = reached
+			# finishing the pass (every world beaten at this Level, even one
+			# lower than a grown-up picked) moves on: the next Level at Lava
+			var next := AreaFlow.move_on_level(save, Content.worlds(), level, _beaten_before)
+			if next > 0:
+				play_grade = next
+				save["difficulty"] = next
 				SaveStore.write(save)
 				show_world_map.call_deferred(0)
 			else:
@@ -577,7 +578,7 @@ func _start_boss(area: Dictionary, grade_id: int) -> void:
 
 
 var _unlocked_before := []
-var _reached_before := 1
+var _beaten_before := false
 
 
 ## The world the boss just unlocked at this Level (its lock pops off on the
