@@ -27,7 +27,12 @@ const ProfileStore := preload("res://game/profile_store.gd")
 const Profiles := preload("res://logic/core/profiles.gd")
 const WhoScreen := preload("res://game/who_screen.gd")
 const PinScreen := preload("res://game/pin_screen.gd")
-const ChildrenScreen := preload("res://game/children_screen.gd")
+const ProfileScreen := preload("res://game/profile_screen.gd")
+const ProfileFlow := preload("res://game/profile_flow.gd")
+## The create and edit screen (profile plan P3). Until it lands the stub with
+## the same signals stands in, so the wiring here already runs.
+const PROFILE_EDIT := "res://game/profile_edit_screen.gd"
+const PROFILE_EDIT_STUB := "res://game/profile_edit_stub.gd"
 
 const DESIGN := Vector2(960, 540)
 const DEFAULT_AREA := "lava_scroll"
@@ -70,25 +75,159 @@ func _ready() -> void:
 	life.pause_music = Music.pause
 	life.resume_music = Music.resume
 	add_child(life)
-	if Profiles.needs_picker(ProfileStore.roster):
+	if Profiles.is_fresh(ProfileStore.roster):
+		# a new install: the create flow makes the first child (no PIN)
+		show_create(true, show_map)
+	elif Profiles.needs_picker(ProfileStore.roster):
 		show_who(false)
 	else:
 		show_map()
 
 
-## "Who is playing?": at launch when two or more children share the tablet,
-## and from the main menu's player button (with Back). The pick's save is
-## loaded in place of the current one.
-func show_who(with_back: bool) -> void:
+## "Who is playing?" (S1): at launch when two or more children share the
+## tablet (no back arrow), and from Swap on the profile page. A pick loads
+## that player's save and opens the main menu. "New" opens the create flow,
+## behind the parent PIN when one is set (plan D2). With manage on (the
+## Grown-ups panel's Children, already behind the PIN) Guest is left out, a
+## child's card opens their edit screen and "New" asks no PIN again.
+## back_to is where the back arrow goes (the main menu by default).
+func show_who(with_back: bool, manage := false, back_to := Callable()) -> void:
+	if not back_to.is_valid():
+		back_to = _show_grown_ups_panel if manage else show_map
+	var again := func(): show_who(with_back, manage, back_to)
 	var w := WhoScreen.new()
-	w.setup(ProfileStore.roster, with_back)
+	w.setup(ProfileStore.roster, with_back, manage)
 	w.picked.connect(func(id: String):
 		_use_profile(id)
 		show_map.call_deferred())
-	w.back.connect(func(): show_map.call_deferred())
+	w.add.connect(func():
+		if manage:
+			show_create.call_deferred(false, again, true)
+		else:
+			_new_profile.call_deferred(again))
+	w.edit.connect(func(id: String): _show_edit.call_deferred(id, again))
+	w.back.connect(func(): back_to.call_deferred())
 	_swap.call_deferred(w)
 	menu.visible = false
 	Music.play_menu()
+
+
+## "New" on the switcher in play mode: the parent PIN first when one is set
+## (D2), then the create flow. A wrong PIN or Back returns to back_to.
+func _new_profile(back_to: Callable) -> void:
+	if not Profiles.can_add(ProfileStore.roster):
+		Beeper.bad()
+		back_to.call()
+		return
+	if not Profiles.add_needs_pin(ProfileStore.roster):
+		show_create(false, back_to)
+		return
+	_show_pin(PinScreen.Mode.ENTER, func(ok: bool):
+		if ok:
+			ProfileStore.write()  # Forgot PIN may have cleared it
+			show_create(false, back_to)
+		else:
+			back_to.call())
+
+
+## A new create or edit screen (P3's, or the stub until it lands).
+func _edit_screen() -> Node2D:
+	var path := PROFILE_EDIT if ResourceLoader.exists(PROFILE_EDIT) else PROFILE_EDIT_STUB
+	return load(path).new()
+
+
+## The create flow (S2). "Yes" makes the child (on a fresh install, the
+## first child takes the name and picture), makes them the player and opens
+## the main menu. From the Grown-ups Children list (stay) it goes back to
+## that list instead, so a grown-up can add several children in a row; the
+## player stays who it was. Back goes to back_to; on a fresh install Back
+## still finishes setup, keeping "Player 1".
+func show_create(first_run: bool, back_to: Callable, stay := false) -> void:
+	var e := _edit_screen()
+	e.setup(ProfileStore.roster, 0, "", first_run)  # Mode.CREATE
+	e.created.connect(func(nickname: String, picture: String):
+		var id := ProfileFlow.create(nickname, picture, first_run)
+		if id == "":
+			Beeper.bad()
+			back_to.call_deferred()
+			return
+		PlayLog.event("profile_created", {"first": first_run})
+		if stay:
+			back_to.call_deferred()
+			return
+		_use_profile(id)
+		show_map.call_deferred())
+	e.back.connect(func():
+		if first_run:
+			ProfileFlow.create("", "", true)
+			show_map.call_deferred()
+		else:
+			back_to.call_deferred())
+	_swap.call_deferred(e)
+	menu.visible = false
+	Music.play_menu()
+
+
+## The edit screen (S4) for one child, after the PIN. Save and Remove change
+## the roster here (ProfileFlow); removing the player loads the save of the
+## child who plays on. Every way out goes to back_to.
+func _show_edit(id: String, back_to: Callable) -> void:
+	var p := Profiles.find(ProfileStore.roster, id)
+	if p.is_empty() or bool(p.get("guest", false)):
+		back_to.call()
+		return
+	var e := _edit_screen()
+	e.setup(ProfileStore.roster, 1, id, false)  # Mode.EDIT
+	e.saved.connect(func(pid: String, nickname: String, picture: String):
+		ProfileFlow.save_edit(pid, nickname, picture)
+		back_to.call_deferred())
+	e.removed.connect(func(pid: String):
+		if ProfileFlow.remove(pid):
+			PlayLog.event("profile_removed")
+			_reload_if_switched()
+		else:
+			Beeper.bad()
+		back_to.call_deferred())
+	e.back.connect(func(): back_to.call_deferred())
+	_swap.call_deferred(e)
+	menu.visible = false
+
+
+## The profile page (S3), from the main menu's player button: the player's
+## picture, name and numbers. Play goes on to the world map, Swap to "Who is
+## playing?", Edit to the PIN and then the edit screen (not for Guest).
+func show_profile() -> void:
+	SaveStore.write(save)
+	var p := ProfileStore.active()
+	var s := ProfileScreen.new()
+	s.setup({"id": p.get("id", ""), "nickname": p.get("nickname", ""), "picture": p.get("picture", ""),
+			"guest": bool(p.get("guest", false))}, Profiles.stats(save))
+	s.play.connect(func(): _on_play(play_grade, false))
+	s.swap.connect(func(): show_who.call_deferred(true, false, show_profile))
+	s.edit.connect(func():
+		var mode := PinScreen.Mode.ENTER if Profiles.has_pin(ProfileStore.roster) else PinScreen.Mode.SET
+		_show_pin.call_deferred(mode, func(ok: bool):
+			if ok:
+				ProfileStore.write()
+				_show_edit(str(ProfileStore.active()["id"]), show_profile)
+			else:
+				show_profile()))
+	s.back.connect(func(): show_map.call_deferred())
+	_swap.call_deferred(s)
+	menu.visible = false
+	Music.play_menu()
+
+
+## After a removal: if the player was removed, the child who plays on (the
+## roster's new active one) has their save loaded.
+func _reload_if_switched() -> void:
+	if str(save.get("profile", "")) == SaveStore.profile:
+		return
+	var next := SaveStore.read()
+	save.clear()
+	save.merge(next)
+	play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
+	PlayLog.set_profile(SaveStore.profile)
 
 
 func _use_profile(id: String) -> void:
@@ -164,7 +303,7 @@ func show_map() -> void:
 	m.reset_save.connect(_reset_save)
 	m.debug.connect(show_debug)
 	m.grown_ups.connect(show_grown_ups)
-	m.who.connect(func(): show_who(true))
+	m.who.connect(show_profile)
 	var p := ProfileStore.active()
 	m.player = {"nickname": p.get("nickname", ""), "picture": p.get("picture", "")}
 	_swap(m)
@@ -240,7 +379,7 @@ func _show_grown_ups_panel() -> void:
 		show_map.call_deferred())
 	g.children.connect(func():
 		SaveStore.write(save)
-		_show_children.call_deferred())
+		show_who.call_deferred(true, true))
 	g.pin.connect(func():
 		SaveStore.write(save)
 		_show_pin.call_deferred(PinScreen.Mode.SET, func(ok: bool):
@@ -256,23 +395,6 @@ func _show_pin(mode: int, then: Callable) -> void:
 	s.setup(ProfileStore.roster, mode)
 	s.done.connect(func(ok: bool): then.call_deferred(ok))
 	_swap.call_deferred(s)
-	menu.visible = false
-
-
-## The tablet's children (Grown-ups panel). If the player was removed, the
-## first child plays on.
-func _show_children() -> void:
-	var c := ChildrenScreen.new()
-	c.setup(ProfileStore.roster)
-	c.removed.connect(func(_id: String):
-		if str(save.get("profile", "")) != SaveStore.profile:
-			var next := SaveStore.read()
-			save.clear()
-			save.merge(next)
-			play_grade = clampi(int(save.get("difficulty", 1)), 1, 6)
-			PlayLog.set_profile(SaveStore.profile))
-	c.back.connect(func(): _show_grown_ups_panel.call_deferred())
-	_swap.call_deferred(c)
 	menu.visible = false
 
 

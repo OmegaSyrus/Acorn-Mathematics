@@ -1,6 +1,7 @@
 ## Stills of the family groundwork (2026-11-16): the main menu's player
-## button, "Who is playing?", the PIN pad, the Grown-ups panel with Children
-## and PIN, and the Children list. Own roster and save in memory.
+## button, "Who is playing?" (S1, full: six children, Guest; and manage
+## mode), the profile page (S3), the PIN pad and the Grown-ups panel. Own
+## roster and save in memory.
 ##   xvfb-run -a godot --path . --rendering-driver opengl3 res://tools/stills/family_stills.tscn -- --out=/tmp/shots
 extends Node2D
 
@@ -11,7 +12,7 @@ const MapScreen := preload("res://game/map_screen.gd")
 const WhoScreen := preload("res://game/who_screen.gd")
 const PinScreen := preload("res://game/pin_screen.gd")
 const GrownUpsScreen := preload("res://game/grownups_screen.gd")
-const ChildrenScreen := preload("res://game/children_screen.gd")
+const ProfileScreen := preload("res://game/profile_screen.gd")
 const InputSetup := preload("res://game/input_setup.gd")
 
 var out_dir := "/tmp"
@@ -50,10 +51,41 @@ func _ready() -> void:
 
 	var w := WhoScreen.new()
 	w.setup(r, true)
+	w.stars = {r["active"]: 7}
 	stage.add_child(w)
 	await _frames(4)
 	_shot("family-who")
 	w.queue_free()
+
+	# S1 full: six children (with the painted Bolts) plus Guest; no New
+	var full := r.duplicate(true)
+	for n in ["Ada", "Max", "Jo"]:
+		Profiles.add_child(full, 0, n, "")
+	Profiles.set_picture(full, Profiles.children(full)[3]["id"], "bolt_red")
+	Profiles.set_picture(full, Profiles.children(full)[4]["id"], "bolt_green")
+	Profiles.set_picture(full, Profiles.children(full)[5]["id"], "phoenix")
+	Profiles.ensure_guest(full, 0)
+	var wf := WhoScreen.new()
+	wf.setup(full, true)
+	stage.add_child(wf)
+	await _frames(4)
+	_shot("family-who-full")
+	wf.queue_free()
+
+	var wm := WhoScreen.new()
+	wm.setup(r, true, true)
+	stage.add_child(wm)
+	await _frames(4)
+	_shot("family-who-manage")
+	wm.queue_free()
+
+	var ps := ProfileScreen.new()
+	save["stars"] = {"lava_caves": [1, 2], "crystal_mines": [11]}
+	ps.setup({"id": r["active"], "nickname": "Bear", "picture": "fox", "guest": false}, Profiles.stats(save))
+	stage.add_child(ps)
+	await _frames(4)
+	_shot("family-profile")
+	ps.queue_free()
 
 	Profiles.set_pin(r, "1234")
 	var p := PinScreen.new()
@@ -77,16 +109,6 @@ func _ready() -> void:
 	_shot("family-grownups")
 	g.queue_free()
 
-	var c := ChildrenScreen.new()
-	c.setup(r)
-	stage.add_child(c)
-	c.hold_row = 2
-	c.hold_t = 1.8
-	c.set_process(false)
-	await _frames(4)
-	c.queue_redraw()
-	await _frames(2)
-	_shot("family-children")
 	get_tree().quit()
 
 

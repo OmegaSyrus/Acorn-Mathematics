@@ -14,7 +14,7 @@ signal debug
 ## The Grown-ups button tapped: main.gd asks for the parent PIN (or has a
 ## grown-up make one) and opens the Grown-ups panel.
 signal grown_ups
-## The player button (top left): main.gd opens "Who is playing?".
+## The player button (top left): main.gd opens the profile page (S3).
 signal who
 signal _answered(yes: bool)
 
@@ -47,7 +47,7 @@ const DEBUG_RECT := Rect2(588, 20, 112, 52)
 ## parent PIN keeps children out (main.gd: the PIN, or making one first).
 const GATE_RECT := Rect2(416, 20, 152, 52)
 ## Who is playing (parent app plan v2): the player's picture and name, top
-## left; a tap opens "Who is playing?" (another child, or Guest). 72 tall
+## left; a tap opens the profile page (S3: Play, Swap, Edit). 72 tall
 ## (2026-11-17) so the picture shows 40% more and the fox's ears fit.
 const PLAYER_RECT := Rect2(120, 10, 270, 72)
 ## The part of the profile picture shown on the player button, at 1:1.

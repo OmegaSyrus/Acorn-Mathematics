@@ -4,7 +4,8 @@
 ## plays (Terrence 2026-11-17: a parent changes the Level); picking one
 ## opens it (AreaFlow.pick_level). Worlds inside a Level still open by play;
 ## Debug stays for testing.
-## Children opens the tablet's child profiles; PIN sets or changes the parent
+## Children opens the switcher in manage mode (profile plan S1: a card per
+## child opens their edit screen, New adds one); PIN sets or changes the parent
 ## PIN that guards this panel (parent app plan v2). Back returns to the main
 ## menu.
 extends Node2D
