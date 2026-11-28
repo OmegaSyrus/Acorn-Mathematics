@@ -19,7 +19,8 @@ changes, no lists to edit.
 | One take | `T2.mp3` |
 | More takes (she picks one at random, never the same twice running) | `P3.mp3`, `P3_2.mp3`, `P3_3.mp3` ... |
 | The intro's seven parts, played in order | `M1.mp3`, `M1_2.mp3` ... `M1_7.mp3` |
-| The two boss tips, played in order | `T14.mp3`, `T14_2.mp3` |
+| The two boss tips, one at a time (1 before the first pick, 2 before the first shot) | `T14.mp3`, `T14_2.mp3` |
+| A line per Level, after "Level complete" (L3) | `L4.mp3` (or `L4_1.mp3`) for Level 1, `L4_2.mp3` ... `L4_6.mp3` |
 | A line per world (boss appears, boss beaten) | `B1-lava.mp3`, `B1-crystal`, `B1-bog`, `B1-mushroom`, `B1-space`; the same for `B2-...` |
 | Cheerful numbers after a miss (already made; a file here replaces the old one) | `A0.mp3` ... `A20.mp3` |
 | Plain counting numbers ("four", not "Four!") | `Q0.mp3` ... `Q20.mp3` (until they exist, counting uses the A takes) |
@@ -49,7 +50,36 @@ As soon as a file with the cue's id is in the folder, it plays instead.
 ### Taught lines (T1 to T15, N1 to N11)
 
 Each plays once per child, the first time it happens, then never again for that
-child. Reset clears it. The game waits at each taught step until the child does it.
+child. Reset clears it, and so does **Debug > Teach again** (only the taught
+lines, for the child playing now; nothing else in the save changes). The game
+waits at each taught step until the child does it.
+
+The boss tip T14 is taught one take at a time (`Ellwynn.teach_take`): take 1
+("pick the number") the first time the boss's picks open, take 2 ("aim") the
+first time the child aims. They are marked separately (`T14` and `T14_2` in the
+save), so a child who first meets the boss at Acorn, where the ball takes the
+number by itself and there is no pick, still hears the pick tip at the first
+boss that has one. Without a recording the stand-in voice reads the matching
+half of the stand-in words.
+
+### Where the menus, map, shop and boss speak
+
+Each screen says what to do when it opens, so a child who can't read hears it.
+A tap on the screen's title or talk text ("Who is playing?", "Pick", "Name",
+"Level N" on the map, "Pick" and "No more balls" on the boss board) says the
+prompt again. A tap on any main menu button cuts her off.
+
+| Screen | Cues |
+| --- | --- |
+| Who is playing? | K1 opens; K2 a child taps their picture (then the menu skips its welcome) |
+| New child (Pick, Name, Yes) | K3 Pick step, K4 Name step; K5 saved, then the intro |
+| Main menu | M1 first time, M2 later; M3 Play, M5 Shop, M7 Level; M6 back from the Shop (the welcome until M6 is recorded) |
+| World map | P1 opens; P2 a locked world tapped. After a boss: L2 first clear, L1 a world opens, L5 a replay; a finished Level: L3 then L4 for that Level |
+| Shop | P13 opens (after M5); S1 bought, S2 a grey Buy, S3 Use |
+| Boss | B1 the boss appears (not again on Try), T14 tips, P11 each pick, B4 new pegs / a combo / a big bucket, B2 won, B3 then P12 lost |
+
+The grown-up screens (Grown-ups, PIN, Children, Edit, Reset, Debug) are silent:
+she stops when one opens.
 
 ## Sound effects
 

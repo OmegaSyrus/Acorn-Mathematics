@@ -99,6 +99,8 @@ func show_who(with_back: bool, manage := false, back_to := Callable()) -> void:
 	w.setup(ProfileStore.roster, with_back, manage)
 	w.picked.connect(func(id: String):
 		_use_profile(id)
+		# she just said hello (K2): no welcome on top of it
+		_menu_greet = ["-", true]
 		show_map.call_deferred())
 	w.add.connect(func():
 		if manage:
@@ -145,6 +147,9 @@ func _edit_screen() -> Node2D:
 func show_create(first_run: bool, back_to: Callable, stay := false) -> void:
 	var e := _edit_screen()
 	e.setup(ProfileStore.roster, 0, "", first_run)  # Mode.CREATE
+	# a child making their own picture hears what to do (K3, K4); a
+	# grown-up adding children from the Grown-ups panel does not
+	e.voice = not stay
 	e.created.connect(func(nickname: String, picture: String):
 		var id := ProfileFlow.create(nickname, picture, first_run)
 		if id == "":
@@ -156,6 +161,9 @@ func show_create(first_run: bool, back_to: Callable, stay := false) -> void:
 			back_to.call_deferred()
 			return
 		_use_profile(id)
+		Ellwynn.use_save(save)
+		Ellwynn.cue_play("K5")
+		_menu_greet = ["-", true]
 		show_map.call_deferred())
 	e.back.connect(func():
 		if first_run:
@@ -276,6 +284,11 @@ func _process(_delta: float) -> void:
 
 
 func _swap(next: Node2D) -> void:
+	# a new screen says its own prompt; a tap on the old one's talk text
+	# must not bring the old one back
+	Ellwynn.clear_prompt()
+	if _parents_only(next):
+		Ellwynn.stop_voice()
 	if screen != null:
 		if "debug_on" in screen:
 			debug_on = screen.get("debug_on")
@@ -285,6 +298,21 @@ func _swap(next: Node2D) -> void:
 		Ellwynn.menu_leave()
 	stage.add_child(screen)
 	stage.move_child(menu, -1)
+
+
+## The grown-up screens are silent: she stops when one opens.
+func _parents_only(next: Node2D) -> bool:
+	if next is DebugScreen or next is GrownUpsScreen or next is PinScreen:
+		return true
+	if next is WhoScreen and next.manage:
+		return true
+	# the create and edit screen with its voice off (a grown-up's)
+	return "voice" in next and next.get("voice") == false
+
+
+## How the next show_map greets: [instead, wait] for Ellwynn.menu_enter
+## (back from the Shop, just greeted by K2/K5). Used once.
+var _menu_greet := ["", false]
 
 
 func show_map() -> void:
@@ -311,7 +339,9 @@ func show_map() -> void:
 	_swap(m)
 	menu.visible = false
 	Music.play_menu()
-	Ellwynn.menu_enter(save)
+	var greet: Array = _menu_greet
+	_menu_greet = ["", false]
+	Ellwynn.menu_enter(save, greet[0], greet[1])
 
 
 ## The main menu's Reset, held through its question: a fresh save (gems,
@@ -335,6 +365,11 @@ func show_debug() -> void:
 		SaveStore.write(save)
 		show_map.call_deferred())
 	d.jump.connect(_debug_jump)
+	d.teach_again.connect(func():
+		# the taught first turn plays again for this child (no Reset)
+		save.erase("taught")
+		SaveStore.write(save)
+		Ellwynn.use_save(save))
 	_swap.call_deferred(d)
 	menu.visible = false
 
@@ -405,7 +440,9 @@ func _show_pin(mode: int, then: Callable) -> void:
 func show_store() -> void:
 	var st := StoreScreen.new()
 	st.setup(save)
-	st.back.connect(show_map)
+	st.back.connect(func():
+		_menu_greet = ["M6", false]
+		show_map())
 	_swap.call_deferred(st)
 	menu.visible = false
 	Music.play_menu()
@@ -533,14 +570,17 @@ func _start_stage(area: Dictionary, grade_id: int, stage: String) -> void:
 			# finishing the pass (every world beaten at this Level, even one
 			# lower than a grown-up picked) moves on: the next Level at Lava
 			var next := AreaFlow.move_on_level(save, Content.worlds(), level, _beaten_before)
+			var won := _boss_win
+			_boss_win = ""
 			if next > 0:
 				play_grade = next
 				save["difficulty"] = next
 				SaveStore.write(save)
-				show_world_map.call_deferred(0)
+				show_world_map.call_deferred(0, Ellwynn.after_boss_lines(won, true, false, level))
 			else:
 				play_grade = level
-				show_world_map.call_deferred(_newly_unlocked(level))
+				var unlocked := _newly_unlocked(level)
+				show_world_map.call_deferred(unlocked, Ellwynn.after_boss_lines(won, false, unlocked >= 0, level))
 
 
 ## The miniboss duel. A loss restarts the duel by itself (FightScreen), so
@@ -560,28 +600,33 @@ func _start_duel(area: Dictionary, grade_id: int) -> void:
 ## The boss fight (Match Bounce). A win (the gem bucket is banked by the
 ## screen) leads to the mini map; on a loss "Try" fights the boss again and
 ## "Map" goes to the mini map with the boss still saved for the map's "Go".
-func _start_boss(area: Dictionary, grade_id: int) -> void:
+func _start_boss(area: Dictionary, grade_id: int, again := false) -> void:
 	_play_level_music()
 	menu.visible = true
 	var b := BounceScreen.new()
 	b.world_id = str(area.get("world", "lava_caves"))
+	b.again = again  # Try: no "here it is" line again
 	b.setup(SeededRng.new(_new_seed()), int(_grade(grade_id).get("boss_grade", grade_id)), debug_on)
 	b.save = save
 	# big bonuses come once: the first clear of a world at a Level, the most
 	# for the clear that finishes the Level; a replay pays small
-	b.set_bonus(AreaFlow.boss_bonus(save, Content.worlds(), b.world_id, grade_id))
+	var bonus := AreaFlow.boss_bonus(save, Content.worlds(), b.world_id, grade_id)
+	b.set_bonus(bonus)
 	b.done.connect(func(won: bool):
 		if won:
+			_boss_win = bonus
 			_start_stage(area, grade_id, AreaFlow.next_stage(area, AreaFlow.BOSS))
 		elif b.to_map:
 			show_world_map.call_deferred(-1)
 		else:
-			_start_boss.call_deferred(area, grade_id))
+			_start_boss.call_deferred(area, grade_id, true))
 	_swap.call_deferred(b)
 
 
 var _unlocked_before := []
 var _beaten_before := false
+## The bonus of the boss just beaten ("first", "pass", "replay"), "" none.
+var _boss_win := ""
 
 
 ## The world the boss just unlocked at this Level (its lock pops off on the
@@ -597,9 +642,10 @@ func _newly_unlocked(level: int) -> int:
 ## it, and it follows each boss. Tapping an open world plays it; locked
 ## worlds wait for the one before them to be beaten at this Level. The menu
 ## button leads back to the main menu.
-func show_world_map(just_unlocked := -1) -> void:
+func show_world_map(just_unlocked := -1, lines := []) -> void:
 	var w := WorldMapScreen.new()
 	w.setup(save, Content.worlds(), just_unlocked, play_grade)
+	w.lines = lines
 	w.open_world.connect(func(world: Dictionary):
 		area_id = world["area"]
 		_enter_area())

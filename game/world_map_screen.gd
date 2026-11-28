@@ -23,6 +23,10 @@ const Look := preload("res://game/ui/look.gd")
 const Marks := preload("res://game/ui/marks.gd")
 const SaveData := preload("res://logic/core/save_data.gd")
 const Content := preload("res://logic/core/content.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
+const Pointer := preload("res://game/ui/pointer.gd")
+## The "Level N" title: a tap says the prompt again.
+const TITLE_RECT := Rect2(300, 56, 360, 72)
 ## One level's mark and star, left to right, six to a world in two rows of
 ## three (levels 1-3 over 4-6), so the edge worlds stay inside the 4:3 band.
 const MARK_STEP := 30
@@ -49,6 +53,10 @@ var fresh_unlock := -1  # a world whose lock just came off (pops on show), -1 = 
 var _unlock := 0.0      # 0..1 the lock popping off
 var level := 1          # the main menu's level number, framed in each row of marks
 var _ids := {}          # world id -> its level ids by number (Content.level_ids)
+## What Ellwynn says first, after a boss (Ellwynn.after_boss_lines): [[cue, take]],
+## each after the one before is done, then "Pick a world!" (P1).
+var lines: Array = []
+var _picked := false
 
 
 func setup(profile: Dictionary, world_list: Array, just_unlocked := -1, menu_level := 1) -> void:
@@ -71,15 +79,48 @@ func _ready() -> void:
 		await get_tree().create_timer(0.5).timeout
 		Beeper.good()
 		await create_tween().tween_property(self, "_unlock", 1.0, 0.8).finished
+	_speak()
 	while true:
 		choice.present(rects, here)
 		var i: int = await choice.picked
+		var ell := EllwynnRef.here(self)
 		if _open(i):
+			_picked = true
 			Beeper.good()
 			open_world.emit(worlds[i])
 			return
 		Beeper.bad()
 		_shake[i] = SHAKE_S
+		if ell != null and not _unlocked(i):
+			ell.prompt("P2")  # locked: beat the one before it first
+
+
+## After a boss, her lines in turn (L1 to L5), then the prompt (P1). Each
+## waits for the one before (the menu's "Let's go!" too), and stops once a
+## world is picked or the map is gone.
+func _speak() -> void:
+	var ell := EllwynnRef.here(self)
+	if ell == null:
+		return
+	for l in lines:
+		await ell.wait_quiet(4.0)
+		if _picked or not is_inside_tree():
+			return
+		if int(l[1]) > 0:
+			ell.cue_take(String(l[0]), int(l[1]))
+		else:
+			ell.cue_play(String(l[0]))
+	await ell.wait_quiet(4.0)
+	if _picked or not is_inside_tree():
+		return
+	ell.prompt("P1")
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if Pointer.is_press(event) and TITLE_RECT.has_point(Pointer.local_pos(self, event)):
+		var ell := EllwynnRef.here(self)
+		if ell != null and ell.replay_prompt():
+			get_viewport().set_input_as_handled()
 
 
 ## The tap area of world i (the circle and its name).

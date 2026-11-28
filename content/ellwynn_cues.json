@@ -238,11 +238,11 @@
   },
   {
    "id": "T14",
-   "when": "First boss fight (1: pick the number, 2: aim)",
+   "when": "First boss fight, one take at a time (1: before the first pick, 2: before the first shot; taught as T14 and T14_2)",
    "need": "basic",
    "versions": 2,
    "fallback": "tts",
-   "say": "Pick the number on the ball.|Now aim, and let go!",
+   "say": "Pick the number on the ball.|Drag to aim, then let go!",
    "bubble": "",
    "order": true,
    "once": true
@@ -272,7 +272,7 @@
    "need": "later",
    "versions": 1,
    "fallback": "tts",
-   "say": "Beat the world before it first.",
+   "say": "Locked! Beat the one before it first.",
    "bubble": ""
   },
   {
@@ -358,11 +358,11 @@
   },
   {
    "id": "P12",
-   "when": "Boss: out of balls",
+   "when": "Boss: out of balls (Try or Map)",
    "need": "later",
    "versions": 1,
    "fallback": "tts",
-   "say": "No more balls.",
+   "say": "No more balls. Tap Try, or Map.",
    "bubble": ""
   },
   {
@@ -370,8 +370,8 @@
    "when": "Shop opens",
    "need": "later",
    "versions": 1,
-   "fallback": "quiet",
-   "say": "",
+   "fallback": "tts",
+   "say": "Tap a picture, then tap Buy.",
    "bubble": ""
   },
   {
@@ -932,7 +932,7 @@
   },
   {
    "id": "L4",
-   "when": "Level complete, one line per Level (L4_1 .. L4_6 by Level)",
+   "when": "Level complete, after L3: take n for Level n (L4, L4_2 .. L4_6)",
    "need": "later",
    "versions": 6,
    "fallback": "quiet",
@@ -942,7 +942,7 @@
   },
   {
    "id": "L5",
-   "when": "A world replayed that is already beaten",
+   "when": "A world replayed that is already beaten (the map after its boss)",
    "need": "later",
    "versions": 2,
    "fallback": "quiet",
@@ -963,8 +963,8 @@
    "when": "Tapped a grey Buy: not enough yet",
    "need": "basic",
    "versions": 2,
-   "fallback": "quiet",
-   "say": "",
+   "fallback": "tts",
+   "say": "Not enough yet.",
    "bubble": ""
   },
   {

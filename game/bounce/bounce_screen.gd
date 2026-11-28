@@ -30,6 +30,11 @@ const PlayLog := preload("res://game/play_log.gd")
 const GEM_TEX := preload("res://art/lava/gem.png")
 const Store := preload("res://logic/core/store.gd")
 const CurrencyIcon := preload("res://game/ui/currency_icon.gd")
+const EllwynnRef := preload("res://game/ellwynn.gd")
+## The "Pick" over the naming column, and the "No more balls" line: a tap
+## says the prompt again (Ellwynn.replay_prompt).
+const PICK_LABEL_RECT := Rect2(124, 72, 96, 34)
+const FAIL_LABEL_RECT := Rect2(240, 176, 480, 64)
 ## The gem bucket for beating the dragon (2026-11-06, Terrence): where it
 ## lands, and how long the pour takes.
 const BUCKET_AT := Vector2(480, 330)
@@ -130,6 +135,12 @@ var persist := true        # false: stills and tests leave the profile file alon
 var win_gems := 10         # the bucket, from tuning.json "screen" "win_gems"
 var bucket_t := -1.0       # seconds since the bucket appeared; -1 before the win
 var gems_shown := 0        # the bucket's gems counted into the corner so far
+## Ellwynn (Phase 3): "Try" fights the boss again with no "here it is" line
+## (B1) on top (main.gd sets it). bonus is set_bonus's kind: a big bucket
+## ("first", "pass") is one of her boss moments (B4).
+var again := false
+var bonus := "first"
+var _combo_said := false
 
 
 ## The boss's world (Terrence 2026-11-08): its head, arm, treasure room and
@@ -168,6 +179,7 @@ func _load_theme() -> void:
 ## clear that finishes a Level ("pass_gems"), "replay" a world beaten there
 ## before ("replay_gems"). Call after setup.
 func set_bonus(kind: String) -> void:
+	bonus = kind
 	var screen_cfg: Dictionary = BounceFight.load_tuning()["screen"]
 	match kind:
 		"pass":
@@ -200,23 +212,69 @@ func _ready() -> void:
 	choice = ChoiceWidget.new()
 	add_child(choice)
 	choice.picked.connect(_on_named)
+	var ell := EllwynnRef.here(self)
+	if ell != null and not again:
+		ell.cue_play(EllwynnRef.world_cue("B1", world_id))  # the boss appears
 	_start_naming()
+
+
+## Ellwynn, or null (the standalone graybox in the tests has none).
+func _ell() -> Node:
+	return EllwynnRef.here(self)
 
 
 func _start_naming() -> void:
 	phase = "naming"
 	aim = 0
 	pop_count = 0
+	_combo_said = false
 	if fight.refills > 0 and fight.shot_count > 0 and _all_pegs_back():
 		_say("New pegs!")
+		_moment()
 	await _boss_rolls()
 	if phase != "naming":
 		return
 	if fight.auto_name():
 		await _ball_takes_roll()
+		_aim_tip()
 	else:
 		choice.present(_choice_rects())
 		_asked_ms = Time.get_ticks_msec()
+		_pick_prompt()
+
+
+## The choices are open: the first time ever, the pick tip (T14 take 1),
+## else "Pick the number!" (P11), once she has finished her line before.
+func _pick_prompt() -> void:
+	var ell := _ell()
+	if ell == null:
+		return
+	var shot: int = fight.shot_count
+	await ell.wait_quiet(3.0)
+	if phase != "naming" or not choice.active or fight.shot_count != shot:
+		return
+	if not ell.teach_take("T14", 1):
+		ell.prompt("P11")
+
+
+## Aiming opens: the first time ever, the aim tip (T14 take 2). It waits
+## for her line before (the boss's line at Acorn); a shot fired meanwhile
+## leaves it for the next one.
+func _aim_tip() -> void:
+	var ell := _ell()
+	if ell == null or ell.was_taught("T14_2"):
+		return
+	var shot: int = fight.shot_count
+	await ell.wait_quiet(3.0)
+	if phase == "aiming" and fight.shot_count == shot:
+		ell.teach_take("T14", 2)
+
+
+## A boss moment (B4: new pegs, a combo, a big bucket), quiet until recorded.
+func _moment() -> void:
+	var ell := _ell()
+	if ell != null and ell.has_line("B4"):
+		ell.cue_play("B4")
 
 
 ## Acorn: no naming step. The boss's dots jump onto the ball, which swells
@@ -267,6 +325,11 @@ func _on_named(index: int) -> void:
 	PlayLog.answer("boss", shown, fight.answer_face, fight.named_face, (Time.get_ticks_msec() - _asked_ms) / 1000.0)
 	Beeper.count(fight.named_face)
 	phase = "aiming"
+	var ell := _ell()
+	if ell != null:
+		ell.stop_voice()  # picked: the pick prompt is done
+		ell.clear_prompt()
+	_aim_tip()
 
 
 func _fire() -> void:
@@ -288,7 +351,10 @@ func _on_shot_over() -> void:
 		PlayLog.event("boss_won", {"shots": fight.shot_count})
 		_say("You win!")
 		Beeper.good()
-		Ellwynn.boss_beaten()
+		var ell := _ell()
+		if ell != null:
+			ell.clear_prompt()
+			ell.boss_beaten(world_id)
 		await get_tree().create_timer(1.2).timeout
 		await _gem_bucket()
 		await get_tree().create_timer(1.0).timeout
@@ -300,10 +366,23 @@ func _on_shot_over() -> void:
 		for d in boss_dice:
 			d.visible = false
 		Beeper.bad()
+		_lost_voice()
 		return
 	if out["damage"] == 0 and fight.named_right:
 		_say("Oh no!")
 	_start_naming()
+
+
+## Lost (Try or Map): her "Oh no!" (B3), then "No more balls" (P12).
+func _lost_voice() -> void:
+	var ell := _ell()
+	if ell == null:
+		return
+	ell.clear_prompt()
+	ell.cue_play("B3")
+	await ell.wait_quiet(3.0)
+	if phase == "lost":
+		ell.prompt("P12")
 
 
 ## The dragon's bonus: a bucket of gems drops in from the top, tips over and
@@ -315,6 +394,8 @@ func _gem_bucket() -> void:
 		if persist:
 			SaveStore.write(save)
 	_say("+%d" % win_gems)
+	if bonus != "replay":
+		_big_bucket_moment()
 	bucket_t = 0.0
 	Beeper.tone(523.0, 0.1)
 	var counted := 0
@@ -331,9 +412,22 @@ func _gem_bucket() -> void:
 	Beeper.good()
 
 
+## A big bucket is a boss moment (B4), after her "you beat it" (B2).
+func _big_bucket_moment() -> void:
+	var ell := _ell()
+	if ell == null or not ell.has_line("B4"):
+		return
+	await ell.wait_quiet(3.0)
+	if is_inside_tree():
+		ell.cue_play("B4")
+
+
 # --- input -----------------------------------------------------------------
 
 func _unhandled_input(event: InputEvent) -> void:
+	if Pointer.is_press(event) and _tap_replays(Pointer.local_pos(self, event)):
+		get_viewport().set_input_as_handled()
+		return
 	if phase == "lost":
 		if Pointer.is_press(event):
 			var p := Pointer.local_pos(self, event)
@@ -354,6 +448,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		_aim_at(Pointer.local_pos(self, event))
 	elif Pointer.is_release(event) and aiming_touch:
 		_fire()
+
+
+## A tap on "Pick" (naming) or "No more balls" (lost) says the prompt again.
+func _tap_replays(p: Vector2) -> bool:
+	var on_text: bool = (phase == "naming" and not fight.auto_name() and PICK_LABEL_RECT.has_point(p)) \
+			or (phase == "lost" and FAIL_LABEL_RECT.has_point(p))
+	if not on_text:
+		return false
+	var ell := _ell()
+	return ell != null and ell.replay_prompt()
 
 
 func _aim_at(p: Vector2) -> void:
@@ -418,6 +522,9 @@ func _on_event(e: Dictionary) -> void:
 			_float_damage(int(e["damage"]))
 			if e["damage"] > 1:
 				_say("Combo!")
+				if not _combo_said:
+					_combo_said = true
+					_moment()
 			if not slow and fight.is_lethal():
 				# The last heart: time slows, the ball and pegs warble, and the
 				# pop lands with a fanfare.

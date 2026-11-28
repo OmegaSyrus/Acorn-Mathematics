@@ -103,6 +103,7 @@ var drop_files: Dictionary = {}
 var stand_in_voice := true
 ## The last prompt said (prompt()), so a tap on the talk box says it again.
 var last_prompt := ""
+var _last_take := 0               # the take of last_prompt (prompt_take), 0 all
 ## The active child's save (taught first turn flags), set by use_save().
 var _save_ref: Dictionary = {}
 var _last_pick: Dictionary = {}   # cue id -> file played last, to avoid repeats
@@ -251,14 +252,27 @@ func _setup_bus() -> void:
 
 ## The main menu opened. The first time ever she explains the game (cue
 ## "intro"), later she says a short welcome.
-func menu_enter(save: Dictionary) -> void:
+## instead: a cue said in place of the welcome on a later visit (M6, back
+## from the Shop), with the welcome as before while it has no line of its
+## own; "-" for no welcome at all (the child was just greeted, K2). wait:
+## let her finish what she is saying first (K2, K5), at most 3 s.
+func menu_enter(save: Dictionary, instead := "", wait := false) -> void:
 	_save = save
 	use_save(save)
 	_set_mode("menu")
+	if wait:
+		var g := _gen
+		await wait_quiet(3.0)
+		if g != _gen or mode != "menu":
+			return
 	if not bool(save.get("ellwynn_intro_seen", false)):
 		save["ellwynn_intro_seen"] = true
 		SaveStoreRef.write(save)
 		say("intro")
+	elif instead == "-":
+		return
+	elif instead != "" and has_line(instead):
+		say(instead)
 	else:
 		say("welcome")
 
@@ -469,18 +483,74 @@ func cue_play(cue: String) -> bool:
 ## do): said now, and again when the talk box is tapped (replay_prompt).
 func prompt(cue: String) -> bool:
 	last_prompt = resolve(cue)
+	_last_take = 0
 	return cue_play(cue)
 
 
 func replay_prompt() -> bool:
 	if last_prompt == "" or is_talking():
 		return false
+	if _last_take > 0:
+		return cue_take(last_prompt, _last_take)
 	return cue_play(last_prompt)
 
 
 ## Forgets the last prompt (a new screen with nothing to replay).
 func clear_prompt() -> void:
 	last_prompt = ""
+	_last_take = 0
+
+
+## One take of a cue, by number (1 is the file "T14" or "T14_1", 2 is
+## "T14_2" ...):
+## the two boss tips said one at a time (T14), the line for Level n (L4).
+## With no file for that take it falls back like cue_play, a "tts" cue
+## reading part n of its stand-in words (parts are split by "|"). True when
+## something is said.
+func cue_take(cue: String, n: int) -> bool:
+	var id := resolve(cue)
+	var base := id.to_lower()
+	var key := base if n <= 1 else "%s_%d" % [base, n]
+	if n <= 1 and not drop_files.has(key) and drop_files.has(base + "_1"):
+		key = base + "_1"  # "L4_1" is take 1 too
+	var c: Dictionary = cues.get(id, {})
+	if drop_files.has(key):
+		stop_voice()
+		_queue = [{"file": drop_files[key], "bubble": String(c.get("bubble", ""))}]
+		_next_line()
+		return true
+	if not _has_drop(base):
+		# takes listed by hand in content/ellwynn_lines.json, in order
+		var listed := lines_for(id)
+		if listed.size() >= n and n >= 1:
+			stop_voice()
+			_queue = [listed[n - 1]]
+			_next_line()
+			return true
+	if String(c.get("fallback", "")) == "tts":
+		var parts := String(c.get("say", "")).split("|")
+		if n < 1 or n > parts.size() or not stand_in_voice or parts[n - 1].strip_edges() == "":
+			return false
+		stop_voice()
+		return _tts_say(parts[n - 1].strip_edges(), String(c.get("bubble", "")))
+	return _fallback(id)
+
+
+## True when any take of the cue is dropped in (id, id_2 ...).
+func _has_drop(base: String) -> bool:
+	if drop_files.has(base):
+		return true
+	for k in range(1, 21):
+		if drop_files.has("%s_%d" % [base, k]):
+			return true
+	return false
+
+
+## A prompt of one take (cue_take): replay_prompt says the same take again.
+func prompt_take(cue: String, n: int) -> bool:
+	last_prompt = resolve(cue)
+	_last_take = n
+	return cue_take(cue, n)
 
 
 ## The active child's save: the taught first turn marks it (save["taught"]).
@@ -513,6 +583,34 @@ func teach(cue: String, save: Dictionary = {}) -> bool:
 	return true
 
 
+## One take of an ordered taught cue, taught on its own (T14: take 1 "pick
+## the number" before the first pick, take 2 "aim" before the first shot).
+## Take 1 is marked as the cue's id ("T14"), take n as "T14_n", so a child
+## who first meets the boss with no pick (Acorn) still gets the pick tip the
+## first time there is one. False when already taught.
+func teach_take(cue: String, n: int, save: Dictionary = {}) -> bool:
+	var sv: Dictionary = save if not save.is_empty() else _save_ref
+	var id := resolve(cue)
+	var key := id if n <= 1 else "%s_%d" % [id, n]
+	if was_taught(key, sv):
+		return false
+	if typeof(sv.get("taught")) != TYPE_DICTIONARY:
+		sv["taught"] = {}
+	sv["taught"][key] = true
+	if sv.has("profile"):
+		SaveStoreRef.write(sv)
+	prompt_take(id, n)
+	return true
+
+
+## Ellwynn from a screen, or null when there is none (the headless tests
+## build screens without the autoloads, or outside a tree).
+static func here(from: Node) -> Node:
+	if from == null or not from.is_inside_tree():
+		return null
+	return from.get_node_or_null("/root/Ellwynn")
+
+
 ## Waits until she has finished talking, or max_s at most. Use with await.
 func wait_quiet(max_s := 8.0) -> void:
 	var until := Time.get_ticks_msec() + int(max_s * 1000.0)
@@ -528,6 +626,25 @@ const WORLD_KEYS := {"lava_caves": "lava", "crystal_mines": "crystal", "bog": "b
 
 static func world_cue(prefix: String, world_id: String) -> String:
 	return "%s-%s" % [prefix, WORLD_KEYS.get(world_id, "lava")]
+
+
+## What Ellwynn says when the map opens after a boss (main.gd hands it to the map): [[cue, take]], take 0
+## for any. A finished Level: L3, then its own line (L4 take n). Else a
+## first clear (L2), the next world opening (L1), or a replay (L5). bonus
+## is the boss's ("" when no boss was just won: nothing to say).
+static func after_boss_lines(bonus: String, level_done: bool, unlocked: bool, level: int) -> Array:
+	if bonus == "":
+		return []
+	if level_done:
+		return [["L3", 0], ["L4", level]]
+	var out := []
+	if bonus == "replay":
+		out.append(["L5", 0])
+	else:
+		out.append(["L2", 0])
+	if unlocked:
+		out.append(["L1", 0])
+	return out
 
 
 ## A cue id from an id or an old name.
@@ -742,12 +859,16 @@ func _next_line() -> void:
 ## Music is looked up, not named, so this script also loads where the Music
 ## autoload isn't there (the headless tests).
 func _duck(db := DUCK_DB) -> void:
+	if not is_inside_tree():
+		return
 	var m := get_node_or_null("/root/Music")
 	if m != null:
 		m.player.volume_db = m.VOLUME_DB - db
 
 
 func _unduck() -> void:
+	if not is_inside_tree():
+		return
 	var m := get_node_or_null("/root/Music")
 	if m != null:
 		m.player.volume_db = m.VOLUME_DB
